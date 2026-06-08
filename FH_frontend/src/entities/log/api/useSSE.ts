@@ -1,0 +1,52 @@
+import { useState, useEffect } from 'react';
+import type { WebhookLog } from '../model/log.schema';
+import * as tokenStorage from '../../../shared/lib/tokenStorage';
+import { logger } from '../../../shared/lib/logger';
+
+type SSEStatus = 'connecting' | 'connected' | 'disconnected';
+
+export function useSSE(
+  endpointId: string | undefined,
+  onMessage: (log: WebhookLog) => void,
+) {
+  const [status, setStatus] = useState<SSEStatus>('connecting');
+
+  useEffect(() => {
+    if (!endpointId) return;
+
+    const token = tokenStorage.get(endpointId);
+    const baseUrl = import.meta.env.VITE_API_BASE_URL as string;
+    const url = `${baseUrl}/endpoints/${endpointId}/stream${token ? `?token=${token}` : ''}`;
+
+    const eventSource = new EventSource(url);
+
+    eventSource.onopen = () => {
+      setStatus('connected');
+      logger.info('SSE Connected');
+    };
+
+    eventSource.addEventListener('webhook', (event: MessageEvent) => {
+      try {
+        const log = JSON.parse(event.data) as WebhookLog;
+        onMessage(log);
+      } catch (error) {
+        logger.error('Failed to parse webhook event', error);
+      }
+    });
+
+    eventSource.addEventListener('connect', () => {});
+    eventSource.addEventListener('ping', () => {});
+
+    eventSource.onerror = () => {
+      setStatus('disconnected');
+      eventSource.close();
+      logger.warn('SSE Disconnected');
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [endpointId, onMessage]);
+
+  return { status };
+}
