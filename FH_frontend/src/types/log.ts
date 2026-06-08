@@ -1,23 +1,16 @@
 export interface WebhookLog {
-  id: string;
+  logId: string;
   method: string;
-  path: string;
-  statusCode: number;
   contentType: string;
-  timestamp: string;
-  size: number;
+  clientIp: string;
+  bodyPreview: string;
+  bodySize: number;
+  receivedAt: string;
 }
 
-export interface WebhookLogDetail {
-  id: string;
-  method: string;
-  path: string;
-  statusCode: number;
-  contentType: string;
-  timestamp: string;
-  size: number;
+export interface WebhookLogDetail extends WebhookLog {
+  url: string;
   headers: Record<string, string>;
   queryParams: Record<string, string>;
   body: unknown;
-  sourceIp: string;
 }
