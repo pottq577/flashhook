@@ -5,6 +5,14 @@ import com.flashhook.domain.endpoint.dto.EndpointResponse;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import com.flashhook.domain.endpoint.model.Endpoint;
+import com.flashhook.global.exception.CustomException;
+import com.flashhook.global.exception.ErrorCode;
+import java.time.Instant;
+import java.time.Duration;
+import java.util.UUID;
+import java.util.Map;
 
 /**
  * 엔드포인트 비즈니스 로직
@@ -15,30 +23,30 @@ public class EndpointService {
 
     private final EndpointRepository endpointRepository;
 
-    @org.springframework.beans.factory.annotation.Value("${flashhook.log.max-count:500}")
+    @Value("${flashhook.log.max-count:500}")
     private int maxLogCount;
 
-    @org.springframework.beans.factory.annotation.Value("${flashhook.log.max-size-bytes:5242880}")
+    @Value("${flashhook.log.max-size-bytes:5242880}")
     private long maxLogSizeBytes;
 
-    @org.springframework.beans.factory.annotation.Value("${flashhook.base-url:http://localhost:8080}")
+    @Value("${flashhook.base-url:http://localhost:8080}")
     private String baseUrl;
 
-    @org.springframework.beans.factory.annotation.Value("${flashhook.fe-url:http://localhost:5173}")
+    @Value("${flashhook.fe-url:http://localhost:5173}")
     private String feUrl;
 
     /**
      * 엔드포인트 생성
      */
     public EndpointResponse create(EndpointCreateRequest request, String ip) {
-        String endpointId = java.util.UUID.randomUUID().toString().substring(0, 8);
+        String endpointId = UUID.randomUUID().toString().substring(0, 8);
         String accessToken = com.flashhook.global.security.AccessTokenUtil.generateToken();
         String accessTokenHash = com.flashhook.global.security.AccessTokenUtil.hashToken(accessToken);
-        
-        java.time.Instant now = java.time.Instant.now();
-        java.time.Instant expiresAt = now.plus(java.time.Duration.ofHours(24));
 
-        com.flashhook.domain.endpoint.model.Endpoint endpoint = com.flashhook.domain.endpoint.model.Endpoint.builder()
+        Instant now = Instant.now();
+        Instant expiresAt = now.plus(Duration.ofHours(24));
+
+        Endpoint endpoint = Endpoint.builder()
                 .endpointId(endpointId)
                 .accessTokenHash(accessTokenHash)
                 .label(request != null ? request.getLabel() : null)
@@ -58,7 +66,7 @@ public class EndpointService {
                 .webhookUrl(baseUrl + "/api/hooks/" + endpointId)
                 .dashboardUrl(feUrl + "/dashboard/" + endpointId)
                 .expiresAt(expiresAt)
-                .limits(java.util.Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
+                .limits(Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
                 .build();
     }
 
@@ -66,8 +74,8 @@ public class EndpointService {
      * 엔드포인트 정보 조회
      */
     public EndpointResponse getInfo(String endpointId) {
-        com.flashhook.domain.endpoint.model.Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
-                .orElseThrow(() -> new com.flashhook.global.exception.CustomException(com.flashhook.global.exception.ErrorCode.ENDPOINT_NOT_FOUND));
+        Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
 
         return EndpointResponse.builder()
                 .endpointId(endpoint.getEndpointId())
@@ -76,7 +84,7 @@ public class EndpointService {
                 .webhookUrl(baseUrl + "/api/hooks/" + endpointId)
                 .dashboardUrl(feUrl + "/dashboard/" + endpointId)
                 .expiresAt(endpoint.getExpiresAt())
-                .limits(java.util.Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
+                .limits(Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
                 .build();
     }
 
@@ -84,9 +92,10 @@ public class EndpointService {
      * 엔드포인트 삭제
      */
     public void delete(String endpointId) {
-        com.flashhook.domain.endpoint.model.Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
-                .orElseThrow(() -> new com.flashhook.global.exception.CustomException(com.flashhook.global.exception.ErrorCode.ENDPOINT_NOT_FOUND));
+        Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
         endpointRepository.delete(endpoint);
-        // 연관 로그는 별도 이벤트나 스케줄러를 통해 삭제하거나 WebhookLogService를 호출하여 삭제해야 함 (여기선 생략 또는 이벤트 발행)
+        // 연관 로그는 별도 이벤트나 스케줄러를 통해 삭제하거나 WebhookLogService를 호출하여 삭제해야 함 (여기선 생략 또는 이벤트
+        // 발행)
     }
 }

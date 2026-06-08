@@ -3,6 +3,7 @@ package com.flashhook.global.ratelimit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Rate Limit 서비스
@@ -25,7 +26,7 @@ public class RateLimitService {
     public boolean isAllowed(String key, int limit, int windowSeconds) {
         Long count = redisTemplate.opsForValue().increment(key);
         if (count != null && count == 1) {
-            redisTemplate.expire(key, windowSeconds, java.util.concurrent.TimeUnit.SECONDS);
+            redisTemplate.expire(key, windowSeconds, TimeUnit.SECONDS);
         }
         return count != null && count <= limit;
     }
