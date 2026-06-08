@@ -1,0 +1,9 @@
+.badge {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  min-width: 60px;
+  text-align: center;
+}
