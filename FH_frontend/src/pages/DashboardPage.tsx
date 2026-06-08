@@ -10,9 +10,12 @@ import LogDetail from '../components/dashboard/LogDetail';
 
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
-  const { endpoint, loading, error } = useEndpoint(endpointId!);
-  const { logs, selectedLog, addLog, selectLog } = useLogs(endpointId!);
-  const { status } = useSSE(endpointId!, addLog);
+  
+  if (!endpointId) return <div style={styles.center}>Invalid Endpoint ID</div>;
+
+  const { endpoint, loading, error } = useEndpoint(endpointId);
+  const { logs, selectedLog, addLog, selectLog } = useLogs(endpointId);
+  const { status } = useSSE(endpointId, addLog);
 
   if (loading) return <div style={styles.center}>Loading...</div>;
   if (error) return <div style={styles.center}>Error: {error}</div>;
