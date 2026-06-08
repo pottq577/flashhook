@@ -57,7 +57,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
                 Optional<Endpoint> endpointOpt = endpointRepository.findByEndpointId(endpointId);
                 if (endpointOpt.isEmpty()) {
-                    sendErrorResponse(response, ErrorCode.ENDPOINT_NOT_FOUND);
+                    sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
                     return;
                 }
 
