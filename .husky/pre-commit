@@ -1,0 +1,1 @@
+cd FH_frontend && npx lint-staged

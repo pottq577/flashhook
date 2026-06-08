@@ -1,23 +1,19 @@
 export const logger = {
-  info: (message: string, ...args: any[]) => {
+  info: (message: string, ...args: unknown[]) => {
     if (import.meta.env.MODE === 'development') {
-      // eslint-disable-next-line no-console
       console.info(`[INFO] ${message}`, ...args);
     }
   },
-  warn: (message: string, ...args: any[]) => {
+  warn: (message: string, ...args: unknown[]) => {
     if (import.meta.env.MODE === 'development') {
-      // eslint-disable-next-line no-console
       console.warn(`[WARN] ${message}`, ...args);
     }
   },
-  error: (message: string, error?: unknown, ...args: any[]) => {
-    // eslint-disable-next-line no-console
+  error: (message: string, error?: unknown, ...args: unknown[]) => {
     console.error(`[ERROR] ${message}`, error, ...args);
   },
-  debug: (message: string, ...args: any[]) => {
+  debug: (message: string, ...args: unknown[]) => {
     if (import.meta.env.MODE === 'development') {
-      // eslint-disable-next-line no-console
       console.debug(`[DEBUG] ${message}`, ...args);
     }
   }

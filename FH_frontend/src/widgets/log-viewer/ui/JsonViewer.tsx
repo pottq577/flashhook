@@ -9,7 +9,7 @@ function JsonViewer({ data }: { data: unknown }) {
     );
   }
 
-  let content = '';
+  let content: string;
   if (typeof data === 'string') {
     try {
       const parsed = JSON.parse(data);
