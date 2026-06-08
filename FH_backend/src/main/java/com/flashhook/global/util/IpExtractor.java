@@ -17,7 +17,13 @@ public final class IpExtractor {
      * X-Forwarded-For 헤더가 있으면 첫 번째 IP 반환, 없으면 getRemoteAddr() 반환
      */
     public static String extract(HttpServletRequest request) {
-        // TODO: 구현 필요
-        return request.getRemoteAddr();
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        } else {
+            // X-Forwarded-For가 여러 IP를 포함할 경우 첫 번째 IP 사용
+            ip = ip.split(",")[0].trim();
+        }
+        return ip;
     }
 }

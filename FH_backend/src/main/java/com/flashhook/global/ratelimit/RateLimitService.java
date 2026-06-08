@@ -23,7 +23,10 @@ public class RateLimitService {
      * @return 허용 여부
      */
     public boolean isAllowed(String key, int limit, int windowSeconds) {
-        // TODO: 구현 필요
-        return true;
+        Long count = redisTemplate.opsForValue().increment(key);
+        if (count != null && count == 1) {
+            redisTemplate.expire(key, windowSeconds, java.util.concurrent.TimeUnit.SECONDS);
+        }
+        return count != null && count <= limit;
     }
 }
