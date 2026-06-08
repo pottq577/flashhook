@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useEndpoint } from '../hooks/useEndpoint';
 import { useLogs } from '../hooks/useLogs';

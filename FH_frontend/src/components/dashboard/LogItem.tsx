@@ -9,7 +9,9 @@ interface LogItemProps {
 
 function LogItem({ log, isSelected, onClick }: LogItemProps) {
   const date = new Date(log.receivedAt);
-  const timeString = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+  const timeString = !isNaN(date.getTime())
+    ? date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+    : 'Invalid time';
 
   return (
     <div 
@@ -25,7 +27,7 @@ function LogItem({ log, isSelected, onClick }: LogItemProps) {
       </div>
       <div style={styles.preview}>
         {log.contentType && <span style={styles.contentType}>{log.contentType.split(';')[0]}</span>}
-        <span style={styles.size}>{(log.bodySize / 1024).toFixed(2)} KB</span>
+        <span style={styles.size}>{Math.max(0, log.bodySize / 1024).toFixed(2)} KB</span>
       </div>
     </div>
   );

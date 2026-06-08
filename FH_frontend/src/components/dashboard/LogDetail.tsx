@@ -16,6 +16,8 @@ function LogDetail({ log }: LogDetailProps) {
   }
 
   const date = new Date(log.receivedAt);
+  const isValidDate = !isNaN(date.getTime());
+  const dateString = isValidDate ? date.toLocaleString() : 'Invalid date';
 
   return (
     <div style={styles.container}>
@@ -27,7 +29,7 @@ function LogDetail({ log }: LogDetailProps) {
       <div style={styles.metaInfo}>
         <div style={styles.metaItem}>
           <span style={styles.metaLabel}>Received At</span>
-          <span>{date.toLocaleString()}</span>
+          <span>{dateString}</span>
         </div>
         <div style={styles.metaItem}>
           <span style={styles.metaLabel}>Client IP</span>
@@ -39,20 +41,20 @@ function LogDetail({ log }: LogDetailProps) {
         </div>
         <div style={styles.metaItem}>
           <span style={styles.metaLabel}>Size</span>
-          <span>{(log.bodySize / 1024).toFixed(2)} KB</span>
+          <span>{Math.max(0, log.bodySize / 1024).toFixed(2)} KB</span>
         </div>
       </div>
 
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>Headers</h3>
         <div style={styles.keyValueMap}>
-          {Object.entries(log.headers).map(([key, value]) => (
+          {Object.entries(log.headers || {}).map(([key, value]) => (
             <div key={key} style={styles.keyValueRow}>
               <span style={styles.key}>{key}:</span>
               <span style={styles.value}>{value}</span>
             </div>
           ))}
-          {Object.keys(log.headers).length === 0 && <span style={styles.empty}>No headers</span>}
+          {(!log.headers || Object.keys(log.headers).length === 0) && <span style={styles.empty}>No headers</span>}
         </div>
       </div>
 
