@@ -4,7 +4,7 @@ export interface Endpoint {
   webhookUrl: string;
   dashboardUrl: string;
   expiresAt: string;
-  limits: {
+  limits?: {
     maxLogs: number;
     maxSizeMb: number;
   };
