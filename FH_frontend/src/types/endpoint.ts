@@ -1,15 +1,15 @@
 export interface Endpoint {
-  id: string;
-  label: string;
-  url: string;
-  createdAt: string;
+  endpointId: string;
+  label?: string;
+  webhookUrl: string;
+  dashboardUrl: string;
   expiresAt: string;
-  logCount: number;
+  limits?: {
+    maxLogs: number;
+    maxSizeMb: number;
+  };
 }
 
-export interface EndpointCreateResponse {
-  id: string;
-  url: string;
-  token: string;
-  expiresAt: string;
+export interface EndpointCreateResponse extends Endpoint {
+  accessToken: string;
 }
