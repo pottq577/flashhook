@@ -15,6 +15,9 @@ import com.flashhook.global.util.IpExtractor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.transaction.annotation.Transactional;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -41,6 +44,7 @@ public class WebhookService {
     @Value("${flashhook.log.body-preview-length:300}")
     private int bodyPreviewLength;
 
+    @Transactional
     public void receive(String endpointId, HttpServletRequest request) {
         // 1. 엔드포인트 확인
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
@@ -62,22 +66,26 @@ public class WebhookService {
         Map<String, String> queryParams = new HashMap<>();
         request.getParameterMap().forEach((k, v) -> queryParams.put(k, String.join(",", v)));
 
-        String rawBody = "";
-        try {
-            byte[] bodyBytes = request.getInputStream().readAllBytes();
-            if (bodyBytes.length > 0) {
-                rawBody = new String(bodyBytes, StandardCharsets.UTF_8);
+        long MAX_SIZE = 1024 * 1024;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] data = new byte[8192];
+        int nRead;
+        long bodySize = 0;
+        try (InputStream is = request.getInputStream()) {
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+                bodySize += nRead;
+                if (bodySize > MAX_SIZE) {
+                    throw new CustomException(ErrorCode.PAYLOAD_TOO_LARGE);
+                }
             }
         } catch (IOException e) {
             // Ignore body read error
         }
 
-        long bodySize = rawBody.getBytes(StandardCharsets.UTF_8).length;
-
-        // 3. 캡(Cap) 초과 시 방어 (Payload Too Large)
-        // 1MB (서블릿 제한)을 넘는 경우는 이미 Tomcat에서 413 발생하지만, 안전장치 추가
-        if (bodySize > 1024 * 1024) {
-            throw new CustomException(ErrorCode.PAYLOAD_TOO_LARGE);
+        String rawBody = "";
+        if (bodySize > 0) {
+            rawBody = buffer.toString(StandardCharsets.UTF_8);
         }
 
         // 4. Object Body 및 Preview 생성
@@ -125,11 +133,12 @@ public class WebhookService {
     private void enforceLogCap(Endpoint endpoint, long newBodySize) {
         while (endpoint.getLogCount() >= maxLogCount || (endpoint.getLogSizeBytes() + newBodySize) > maxLogSizeBytes) {
             // 가장 오래된 로그 찾아 삭제
-            webhookLogRepository.findFirstByEndpointIdOrderByReceivedAtAsc(endpoint.getEndpointId())
-                .ifPresent(oldLog -> {
-                    webhookLogRepository.delete(oldLog);
-                    endpoint.decrementLogStats(oldLog.getBodySize());
-                });
+            WebhookLog oldLog = webhookLogRepository.findFirstByEndpointIdOrderByReceivedAtAsc(endpoint.getEndpointId()).orElse(null);
+            if (oldLog == null) {
+                break;
+            }
+            webhookLogRepository.delete(oldLog);
+            endpoint.decrementLogStats(oldLog.getBodySize());
             
             // 만약 로그가 비었는데도 용량이 초과라면 (newBodySize가 매우 큼) 루프 탈출
             if (endpoint.getLogCount() == 0) {
