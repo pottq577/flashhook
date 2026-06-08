@@ -51,16 +51,20 @@ function DashboardPage() {
         </section>
         
         {/* Desktop Detail View */}
-        <section className={styles.content}>
-          <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
-        </section>
+        {!isMobile && (
+          <section className={styles.content}>
+            <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
+          </section>
+        )}
 
         {/* Mobile Bottom Sheet Detail View */}
         <AnimatePresence>
           {isMobile && selectedLog && (
             <>
-              <motion.div 
+              <motion.button
+                type="button"
                 className={styles.bottomSheetOverlay}
+                aria-label="로그 상세 닫기"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -68,6 +72,9 @@ function DashboardPage() {
               />
               <motion.div 
                 className={styles.bottomSheetContainer}
+                role="dialog"
+                aria-modal="true"
+                aria-label="로그 상세"
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}

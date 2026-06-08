@@ -1,5 +1,5 @@
 import type { WebhookLog } from '../../../entities/log/model/log.schema';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import LogItem from './LogItem';
 import styles from './LogList.module.css';
@@ -25,6 +25,8 @@ const itemVariants: Variants = {
 };
 
 function LogList({ logs, selectedLogId, onSelect }: LogListProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   if (!logs || logs.length === 0) {
     return (
       <div className={styles.empty}>
@@ -37,12 +39,12 @@ function LogList({ logs, selectedLogId, onSelect }: LogListProps) {
   return (
     <motion.div 
       className={styles.container}
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
+      variants={shouldReduceMotion ? undefined : containerVariants}
+      initial={shouldReduceMotion ? false : "hidden"}
+      animate={shouldReduceMotion ? undefined : "show"}
     >
       {logs.map((log) => (
-        <motion.div key={log.logId} variants={itemVariants}>
+        <motion.div key={log.logId} variants={shouldReduceMotion ? undefined : itemVariants}>
           <LogItem 
             log={log} 
             isSelected={selectedLogId === log.logId} 
