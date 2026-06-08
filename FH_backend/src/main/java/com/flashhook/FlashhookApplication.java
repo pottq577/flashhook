@@ -12,8 +12,4 @@ public class FlashhookApplication {
 		SpringApplication.run(FlashhookApplication.class, args);
 	}
 
-	@Bean
-	public ObjectMapper objectMapper() {
-		return new ObjectMapper();
-	}
 }
