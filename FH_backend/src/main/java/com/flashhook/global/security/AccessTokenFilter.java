@@ -31,6 +31,12 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         
         String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // /api/endpoints/{id} 또는 /api/endpoints/{id}/... 형태인지 확인
         // (단, POST /api/endpoints는 제외)

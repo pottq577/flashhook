@@ -38,6 +38,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 1. 엔드포인트 생성 API (POST /api/endpoints)
         if ("POST".equalsIgnoreCase(method) && "/api/endpoints".equals(path)) {
             String ip = IpExtractor.extract(request);
