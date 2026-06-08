@@ -52,7 +52,8 @@ public class WebhookService {
 
         // 2. 요청 데이터 파싱
         String method = request.getMethod();
-        String url = request.getRequestURL().toString() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
+        String url = request.getRequestURL().toString()
+                + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
         String contentType = request.getContentType();
         String clientIp = IpExtractor.extract(request);
 
@@ -97,10 +98,10 @@ public class WebhookService {
                 // 파싱 실패 시 원본 문자열 유지
             }
         }
-        
-        String bodyPreview = rawBody.length() > bodyPreviewLength 
-            ? rawBody.substring(0, bodyPreviewLength) 
-            : rawBody;
+
+        String bodyPreview = rawBody.length() > bodyPreviewLength
+                ? rawBody.substring(0, bodyPreviewLength)
+                : rawBody;
 
         // 5. Capped Collection 로직 (오래된 로그 순환 삭제)
         enforceLogCap(endpoint, bodySize);
@@ -133,13 +134,14 @@ public class WebhookService {
     private void enforceLogCap(Endpoint endpoint, long newBodySize) {
         while (endpoint.getLogCount() >= maxLogCount || (endpoint.getLogSizeBytes() + newBodySize) > maxLogSizeBytes) {
             // 가장 오래된 로그 찾아 삭제
-            WebhookLog oldLog = webhookLogRepository.findFirstByEndpointIdOrderByReceivedAtAsc(endpoint.getEndpointId()).orElse(null);
+            WebhookLog oldLog = webhookLogRepository.findFirstByEndpointIdOrderByReceivedAtAsc(endpoint.getEndpointId())
+                    .orElse(null);
             if (oldLog == null) {
                 break;
             }
             webhookLogRepository.delete(oldLog);
             endpoint.decrementLogStats(oldLog.getBodySize());
-            
+
             // 만약 로그가 비었는데도 용량이 초과라면 (newBodySize가 매우 큼) 루프 탈출
             if (endpoint.getLogCount() == 0) {
                 break;
