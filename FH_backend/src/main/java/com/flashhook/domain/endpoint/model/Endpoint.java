@@ -16,7 +16,7 @@ import java.time.Instant;
  */
 @Document(collection = "endpoints")
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Endpoint {
@@ -40,4 +40,14 @@ public class Endpoint {
     private Instant createdAt;
 
     private Instant expiresAt;
+
+    public void incrementLogStats(long sizeBytes) {
+        this.logCount += 1;
+        this.logSizeBytes += sizeBytes;
+    }
+
+    public void decrementLogStats(long sizeBytes) {
+        this.logCount = Math.max(0, this.logCount - 1);
+        this.logSizeBytes = Math.max(0, this.logSizeBytes - sizeBytes);
+    }
 }

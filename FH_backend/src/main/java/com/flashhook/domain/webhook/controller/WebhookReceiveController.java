@@ -28,7 +28,7 @@ public class WebhookReceiveController {
     public ResponseEntity<Void> receive(
             @PathVariable String endpointId,
             HttpServletRequest request) {
-        // TODO: 구현 필요
+        webhookService.receive(endpointId, request);
         return ResponseEntity.ok().build();
     }
 }
