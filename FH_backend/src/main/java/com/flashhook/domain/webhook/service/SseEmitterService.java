@@ -5,6 +5,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 /**
  * SSE(Server-Sent Events) 관리 서비스
@@ -18,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
 
 @Service
-@org.springframework.scheduling.annotation.EnableScheduling
+@EnableScheduling
 public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
@@ -28,7 +30,7 @@ public class SseEmitterService {
      */
     public SseEmitter subscribe(String endpointId, long timeout) {
         SseEmitter emitter = new SseEmitter(timeout);
-        
+
         emitters.computeIfAbsent(endpointId, k -> new CopyOnWriteArrayList<>()).add(emitter);
 
         emitter.onCompletion(() -> removeEmitter(endpointId, emitter));
@@ -56,7 +58,7 @@ public class SseEmitterService {
 
         if (endpointEmitters != null && !endpointEmitters.isEmpty()) {
             WebhookLogResponse response = WebhookLogResponse.from(event.getWebhookLog());
-            
+
             for (SseEmitter emitter : endpointEmitters) {
                 try {
                     emitter.send(SseEmitter.event()
@@ -72,7 +74,7 @@ public class SseEmitterService {
     /**
      * Heartbeat 스케줄러 (연결 유지용 ping 전송)
      */
-    @org.springframework.scheduling.annotation.Scheduled(fixedRateString = "${flashhook.sse.heartbeat-interval:30000}")
+    @Scheduled(fixedRateString = "${flashhook.sse.heartbeat-interval:30000}")
     public void sendHeartbeat() {
         emitters.forEach((endpointId, endpointEmitters) -> {
             for (SseEmitter emitter : endpointEmitters) {
