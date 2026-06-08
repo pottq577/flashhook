@@ -18,18 +18,73 @@
   flex: 1;
   overflow: hidden;
   border-top: 1px solid var(--border);
+  position: relative;
 }
 
 .sidebar {
-  width: 350px;
-  border-right: 1px solid var(--border);
+  width: 100%;
+  border-right: none;
   background-color: var(--bg-secondary);
   overflow-y: auto;
 }
 
 .content {
+  display: none;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+  .sidebar {
+    width: 380px;
+    border-right: 1px solid var(--border);
+  }
+  .content {
+    display: block;
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    background-color: var(--bg-primary);
+  }
+}
+
+/* Mobile Bottom Sheet */
+.bottomSheetOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+
+.bottomSheetContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 85vh;
+  background: var(--bg-secondary);
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bottomSheetHandle {
+  width: 40px;
+  height: 4px;
+  background: var(--border-focus);
+  border-radius: 4px;
+  margin: 12px auto;
+}
+
+.bottomSheetContent {
   flex: 1;
   overflow-y: auto;
-  padding: 1.5rem;
-  background-color: var(--bg-primary);
+  padding: 1rem;
 }

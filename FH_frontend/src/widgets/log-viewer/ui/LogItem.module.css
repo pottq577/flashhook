@@ -1,12 +1,22 @@
 .container {
+  margin: 0.5rem 0.75rem;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-inner);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease-out;
+}
+.container:hover {
+  background-color: var(--border-focus);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 .selected {
-  background-color: var(--bg-tertiary);
-  border-left: 3px solid var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow-inner);
+  background-color: var(--border-focus);
 }
 .header {
   display: flex;

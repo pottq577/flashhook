@@ -1,8 +1,10 @@
 import { useParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useEndpointQuery } from '../../../entities/endpoint/api/endpoint.queries';
 import { useLogsQuery } from '../../../entities/log/api/log.queries';
 import { useSSE } from '../../../entities/log/api/useSSE';
 import { useLogStore } from '../../../entities/log/model/log.store';
+import { useIsMobile } from '../../../shared/lib/useIsMobile';
 import Header from '../../../widgets/header/ui/Header';
 import EndpointInfo from '../../../widgets/endpoint-info/ui/EndpointInfo';
 import ConnectionStatus from '../../../widgets/endpoint-info/ui/ConnectionStatus';
@@ -14,12 +16,12 @@ function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
   
   const { data: endpoint, isLoading, error } = useEndpointQuery(endpointId);
+  const isMobile = useIsMobile();
   
   // Fetch initial logs
   useLogsQuery(endpointId || '', 0, 50);
 
   const { logs, selectedLog, addLog, setSelectedLog } = useLogStore();
-
   const { status } = useSSE(endpointId, addLog);
 
   if (!endpointId) return <div className={styles.center}>Invalid Endpoint ID</div>;
@@ -41,17 +43,44 @@ function DashboardPage() {
             onSelect={(logId) => {
               const log = logs.find(l => l.logId === logId);
               if (log) {
-                // In a real app we might fetch details here, but for now we set what we have
-                // The log detail query hook can be used inside LogDetail component
                 setSelectedLog({ ...log, url: '', headers: {}, queryParams: {}, body: {} }); 
               }
             }} 
             endpointId={endpointId}
           />
         </section>
+        
+        {/* Desktop Detail View */}
         <section className={styles.content}>
           <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
         </section>
+
+        {/* Mobile Bottom Sheet Detail View */}
+        <AnimatePresence>
+          {isMobile && selectedLog && (
+            <>
+              <motion.div 
+                className={styles.bottomSheetOverlay}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedLog(null)}
+              />
+              <motion.div 
+                className={styles.bottomSheetContainer}
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              >
+                <div className={styles.bottomSheetHandle} />
+                <div className={styles.bottomSheetContent}>
+                  <LogDetail logId={selectedLog.logId} endpointId={endpointId} />
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );
