@@ -28,7 +28,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   const dateString = isValidDate ? date.toLocaleString() : 'Invalid date';
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-testid="log-detail">
       <div className={styles.header}>
         <MethodBadge method={log.method} />
         <span className={styles.url}>{log.url}</span>
