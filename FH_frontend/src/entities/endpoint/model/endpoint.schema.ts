@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const EndpointSchema = z.object({
   endpointId: z.string(),
-  label: z.string().optional(),
+  label: z.string().nullish(),
   webhookUrl: z.string().url(),
   dashboardUrl: z.string().url(),
   expiresAt: z.string(),

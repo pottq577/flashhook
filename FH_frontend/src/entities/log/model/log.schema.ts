@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const WebhookLogSchema = z.object({
   logId: z.string(),
   method: z.string(),
-  contentType: z.string(),
+  contentType: z.string().nullish(),
   clientIp: z.string(),
   bodyPreview: z.string(),
   bodySize: z.number(),
