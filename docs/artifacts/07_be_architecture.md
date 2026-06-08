@@ -277,8 +277,8 @@ HTTP 요청 인입
 
 | 영역      | 기술                                  |
 | --------- | ------------------------------------- |
-| Framework | Spring Boot 3.x                       |
-| Language  | Java 17+                              |
+| Framework | Spring Boot 4.0.6                     |
+| Language  | Java 21+                              |
 | DB        | Spring Data MongoDB                   |
 | Cache     | Spring Data Redis                     |
 | 실시간    | Spring SseEmitter                     |
