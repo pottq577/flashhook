@@ -28,8 +28,9 @@ public class EndpointController {
     public ResponseEntity<EndpointResponse> create(
             @Valid @RequestBody(required = false) EndpointCreateRequest request,
             HttpServletRequest httpRequest) {
-        // TODO: 구현 필요
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        String ip = IpExtractor.extract(httpRequest);
+        EndpointResponse response = endpointService.create(request, ip);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -37,8 +38,8 @@ public class EndpointController {
      */
     @GetMapping("/{endpointId}")
     public ResponseEntity<EndpointResponse> getInfo(@PathVariable String endpointId) {
-        // TODO: 구현 필요
-        return ResponseEntity.ok().build();
+        EndpointResponse response = endpointService.getInfo(endpointId);
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -46,7 +47,7 @@ public class EndpointController {
      */
     @DeleteMapping("/{endpointId}")
     public ResponseEntity<Void> delete(@PathVariable String endpointId) {
-        // TODO: 구현 필요
+        endpointService.delete(endpointId);
         return ResponseEntity.noContent().build();
     }
 }

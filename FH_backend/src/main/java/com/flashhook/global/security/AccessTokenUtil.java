@@ -1,5 +1,10 @@
 package com.flashhook.global.security;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
+
 /**
  * 액세스 토큰 유틸리티
  * 토큰 생성, 해시, 검증 담당
@@ -14,23 +19,34 @@ public final class AccessTokenUtil {
      * 랜덤 액세스 토큰 생성
      */
     public static String generateToken() {
-        // TODO: 구현 필요
-        return null;
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     /**
-     * 토큰 해시 (SHA-256 등)
+     * 토큰 해시 (SHA-256)
      */
     public static String hashToken(String rawToken) {
-        // TODO: 구현 필요
-        return null;
+        if (rawToken == null) return null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(rawToken.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not found", e);
+        }
     }
 
     /**
      * 원본 토큰과 해시값 비교 검증
      */
     public static boolean verifyToken(String rawToken, String hash) {
-        // TODO: 구현 필요
-        return false;
+        if (rawToken == null || hash == null) return false;
+        return hashToken(rawToken).equals(hash);
     }
 }
