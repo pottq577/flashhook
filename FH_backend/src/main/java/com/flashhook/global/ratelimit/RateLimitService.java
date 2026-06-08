@@ -5,6 +5,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Rate Limit 서비스
@@ -12,7 +14,11 @@ import java.util.Collections;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RateLimitService {
+
+    @Value("${flashhook.ratelimit.fail-open:true}")
+    private boolean failOpen;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -32,6 +38,10 @@ public class RateLimitService {
      * @return 허용 여부
      */
     public boolean isAllowed(String key, int limit, int windowSeconds) {
+        if (key == null || key.isBlank() || limit <= 0 || windowSeconds <= 0) {
+            return false;
+        }
+
         try {
             DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
             redisScript.setScriptText(LUA_SCRIPT);
@@ -40,8 +50,8 @@ public class RateLimitService {
             Long count = redisTemplate.execute(redisScript, Collections.singletonList(key), String.valueOf(windowSeconds));
             return count != null && count <= limit;
         } catch (Exception e) {
-            // Redis 에러 발생 시 fail-open (허용) 정책 적용
-            return true;
+            log.warn("Rate limit Redis error. key={}", key, e);
+            return failOpen;
         }
     }
 }
