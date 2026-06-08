@@ -14,7 +14,8 @@ import java.time.Duration;
 import java.util.UUID;
 import java.util.Map;
 
-import com.flashhook.domain.webhook.repository.WebhookLogRepository;
+import org.springframework.context.ApplicationEventPublisher;
+import com.flashhook.global.event.EndpointDeletedEvent;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -25,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EndpointService {
 
     private final EndpointRepository endpointRepository;
-    private final WebhookLogRepository webhookLogRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${flashhook.log.max-count:500}")
     private int maxLogCount;
@@ -100,6 +101,6 @@ public class EndpointService {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
         endpointRepository.delete(endpoint);
-        webhookLogRepository.deleteAllByEndpointId(endpointId);
+        eventPublisher.publishEvent(new EndpointDeletedEvent(endpointId));
     }
 }
