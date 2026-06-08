@@ -18,15 +18,16 @@ function Toast({ message, duration = 3000, onClose }: ToastProps) {
   }, [duration, onClose]);
 
   return (
-    <div className={styles.toastContainer}>
+    <div className={styles.toastContainer} aria-live="polite" aria-atomic="true">
       <motion.div 
         className={styles.toast}
+        role="status"
         initial={{ opacity: 0, y: 50, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.9 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
       >
-        <span className={styles.icon}>✨</span>
+        <span className={styles.icon} aria-hidden="true">✨</span>
         {message}
       </motion.div>
     </div>
