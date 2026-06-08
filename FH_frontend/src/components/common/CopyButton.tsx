@@ -21,14 +21,16 @@ function CopyButton({ text }: { text: string }) {
         textArea.value = text;
         document.body.appendChild(textArea);
         textArea.select();
-        try {
-          document.execCommand('copy');
-        } catch (err) {
-          console.error('Fallback copy failed', err);
-        }
+        const success = document.execCommand('copy');
         document.body.removeChild(textArea);
+        if (!success) {
+          throw new Error('Fallback copy failed');
+        }
       }
       setCopied(true);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
       timeoutRef.current = window.setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy', err);
