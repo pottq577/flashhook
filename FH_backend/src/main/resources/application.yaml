@@ -34,3 +34,14 @@ flashhook:
     max-count: 500                # 엔드포인트당 최대 로그
     max-size-bytes: 5242880       # 5MB
     body-preview-length: 300      # bodyPreview 절단 길이
+
+# Actuator (Healthcheck)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+      base-path: /api/actuator
+  endpoint:
+    health:
+      show-details: always

@@ -25,3 +25,4 @@ docs/review/*
 
 ### Memory MCP ###
 .mcp-memory/node_modules/
+ci.log
