@@ -1,0 +1,9 @@
+# 로컬 개발 환경 설정
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/flashhook
+
+  redis:
+    host: localhost
+    port: 6379
