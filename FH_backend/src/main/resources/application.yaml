@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: flashhook-api
+
+  # 활성 프로필 (local / prod)
+  profiles:
+    active: local
+
+  # MongoDB auto-index 설정
+  data:
+    mongodb:
+      auto-index-creation: true # 엔티티의 @Indexed(TTL 등) 자동 생성 허용
+
+  # 업로드 사이즈 제한 (방어 로직)
+  servlet:
+    multipart:
+      max-request-size: 1MB
+      max-file-size: 1MB
+
+server:
+  port: 8080
+  tomcat:
+    max-http-form-post-size: 1MB  # Payload 크기 제한
+
+# 커스텀 설정
+flashhook:
+  sse:
+    timeout: 1800000              # SSE 최대 유지 30분 (ms)
+    heartbeat-interval: 30000     # Heartbeat 30초 (ms)
+  ratelimit:
+    endpoint-create: 5            # 5개/IP/10분
+    webhook-receive: 100          # 100건/EP/분
+  log:
+    max-count: 500                # 엔드포인트당 최대 로그
+    max-size-bytes: 5242880       # 5MB
+    body-preview-length: 300      # bodyPreview 절단 길이

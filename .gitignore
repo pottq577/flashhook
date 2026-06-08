@@ -1,0 +1,23 @@
+# FlashHook 루트 .gitignore
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### IDE ###
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+### 환경 변수 / 시크릿 ###
+.env
+.env.local
+.env.*.local
+
+### Docker ###
+docker-compose.override.yml
+
+### Docs ###
+toyproject.md
