@@ -21,7 +21,7 @@ export async function apiRequest<T>(
   if (endpointId) {
     const token = tokenStorage.get(endpointId);
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers['X-Access-Token'] = token;
     }
   }
 

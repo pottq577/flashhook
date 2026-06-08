@@ -11,7 +11,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
+    INVALID_REQUEST(400, "INVALID_REQUEST", "잘못된 요청 파라미터입니다"),
     INVALID_TOKEN(403, "INVALID_TOKEN", "유효하지 않은 액세스 토큰입니다"),
+    FORBIDDEN(403, "FORBIDDEN", "해당 리소스에 접근할 권한이 없습니다"),
+    LOG_NOT_FOUND(404, "LOG_NOT_FOUND", "웹훅 로그를 찾을 수 없습니다"),
     ENDPOINT_NOT_FOUND(404, "ENDPOINT_NOT_FOUND", "엔드포인트를 찾을 수 없습니다"),
     RATE_LIMIT_EXCEEDED(429, "RATE_LIMIT_EXCEEDED", "요청 제한을 초과했습니다"),
     ENDPOINT_LIMIT_EXCEEDED(429, "ENDPOINT_LIMIT_EXCEEDED", "엔드포인트 생성 제한을 초과했습니다"),

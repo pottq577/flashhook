@@ -17,7 +17,6 @@ public final class IpExtractor {
      * X-Forwarded-For 헤더가 있으면 첫 번째 IP 반환, 없으면 getRemoteAddr() 반환
      */
     public static String extract(HttpServletRequest request) {
-        // TODO: 구현 필요
         return request.getRemoteAddr();
     }
 }
