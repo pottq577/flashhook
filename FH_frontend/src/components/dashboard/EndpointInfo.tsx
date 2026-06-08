@@ -1,4 +1,4 @@
-import { Endpoint } from '../../types/endpoint';
+import type { Endpoint } from '../../types/endpoint';
 import CopyButton from '../common/CopyButton';
 
 function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {

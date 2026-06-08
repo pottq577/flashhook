@@ -1,4 +1,4 @@
-import { WebhookLog } from '../../types/log';
+import type { WebhookLog } from '../../types/log';
 import LogItem from './LogItem';
 
 interface LogListProps {
