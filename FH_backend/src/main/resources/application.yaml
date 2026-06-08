@@ -44,4 +44,4 @@ management:
       base-path: /api/actuator
   endpoint:
     health:
-      show-details: when_authorized
+      show-details: never
