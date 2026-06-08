@@ -14,6 +14,9 @@ import java.time.Duration;
 import java.util.UUID;
 import java.util.Map;
 
+import com.flashhook.domain.webhook.repository.WebhookLogRepository;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * 엔드포인트 비즈니스 로직
  */
@@ -22,6 +25,7 @@ import java.util.Map;
 public class EndpointService {
 
     private final EndpointRepository endpointRepository;
+    private final WebhookLogRepository webhookLogRepository;
 
     @Value("${flashhook.log.max-count:500}")
     private int maxLogCount;
@@ -39,7 +43,7 @@ public class EndpointService {
      * 엔드포인트 생성
      */
     public EndpointResponse create(EndpointCreateRequest request, String ip) {
-        String endpointId = UUID.randomUUID().toString().substring(0, 8);
+        String endpointId = UUID.randomUUID().toString().replace("-", "");
         String accessToken = com.flashhook.global.security.AccessTokenUtil.generateToken();
         String accessTokenHash = com.flashhook.global.security.AccessTokenUtil.hashToken(accessToken);
 
@@ -91,11 +95,11 @@ public class EndpointService {
     /**
      * 엔드포인트 삭제
      */
+    @Transactional
     public void delete(String endpointId) {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
         endpointRepository.delete(endpoint);
-        // 연관 로그는 별도 이벤트나 스케줄러를 통해 삭제하거나 WebhookLogService를 호출하여 삭제해야 함 (여기선 생략 또는 이벤트
-        // 발행)
+        webhookLogRepository.deleteAllByEndpointId(endpointId);
     }
 }

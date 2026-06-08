@@ -24,6 +24,7 @@ public class Endpoint {
     @Id
     private String id;
 
+    @Indexed(unique = true)
     private String endpointId;
 
     private String accessTokenHash;

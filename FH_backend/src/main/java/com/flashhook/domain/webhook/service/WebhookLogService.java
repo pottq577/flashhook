@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.PageRequest;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.domain.endpoint.model.Endpoint;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 웹훅 로그 조회/삭제 서비스
@@ -29,6 +30,10 @@ public class WebhookLogService {
      * 로그 목록 조회 (페이징)
      */
     public Page<WebhookLogResponse> getLogs(String endpointId, int page, int size, String sort) {
+        if (page < 0 || size <= 0 || size > 100) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
         Direction direction = "asc".equalsIgnoreCase(sort)
                 ? Direction.ASC
                 : Direction.DESC;
@@ -46,13 +51,10 @@ public class WebhookLogService {
      */
     public WebhookLogDetailResponse getLogDetail(String endpointId, String logId) {
         WebhookLog log = webhookLogRepository.findByLogId(logId)
-                .orElseThrow(() -> new CustomException(
-                        ErrorCode.ENDPOINT_NOT_FOUND)); // TODO: LOG_NOT_FOUND 에러코드 분리
-                                                        // 가능하지만 단순하게
+                .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
 
         if (!log.getEndpointId().equals(endpointId)) {
-            throw new CustomException(
-                    ErrorCode.INVALID_TOKEN);
+            throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
         return WebhookLogDetailResponse.from(log);
@@ -61,12 +63,15 @@ public class WebhookLogService {
     /**
      * 엔드포인트의 모든 로그 삭제
      */
+    @Transactional
     public void deleteAll(String endpointId) {
         webhookLogRepository.deleteAllByEndpointId(endpointId);
         endpointRepository.findByEndpointId(endpointId).ifPresent(endpoint -> {
+            long remainingCount = webhookLogRepository.countByEndpointId(endpointId);
+            long remainingSize = webhookLogRepository.sumBodySizeByEndpointId(endpointId).orElse(0L);
             Endpoint updated = endpoint.toBuilder()
-                    .logCount(0)
-                    .logSizeBytes(0)
+                    .logCount((int) remainingCount)
+                    .logSizeBytes(remainingSize)
                     .build();
             endpointRepository.save(updated);
         });
