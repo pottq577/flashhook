@@ -40,7 +40,7 @@ public class SseEmitterService {
         // 503 방지용 더미 데이터 전송
         try {
             emitter.send(SseEmitter.event().name("connect").data("connected"));
-        } catch (IOException e) {
+        } catch (Exception e) {
             removeEmitter(endpointId, emitter);
         }
 
@@ -64,7 +64,7 @@ public class SseEmitterService {
                     emitter.send(SseEmitter.event()
                             .name("webhook")
                             .data(response));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     removeEmitter(endpointId, emitter);
                 }
             }
@@ -80,7 +80,7 @@ public class SseEmitterService {
             for (SseEmitter emitter : endpointEmitters) {
                 try {
                     emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     removeEmitter(endpointId, emitter);
                 }
             }
@@ -88,12 +88,10 @@ public class SseEmitterService {
     }
 
     private void removeEmitter(String endpointId, SseEmitter emitter) {
-        List<SseEmitter> endpointEmitters = emitters.get(endpointId);
-        if (endpointEmitters != null) {
+        emitters.compute(endpointId, (key, endpointEmitters) -> {
+            if (endpointEmitters == null) return null;
             endpointEmitters.remove(emitter);
-            if (endpointEmitters.isEmpty()) {
-                emitters.remove(endpointId);
-            }
-        }
+            return endpointEmitters.isEmpty() ? null : endpointEmitters;
+        });
     }
 }
