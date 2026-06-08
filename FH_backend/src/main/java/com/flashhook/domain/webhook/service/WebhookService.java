@@ -33,7 +33,7 @@ public class WebhookService {
     private final WebhookLogRepository webhookLogRepository;
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${flashhook.log.max-count:500}")
     private int maxLogCount;
