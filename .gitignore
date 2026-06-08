@@ -24,4 +24,4 @@ toyproject.md
 docs/review/*
 
 ### Memory MCP ###
-.mcp-memory/
+.mcp-memory/node_modules/
