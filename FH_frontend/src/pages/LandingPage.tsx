@@ -15,8 +15,8 @@ function LandingPage() {
       const response = await createEndpoint();
       tokenStorage.set(response.endpointId, response.accessToken);
       navigate(`/dashboard/${response.endpointId}`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to create endpoint');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to create endpoint');
     } finally {
       setIsLoading(false);
     }
@@ -41,11 +41,12 @@ function LandingPage() {
             style={{...styles.button, ...(isLoading ? styles.buttonDisabled : {})}} 
             onClick={handleCreate}
             disabled={isLoading}
+            aria-busy={isLoading}
           >
             {isLoading ? 'Creating...' : 'Generate URL'}
           </button>
           
-          {error && <p style={styles.error}>{error}</p>}
+          {error && <p style={styles.error} role="alert">{error}</p>}
         </div>
       </main>
     </div>
