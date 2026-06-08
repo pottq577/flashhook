@@ -27,8 +27,8 @@ public class WebhookLogController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "desc") String sort) {
-        // TODO: 구현 필요
-        return ResponseEntity.ok().build();
+        Page<WebhookLogResponse> response = webhookLogService.getLogs(endpointId, page, size, sort);
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -38,8 +38,8 @@ public class WebhookLogController {
     public ResponseEntity<WebhookLogDetailResponse> detail(
             @PathVariable String endpointId,
             @PathVariable String logId) {
-        // TODO: 구현 필요
-        return ResponseEntity.ok().build();
+        WebhookLogDetailResponse response = webhookLogService.getLogDetail(endpointId, logId);
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -47,7 +47,7 @@ public class WebhookLogController {
      */
     @DeleteMapping
     public ResponseEntity<Void> deleteAll(@PathVariable String endpointId) {
-        // TODO: 구현 필요
+        webhookLogService.deleteAll(endpointId);
         return ResponseEntity.noContent().build();
     }
 }

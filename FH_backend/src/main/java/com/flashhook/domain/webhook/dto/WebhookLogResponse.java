@@ -29,7 +29,15 @@ public class WebhookLogResponse {
      * WebhookLog → WebhookLogResponse 변환 팩토리 메소드
      */
     public static WebhookLogResponse from(WebhookLog log) {
-        // TODO: 구현 필요
-        return null;
+        if (log == null) return null;
+        return WebhookLogResponse.builder()
+                .logId(log.getLogId())
+                .method(log.getMethod())
+                .contentType(log.getContentType())
+                .clientIp(log.getClientIp())
+                .bodyPreview(log.getBodyPreview())
+                .bodySize(log.getBodySize())
+                .receivedAt(log.getReceivedAt())
+                .build();
     }
 }

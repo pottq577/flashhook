@@ -19,4 +19,12 @@ public interface WebhookLogRepository extends MongoRepository<WebhookLog, String
     void deleteAllByEndpointId(String endpointId);
 
     Optional<WebhookLog> findFirstByEndpointIdOrderByReceivedAtAsc(String endpointId);
+
+    long countByEndpointId(String endpointId);
+
+    @org.springframework.data.mongodb.repository.Aggregation(pipeline = {
+            "{ '$match': { 'endpointId': ?0 } }",
+            "{ '$group': { '_id': null, 'total': { '$sum': '$bodySize' } } }"
+    })
+    Optional<Long> sumBodySizeByEndpointId(String endpointId);
 }
