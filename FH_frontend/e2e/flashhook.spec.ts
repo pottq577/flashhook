@@ -2,8 +2,6 @@ import { test, expect } from '@playwright/test';
 
 test.describe('FlashHook Core Journey', () => {
   test('should create endpoint, receive webhook, and show log', async ({ page, request }) => {
-    let webhookUrl: string;
-
     // 1. 엔드포인트 생성
     await page.goto('/');
     
@@ -15,7 +13,7 @@ test.describe('FlashHook Core Journey', () => {
     const urlLocator = page.getByTestId('webhook-url'); 
     await expect(urlLocator).toBeVisible();
     
-    webhookUrl = (await urlLocator.textContent()) || '';
+    const webhookUrl = (await urlLocator.textContent()) || '';
     expect(webhookUrl).toContain('http');
 
     // 2. 웹훅 전송 (API 요청 모의)
