@@ -28,10 +28,19 @@ export function useSSE(
       setStatus('connected');
     };
 
-    eventSource.onmessage = (event) => {
-      const log = JSON.parse(event.data as string) as WebhookLog;
+    // 'webhook' 이벤트를 명시적으로 리스닝
+    eventSource.addEventListener('webhook', (event: MessageEvent) => {
+      const log = JSON.parse(event.data) as WebhookLog;
       onMessageRef.current(log);
-    };
+    });
+
+    eventSource.addEventListener('connect', () => {
+      // 503 방지 더미 이벤트 무시
+    });
+
+    eventSource.addEventListener('ping', () => {
+      // heartbeat 무시
+    });
 
     eventSource.onerror = () => {
       setStatus('disconnected');
