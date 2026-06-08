@@ -1,5 +1,11 @@
 function JsonViewer({ data }: { data: unknown }) {
-  if (data === undefined || data === null) return <span style={styles.empty}>null</span>;
+  if (data === undefined || data === null) {
+    return (
+      <div style={styles.container}>
+        <span style={styles.empty}>null</span>
+      </div>
+    );
+  }
 
   let content = '';
   if (typeof data === 'string') {

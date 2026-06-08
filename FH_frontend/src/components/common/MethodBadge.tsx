@@ -1,7 +1,3 @@
-interface MethodBadgeProps {
-  method: string;
-}
-
 function MethodBadge({ method }: { method: string }) {
   const m = method.toUpperCase();
   const colorVar = `--method-${m.toLowerCase()}`;
