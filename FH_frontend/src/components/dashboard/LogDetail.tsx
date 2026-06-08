@@ -1,4 +1,4 @@
-import { WebhookLogDetail } from '../../types/log';
+import type { WebhookLogDetail } from '../../types/log';
 import MethodBadge from '../common/MethodBadge';
 import JsonViewer from './JsonViewer';
 
