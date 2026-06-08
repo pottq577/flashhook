@@ -8,7 +8,7 @@ function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {
       <div className={styles.infoGroup}>
         <div className={styles.label}>Your Webhook URL</div>
         <div className={styles.valueRow}>
-          <code className={styles.code}>{endpoint.webhookUrl}</code>
+          <code className={styles.code} data-testid="webhook-url">{endpoint.webhookUrl}</code>
           <CopyButton text={endpoint.webhookUrl} />
         </div>
       </div>
