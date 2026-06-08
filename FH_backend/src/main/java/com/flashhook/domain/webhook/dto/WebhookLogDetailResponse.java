@@ -36,7 +36,19 @@ public class WebhookLogDetailResponse {
      * WebhookLog → WebhookLogDetailResponse 변환 팩토리 메소드
      */
     public static WebhookLogDetailResponse from(WebhookLog log) {
-        // TODO: 구현 필요
-        return null;
+        if (log == null) return null;
+        return WebhookLogDetailResponse.builder()
+                .logId(log.getLogId())
+                .method(log.getMethod())
+                .contentType(log.getContentType())
+                .clientIp(log.getClientIp())
+                .bodyPreview(log.getBodyPreview())
+                .bodySize(log.getBodySize())
+                .receivedAt(log.getReceivedAt())
+                .url(log.getUrl())
+                .headers(log.getHeaders())
+                .queryParams(log.getQueryParams())
+                .body(log.getBody())
+                .build();
     }
 }
