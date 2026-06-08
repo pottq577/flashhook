@@ -36,7 +36,7 @@ jobs:
       working-directory: ./FH_backend
       run: |
         ./gradlew bootJar
-        nohup java -jar build/libs/*.jar > backend.log 2>&1 &
+        nohup java -jar $(find build/libs -name "*.jar" ! -name "*-plain.jar" | head -n 1) > backend.log 2>&1 &
         BACKEND_PID=$!
         echo "Backend started with PID: $BACKEND_PID"
         # Wait for backend to be ready on port 8080
