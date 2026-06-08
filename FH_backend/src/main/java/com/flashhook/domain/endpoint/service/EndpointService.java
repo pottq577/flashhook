@@ -21,6 +21,12 @@ public class EndpointService {
     @org.springframework.beans.factory.annotation.Value("${flashhook.log.max-size-bytes:5242880}")
     private long maxLogSizeBytes;
 
+    @org.springframework.beans.factory.annotation.Value("${flashhook.base-url:http://localhost:8080}")
+    private String baseUrl;
+
+    @org.springframework.beans.factory.annotation.Value("${flashhook.fe-url:http://localhost:5173}")
+    private String feUrl;
+
     /**
      * 엔드포인트 생성
      */
@@ -49,8 +55,8 @@ public class EndpointService {
                 .endpointId(endpointId)
                 .accessToken(accessToken)
                 .label(endpoint.getLabel())
-                .webhookUrl("https://api.flashhook.kr/api/hooks/" + endpointId) // 추후 env에서 주입 가능
-                .dashboardUrl("https://flashhook.kr/dashboard/" + endpointId)
+                .webhookUrl(baseUrl + "/api/hooks/" + endpointId)
+                .dashboardUrl(feUrl + "/dashboard/" + endpointId)
                 .expiresAt(expiresAt)
                 .limits(java.util.Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
                 .build();
@@ -67,8 +73,8 @@ public class EndpointService {
                 .endpointId(endpoint.getEndpointId())
                 .accessToken(null) // 보안상 조회 시 미반환
                 .label(endpoint.getLabel())
-                .webhookUrl("https://api.flashhook.kr/api/hooks/" + endpointId)
-                .dashboardUrl("https://flashhook.kr/dashboard/" + endpointId)
+                .webhookUrl(baseUrl + "/api/hooks/" + endpointId)
+                .dashboardUrl(feUrl + "/dashboard/" + endpointId)
                 .expiresAt(endpoint.getExpiresAt())
                 .limits(java.util.Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
                 .build();
