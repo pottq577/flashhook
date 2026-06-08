@@ -35,9 +35,12 @@ jobs:
     - name: Start Backend Server
       working-directory: ./FH_backend
       run: |
-        ./gradlew bootRun > backend.log 2>&1 &
+        ./gradlew bootJar
+        nohup java -jar build/libs/*.jar > backend.log 2>&1 &
+        BACKEND_PID=$!
+        echo "Backend started with PID: $BACKEND_PID"
         # Wait for backend to be ready on port 8080
-        timeout 120 bash -c 'while ! curl -fsS http://localhost:8080/api/health > /dev/null; do sleep 2; done' || {
+        timeout 120 bash -c 'while ! curl -fsS http://localhost:8080/api/actuator/health > /dev/null; do sleep 2; done' || {
           echo "Backend health check failed"
           tail -n 200 backend.log || true
           exit 1
@@ -57,6 +60,12 @@ jobs:
     - name: Run Frontend Linter
       working-directory: ./FH_frontend
       run: npm run lint
+
+    - name: Cache Playwright Browsers
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
 
     - name: Install Playwright Browsers
       working-directory: ./FH_frontend
