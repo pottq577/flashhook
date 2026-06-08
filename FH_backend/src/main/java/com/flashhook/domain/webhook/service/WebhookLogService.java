@@ -65,15 +65,15 @@ public class WebhookLogService {
      */
     @Transactional
     public void deleteAll(String endpointId) {
+        Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
+
         webhookLogRepository.deleteAllByEndpointId(endpointId);
-        endpointRepository.findByEndpointId(endpointId).ifPresent(endpoint -> {
-            long remainingCount = webhookLogRepository.countByEndpointId(endpointId);
-            long remainingSize = webhookLogRepository.sumBodySizeByEndpointId(endpointId).orElse(0L);
-            Endpoint updated = endpoint.toBuilder()
-                    .logCount((int) remainingCount)
-                    .logSizeBytes(remainingSize)
-                    .build();
-            endpointRepository.save(updated);
-        });
+        
+        Endpoint updated = endpoint.toBuilder()
+                .logCount(0)
+                .logSizeBytes(0L)
+                .build();
+        endpointRepository.save(updated);
     }
 }

@@ -31,6 +31,22 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 낙관적 락 예외 처리
+     */
+    @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLockingFailureException(org.springframework.dao.OptimisticLockingFailureException e, HttpServletRequest request) {
+        return ResponseEntity
+                .status(ErrorCode.CONCURRENT_MODIFICATION.getStatus())
+                .body(ErrorResponse.builder()
+                        .code(ErrorCode.CONCURRENT_MODIFICATION.getCode())
+                        .message(ErrorCode.CONCURRENT_MODIFICATION.getMessage())
+                        .status(ErrorCode.CONCURRENT_MODIFICATION.getStatus())
+                        .timestamp(Instant.now())
+                        .path(request.getRequestURI())
+                        .build());
+    }
+
+    /**
      * 기타 예외 처리
      */
     @ExceptionHandler(Exception.class)

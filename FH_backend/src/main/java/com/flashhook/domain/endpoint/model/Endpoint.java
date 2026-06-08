@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import org.springframework.data.annotation.Version;
 
 /**
  * 엔드포인트 도큐먼트 (MongoDB)
@@ -23,6 +24,9 @@ public class Endpoint {
 
     @Id
     private String id;
+
+    @Version
+    private Long version;
 
     @Indexed(unique = true)
     private String endpointId;
