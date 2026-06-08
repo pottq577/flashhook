@@ -59,7 +59,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
             String[] parts = path.split("/");
             if (parts.length >= 4) {
                 String endpointId = parts[3];
-                String key = "rl:hook:" + endpointId;
+                String clientIp = IpExtractor.extract(request);
+                String key = "rl:hook:" + endpointId + ":" + clientIp;
                 // 1분(60초) 기준
                 if (!rateLimitService.isAllowed(key, webhookReceiveLimit, 60)) {
                     sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);

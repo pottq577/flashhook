@@ -22,8 +22,7 @@ public class WebhookReceiveController {
      */
     @RequestMapping(value = "/{endpointId}", method = {
             RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
-            RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.HEAD,
-            RequestMethod.OPTIONS
+            RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.HEAD
     })
     public ResponseEntity<Void> receive(
             @PathVariable String endpointId,
