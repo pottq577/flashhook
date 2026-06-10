@@ -18,7 +18,6 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException e, HttpServletRequest request) {
-        // TODO: 구현 필요
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
                 .body(ErrorResponse.builder()
@@ -51,7 +50,6 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
-        // TODO: 구현 필요
         return ResponseEntity
                 .status(500)
                 .body(ErrorResponse.builder()

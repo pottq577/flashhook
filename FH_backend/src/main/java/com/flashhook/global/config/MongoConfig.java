@@ -8,5 +8,5 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class MongoConfig {
-    // TODO: 필요 시 커스텀 설정 추가
+    // 향후 필요 시 커스텀 설정 추가
 }

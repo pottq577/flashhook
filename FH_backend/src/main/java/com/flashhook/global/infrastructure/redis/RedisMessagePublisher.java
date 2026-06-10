@@ -18,6 +18,6 @@ public class RedisMessagePublisher {
      * 웹훅 로그를 Redis 채널로 발행
      */
     public void publish(String endpointId, String logJson) {
-        // TODO: 스케일아웃 시 활성화
+        // 향후 스케일아웃 시 Redis Pub/Sub 로직 활성화
     }
 }
