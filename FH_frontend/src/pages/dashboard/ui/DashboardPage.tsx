@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEndpointQuery } from '../../../entities/endpoint/api/endpoint.queries';
 import { useLogsQuery } from '../../../entities/log/api/log.queries';
-import { useSSE } from '../../../entities/log/api/useSSE';
+import { useRealtimeLogs } from '../../../features/realtime-logs';
 import { useLogStore } from '../../../entities/log/model/log.store';
 import { useIsMobile } from '../../../shared/lib/useIsMobile';
 import Header from '../../../widgets/header/ui/Header';
@@ -24,8 +24,8 @@ function DashboardPage() {
   // Fetch initial logs
   useLogsQuery(endpointId || '', 0, 50);
 
-  const { logs, selectedLog, addLog, setSelectedLog } = useLogStore();
-  const { status } = useSSE(endpointId, addLog);
+  const { logs, selectedLog, setSelectedLog } = useLogStore();
+  const { status } = useRealtimeLogs(endpointId);
 
   if (!endpointId) return <div className={styles.center}>Invalid Endpoint ID</div>;
   if (isLoading) return <div className={styles.center}>Loading...</div>;
