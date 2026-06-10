@@ -58,6 +58,17 @@ public class RateLimitFilter extends OncePerRequestFilter {
             }
         }
 
+        // 2. 엔드포인트 생성 API (POST /api/endpoints)
+        if ("POST".equalsIgnoreCase(method) && "/api/endpoints".equals(path)) {
+            String clientIp = IpExtractor.extract(request);
+            String key = "rl:create:" + clientIp;
+            // 24시간(86400초) 기준
+            if (!rateLimitService.isAllowed(key, endpointCreateLimit, 24 * 60 * 60)) {
+                sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
+                return;
+            }
+        }
+
         filterChain.doFilter(request, response);
     }
 

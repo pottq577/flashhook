@@ -19,7 +19,6 @@ import java.util.Map;
 import org.springframework.context.ApplicationEventPublisher;
 import com.flashhook.global.event.EndpointDeletedEvent;
 import org.springframework.transaction.annotation.Transactional;
-import com.flashhook.global.ratelimit.RateLimitService;
 
 /**
  * 엔드포인트 비즈니스 로직
@@ -30,7 +29,6 @@ public class EndpointService {
 
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final RateLimitService rateLimitService;
 
     @Value("${flashhook.log.max-count:500}")
     private int maxLogCount;
@@ -43,19 +41,11 @@ public class EndpointService {
 
     @Value("${flashhook.fe-url:http://localhost:5173}")
     private String feUrl;
-    
-    @Value("${flashhook.ratelimit.endpoint-create:5}")
-    private int endpointCreateLimit;
 
     /**
      * 엔드포인트 생성
      */
     public EndpointResponse create(EndpointCreateRequest request, String ip) {
-        String key = "rl:create:" + ip;
-        if (!rateLimitService.isAllowed(key, endpointCreateLimit, 24 * 60 * 60)) {
-            throw new CustomException(ErrorCode.RATE_LIMIT_EXCEEDED);
-        }
-
         String endpointId = UUID.randomUUID().toString().replace("-", "");
         String accessToken = com.flashhook.global.security.AccessTokenUtil.generateToken();
         String accessTokenHash = com.flashhook.global.security.AccessTokenUtil.hashToken(accessToken);
