@@ -320,7 +320,7 @@ DELETE /api/endpoints/{endpointId}/logs
 실시간 스트림은 보안을 위해 `streamToken`을 먼저 발급받은 후 `EventSource`를 연결하는 2-Step 방식으로 동작합니다.
 
 #### 1) Stream Token 발급
-```
+```http
 POST /api/endpoints/{endpointId}/stream-token
 ```
 
@@ -329,12 +329,12 @@ POST /api/endpoints/{endpointId}/stream-token
 **Response**: `200 OK`
 ```json
 {
-  "streamToken": "123e4567e89b12d3a456426614174000"
+  "streamToken": "xxx-sample-token-xxx"
 }
 ```
 
 #### 2) SSE 연결
-```
+```http
 GET /api/endpoints/{endpointId}/stream?streamToken={streamToken}
 ```
 
