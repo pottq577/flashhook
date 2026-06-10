@@ -14,9 +14,9 @@ public interface WebhookLogRepository extends MongoRepository<WebhookLog, String
 
     Page<WebhookLog> findByEndpointId(String endpointId, Pageable pageable);
 
-    Page<WebhookLog> findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDesc(String endpointId, java.time.Instant receivedAt, Pageable pageable);
+    Page<WebhookLog> findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDescLogIdDesc(String endpointId, java.time.Instant receivedAt, Pageable pageable);
 
-    Page<WebhookLog> findByEndpointIdAndReceivedAtGreaterThanOrderByReceivedAtAsc(String endpointId, java.time.Instant receivedAt, Pageable pageable);
+    Page<WebhookLog> findByEndpointIdAndReceivedAtGreaterThanOrderByReceivedAtAscLogIdAsc(String endpointId, java.time.Instant receivedAt, Pageable pageable);
 
     Optional<WebhookLog> findByLogId(String logId);
 

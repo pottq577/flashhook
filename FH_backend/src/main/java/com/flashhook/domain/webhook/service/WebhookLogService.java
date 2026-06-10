@@ -44,19 +44,19 @@ public class WebhookLogService {
                 : Direction.DESC;
 
         PageRequest pageRequest = PageRequest.of(page,
-                size, Sort.by(direction, "receivedAt"));
+                size, Sort.by(direction, "receivedAt").and(Sort.by(direction, "logId")));
 
         Page<WebhookLog> logPage;
         if (lastSeenId != null && !lastSeenId.isEmpty()) {
             // 커서 기반 조회 시 페이지는 0으로 고정
-            pageRequest = PageRequest.of(0, size, Sort.by(direction, "receivedAt"));
+            pageRequest = PageRequest.of(0, size, Sort.by(direction, "receivedAt").and(Sort.by(direction, "logId")));
             
             WebhookLog lastLog = webhookLogRepository.findByLogId(lastSeenId).orElse(null);
             if (lastLog != null) {
                 if (direction == Direction.ASC) {
-                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtGreaterThanOrderByReceivedAtAsc(endpointId, lastLog.getReceivedAt(), pageRequest);
+                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtGreaterThanOrderByReceivedAtAscLogIdAsc(endpointId, lastLog.getReceivedAt(), pageRequest);
                 } else {
-                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDesc(endpointId, lastLog.getReceivedAt(), pageRequest);
+                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDescLogIdDesc(endpointId, lastLog.getReceivedAt(), pageRequest);
                 }
             } else {
                 logPage = webhookLogRepository.findByEndpointId(endpointId, pageRequest);
