@@ -69,7 +69,7 @@ jobs:
 
     - name: Install Playwright Browsers
       working-directory: ./FH_frontend
-      run: npx playwright install --with-deps
+      run: npx playwright install chromium --with-deps
 
     - name: Run E2E Tests
       working-directory: ./FH_frontend
