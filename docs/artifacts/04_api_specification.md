@@ -82,6 +82,12 @@ Content-Type: application/json (선택)
   "limits": {
     "maxLogs": 500,
     "maxSizeMb": 5
+  },
+  "mockConfig": {
+    "statusCode": 200,
+    "delayMs": 0,
+    "headers": {},
+    "body": "ok"
   }
 }
 ```
@@ -110,10 +116,19 @@ GET /api/endpoints/{endpointId}
   "endpointId": "a1b2c3d4-...",
   "label": "Toss 결제테스트",
   "webhookUrl": "https://flashhook.kr/api/hooks/a1b2c3d4-...",
+  "dashboardUrl": "https://flashhook.kr/dashboard/a1b2c3d4-...",
   "createdAt": "2026-06-07T22:35:00Z",
   "expiresAt": "2026-06-08T22:35:00Z",
-  "logCount": 42,
-  "logSizeBytes": 128000
+  "limits": {
+    "maxLogs": 500,
+    "maxSizeMb": 5
+  },
+  "mockConfig": {
+    "statusCode": 200,
+    "delayMs": 0,
+    "headers": {},
+    "body": "ok"
+  }
 }
 ```
 
@@ -130,6 +145,32 @@ DELETE /api/endpoints/{endpointId}
 **Response**: `204 No Content`
 
 > 엔드포인트 + 관련 로그 전부 즉시 삭제.
+
+---
+
+### 2.4. 모의 응답(Mock) 설정 업데이트
+
+```
+PATCH /api/endpoints/{endpointId}/mock
+```
+
+**인증**: `X-Access-Token` 헤더
+
+**Request**:
+
+```json
+{
+  "statusCode": 400,
+  "delayMs": 5000,
+  "headers": {
+    "Content-Type": "application/json",
+    "X-Custom-Header": "FlashHook"
+  },
+  "body": "{\"error\": \"Bad Request\"}"
+}
+```
+
+**Response**: `200 OK` (업데이트된 엔드포인트 정보 반환)
 
 ---
 
@@ -236,10 +277,12 @@ GET /api/endpoints/{endpointId}/logs/{logId}
   "headers": {
     "Content-Type": "application/json",
     "X-Custom-Header": "some-value",
-    "User-Agent": "PaymentService/2.0"
+    "User-Agent": "PaymentService/2.0",
+    "Authorization": "[REDACTED]"
   },
   "queryParams": {
-    "param": "value"
+    "param": "value",
+    "password": "[REDACTED]"
   },
   "body": {
     "event": "payment.success",
@@ -252,6 +295,8 @@ GET /api/endpoints/{endpointId}/logs/{logId}
   "receivedAt": "2026-06-07T22:40:00Z"
 }
 ```
+
+> **보안 참고**: `authorization`, `x-api-key`, `password` 등 민감한 정보가 포함된 헤더나 쿼리 파라미터는 `[REDACTED]`로 마스킹 처리되어 반환됩니다.
 
 ---
 
@@ -333,6 +378,7 @@ GET /api/health
 | `POST`   | `/api/endpoints`                   |  IP  | 엔드포인트 생성   |
 | `GET`    | `/api/endpoints/{id}`              | 토큰 | 엔드포인트 정보   |
 | `DELETE` | `/api/endpoints/{id}`              | 토큰 | 엔드포인트 삭제   |
+| `PATCH`  | `/api/endpoints/{id}/mock`         | 토큰 | 모의 설정 업데이트|
 | `ANY`    | `/api/hooks/{id}`                  |  -   | 웹훅 수신         |
 | `GET`    | `/api/endpoints/{id}/logs`         | 토큰 | 로그 목록         |
 | `GET`    | `/api/endpoints/{id}/logs/{logId}` | 토큰 | 로그 상세         |
@@ -340,4 +386,4 @@ GET /api/health
 | `GET`    | `/api/endpoints/{id}/stream`       | 토큰 | SSE 실시간 스트림 |
 | `GET`    | `/api/health`                      |  -   | 헬스체크          |
 
-**총 9개 엔드포인트 (MVP)**
+**총 10개 엔드포인트 (MVP)**
