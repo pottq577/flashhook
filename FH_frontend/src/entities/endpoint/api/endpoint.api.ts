@@ -17,3 +17,18 @@ export async function getEndpoint(id: string): Promise<Endpoint> {
 export async function deleteEndpoint(id: string): Promise<void> {
   await apiRequest(`/endpoints/${id}`, { method: 'DELETE' }, id);
 }
+
+export type MockUpdateRequest = {
+  statusCode?: number;
+  delayMs?: number;
+  headers?: Record<string, string>;
+  body?: string;
+};
+
+export async function updateMockConfig(id: string, mockConfig: MockUpdateRequest): Promise<Endpoint> {
+  const data = await apiRequest(`/endpoints/${id}/mock`, {
+    method: 'PATCH',
+    body: mockConfig,
+  }, id);
+  return EndpointSchema.parse(data);
+}

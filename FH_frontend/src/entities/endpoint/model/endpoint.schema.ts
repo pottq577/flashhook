@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+export const MockConfigSchema = z.object({
+  statusCode: z.number().default(200),
+  delayMs: z.number().min(0).max(10000).default(0),
+  headers: z.record(z.string()).default({}),
+  body: z.string().default('ok'),
+});
+
 export const EndpointSchema = z.object({
   endpointId: z.string(),
   label: z.string().nullish(),
@@ -10,6 +17,7 @@ export const EndpointSchema = z.object({
     maxLogs: z.number(),
     maxSizeMb: z.number(),
   }).optional(),
+  mockConfig: MockConfigSchema.optional(),
 });
 
 export const EndpointCreateResponseSchema = EndpointSchema.extend({
