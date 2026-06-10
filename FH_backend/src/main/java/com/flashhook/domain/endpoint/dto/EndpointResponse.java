@@ -24,4 +24,5 @@ public class EndpointResponse {
     private String dashboardUrl;
     private Instant expiresAt;
     private Map<String, Object> limits;
+    private com.flashhook.domain.endpoint.model.MockConfig mockConfig;
 }

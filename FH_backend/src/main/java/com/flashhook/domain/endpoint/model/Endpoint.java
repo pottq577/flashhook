@@ -46,6 +46,9 @@ public class Endpoint {
 
     private Instant expiresAt;
 
+    @Builder.Default
+    private MockConfig mockConfig = new MockConfig();
+
     public void incrementLogStats(long sizeBytes) {
         this.logCount += 1;
         this.logSizeBytes += sizeBytes;
