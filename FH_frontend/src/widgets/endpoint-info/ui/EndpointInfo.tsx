@@ -1,5 +1,6 @@
 import type { Endpoint } from '@/entities/endpoint/model/endpoint.schema';
 import CopyButton from '@/shared/ui/CopyButton';
+import CountdownTimer from './CountdownTimer';
 import styles from './EndpointInfo.module.css';
 
 function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {
@@ -24,7 +25,9 @@ function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {
         </div>
         <div className={styles.statItem}>
           <span className={styles.statLabel}>만료 일시:</span>
-          <span className={styles.statValue}>{new Date(endpoint.expiresAt).toLocaleString()}</span>
+          <span className={styles.statValue}>
+            {new Date(endpoint.expiresAt).toLocaleString()} (<CountdownTimer expiresAt={endpoint.expiresAt} />)
+          </span>
         </div>
       </div>
     </div>
