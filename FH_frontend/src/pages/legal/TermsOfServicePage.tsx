@@ -1,0 +1,57 @@
+import React from 'react';
+import styles from '../../widgets/legal/legal.module.css';
+
+export const TermsOfServicePage: React.FC = () => {
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>서비스 이용약관</h1>
+      <p className={styles.paragraph}>본 약관은 [TODO: 서비스 오픈일 확정 시 기재]부터 적용됩니다.</p>
+
+      <h2 className={styles.sectionTitle}>제1조 (목적)</h2>
+      <p className={styles.paragraph}>
+        본 약관은 FlashHook(이하 "서비스")이 제공하는 웹훅 수신 및 디버깅 유틸리티 서비스의 이용조건 및 절차, 이용자와 서비스 제공자의 권리, 의무 및 책임사항 등을 규정함을 목적으로 합니다.
+      </p>
+
+      <h2 className={styles.sectionTitle}>제2조 (용어의 정의)</h2>
+      <ul className={styles.list}>
+        <li className={styles.listItem}><strong>이용자:</strong> 본 약관에 따라 서비스가 제공하는 기능을 이용하는 자를 말합니다. (본 서비스는 회원가입 절차 없이 제공됩니다.)</li>
+        <li className={styles.listItem}><strong>Endpoint (엔드포인트):</strong> 이용자가 웹훅 데이터를 수신하기 위해 생성한 임시 URL을 의미합니다.</li>
+        <li className={styles.listItem}><strong>Payload (페이로드):</strong> 외부 시스템에서 Endpoint로 전송된 데이터(Header, Query, Body 등)를 의미합니다.</li>
+      </ul>
+
+      <h2 className={styles.sectionTitle}>제3조 (약관의 효력 및 변경)</h2>
+      <p className={styles.paragraph}>
+        이용자가 Endpoint를 생성하거나 본 서비스를 이용하는 경우 본 약관 및 개인정보처리방침에 동의한 것으로 간주합니다. 서비스는 법령을 위배하지 않는 범위에서 본 약관을 개정할 수 있습니다.
+      </p>
+
+      <h2 className={styles.sectionTitle}>제4조 (서비스의 제공 및 한계)</h2>
+      <ul className={styles.list}>
+        <li className={styles.listItem}>본 서비스는 개발 목적의 임시 웹훅 디버깅 유틸리티를 무상으로 제공합니다.</li>
+        <li className={styles.listItem}>생성된 모든 Endpoint와 수신된 Payload 데이터는 수신 시점으로부터 24시간이 경과하면 시스템에서 자동 파기되며, 어떠한 경우에도 복구할 수 없습니다.</li>
+        <li className={styles.listItem}>서비스의 안정성을 위해 동일 IP당 생성 가능한 Endpoint 수 및 분당 처리 가능한 웹훅 수신 건수(Rate Limit)가 제한될 수 있습니다.</li>
+      </ul>
+
+      <h2 className={styles.sectionTitle}>제5조 (이용자의 의무)</h2>
+      <p className={styles.paragraph}>이용자는 본 서비스를 이용할 때 다음 각 호의 행위를 하여서는 안 됩니다.</p>
+      <ul className={styles.list}>
+        <li className={styles.listItem}>불법적이거나 유해한 콘텐츠(악성코드, 바이러스 등)를 Endpoint를 통해 송수신하는 행위</li>
+        <li className={styles.listItem}>서비스의 시스템 자원을 과도하게 소모하거나 비정상적인 트래픽을 유발하여 서비스 운영을 방해하는 행위</li>
+        <li className={styles.listItem}>제3자의 개인정보나 민감정보를 불법적으로 수집하는 창구로 서비스를 악용하는 행위</li>
+      </ul>
+
+      <h2 className={styles.sectionTitle}>제6조 (면책 조항)</h2>
+      <div className={styles.highlightBox}>
+        <ul className={styles.list}>
+          <li className={styles.listItem}>본 서비스는 테스트 및 디버깅 용도로 제공되므로, 이용자가 프로덕션 환경이나 중요 데이터 전송에 본 서비스를 사용하여 발생하는 데이터 유실, 전송 지연 등의 손해에 대해 일체의 책임을 지지 않습니다.</li>
+          <li className={styles.listItem}>이용자가 생성한 Endpoint로 유입되는 모든 데이터(Payload)의 내용에 대한 책임은 발신자 및 이용자에게 있으며, 서비스 제공자는 해당 데이터의 적법성이나 내용을 보증하지 않습니다.</li>
+          <li className={styles.listItem}>시스템 점검, 클라우드 인프라 장애, 천재지변 등으로 인하여 서비스 제공이 일시적으로 중단될 수 있으며, 이로 인한 데이터 유실 및 손해에 대해 책임을 지지 않습니다.</li>
+        </ul>
+      </div>
+
+      <h2 className={styles.sectionTitle}>제7조 (관할법원)</h2>
+      <p className={styles.paragraph}>
+        서비스 이용과 관련하여 분쟁이 발생한 경우 대한민국 법을 준거법으로 하며, 민사소송법상의 관할법원에 소를 제기할 수 있습니다.
+      </p>
+    </div>
+  );
+};
