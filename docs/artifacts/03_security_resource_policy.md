@@ -41,7 +41,8 @@
 
 ```
 REST API  → Header: X-Access-Token: {accessToken}
-SSE 스트림 → Query:  ?token={accessToken}  (EventSource API 커스텀 헤더 미지원)
+SSE 스트림 → 1단계: POST `/api/endpoints/{id}/stream-token` (헤더 인증) -> 일회용 `streamToken` 발급
+            2단계: GET `/api/endpoints/{id}/stream?streamToken={streamToken}` (EventSource 사용)
 ```
 
 > **보안 참고:** 클라이언트에서 토큰을 `sessionStorage`에 저장 후, 브라우저 History API(`replaceState`)를 사용하여 URL에서 토큰을 즉시 제거하여 유출을 방지합니다.
@@ -55,7 +56,7 @@ SSE 스트림 → Query:  ?token={accessToken}  (EventSource API 커스텀 헤�
 | 엔드포인트 생성  |     IP만      | Rate Limit으로 남용 방지      |
 | 웹훅 수신 (POST) |     없음      | 외부 서비스가 호출. 인증 불가 |
 | 대시보드 조회    | `accessToken` | 토큰 없으면 403               |
-| SSE 로그 스트림  | `accessToken` | 토큰 검증 후 연결             |
+| SSE 로그 스트림  | `streamToken` | POST 발급 후 GET 연결 검증    |
 | 엔드포인트 삭제  | `accessToken` | 수동 삭제                     |
 | 로그 전체 삭제   | `accessToken` | 수동 삭제                     |
 
@@ -63,7 +64,7 @@ SSE 스트림 → Query:  ?token={accessToken}  (EventSource API 커스텀 헤�
 
 ## 3. Rate Limiting 정책
 
-Redis 기반 Sliding Window/고정 Window Counter 구현.
+Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
 | 대상            | 제한            | Window | Redis Key                         | 상태 |
 | --------------- | --------------- | ------ | --------------------------------- | :---: |
@@ -137,7 +138,7 @@ MVP 개발 과정에서 아래 주요 보안 이슈들이 모두 코드로 구�
 | ---------------------- | ------------------------------------------------------------------------------------ | ---- |
 | URL 토큰 유출 방지     | 프론트엔드 `endpoint.queries.ts`에서 `window.history.replaceState()`로 토큰 제거     | 완료 |
 | Payload 크기 절대 제한 | `application.yaml`의 `multipart.max-file-size` 및 `max-http-form-post-size` 1MB 적용 | 완료 |
-| SSE Idle Timeout       | `SseEmitterService.java` 내 30초 주기의 Heartbeat 핑(`:ping\n\n`) 전송               | 완료 |
+| SSE Idle Timeout       | `SseEmitterService.java` 내 30초 주기의 Heartbeat 이벤트(`event: ping`) 전송         | 완료 |
 
 ---
 

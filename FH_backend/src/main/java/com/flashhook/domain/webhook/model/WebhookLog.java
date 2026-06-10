@@ -28,6 +28,7 @@ public class WebhookLog {
     @Id
     private String id;
 
+    @Indexed(unique = true)
     private String logId;
 
     private String endpointId;

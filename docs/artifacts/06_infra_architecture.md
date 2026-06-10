@@ -51,7 +51,7 @@
 | FE 호스팅 | S3 + CloudFront            | React SPA 정적 배포. CDN 캐싱. ACM으로 HTTPS 무료               |
 | SSL (API) | Nginx + Let's Encrypt      | ALB($16/월) 없이 HTTPS 확보. MVP 비용 절감                      |
 | DB        | MongoDB Atlas M0           | 무료. 512MB 스토리지. 24시간 TTL 서비스라 충분                  |
-| Cache     | Redis (EC2 내 설치)        | ElastiCache($13/월~) 대신 같은 EC2에서 운영                     |
+| Cache     | Redis (EC2 내 설치)        | Fixed Window Rate Limit, SSE `stream_token` (단기), ElastiCache 대용으로 운영 |
 | DNS       | Route 53                   | 도메인 관리. 서브도메인 분리                                    |
 
 ### 1.2. 도메인 구조
@@ -138,9 +138,16 @@ MVP(EC2 1대)에선 문제 없음. ECS 스케일아웃 시:
 
 ---
 
-## 3. 배포 파이프라인
+## 3. CI/CD 파이프라인
 
-### 3.1. MVP (GitHub Actions)
+### 3.1. 현재 구축 상태 (CI)
+
+현재는 GitHub Actions 기반의 지속적 통합(CI) 파이프라인(`.github/workflows/ci.yml`)만 구성되어 있습니다.
+- **공통**: Docker Compose를 활용한 로컬 DB(MongoDB, Redis) 구동
+- **백엔드**: Java 21 기반 Gradle 빌드, 테스트 실행 및 Health Check 확인
+- **프론트엔드**: Node.js 기반 의존성 설치, Linter 실행, Playwright E2E 테스트 자동화
+
+### 3.2. MVP 배포 파이프라인 (CD - 예정)
 
 ```
 [GitHub Push]
@@ -150,7 +157,7 @@ MVP(EC2 1대)에선 문제 없음. ECS 스케일아웃 시:
     └─ BE: Gradle build → Docker 이미지 → EC2 SSH 배포
 ```
 
-### 3.2. 프로덕션 (GitHub Actions + ECR + ECS)
+### 3.3. 프로덕션 (GitHub Actions + ECR + ECS - 스케일업 시 예정)
 
 ```
 [GitHub Push]
@@ -174,7 +181,10 @@ EC2 t3.small
 │       ├── MongoDB Atlas 연결 문자열
 │       └── Redis localhost:6379 연결
 ├── Redis (:6379)
-│   └── redis.conf (maxmemory 512mb, eviction policy)
+│   ├── redis.conf (maxmemory 512mb, eviction policy)
+│   └── 주요 저장 데이터:
+│       ├── Rate Limit (Fixed Window Counter): `rl:create:{ip}` (TTL 24h)
+│       └── SSE Stream Token: `stream_token:{token}` (단기 일회성 연결용)
 └── Docker (선택)
     └── docker-compose.yml (Spring Boot + Redis)
 ```
