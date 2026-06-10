@@ -59,7 +59,7 @@ export const PrivacyPolicyPage = () => {
       <ul className={styles.list}>
         <li className={styles.listItem}><strong>담당:</strong> FlashHook 개발팀</li>
         <li className={styles.listItem}>
-          <strong>이메일:</strong> <a href="/contact" style={{ color: 'var(--accent-color, #3b82f6)' }}>문의 페이지를 통해 연락</a>
+          <strong>이메일:</strong> <a href="/contact" style={{ color: 'var(--accent-color, #2563eb)' }}>문의 페이지를 통해 연락</a>
         </li>
       </ul>
     </div>
