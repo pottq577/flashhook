@@ -29,3 +29,20 @@ export const useCreateEndpointMutation = () => {
     },
   });
 };
+
+export function useDeleteEndpointMutation() {
+  return useMutation({
+    mutationFn: (id: string) => deleteEndpoint(id),
+  });
+}
+
+export function useUpdateMockConfigMutation(endpointId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (mockConfig: Parameters<typeof import('./endpoint.api').updateMockConfig>[1]) => 
+      import('./endpoint.api').then(m => m.updateMockConfig(endpointId, mockConfig)),
+    onSuccess: (data) => {
+      queryClient.setQueryData(['endpoint', endpointId], data);
+    },
+  });
+}
