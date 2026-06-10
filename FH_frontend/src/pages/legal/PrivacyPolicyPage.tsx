@@ -1,9 +1,9 @@
 import React from 'react';
 import styles from '../../widgets/legal/legal.module.css';
 
-export const PrivacyPolicyPage: React.FC = () => {
+export const PrivacyPolicyPage = () => {
   return (
-    <div className={styles.container}>
+    <div className={styles.legalContainer}>
       <h1 className={styles.title}>개인정보처리방침</h1>
       <p className={styles.paragraph}>
         FlashHook(이하 "서비스")은 통신비밀보호법, 전기통신사업법, 정보통신망 이용촉진 및 정보보호 등에 관한 법률, 개인정보보호법 등 관련 법령에 따른 개인정보 보호 규정을 준수합니다. 본 방침은 [TODO: 서비스 오픈일 확정 시 기재]부터 시행됩니다.
@@ -59,7 +59,7 @@ export const PrivacyPolicyPage: React.FC = () => {
       <ul className={styles.list}>
         <li className={styles.listItem}><strong>담당:</strong> FlashHook 개발팀</li>
         <li className={styles.listItem}>
-          <strong>이메일:</strong> <a href="/contact" style={{ color: '#3b82f6' }}>문의 페이지를 통해 연락</a>
+          <strong>이메일:</strong> <a href="/contact" style={{ color: 'var(--accent-color, #3b82f6)' }}>문의 페이지를 통해 연락</a>
         </li>
       </ul>
     </div>

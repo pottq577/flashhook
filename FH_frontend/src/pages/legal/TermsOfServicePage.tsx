@@ -1,9 +1,9 @@
 import React from 'react';
 import styles from '../../widgets/legal/legal.module.css';
 
-export const TermsOfServicePage: React.FC = () => {
+export const TermsOfServicePage = () => {
   return (
-    <div className={styles.container}>
+    <div className={styles.legalContainer}>
       <h1 className={styles.title}>서비스 이용약관</h1>
       <p className={styles.paragraph}>본 약관은 [TODO: 서비스 오픈일 확정 시 기재]부터 적용됩니다.</p>
 
