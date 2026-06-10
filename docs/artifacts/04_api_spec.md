@@ -3,22 +3,22 @@
 > **기술 스택**: Java 21, Spring Boot 3.5.0
 > **Rate Limit**: Redis를 이용한 고정 윈도우(Fixed Window Counter) 알고리즘 기반으로 적용됩니다.
 
-### 1. 공통 사항
+## 1. 공통 사항
 
-#### 1.1. Base URL
+### 1.1. Base URL
 
-```
+```text
 https://flashhook.kr/api
 ```
 
-#### 1.2. 인증 방식
+### 1.2. 인증 방식
 
-```
+```text
 REST API  → Header: X-Access-Token: {accessToken}
 SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=...)
 ```
 
-#### 1.3. 공통 에러 응답 형식
+### 1.3. 공통 에러 응답 형식
 
 ```json
 {
@@ -30,7 +30,7 @@ SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=
 }
 ```
 
-#### 1.4. 에러 코드 목록
+### 1.4. 에러 코드 목록
 
 | HTTP Status | Code                      | 설명                      |
 | :---------: | ------------------------- | ------------------------- |
@@ -43,11 +43,11 @@ SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=
 
 ---
 
-### 2. 엔드포인트 관리
+## 2. 엔드포인트 관리
 
-#### 2.1. 엔드포인트 생성
+### 2.1. 엔드포인트 생성
 
-```
+```text
 POST /api/endpoints
 ```
 
@@ -55,7 +55,7 @@ POST /api/endpoints
 
 **Request**:
 
-```
+```text
 Content-Type: application/json (선택)
 
 // Body 없음 or {} → label 없이 생성
@@ -96,9 +96,9 @@ Content-Type: application/json (선택)
 
 ---
 
-#### 2.2. 엔드포인트 정보 조회
+### 2.2. 엔드포인트 정보 조회
 
-```
+```text
 GET /api/endpoints/{endpointId}
 ```
 
@@ -129,9 +129,9 @@ GET /api/endpoints/{endpointId}
 
 ---
 
-#### 2.3. 엔드포인트 삭제
+### 2.3. 엔드포인트 삭제
 
-```
+```text
 DELETE /api/endpoints/{endpointId}
 ```
 
@@ -143,7 +143,7 @@ DELETE /api/endpoints/{endpointId}
 
 ---
 
-#### 2.4. 모의 응답(Mock) 설정 업데이트
+### 2.4. 모의 응답(Mock) 설정 업데이트
 
 ```http
 PATCH /api/endpoints/{endpointId}/mock
@@ -169,11 +169,11 @@ PATCH /api/endpoints/{endpointId}/mock
 
 ---
 
-### 3. 웹훅 수신
+## 3. 웹훅 수신
 
-#### 3.1. 웹훅 수신 (외부 서비스 호출)
+### 3.1. 웹훅 수신 (외부 서비스 호출)
 
-```
+```text
 ANY /api/hooks/{endpointId}
 ```
 
@@ -210,11 +210,11 @@ ok
 
 ---
 
-### 4. 로그 조회
+## 4. 로그 조회
 
-#### 4.1. 로그 목록 조회
+### 4.1. 로그 목록 조회
 
-```
+```text
 GET /api/endpoints/{endpointId}/logs
 ```
 
@@ -256,9 +256,9 @@ GET /api/endpoints/{endpointId}/logs
 
 ---
 
-#### 4.2. 로그 상세 조회
+### 4.2. 로그 상세 조회
 
-```
+```text
 GET /api/endpoints/{endpointId}/logs/{logId}
 ```
 
@@ -297,9 +297,9 @@ GET /api/endpoints/{endpointId}/logs/{logId}
 
 ---
 
-#### 4.3. 로그 전체 삭제
+### 4.3. 로그 전체 삭제
 
-```
+```text
 DELETE /api/endpoints/{endpointId}/logs
 ```
 
@@ -309,13 +309,13 @@ DELETE /api/endpoints/{endpointId}/logs
 
 ---
 
-### 5. 실시간 스트림
+## 5. 실시간 스트림
 
-#### 5.1. SSE 연결
+### 5.1. SSE 연결
 
 실시간 스트림은 보안을 위해 `streamToken`을 먼저 발급받은 후 `EventSource`를 연결하는 2-Step 방식으로 동작합니다.
 
-##### 1) Stream Token 발급
+#### 1) Stream Token 발급
 
 ```http
 POST /api/endpoints/{endpointId}/stream-token
@@ -331,7 +331,7 @@ POST /api/endpoints/{endpointId}/stream-token
 }
 ```
 
-##### 2) SSE 연결
+#### 2) SSE 연결
 
 ```http
 GET /api/endpoints/{endpointId}/stream?streamToken={streamToken}
@@ -341,7 +341,7 @@ GET /api/endpoints/{endpointId}/stream?streamToken={streamToken}
 
 **Response**: `200 OK`
 
-```
+```text
 Content-Type: text/event-stream
 Cache-Control: no-cache
 Connection: keep-alive
@@ -349,7 +349,7 @@ Connection: keep-alive
 
 **이벤트 형식**:
 
-```
+```text
 event: ping
 data:
 
@@ -365,11 +365,11 @@ data: {"logId":"log_abc123","method":"POST","contentType":"application/json","cl
 
 ---
 
-### 6. 시스템
+## 6. 시스템
 
-#### 6.1. 헬스체크
+### 6.1. 헬스체크
 
-```
+```text
 GET /api/health
 ```
 
@@ -386,7 +386,7 @@ GET /api/health
 
 ---
 
-### 7. 전체 엔드포인트 요약
+## 7. 전체 엔드포인트 요약
 
 | Method   | Path                               | 인증 | 설명               |
 | -------- | ---------------------------------- | :--: | ------------------ |
@@ -402,4 +402,4 @@ GET /api/health
 | `GET`    | `/api/endpoints/{id}/stream`       | 토큰 | SSE 실시간 스트림  |
 | `GET`    | `/api/health`                      |  -   | 헬스체크           |
 
-**총 11개 엔드포인트 (MVP)**
+총 11개 엔드포인트 (MVP)

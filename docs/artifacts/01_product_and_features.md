@@ -101,4 +101,3 @@ React (Vite) + TypeScript 기반으로 FSD 아키텍처를 적용하여 구축�
 - `features/`: 실시간 로그 수신 등 특정 기능 (`realtime-logs/`)
 - `entities/`: 도메인 모델 및 API (`endpoint/`, `log/`)
 - `shared/`: 공통 컴포넌트 (`api/`, `ui/`)
-
