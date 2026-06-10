@@ -19,6 +19,9 @@ import java.util.Map;
 import org.springframework.context.ApplicationEventPublisher;
 import com.flashhook.global.event.EndpointDeletedEvent;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 /**
  * 엔드포인트 비즈니스 로직
@@ -29,6 +32,7 @@ public class EndpointService {
 
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MongoTemplate mongoTemplate;
 
     @Value("${flashhook.log.max-count:500}")
     private int maxLogCount;
@@ -41,11 +45,27 @@ public class EndpointService {
 
     @Value("${flashhook.fe-url:http://localhost:5173}")
     private String feUrl;
+    
+    @Value("${flashhook.ratelimit.endpoint-create:5}")
+    private int endpointCreateLimit;
 
     /**
      * 엔드포인트 생성
      */
     public EndpointResponse create(EndpointCreateRequest request, String ip) {
+        Instant cutoff = Instant.now().minus(Duration.ofHours(24));
+        long activeCount = mongoTemplate.count(
+            Query.query(
+                Criteria.where("creatorIp").is(ip)
+                    .and("createdAt").gte(cutoff)
+            ),
+            Endpoint.class
+        );
+        
+        if (activeCount >= endpointCreateLimit) {
+            throw new CustomException(ErrorCode.RATE_LIMIT_EXCEEDED);
+        }
+
         String endpointId = UUID.randomUUID().toString().replace("-", "");
         String accessToken = com.flashhook.global.security.AccessTokenUtil.generateToken();
         String accessTokenHash = com.flashhook.global.security.AccessTokenUtil.hashToken(accessToken);
