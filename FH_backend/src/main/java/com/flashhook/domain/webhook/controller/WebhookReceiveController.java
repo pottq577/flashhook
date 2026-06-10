@@ -71,8 +71,8 @@ public class WebhookReceiveController {
         if (queryString != null && !queryString.isEmpty()) {
             for (String param : queryString.split("&")) {
                 String[] pair = param.split("=", 2);
-                String key = java.net.URLDecoder.decode(pair[0], StandardCharsets.UTF_8);
-                String value = pair.length > 1 ? java.net.URLDecoder.decode(pair[1], StandardCharsets.UTF_8) : "";
+                String key = decodeQueryComponent(pair[0]);
+                String value = pair.length > 1 ? decodeQueryComponent(pair[1]) : "";
                 queryParams.put(key, queryParams.containsKey(key) ? queryParams.get(key) + "," + value : value);
             }
         }
@@ -109,5 +109,13 @@ public class WebhookReceiveController {
                 .rawBody(rawBody)
                 .bodySize(bodySize)
                 .build();
+    }
+
+    private String decodeQueryComponent(String value) {
+        try {
+            return java.net.URLDecoder.decode(value, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            return value;
+        }
     }
 }
