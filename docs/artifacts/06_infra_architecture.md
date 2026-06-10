@@ -1,16 +1,17 @@
-# FlashHook — AWS 인프라 아키텍처
+# FlashHook — 인프라 아키텍처 (비용 최적화)
 
-> MVP 및 프로덕션 스케일업 설계
-> 최종 수정: 2026-06-07
+> 비용 최적화 MVP ($0/월) 및 프로덕션 스케일업 설계
+> 최종 수정: 2026-06-11
 
 ---
 
-## 1. MVP 아키텍처
+## 1. MVP 아키텍처 (비용: 월 $0)
 
-```
+```text
                     ┌─────────────┐
-                    │  Route 53   │
+                    │ Cloudflare  │
                     │ flashhook.kr│
+                    │(DNS/CDN/SSL)│
                     └──────┬──────┘
                            │
               ┌────────────┴────────────┐
@@ -18,24 +19,21 @@
      flashhook.kr/*          api.flashhook.kr/*
               │                         │
      ┌────────▼────────┐      ┌────────▼────────┐
-     │   CloudFront    │      │    EC2 (t3.small)│
-     │   + ACM (SSL)   │      │                  │
-     │                 │      │  ┌──────────────┐│
-     │  ┌───────────┐  │      │  │ Nginx        ││
-     │  │  S3 Bucket│  │      │  │ (리버스 프록시) ││
-     │  │  (React   │  │      │  │ + Let's Encrypt│
-     │  │   SPA)    │  │      │  └──────┬───────┘│
-     │  └───────────┘  │      │         │        │
-     └─────────────────┘      │  ┌──────▼───────┐│
-                              │  │ Spring Boot  ││
-                              │  │ :8080        ││
-                              │  └──────────────┘│
-                              │                  │
-                              │  ┌──────────────┐│
-                              │  │ Redis        ││
-                              │  │ :6379        ││
-                              │  └──────────────┘│
-                              └──────────────────┘
+     │     Vercel      │      │Oracle Cloud ARM │
+     │  (React SPA)    │      │(Always Free 24G)│
+     └─────────────────┘      │                 │
+                              │  ┌────────────┐ │
+                              │  │ Nginx      │ │
+                              │  └──────┬─────┘ │
+                              │         │       │
+                              │  ┌──────▼─────┐ │
+                              │  │Spring Boot │ │
+                              │  └────────────┘ │
+                              │                 │
+                              │  ┌────────────┐ │
+                              │  │ Redis      │ │
+                              │  └────────────┘ │
+                              └────────┬────────┘
                                        │
                               ┌────────▼────────┐
                               │  MongoDB Atlas  │
@@ -45,43 +43,49 @@
 
 ### 1.1. 구성 요소
 
-| 구성      | 선택                       | 이유                                                            |
-| --------- | -------------------------- | --------------------------------------------------------------- |
-| Compute   | EC2 t3.small (2 vCPU, 2GB) | Spring Boot + Redis 동시 운영. t3.micro(1GB)는 메모리 부족 위험 |
-| FE 호스팅 | S3 + CloudFront            | React SPA 정적 배포. CDN 캐싱. ACM으로 HTTPS 무료               |
-| SSL (API) | Nginx + Let's Encrypt      | ALB($16/월) 없이 HTTPS 확보. MVP 비용 절감                      |
-| DB        | MongoDB Atlas M0           | 무료. 512MB 스토리지. 24시간 TTL 서비스라 충분                  |
-| Cache     | Redis (EC2 내 설치)        | Fixed Window Rate Limit, SSE `stream_token` (단기), ElastiCache 대용으로 운영 |
-| DNS       | Route 53                   | 도메인 관리. 서브도메인 분리                                    |
+| 구성      | 선택                    | 이유                                                                                                         |
+| --------- | ----------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Compute   | Oracle Cloud ARM (Free) | Spring Boot + Redis 동시 운영을 위해 2GB 이상의 메모리가 필수. 24GB RAM을 영구 무료로 제공하는 유일한 선택지 |
+| FE 호스팅 | Vercel                  | React SPA 정적 배포, GitHub 연동 자동 CI/CD, 무료                                                            |
+| DNS/CDN   | Cloudflare              | 도메인 구매 원가 수준, DNS, DDoS 방어, SSL, CDN 무료 제공                                                    |
+| DB        | MongoDB Atlas M0        | 무료. 512MB 스토리지. 24시간 TTL 서비스라 용량 충분                                                          |
+| Cache     | Redis (Oracle 내 설치)  | Rate Limit, SSE `stream_token` 관리용                                                                        |
 
 ### 1.2. 도메인 구조
 
-```
-flashhook.kr          → CloudFront (React SPA)
-api.flashhook.kr      → EC2 (Spring Boot API)
+```text
+flashhook.kr          → Vercel (React SPA)
+api.flashhook.kr      → Oracle Cloud ARM (Spring Boot API)
 ```
 
 ### 1.3. 월 예상 비용
 
-```
-EC2 t3.small (온디맨드):     ~$15/월
-S3 + CloudFront (저트래픽):   ~$1/월
+```text
+Oracle Cloud ARM (24GB):      $0
+Vercel (FE 호스팅):             $0
+Cloudflare (DNS/SSL/CDN):     $0
 MongoDB Atlas M0:             $0
-Route 53 호스팅 존:           ~$0.5/월
-도메인 (.kr):                 ~₩22,000/년 ≈ $1.5/월
+도메인 (.kr / Cloudflare):    연 $10~12
 ─────────────────────────────────
-총합:                         ~$18/월 (약 ₩25,000)
+총합:                         $0/월 (도메인 유지비 제외)
 ```
-
-> t3.small 예약 인스턴스(1년) 적용 시 ~$9/월로 절감 가능.
 
 ---
 
-## 2. 프로덕션 스케일업 아키텍처
+## 2. "AWS 비사용" 포트폴리오 면접 대응 전략
 
-서비스 성장 시 전환하는 아키텍처.
+Route 53, S3, CloudFront를 AWS로 구성하는 절충안도 있지만, Vercel과 Cloudflare가 각각 그 역할을 무료로 대체하므로 포트폴리오 운영 비용을 최소화하기 위해 해당 구조를 채택했습니다.
 
-```
+> **면접 답변 예시:**
+> "AWS가 업계 표준인 걸 알고 있고 스케일아웃 시 ECS Fargate로 전환하는 설계도 문서에 준비했습니다. 포트폴리오 장기 운영을 위해 JVM 메모리 요구사항(2GB 이상)을 충족하는 유일한 무료 옵션인 Oracle Cloud를 선택했고, 프론트엔드 및 DNS 역시 Vercel과 Cloudflare를 통해 비용 효율을 극대화했습니다."
+
+---
+
+## 3. 프로덕션 스케일업 아키텍처 (AWS 전환 시나리오)
+
+서비스 성공 및 트래픽 폭증 시, AWS 기반의 프로덕션 아키텍처로 전환합니다.
+
+```text
                     ┌─────────────┐
                     │  Route 53   │
                     └──────┬──────┘
@@ -108,88 +112,51 @@ Route 53 호스팅 존:           ~$0.5/월
                 └─────────────────┘        └─────────────────┘
 ```
 
-### 2.1. 스케일업 전환 기준
+### 3.1. 스케일업 전환 기준
 
-| 전환 시점          | 변경 사항                                   |
-| ------------------ | ------------------------------------------- |
-| SSE 동시 접속 100+ | EC2 → **ECS Fargate** (오토 스케일링)       |
-| Redis 메모리 부족  | EC2 내장 → **ElastiCache** (관리형)         |
-| MongoDB 512MB 초과 | Atlas M0 → **M10+** (전용 클러스터)         |
-| SSL 관리 부담      | Let's Encrypt → **ALB + ACM**               |
-| 멀티 인스턴스 SSE  | **Redis Pub/Sub**로 SSE 이벤트 브로드캐스트 |
-
-### 2.2. SSE 멀티 인스턴스 이슈
-
-MVP(EC2 1대)에선 문제 없음. ECS 스케일아웃 시:
-
-```
-문제:
-  웹훅 수신 → 인스턴스 A 도착
-  SSE 연결 → 인스턴스 B에 있음
-  → B의 사용자에게 이벤트 미도달
-
-해결: Redis Pub/Sub
-  웹훅 수신
-    → MongoDB 저장
-    → Redis Pub (채널: endpoint:{id})
-    → 모든 인스턴스 Sub
-    → 해당 SSE 연결에 푸시
-```
+| 전환 시점          | 변경 사항                                           |
+| ------------------ | --------------------------------------------------- |
+| SSE 동시 접속 100+ | Oracle → **ECS Fargate** (오토 스케일링)            |
+| Redis 메모리 부족  | 단일 인스턴스 → **ElastiCache** (관리형)            |
+| MongoDB 512MB 초과 | Atlas M0 → **M10+** (전용 클러스터)                 |
+| 엔터프라이즈 운영  | Vercel/Cloudflare → **Route 53 + CloudFront + ALB** |
+| 멀티 인스턴스 SSE  | **Redis Pub/Sub**로 SSE 이벤트 브로드캐스트         |
 
 ---
 
-## 3. CI/CD 파이프라인
+## 4. CI/CD 파이프라인
 
-### 3.1. 현재 구축 상태 (CI)
+### 4.1. 현재 구축 상태 (CI)
 
 현재는 GitHub Actions 기반의 지속적 통합(CI) 파이프라인(`.github/workflows/ci.yml`)만 구성되어 있습니다.
-- **공통**: Docker Compose를 활용한 로컬 DB(MongoDB, Redis) 구동
-- **백엔드**: Java 21 기반 Gradle 빌드, 테스트 실행 및 Health Check 확인
-- **프론트엔드**: Node.js 기반 의존성 설치, Linter 실행, Playwright E2E 테스트 자동화
 
-### 3.2. MVP 배포 파이프라인 (CD - 예정)
+- **공통**: Docker Compose를 활용한 로컬 DB 구동
+- **백엔드**: Java 21 기반 Gradle 빌드, 테스트
+- **프론트엔드**: Playwright E2E 테스트 자동화
 
-```
+### 4.2. MVP 배포 파이프라인 (CD)
+
+```text
 [GitHub Push]
-    ↓
-[GitHub Actions]
-    ├─ FE: npm build → S3 업로드 → CloudFront 캐시 무효화
-    └─ BE: Gradle build → Docker 이미지 → EC2 SSH 배포
-```
-
-### 3.3. 프로덕션 (GitHub Actions + ECR + ECS - 스케일업 시 예정)
-
-```
-[GitHub Push]
-    ↓
-[GitHub Actions]
-    ├─ FE: npm build → S3 업로드 → CloudFront 캐시 무효화
-    └─ BE: Gradle build → Docker 이미지 → ECR Push → ECS 롤링 배포
+    ├─ FE (Vercel): Push 즉시 Vercel 연동으로 자동 빌드 & 배포
+    └─ BE (GitHub Actions): Gradle build → Docker 이미지 빌드 → Oracle Cloud SSH 배포
 ```
 
 ---
 
-## 4. EC2 내부 구성 (MVP)
+## 5. 서버 내부 구성 및 Nginx 설정 (MVP)
 
-```
-EC2 t3.small
+```text
+Oracle Cloud ARM 인스턴스
 ├── Nginx (:80, :443)
-│   ├── Let's Encrypt SSL 인증서
+│   ├── SSL 인증서 (Cloudflare Origin Cert 또는 Let's Encrypt)
 │   └── 리버스 프록시 → localhost:8080
 ├── Spring Boot (:8080)
-│   └── application.yml
-│       ├── MongoDB Atlas 연결 문자열
-│       └── Redis localhost:6379 연결
 ├── Redis (:6379)
-│   ├── redis.conf (maxmemory 512mb, eviction policy)
-│   └── 주요 저장 데이터:
-│       ├── Rate Limit (Fixed Window Counter): `rl:create:{ip}` (TTL 24h)
-│       └── SSE Stream Token: `stream_token:{token}` (단기 일회성 연결용)
-└── Docker (선택)
-    └── docker-compose.yml (Spring Boot + Redis)
+└── Docker Compose (Spring Boot + Redis 구동)
 ```
 
-### Nginx 설정 핵심
+### Nginx 설정 핵심 (SSE)
 
 ```nginx
 # SSE를 위한 프록시 설정
@@ -205,15 +172,11 @@ location /api/endpoints/ {
 }
 ```
 
-> `proxy_buffering off` 필수. 안 하면 Nginx가 SSE 이벤트를 버퍼링해서 실시간 전달 안 됨.
+## 6. 보안 설정
 
----
-
-## 5. 보안 설정
-
-| 항목                 | 설정                                         |
-| -------------------- | -------------------------------------------- |
-| Security Group (EC2) | 인바운드: 80, 443 (0.0.0.0/0) + 22 (내 IP만) |
-| Redis                | 외부 노출 ✕. localhost 바인딩만              |
-| MongoDB Atlas        | EC2 IP 화이트리스트만 허용                   |
-| SSH                  | Key Pair 인증. 비밀번호 로그인 비활성화      |
+| 항목           | 설정                                                              |
+| -------------- | ----------------------------------------------------------------- |
+| Security Group | 인바운드: 80, 443 (Cloudflare IP 대역만 허용 권장) + 22 (내 IP만) |
+| Redis          | 외부 노출 ✕. localhost 바인딩만                                   |
+| MongoDB Atlas  | Oracle Cloud IP 화이트리스트만 허용                               |
+| SSH            | Key Pair 인증. 비밀번호 로그인 비활성화                           |
