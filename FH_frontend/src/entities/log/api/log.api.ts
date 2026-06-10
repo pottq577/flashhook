@@ -5,9 +5,14 @@ export async function getLogs(
   endpointId: string,
   page: number,
   size: number,
+  lastSeenId?: string
 ): Promise<LogsResponse> {
+  let url = `/endpoints/${endpointId}/logs?page=${page}&size=${size}`;
+  if (lastSeenId) {
+    url += `&lastSeenId=${lastSeenId}`;
+  }
   const data = await apiRequest(
-    `/endpoints/${endpointId}/logs?page=${page}&size=${size}`,
+    url,
     {},
     endpointId,
   );

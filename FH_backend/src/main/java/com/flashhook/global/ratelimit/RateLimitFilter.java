@@ -43,18 +43,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 1. 엔드포인트 생성 API (POST /api/endpoints)
-        if ("POST".equalsIgnoreCase(method) && "/api/endpoints".equals(path)) {
-            String ip = IpExtractor.extract(request);
-            String key = "rl:create:" + ip;
-            // 10분(600초) 기준
-            if (!rateLimitService.isAllowed(key, endpointCreateLimit, 600)) {
-                sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
-                return;
-            }
-        }
-
-        // 2. 웹훅 수신 API (ANY /api/hooks/{endpointId})
+        // 1. 웹훅 수신 API (ANY /api/hooks/{endpointId})
         if (path.startsWith("/api/hooks/")) {
             String[] parts = path.split("/");
             if (parts.length >= 4) {

@@ -3,13 +3,13 @@ import { getLogs, getLogDetail } from './log.api';
 import { useLogStore } from '../model/log.store';
 import { logger } from '../../../shared/lib/logger';
 
-export const useLogsQuery = (endpointId: string, page = 0, size = 50) => {
+export const useLogsQuery = (endpointId: string, page = 0, size = 50, lastSeenId?: string) => {
   const setLogs = useLogStore((state) => state.setLogs);
   
   return useQuery({
-    queryKey: ['logs', endpointId, page, size],
+    queryKey: ['logs', endpointId, page, size, lastSeenId],
     queryFn: async () => {
-      const data = await getLogs(endpointId, page, size);
+      const data = await getLogs(endpointId, page, size, lastSeenId);
       // Initialize store with fetched logs
       setLogs(data.content);
       return data;
