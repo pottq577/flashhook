@@ -1,4 +1,5 @@
 import React from 'react';
+import { LabelingCard } from './LabelingCard';
 import styles from './legal.module.css';
 
 interface ConsentModalProps {
@@ -34,6 +35,9 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
         <p className={styles.paragraph}>
           FlashHook Endpoint를 생성하기 위해 아래 약관에 동의해 주세요.
         </p>
+
+        <LabelingCard />
+
         <ul className={styles.list}>
           <li className={styles.listItem}>
             <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>이용약관</a> 동의 (필수)
