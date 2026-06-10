@@ -11,7 +11,7 @@
 | --------- | --------------------------- | --------------------------------------------- |
 | Framework | React 19.2 (Vite 8.0)       | 최신 렌더링 최적화, 압도적인 빌드 속도        |
 | Language  | TypeScript 5.7              | 컴파일 타임 안정성 및 강화된 타입 추론        |
-| Routing   | React Router v7.17          | 최신 SPA 라우팅 지원                          |
+| Routing   | react-router-dom v7.17      | 최신 SPA 라우팅 지원                          |
 | 아키텍처  | FSD (Feature-Sliced Design) | 비즈니스 로직과 UI 분리, 모듈 확장성 극대화   |
 | 상태 관리 | Zustand 5.0                 | 간편하고 성능이 우수한 전역 상태 관리         |
 | 비동기    | TanStack Query 5.101        | API 패칭, 캐싱, 서버 상태 동기화              |

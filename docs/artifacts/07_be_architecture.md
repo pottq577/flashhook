@@ -132,6 +132,7 @@ public class AsyncConfig implements AsyncConfigurer {
 public class WebhookService {
     private final WebhookLogRepository logRepository;
     private final EndpointRepository endpointRepository;
+    private final MongoTemplate mongoTemplate;
     private final ApplicationEventPublisher eventPublisher;
 
     public MockConfig receive(String endpointId, HttpServletRequest request) {

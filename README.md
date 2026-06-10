@@ -4,7 +4,7 @@
 
 ## 핵심 기술 스택
 
-- **Backend:** Java 21, Spring Boot 3.3, MongoDB (TTL), Redis (Rate Limit)
+- **Backend:** Java 21, Spring Boot 3.5.0, MongoDB (TTL), Redis (Rate Limit)
 - **Frontend:** React 19, TypeScript, Vite, Zustand, FSD (Feature-Sliced Design) 아키텍처
 - **Infra/통신:** SSE (Server-Sent Events), Docker
 
