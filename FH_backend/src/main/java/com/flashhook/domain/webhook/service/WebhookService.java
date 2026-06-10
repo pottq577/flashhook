@@ -111,8 +111,7 @@ public class WebhookService {
             bodyPreview = rawBody.substring(0, cutIndex);
         }
 
-        // 5. Capped Collection 로직 (오래된 로그 순환 삭제)
-        enforceLogCap(endpoint, bodySize);
+        // 5. Capped Collection 로직은 DB 저장 후 처리 (원자적 카운트 이후)
 
         // 6. DB 저장
         WebhookLog log = WebhookLog.builder()
@@ -134,7 +133,16 @@ public class WebhookService {
         // 7. 엔드포인트 카운터 업데이트 (Atomic)
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
         Update update = new Update().inc("logCount", 1).inc("logSizeBytes", bodySize);
-        mongoTemplate.updateFirst(query, update, Endpoint.class);
+        Endpoint updatedEndpoint = mongoTemplate.findAndModify(
+            query, 
+            update, 
+            org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true), 
+            Endpoint.class
+        );
+
+        if (updatedEndpoint != null) {
+            enforceLogCap(updatedEndpoint);
+        }
 
         // 8. 이벤트 발행 (SSE 전파용)
         eventPublisher.publishEvent(new WebhookReceivedEvent(log));
@@ -142,8 +150,11 @@ public class WebhookService {
         return endpoint.getMockConfig() != null ? endpoint.getMockConfig() : new MockConfig();
     }
 
-    private void enforceLogCap(Endpoint endpoint, long newBodySize) {
-        while (endpoint.getLogCount() >= maxLogCount || (endpoint.getLogSizeBytes() + newBodySize) > maxLogSizeBytes) {
+    private void enforceLogCap(Endpoint endpoint) {
+        long currentCount = endpoint.getLogCount();
+        long currentSize = endpoint.getLogSizeBytes();
+
+        while (currentCount > maxLogCount || currentSize > maxLogSizeBytes) {
             // 가장 오래된 로그 찾아 삭제
             WebhookLog oldLog = webhookLogRepository.findFirstByEndpointIdOrderByReceivedAtAsc(endpoint.getEndpointId())
                     .orElse(null);
@@ -156,10 +167,10 @@ public class WebhookService {
             Update update = new Update().inc("logCount", -1).inc("logSizeBytes", -oldLog.getBodySize());
             mongoTemplate.updateFirst(query, update, Endpoint.class);
             
-            endpoint.decrementLogStats(oldLog.getBodySize()); // Update local copy for loop limit check
+            currentCount--;
+            currentSize -= oldLog.getBodySize();
 
-            // 만약 로그가 비었는데도 용량이 초과라면 (newBodySize가 매우 큼) 루프 탈출
-            if (endpoint.getLogCount() == 0) {
+            if (currentCount <= 0) {
                 break;
             }
         }
