@@ -12,13 +12,13 @@
   --text-secondary: #A1A1AA;
   --text-muted: #A1A1AA;
   
-  --accent: #3B82F6;
+  --accent: #2563EB;
   --accent-hover: #60A5FA;
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;
   
-  --method-get: #3B82F6;
+  --method-get: #2563EB;
   --method-post: #10B981;
   --method-put: #F59E0B;
   --method-delete: #EF4444;
