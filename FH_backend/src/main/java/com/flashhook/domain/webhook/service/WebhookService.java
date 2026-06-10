@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
+import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.global.exception.CustomException;
@@ -45,7 +46,7 @@ public class WebhookService {
     private int bodyPreviewLength;
 
     @Transactional
-    public void receive(String endpointId, HttpServletRequest request) {
+    public MockConfig receive(String endpointId, HttpServletRequest request) {
         // 1. 엔드포인트 확인
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
@@ -129,6 +130,8 @@ public class WebhookService {
 
         // 8. 이벤트 발행 (SSE 전파용)
         eventPublisher.publishEvent(new WebhookReceivedEvent(log));
+
+        return endpoint.getMockConfig() != null ? endpoint.getMockConfig() : new MockConfig();
     }
 
     private void enforceLogCap(Endpoint endpoint, long newBodySize) {

@@ -2,11 +2,13 @@ package com.flashhook.domain.endpoint.service;
 
 import com.flashhook.domain.endpoint.dto.EndpointCreateRequest;
 import com.flashhook.domain.endpoint.dto.EndpointResponse;
+import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import com.flashhook.domain.endpoint.model.Endpoint;
+import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
 import java.time.Instant;
@@ -72,6 +74,7 @@ public class EndpointService {
                 .dashboardUrl(feUrl + "/dashboard/" + endpointId)
                 .expiresAt(expiresAt)
                 .limits(Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
+                .mockConfig(endpoint.getMockConfig())
                 .build();
     }
 
@@ -90,6 +93,7 @@ public class EndpointService {
                 .dashboardUrl(feUrl + "/dashboard/" + endpointId)
                 .expiresAt(endpoint.getExpiresAt())
                 .limits(Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
+                .mockConfig(endpoint.getMockConfig())
                 .build();
     }
 
@@ -102,5 +106,39 @@ public class EndpointService {
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
         endpointRepository.delete(endpoint);
         eventPublisher.publishEvent(new EndpointDeletedEvent(endpointId));
+    }
+
+    /**
+     * 모의 설정 업데이트
+     */
+    @Transactional
+    public EndpointResponse updateMockConfig(String endpointId, MockUpdateRequest request) {
+        Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
+
+        MockConfig.MockConfigBuilder mockBuilder = 
+            endpoint.getMockConfig() != null ? endpoint.getMockConfig().toBuilder() : MockConfig.builder();
+
+        if (request.getStatusCode() != null) mockBuilder.statusCode(request.getStatusCode());
+        if (request.getDelayMs() != null) mockBuilder.delayMs(request.getDelayMs());
+        if (request.getHeaders() != null) mockBuilder.headers(request.getHeaders());
+        if (request.getBody() != null) mockBuilder.body(request.getBody());
+
+        Endpoint updatedEndpoint = endpoint.toBuilder()
+                .mockConfig(mockBuilder.build())
+                .build();
+
+        endpointRepository.save(updatedEndpoint);
+
+        return EndpointResponse.builder()
+                .endpointId(updatedEndpoint.getEndpointId())
+                .accessToken(null)
+                .label(updatedEndpoint.getLabel())
+                .webhookUrl(baseUrl + "/api/hooks/" + endpointId)
+                .dashboardUrl(feUrl + "/dashboard/" + endpointId)
+                .expiresAt(updatedEndpoint.getExpiresAt())
+                .limits(Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
+                .mockConfig(updatedEndpoint.getMockConfig())
+                .build();
     }
 }
