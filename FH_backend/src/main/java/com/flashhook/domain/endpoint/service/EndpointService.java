@@ -111,6 +111,7 @@ public class EndpointService {
     /**
      * 모의 설정 업데이트
      */
+    @Transactional
     public EndpointResponse updateMockConfig(String endpointId, MockUpdateRequest request) {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
