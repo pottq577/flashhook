@@ -59,9 +59,9 @@
 | Backend       | Java 21 + Spring Boot 3.5.0 | 최신 LTS 및 프레임워크 도입으로 성능 최적화 및 최신 스펙 활용   |
 | Frontend      | React 19 (Vite 8) + TS    | 최신 React 19 기능 활용, Zustand/React Query 도입, FSD 아키텍처 |
 | Main DB       | MongoDB                   | 스키마리스 Payload, JOIN 불필요, 쓰기 폭증, TTL Index 자동 파기 |
-| Cache/Session | Redis                     | SSE 연결 관리, Rate Limiting, 임시 캐시                         |
+| Cache/Session | Redis                     | SSE 인증 토큰(Stream Token) 관리, Rate Limiting, 임시 캐시 |
 | 실시간 통신   | SSE (Server-Sent Events)  | 단방향 푸시 충분. 구현 단순. Spring 지원 우수                   |
-| 배포 / CI/CD  | AWS (EC2/ECS), GitHub Actions | 실무 표준. Playwright E2E 접근성 테스트 통합                    |
+| 배포 / CI/CD  | CI: GitHub Actions, CD: AWS (예정) | Playwright E2E 통합 (CI 구축 완료, CD 파이프라인은 구축 예정) |
 
 ### 5.1. MongoDB 선택 근거 (vs PostgreSQL)
 

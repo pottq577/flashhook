@@ -30,7 +30,7 @@
   "logCount": 42,                               // 현재 로그 수 (앱 레벨 관리)
   "logSizeBytes": 128000,                       // 현재 로그 총 크기 (앱 레벨 관리)
   "version": 0,                                 // Optimistic Locking 필드
-  "mockConfig": {                               // Phase 2: 응답 모의 설정
+  "mockConfig": {                               // 응답 모의 설정
     "statusCode": 200,
     "delayMs": 0,
     "headers": {},
@@ -50,8 +50,8 @@ db.endpoints.createIndex({ createdAt: 1 }, { expireAfterSeconds: 86400 });
 // 조회용
 db.endpoints.createIndex({ endpointId: 1 }, { unique: true });
 
-// IP 기반 활성 엔드포인트 수 조회용
-db.endpoints.createIndex({ creatorIp: 1 });
+// IP 기반 활성 엔드포인트 수 조회용 (향후 creatorIp 기반 조회 쿼리 추가 시 인덱스 필요)
+// db.endpoints.createIndex({ creatorIp: 1 });
 ```
 
 ### 2.2. logs
@@ -94,7 +94,7 @@ db.logs.createIndex({ receivedAt: 1 }, { expireAfterSeconds: 86400 });
 // 엔드포인트별 로그 조회 (최신순 정렬)
 db.logs.createIndex({ endpointId: 1, receivedAt: -1, logId: -1 }, { name: "idx_endpoint_received_logId" });
 
-// 개별 로그 조회
+// 개별 로그 상세 조회용 (getLogDetail 쿼리 대응)
 db.logs.createIndex({ logId: 1 }, { unique: true });
 ```
 
@@ -103,13 +103,13 @@ db.logs.createIndex({ logId: 1 }, { unique: true });
 ## 3. Redis Key 설계
 
 ```
-# Rate Limiting — Sliding Window Counter
-ratelimit:create:{ip}               → INCR + EXPIRE 600s (5개/IP/10분)
-ratelimit:webhook:{endpointId}      → INCR + EXPIRE 60s  (100건/EP/분)
-ratelimit:dashboard:{tokenHash}     → INCR + EXPIRE 60s  (60회/토큰/분)
+# Rate Limiting — Fixed Window Counter
+rl:create:{ip}                      → INCR + EXPIRE 86400s (5개/IP/24시간)
+rl:hook:{endpointId}:{ip}           → INCR + EXPIRE 60s  (100건/EP/IP/분)
 
 # SSE 연결 관리
-sse:connections:{ip}                → SET (동시 SSE 수 추적, 최대 5)
+stream_token:{token}                → SET + EXPIRE 30s (SSE 연결용 일회용 토큰)
+sse:connections:{ip}                → SET (동시 SSE 수 추적, 최대 5) (예정)
 
 # IP당 활성 엔드포인트 수 (빠른 조회용 캐시)
 endpoint:count:{ip}                 → INCR/DECR + TTL 없음 (MongoDB와 동기화)
@@ -117,9 +117,23 @@ endpoint:count:{ip}                 → INCR/DECR + TTL 없음 (MongoDB와 동�
 
 ---
 
-## 4. 데이터 생명주기
+## 4. 데이터 보존 및 생명주기 정책 (Data Lifecycle)
 
-```
+FlashHook은 무한히 증가할 수 있는 웹훅 데이터로 인한 스토리지 비용 폭증을 막고, 휘발성 테스트 목적에 맞게 단기 데이터 보존 원칙을 따릅니다.
+
+### 4.1. 보존 기간 (TTL) 및 자동 폐기
+모든 엔드포인트와 해당 엔드포인트로 수신된 로그는 **생성 시점으로부터 24시간 후 자동 폐기**됩니다.
+*   **MongoDB**: `endpoints`와 `logs` 컬렉션에 설정된 TTL 인덱스(`expireAfterSeconds: 86400`)에 의해 몽고DB 백그라운드 프로세스가 오래된 문서를 자동 삭제합니다.
+*   **Redis**: Rate Limiting 키 및 상태 캐시 키들은 각각 설정된 TTL(`60s` ~ `86400s`)에 맞춰 자동 만료(Eviction)됩니다. 별도의 애플리케이션 레벨 배치 작업 없이도 데이터베이스 엔진 레벨에서 수명 주기가 관리됩니다.
+
+### 4.2. 앱 레벨 스토리지 캡 (Storage Cap)
+단일 엔드포인트가 비정상적으로 많은 웹훅을 수신하여 몽고DB 스토리지를 독점하는 것을 방지하기 위해 캡(Cap)을 적용합니다.
+*   **개수 제한**: 엔드포인트당 최대 500건의 로그만 유지 (초과 시 오래된 로그 순환 덮어쓰기)
+*   **용량 제한**: 엔드포인트당 누적 로그 크기 최대 5MB 유지
+
+### 4.3. 데이터 흐름도
+
+```text
 [생성] → endpoints + Redis 카운터
   ↓
 [수신] → logs 삽입 + 앱 레벨 캡 체크 (500건/5MB)
@@ -139,7 +153,7 @@ void saveLog(WebhookLog log) {
     EndpointMeta meta = endpointRepository.findByEndpointId(log.getEndpointId());
 
     // 2. 500건 초과 OR 5MB 초과 → 가장 오래된 로그 삭제
-    if (meta.getLogCount() >= 500 || meta.getLogSizeBytes() >= 5_242_880) {
+    if (meta.getLogCount() > maxLogCount || meta.getLogSizeBytes() > maxLogSizeBytes) {
         WebhookLog oldest = logRepository.findOldestByEndpointId(log.getEndpointId());
         logRepository.delete(oldest);
         meta.decrementLogCount();

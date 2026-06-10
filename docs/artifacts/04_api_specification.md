@@ -7,6 +7,9 @@
 
 ## 1. 공통 사항
 
+> **기술 스택**: Java 21, Spring Boot 3.5.0
+> **Rate Limit**: Redis를 이용한 고정 윈도우(Fixed Window Counter) 알고리즘 기반으로 적용됩니다.
+
 ### 1.1. Base URL
 
 ```
@@ -17,20 +20,18 @@ https://flashhook.kr/api
 
 ```
 REST API  → Header: X-Access-Token: {accessToken}
-SSE 스트림 → Query:  ?token={accessToken}
+SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=...)
 ```
 
 ### 1.3. 공통 에러 응답 형식
 
 ```json
 {
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "사람이 읽을 수 있는 메시지",
-    "status": 400,
-    "timestamp": "2026-06-07T22:40:00Z",
-    "path": "/api/endpoints"
-  }
+  "code": "ERROR_CODE",
+  "message": "사람이 읽을 수 있는 메시지",
+  "status": 400,
+  "timestamp": "2026-06-07T22:40:00Z",
+  "path": "/api/endpoints"
 }
 ```
 
@@ -96,8 +97,7 @@ Content-Type: application/json (선택)
 
 **에러**:
 
-- `429 RATE_LIMIT_EXCEEDED`: 5개/IP/10분 초과
-- `429 ENDPOINT_LIMIT_EXCEEDED`: IP당 동시 10개 초과
+- `429 ENDPOINT_LIMIT_EXCEEDED`: 5개/IP/24시간 초과 (고정 윈도우)
 
 ---
 
@@ -196,20 +196,21 @@ ANY /api/hooks/{endpointId}
 - Client IP
 - 수신 시각
 
-**Response**: `200 OK`
+**Response**: 동적 응답 (모의 설정 기반)
 
-```json
-{
-  "message": "Received",
-  "logId": "log_abc123"
-}
+엔드포인트의 `mockConfig` 설정에 따라 HTTP 상태 코드, 헤더, 지연(Delay), 본문(Body)이 반환됩니다.
+기본 설정(수정하지 않았을 경우) 응답:
+`200 OK`
+```text
+ok
 ```
 
 **에러**:
 
 - `404 ENDPOINT_NOT_FOUND`: 존재하지 않거나 만료된 엔드포인트
 - `413 PAYLOAD_TOO_LARGE`: Body 1MB 초과
-- `429 RATE_LIMIT_EXCEEDED`: 100건/EP/분 초과
+- `429 RATE_LIMIT_EXCEEDED`: 100건/EP/1분 초과 (고정 윈도우)
+- `408 REQUEST_TIMEOUT`: 지연 시간이 너무 길어 타임아웃 발생 시 (최대 15초)
 
 ---
 
@@ -225,17 +226,18 @@ GET /api/endpoints/{endpointId}/logs
 
 **Query Parameters**:
 
-| 파라미터 | 타입   | 기본값 | 설명                               |
-| -------- | ------ | ------ | ---------------------------------- |
-| `page`   | int    | 1      | 페이지 번호                        |
-| `size`   | int    | 20     | 페이지 크기 (최대 100)             |
-| `sort`   | string | desc   | 정렬 (desc: 최신순, asc: 오래된순) |
+| 파라미터   | 타입   | 기본값 | 설명                               |
+| ---------- | ------ | ------ | ---------------------------------- |
+| `lastSeenId`| string | null   | (선택) 커서 기반 페이징을 위한 마지막 로그 ID |
+| `page`     | int    | 0      | 페이지 번호                        |
+| `size`     | int    | 20     | 페이지 크기 (최대 100)             |
+| `sort`     | string | desc   | 정렬 (desc: 최신순, asc: 오래된순) |
 
 **Response**: `200 OK`
 
 ```json
 {
-  "logs": [
+  "content": [
     {
       "logId": "log_abc123",
       "method": "POST",
@@ -246,16 +248,15 @@ GET /api/endpoints/{endpointId}/logs
       "receivedAt": "2026-06-07T22:40:00Z"
     }
   ],
-  "pagination": {
-    "page": 1,
-    "size": 20,
-    "totalCount": 42,
-    "totalPages": 3
-  }
+  "totalElements": 42,
+  "totalPages": 3,
+  "size": 20,
+  "number": 0
 }
 ```
 
 > `bodyPreview`: Body 앞 300자 텍스트 절단. 저장 시점에 BE에서 생성.
+> `lastSeenId` 제공 시 `page` 값은 무시되며 커서 기반으로 조회됩니다.
 
 ---
 
@@ -316,11 +317,28 @@ DELETE /api/endpoints/{endpointId}/logs
 
 ### 5.1. SSE 연결
 
-```
-GET /api/endpoints/{endpointId}/stream?token={accessToken}
+실시간 스트림은 보안을 위해 `streamToken`을 먼저 발급받은 후 `EventSource`를 연결하는 2-Step 방식으로 동작합니다.
+
+#### 1) Stream Token 발급
+```http
+POST /api/endpoints/{endpointId}/stream-token
 ```
 
-**인증**: Query Parameter `token`
+**인증**: `X-Access-Token` 헤더
+
+**Response**: `200 OK`
+```json
+{
+  "streamToken": "xxx-sample-token-xxx"
+}
+```
+
+#### 2) SSE 연결
+```http
+GET /api/endpoints/{endpointId}/stream?streamToken={streamToken}
+```
+
+**인증**: Query Parameter `streamToken` (1회용, 30초 내 사용해야 함)
 
 **Response**: `200 OK`
 
@@ -333,20 +351,17 @@ Connection: keep-alive
 **이벤트 형식**:
 
 ```
-:heartbeat
+event: ping
+data:
 
+event: webhook
 data: {"logId":"log_abc123","method":"POST","contentType":"application/json","clientIp":"203.0.113.1","bodyPreview":"{\"event\": \"payme...","bodySize":256,"receivedAt":"2026-06-07T22:40:00Z"}
-
-:heartbeat
-
-data: {"logId":"log_def456","method":"PUT","contentType":"application/xml","clientIp":"198.51.100.1","bodyPreview":"<payment><status>su...","bodySize":512,"receivedAt":"2026-06-07T22:41:00Z"}
 ```
 
 **연결 제한**:
 
 - IP당 동시 SSE: 5개
-- 최대 유지 시간: 30분 (이후 자동 끊김 → FE EventSource 자동 재연결)
-- Heartbeat: 30초 간격 (`:heartbeat\n\n`)
+- 최대 유지 시간: 서버 설정 시간 (연결 종료 시 FE EventSource 자동 재연결)
 
 ---
 
@@ -383,7 +398,8 @@ GET /api/health
 | `GET`    | `/api/endpoints/{id}/logs`         | 토큰 | 로그 목록         |
 | `GET`    | `/api/endpoints/{id}/logs/{logId}` | 토큰 | 로그 상세         |
 | `DELETE` | `/api/endpoints/{id}/logs`         | 토큰 | 로그 전체 삭제    |
+| `POST`   | `/api/endpoints/{id}/stream-token` | 토큰 | 스트림 토큰 발급  |
 | `GET`    | `/api/endpoints/{id}/stream`       | 토큰 | SSE 실시간 스트림 |
 | `GET`    | `/api/health`                      |  -   | 헬스체크          |
 
-**총 10개 엔드포인트 (MVP)**
+**총 11개 엔드포인트 (MVP)**
