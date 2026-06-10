@@ -47,13 +47,12 @@ public class WebhookStreamController {
         }
         
         String key = "stream_token:" + streamToken;
-        String storedEndpointId = redisTemplate.opsForValue().get(key);
+        String storedEndpointId = redisTemplate.opsForValue().getAndDelete(key);
         
         if (storedEndpointId == null || !storedEndpointId.equals(endpointId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         
-        redisTemplate.delete(key); // One-time use
         return ResponseEntity.ok(sseEmitterService.subscribe(endpointId, sseConfig.getTimeout()));
     }
 }
