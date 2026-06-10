@@ -67,7 +67,15 @@ public class WebhookReceiveController {
         }
 
         Map<String, String> queryParams = new HashMap<>();
-        request.getParameterMap().forEach((k, v) -> queryParams.put(k, String.join(",", v)));
+        String queryString = request.getQueryString();
+        if (queryString != null && !queryString.isEmpty()) {
+            for (String param : queryString.split("&")) {
+                String[] pair = param.split("=", 2);
+                String key = java.net.URLDecoder.decode(pair[0], StandardCharsets.UTF_8);
+                String value = pair.length > 1 ? java.net.URLDecoder.decode(pair[1], StandardCharsets.UTF_8) : "";
+                queryParams.put(key, queryParams.containsKey(key) ? queryParams.get(key) + "," + value : value);
+            }
+        }
 
         long MAX_SIZE = 1024 * 1024;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -83,7 +91,7 @@ public class WebhookReceiveController {
                 }
             }
         } catch (IOException e) {
-            // Ignore body read error
+            throw new CustomException(ErrorCode.INTERNAL_ERROR);
         }
 
         String rawBody = "";
