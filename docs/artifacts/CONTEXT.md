@@ -36,12 +36,13 @@ The backend uses Java 21, Spring Boot 3.3.x, and a standard 3-Layer Architecture
 - **Routing & Events**:
   - `EndpointController` for metadata CRUD.
   - `WebhookReceiveController` for incoming traffic.
+  - `MockResponseScheduler` generates mock HTTP responses for webhooks and returns them asynchronously via `DeferredResult` after a configured delay.
   - `WebhookStreamController` handles real-time SSE subscriptions.
 - **Real-time SSE Logic**:
   - `SseEmitterService` manages connections (`ConcurrentHashMap`).
   - To prevent blocking, incoming webhooks trigger a `WebhookReceivedEvent` via Spring's `ApplicationEventPublisher`.
   - `SseEmitterService` listens via `@EventListener` and `@Async` to push payloads to connected clients.
-  - A `@Scheduled` task sends a `ping` every 30 seconds to keep the connection alive through proxies.
+  - A `@Scheduled` task sends a `ping` every 30 seconds (configurable via properties) to keep the connection alive through proxies.
 - **Database Interaction**:
   - **MongoDB**: Primary datastore. Uses `MongoTemplate` for atomic operations (e.g., updating log counts securely) and TTL indexes for 24-hour expiration.
   - **Redis**: Handles Rate Limiting (Sliding Window via Lua scripts) and temporary caches. Follows a fail-open strategy if Redis goes down.
@@ -64,7 +65,7 @@ The frontend uses React 19, TypeScript 5.x, and follows **Feature-Sliced Design 
 
 1. **Creation**: User clicks "Create" on the frontend. The backend generates a UUID v4 `endpointId` and saves it to MongoDB.
 2. **Subscription**: The frontend Dashboard opens and calls `WebhookStreamController` to establish an SSE connection using `useSSE`.
-3. **Reception**: A third-party app POSTs to the webhook URL.
+3. **Reception**: A third-party app POSTs to the webhook URL. The request is parsed into an `IncomingWebhookPayload` DTO.
 4. **Validation**: The backend checks Redis for rate limits. If passed, the log is persisted in MongoDB.
 5. **Notification**: An internal Spring Event is fired. `SseEmitterService` catches it and writes the JSON payload to the corresponding SSE emitters.
 6. **Render**: The `useSSE` hook catches the event, pushes it to Zustand's `useLogStore`, and the `LogList` widget animates the new log via Framer Motion.
