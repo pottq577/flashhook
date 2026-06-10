@@ -105,15 +105,15 @@ com.flashhook
 
 ```java
 // global/config/AsyncConfig.java
-@Configuration
 @EnableAsync
+@Configuration
 public class AsyncConfig {
     @Bean(name = "taskExecutor")
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(4);
         executor.setMaxPoolSize(8);
-        executor.setQueueCapacity(100);
+        executor.setQueueCapacity(50);
         executor.setThreadNamePrefix("async-");
         executor.initialize();
         return executor;
@@ -151,8 +151,9 @@ public class WebhookService {
         }
 
         String bodyPreview = payload.getRawBody();
-        if (payload.getRawBody() != null && payload.getRawBody().length() > 300) {
-            bodyPreview = payload.getRawBody().substring(0, 300); // 실제 코드는 이모지 깨짐 방지 로직 적용
+        if (payload.getRawBody() != null && payload.getRawBody().length() > bodyPreviewLength) {
+            int cutIndex = payload.getRawBody().offsetByCodePoints(0, Math.min(payload.getRawBody().codePointCount(0, payload.getRawBody().length()), bodyPreviewLength));
+            bodyPreview = payload.getRawBody().substring(0, cutIndex);
         }
 
         // 3. 로그 저장

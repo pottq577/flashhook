@@ -94,8 +94,8 @@ db.logs.createIndex({ receivedAt: 1 }, { expireAfterSeconds: 86400 });
 // 엔드포인트별 로그 조회 (최신순 정렬)
 db.logs.createIndex({ endpointId: 1, receivedAt: -1, logId: -1 }, { name: "idx_endpoint_received_logId" });
 
-// 개별 로그 조회 (코드 미구현 상태, 향후 필요시 추가)
-// db.logs.createIndex({ logId: 1 }, { unique: true });
+// 개별 로그 상세 조회용 (getLogDetail 쿼리 대응)
+db.logs.createIndex({ logId: 1 }, { unique: true });
 ```
 
 ---
