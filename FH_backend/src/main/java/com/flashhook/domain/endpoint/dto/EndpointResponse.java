@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import com.flashhook.domain.endpoint.model.MockConfig;
 
 import java.time.Instant;
 import java.util.Map;
@@ -24,5 +25,5 @@ public class EndpointResponse {
     private String dashboardUrl;
     private Instant expiresAt;
     private Map<String, Object> limits;
-    private com.flashhook.domain.endpoint.model.MockConfig mockConfig;
+    private MockConfig mockConfig;
 }

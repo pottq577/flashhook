@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import com.flashhook.domain.endpoint.model.Endpoint;
+import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
 import java.time.Instant;
@@ -114,8 +115,8 @@ public class EndpointService {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
 
-        com.flashhook.domain.endpoint.model.MockConfig.MockConfigBuilder mockBuilder = 
-            endpoint.getMockConfig() != null ? endpoint.getMockConfig().toBuilder() : com.flashhook.domain.endpoint.model.MockConfig.builder();
+        MockConfig.MockConfigBuilder mockBuilder = 
+            endpoint.getMockConfig() != null ? endpoint.getMockConfig().toBuilder() : MockConfig.builder();
 
         if (request.getStatusCode() != null) mockBuilder.statusCode(request.getStatusCode());
         if (request.getDelayMs() != null) mockBuilder.delayMs(request.getDelayMs());

@@ -2,6 +2,7 @@ package com.flashhook.domain.endpoint.controller;
 
 import com.flashhook.domain.endpoint.dto.EndpointCreateRequest;
 import com.flashhook.domain.endpoint.dto.EndpointResponse;
+import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
 import com.flashhook.domain.endpoint.service.EndpointService;
 import com.flashhook.global.util.IpExtractor;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,7 +58,7 @@ public class EndpointController {
     @PatchMapping("/{endpointId}/mock")
     public ResponseEntity<EndpointResponse> updateMock(
             @PathVariable String endpointId,
-            @Valid @RequestBody com.flashhook.domain.endpoint.dto.MockUpdateRequest request) {
+            @Valid @RequestBody MockUpdateRequest request) {
         EndpointResponse response = endpointService.updateMockConfig(endpointId, request);
         return ResponseEntity.ok(response);
     }
