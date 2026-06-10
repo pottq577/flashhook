@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://flashhook.kr/sitemap.xml
