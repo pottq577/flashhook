@@ -8,21 +8,38 @@ interface ConsentModalProps {
 }
 
 export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, onDecline }) => {
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onDecline();
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onDecline]);
+
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <h2 className={styles.sectionTitle} style={{ marginTop: 0 }}>서비스 이용 동의</h2>
+    <div className={styles.modalOverlay} onClick={onDecline}>
+      <div 
+        className={styles.modalContent}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="consent-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="consent-modal-title" className={styles.sectionTitle} style={{ marginTop: 0 }}>서비스 이용 동의</h2>
         <p className={styles.paragraph}>
           FlashHook Endpoint를 생성하기 위해 아래 약관에 동의해 주세요.
         </p>
         <ul className={styles.list}>
           <li className={styles.listItem}>
-            <a href="/terms" target="_blank" rel="noreferrer" style={{ color: '#3b82f6' }}>이용약관</a> 동의 (필수)
+            <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>이용약관</a> 동의 (필수)
           </li>
           <li className={styles.listItem}>
-            <a href="/privacy" target="_blank" rel="noreferrer" style={{ color: '#3b82f6' }}>개인정보처리방침</a> 동의 (필수)
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>개인정보처리방침</a> 동의 (필수)
           </li>
         </ul>
         <div className={styles.todoBox}>
