@@ -86,6 +86,12 @@
 }
 
 .button:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed;
+}
+
+.warning {
+  color: var(--danger, #ff4444);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
 }
