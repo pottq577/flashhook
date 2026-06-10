@@ -1,50 +1,121 @@
-# FlashHook
+<div align="center">
 
-1초 만에 URL을 생성하여 임시로 웹훅을 수신하고 외부 API 응답을 시뮬레이션할 수 있는 샌드박스(Sandbox) 개발자 유틸리티입니다. 회원가입 없이 즉시 사용 가능한 엔드포인트를 제공하며, 인입된 웹훅 데이터를 실시간으로 대시보드에 렌더링합니다.
+# ⚡ FlashHook
+
+**1초 만에 생성하는 개발자용 웹훅 샌드박스 및 Mock API 서비스**
+
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2F%2FFlashHook&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+FlashHook은 회원가입 없이 바로 사용 가능한 엔드포인트를 제공하여,<br/>
+인입된 웹훅 데이터를 실시간으로 확인하고 외부 API의 예외 응답을 시뮬레이션할 수 있는 유틸리티입니다.
+
+</div>
 
 ---
 
-## 🚀 왜 FlashHook인가요? (핵심 기능 및 활용 시나리오)
+## 📸 Demo
 
-FlashHook은 외부 API(결제, 소셜 로그인, SMS 발송 등)를 연동하는 개발 과정에서 가장 까다로운 **"수신(Receive)"**과 **"응답(Response)"**의 테스트 병목을 해결하는 두 가지 핵심 기능을 제공합니다.
+> **[TODO] 대시보드 실시간 수신 화면이나 Mock 세팅 화면 GIF**
+
+---
+
+## 🤔 기획 배경
+
+### Problem
+
+토스페이먼츠, 카카오 로그인 등 외부 API를 연동할 때마다 다음과 같은 불편함이 있었습니다.
+
+1. 상대방이 보내는 웹훅 데이터 형식을 보려면 매번 `ngrok`으로 로컬 포트를 열거나 테스트 서버를 배포해야 함.
+2. 타사 API가 점검 중이거나(`500 Error`) 타임아웃이 날 때 내 서버가 잘 견디는지(예외 처리) 테스트하고 싶은데, 진짜 서버를 고장 낼 방법이 없음.
+
+### Solution
+
+누구나 **클릭 한 번에 임시 URL을 발급받아 데이터를 눈으로 확인**하고, **"이 URL은 10초 뒤에 500 에러를 뱉어라"라고 조작할 수 있는 가짜 서버**를 만들었습니다.
+
+---
+
+## 🚀 주요 기능 및 워크플로우
 
 ### 1. Webhook Catcher (요청 수신 및 로깅)
-> **"상대방이 나한테 정확히 어떤 데이터를 보내고 있지?"**
 
-외부 서비스(PG사, 깃허브, 슬랙 등)에서 내 서버로 쏴주는 웹훅 데이터(Payload)의 생김새를 내 서버 코드를 짜기 전에 미리 눈으로 확인하고 디버깅할 때 사용합니다.
+> **"상대방이 나한테 정확히 어떤 데이터를 보내고 있나?"**
 
-*   **활용 예시**: 토스페이먼츠 연동 중, 결제 성공 시 토스가 우리 서버로 보내는 JSON 구조를 정확히 파악해야 데이터를 파싱(Parsing)하는 코드를 작성할 수 있습니다. 
-*   **워크플로우**: 
-    1. FlashHook 메인 화면에서 1초 만에 임시 웹훅 URL 발급
-    2. 토스 개발자 센터에 해당 URL을 웹훅 수신지로 등록 후 테스트 결제 진행
-    3. FlashHook 대시보드 화면에 실시간으로 찍히는 JSON 페이로드, 헤더, 클라이언트 IP를 확인하고 내 코드에 복사/붙여넣기하여 개발 속도 단축.
+- **활용 예시**: 토스페이먼츠 결제 성공 시 날아오는 JSON 구조를 정확히 파악하여 파싱 코드를 작성할 때.
+- **워크플로우**:
+  1. 임시 웹훅 URL 발급.
+  2. 토스 개발자 센터에 웹훅 수신지로 등록.
+  3. 대시보드에 실시간으로 찍히는 JSON 페이로드와 헤더를 확인하고 복사.
 
 ### 2. K-API 프리셋 Mock API (응답 제어 및 조작)
-> **"상대방 서버가 터지거나 지연될 때, 내 서버는 안 터지고 잘 버틸까?"**
 
-내가 보낸 요청에 대해 외부 서비스가 반환할 에러 상태(Status)나 응답 지연 시간(Delay)을 내 마음대로 조작하여, 내 서버의 **예외 처리 및 타임아웃 로직**을 안전하게 검증할 때 사용합니다.
+> **"상대방 서버에 문제가 생겼을 때 내 서버는 안 터지고 잘 버틸까?"**
 
-*   **활용 예시**: 카카오 로그인 서버에 장애가 발생해 응답이 10초 이상 지연되거나 `500 Internal Error`를 뱉을 때, 우리 쇼핑몰 서버가 같이 뻗지 않고 유저에게 "점검 중 안내 팝업"을 잘 띄우는지 테스트하고 싶습니다. (진짜 카카오 서버를 개발자가 임의로 고장 낼 수는 없기 때문입니다.)
-*   **워크플로우**:
-    1. FlashHook 대시보드의 Mock 설정에서 **[카카오 로그인 - 500 서버 장애]** K-API 프리셋(템플릿) 선택 (또는 수동으로 HTTP 500, 지연 시간 10,000ms 세팅)
-    2. 내 로컬 서버 소스코드에서 카카오 서버로 요청을 보내는 URL을 일시적으로 FlashHook 주소로 변경
-    3. 내 서버를 실행하여 요청을 보내면, FlashHook이 10초 뒤에 `500 Error`를 반환. 이를 통해 내 서버의 에러 핸들러 로직이 완벽히 작동하는지 확인.
+- **활용 예시**: 카카오 로그인 서버가 10초 이상 지연될 때, 우리 서버가 타임아웃 로직을 정상적으로 처리하는지 검증할 때.
+- **워크플로우**:
+  1. 대시보드에서 **[카카오 로그인 - 500 서버 장애]** 프리셋 선택 (또는 수동 지연시간 세팅).
+  2. 내 로컬 코드의 API 호출 URL을 FlashHook 주소로 일시 변경.
+  3. 내 서버에서 요청을 쏘면 FlashHook이 10초 뒤 `500 Error`를 반환. 내 서버의 에러 핸들러 작동 확인.
 
 ---
 
-## 🛠 핵심 기술 스택
+## 🏛 아키텍처 및 시스템 설계
 
-- **Backend:** Java 21, Spring Boot 3.5.0, MongoDB (TTL), Redis (Rate Limit)
-- **Frontend:** React 19, TypeScript, Vite, Zustand, FSD (Feature-Sliced Design) 아키텍처
-- **Infra/통신:** SSE (Server-Sent Events), Docker
+```mermaid
+sequenceDiagram
+    participant WebhookSender as Third-party App
+    participant Spring as Backend (Spring Boot)
+    participant Redis as Redis (Rate Limit)
+    participant Mongo as MongoDB (TTL Data)
+    participant FE as Frontend (React + SSE)
 
-## 🏛 아키텍처 및 데이터 흐름
+    FE->>Spring: 1. Subscribe to Endpoint (SSE)
+    WebhookSender->>Spring: 2. POST /api/hooks/{endpointId}
+    Spring->>Redis: 3. Check Rate Limits
+    Spring->>Mongo: 4. Save WebhookLog
+    Spring-->>FE: 5. Push Event (SSE)
+    FE->>FE: 6. Render Log in Dashboard
+```
 
-FlashHook은 무작위 웹훅 Payload를 유연하게 수용하기 위해 MongoDB를 사용하며, Redis 기반 고정 윈도우(Fixed Window)로 무분별한 요청을 방어합니다. 데이터는 브라우저와 SSE를 통해 실시간 연동되며, 개인정보 보호 및 스토리지 절약을 위해 24시간 후 자동 파기됩니다.
+- **Backend:** Java 21, Spring Boot 3.5.0
+- **Frontend:** React 19, TypeScript, Vite, Zustand, TanStack Query(v5), React Router DOM(v7), Framer Motion, Playwright + Axe, FSD 아키텍처
+- **Database:** MongoDB (TTL), Redis (Rate Limit)
+- **Infra:** Docker, SSE (Server-Sent Events)
 
-자세한 시스템 구조는 `docs/artifacts/CONTEXT.md`를 참고하세요.
+자세한 시스템 구조는 [`docs/artifacts/CONTEXT.md`](docs/artifacts/CONTEXT.md)를 참고하세요.<br/>
+특히 도메인 간(`WebhookService`와 `SseEmitterService`) 결합도를 낮추고 성능 향상을 위해 **Spring ApplicationEvent (@Async)** 기반의 비동기 이벤트 드리븐 패턴을 적용했습니다.
 
-## ⚡ 빠른 시작 (로컬 환경)
+---
+
+## 💡 기술적 챌린지와 해결 과정
+
+트래픽 방어와 리소스 관리를 위해 다음 아키텍처를 도입했습니다.
+
+### 1. 무분별한 요청 폭주(DDoS/Spam)로 인한 서버 마비 방어
+
+- **문제**: 누구나 URL을 생성할 수 있어, 악의적인 사용자가 매크로로 초당 수만 건의 웹훅을 쏠 경우 서버가 다운될 위험.
+- **해결**:
+  - Redis 기반 **고정 윈도우(Fixed Window) 카운터 알고리즘**을 도입하여 Rate Limit 적용
+    - IP당 생성 5개/일, 엔드포인트당 수신 100건/분.
+  - 제한 초과 시 `429 Too Many Requests`를 반환하여 WAS 리소스 보호.
+
+### 2. 가비지 데이터 무한 적재로 인한 DB 스토리지 고갈
+
+- **문제**: 비정형 웹훅 로그가 MongoDB에 대량으로 쌓이면 스토리지 비용 폭증.
+- **해결**:
+  - **DB 레벨 자동 파기**: MongoDB의 `TTL Index`를 활용하여 생성된 지 24시간이 지난 데이터는 스케줄링(배치) 서버 없이도 DB 엔진 단에서 백그라운드 자동 삭제.
+  - **앱 레벨 스토리지 캡**: 단일 엔드포인트당 500건 또는 5MB 용량 초과 시, 가장 오래된 로그부터 덮어쓰는(Circular Queue 방식) 제어 로직 구현.
+
+### 3. 브라우저 새로고침 없는 실시간 데이터 렌더링
+
+- **문제**: 웹훅이 언제 들어올지 모르는 상황에서 클라이언트가 지속적으로 폴링 시 불필요한 트래픽 낭비 발생.
+- **해결**:
+  - Spring `@EventListener`와 **SSE**를 결합하여 단방향 실시간 푸시(Push) 파이프라인 구축.
+  - 웹훅 수신 즉시 브라우저로 데이터가 스트리밍되어 실시간 디버깅 제공.
+
+---
+
+## ⚡ 빠른 시작
 
 1. 인프라 실행 (Redis, MongoDB)
 
@@ -52,17 +123,10 @@ FlashHook은 무작위 웹훅 Payload를 유연하게 수용하기 위해 MongoD
 docker-compose up -d
 ```
 
-2. 백엔드 및 프론트엔드 서버 구동
-3. Cloudflare Tunnel 등을 이용해 로컬 포트 외부 노출 (Webhook Catcher 테스트 용도)
+2. 서버 구동 후 Cloudflare Tunnel 등으로 로컬 포트 외부 노출
 
 ```bash
 cloudflared tunnel --url http://localhost:8080
 ```
 
-4. 생성된 URL을 외부 서비스 웹훅 엔드포인트로 등록 후 대시보드에서 실시간 수신 확인
-
-## 💡 핵심 챌린지 및 해결
-
-- **휘발성 데이터 생명주기 관리:** MongoDB TTL 인덱스로 24시간 만료 데이터 스케줄링 없이 원격 삭제. 앱 레벨 스토리지 캡(엔드포인트당 500건/5MB)을 통해 단일 유저의 스토리지 독점 방지.
-- **비정형 JSON 데이터 수용:** 스키마-리스 NoSQL(MongoDB)을 통해 다양한 3rd Party Payload 무손실 저장 및 브라우저 표현.
-- **실시간 비동기 이벤트 푸시:** Spring `@EventListener`와 SSE(Server-Sent Events)를 통해 브라우저 무새로고침 실시간 렌더링(Optimistic Update) 구현.
+3. 발급된 도메인으로 샌드박스 환경 구축 완료!
