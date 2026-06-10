@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { getEndpoint, createEndpoint } from './endpoint.api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getEndpoint, createEndpoint, deleteEndpoint, updateMockConfig, type MockUpdateRequest } from './endpoint.api';
 import * as tokenStorage from '../../../shared/lib/tokenStorage';
 
 export const useEndpointQuery = (endpointId: string | undefined) => {
@@ -39,8 +39,8 @@ export function useDeleteEndpointMutation() {
 export function useUpdateMockConfigMutation(endpointId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (mockConfig: Parameters<typeof import('./endpoint.api').updateMockConfig>[1]) => 
-      import('./endpoint.api').then(m => m.updateMockConfig(endpointId, mockConfig)),
+    mutationFn: (mockConfig: MockUpdateRequest) => 
+      updateMockConfig(endpointId, mockConfig),
     onSuccess: (data) => {
       queryClient.setQueryData(['endpoint', endpointId], data);
     },
