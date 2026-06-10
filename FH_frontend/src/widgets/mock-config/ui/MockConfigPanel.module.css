@@ -1,0 +1,91 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary, #ffffff);
+}
+
+.header p {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #a1a1aa);
+  margin-bottom: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+}
+
+.row .formGroup {
+  flex: 1;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #a1a1aa);
+}
+
+.input, .select, .textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--bg-tertiary, #27272a);
+  border: 1px solid var(--border-color, #3f3f46);
+  border-radius: 0.5rem;
+  color: var(--text-primary, #ffffff);
+  font-family: inherit;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--accent-color, #3b82f6);
+}
+
+.textarea {
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--accent-color, #3b82f6);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+  align-self: flex-start;
+}
+
+.button:hover:not(:disabled) {
+  background-color: var(--accent-hover, #2563eb);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
