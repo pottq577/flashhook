@@ -70,30 +70,38 @@ public class WebhookReceiveController {
         );
 
         Runnable task = () -> {
-            int status = mockConfig.getStatusCode();
-            if (status < 100 || status > 599) {
-                status = 200; // fallback
-            }
+            try {
+                int status = mockConfig.getStatusCode();
+                if (status < 100 || status > 599) {
+                    status = 200; // fallback
+                }
 
-            HttpHeaders headers = new HttpHeaders();
-            if (mockConfig.getHeaders() != null) {
-                mockConfig.getHeaders().forEach((k, v) -> {
-                    if (ALLOWED_HEADERS.contains(k.toLowerCase())) {
-                        String sanitizedValue = v.replaceAll("[\\x00-\\x1F\\x7F]", "");
-                        headers.add(k, sanitizedValue);
-                    }
-                });
-            }
-            
-            if (headers.getContentType() == null) {
-                headers.setContentType(MediaType.TEXT_PLAIN);
-            }
+                HttpHeaders headers = new HttpHeaders();
+                if (mockConfig.getHeaders() != null) {
+                    mockConfig.getHeaders().forEach((k, v) -> {
+                        if (k == null || v == null) return;
+                        if (ALLOWED_HEADERS.contains(k.toLowerCase())) {
+                            String sanitizedValue = v.replaceAll("[\\x00-\\x1F\\x7F]", "");
+                            headers.add(k, sanitizedValue);
+                        }
+                    });
+                }
+                
+                if (headers.getContentType() == null) {
+                    headers.setContentType(MediaType.TEXT_PLAIN);
+                }
 
-            ResponseEntity<?> response = ResponseEntity
-                    .status(status)
-                    .headers(headers)
-                    .body(mockConfig.getBody());
-            deferredResult.setResult(response);
+                ResponseEntity<?> response = ResponseEntity
+                        .status(status)
+                        .headers(headers)
+                        .body(mockConfig.getBody());
+                deferredResult.setResult(response);
+            } catch (Exception e) {
+                deferredResult.setErrorResult(
+                    ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Internal Server Error processing mock response")
+                );
+            }
         };
 
         if (mockConfig.getDelayMs() > 0) {
