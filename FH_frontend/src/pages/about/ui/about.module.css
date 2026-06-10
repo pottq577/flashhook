@@ -1,0 +1,40 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.title {
+  margin-top: 2rem;
+}
+
+.section {
+  margin-top: 2rem;
+  line-height: 1.6;
+}
+
+.paragraph {
+  margin-top: 1rem;
+}
+
+.contactBox {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: var(--bg-secondary, #1f2937);
+  border-radius: 8px;
+}
+
+.contactBoxSecondary {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--bg-secondary, #1f2937);
+  border-radius: 8px;
+}
+
+.contactText {
+  margin-top: 0.5rem;
+}
+
+.link {
+  color: var(--accent-color, #3b82f6);
+}

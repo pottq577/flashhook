@@ -113,3 +113,47 @@
   max-width: 500px;
   width: 100%;
 }
+
+.securityCard {
+  border-left-color: #10b981;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.securityIcon {
+  font-size: 2rem;
+}
+
+.securityTitle {
+  margin: 0 0 0.5rem 0;
+  color: #f9fafb;
+  font-size: 1rem;
+}
+
+.securityText {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #d1d5db;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .modalContent {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+
+  .banner {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .button {
+    width: 100%;
+  }
+}
