@@ -24,9 +24,7 @@
               ├─ 캡 체크 및 MongoDB 저장 (findAndModify)
               └─ ApplicationEvent 발행 ──(@Async)──→ SseEmitterService.push()
                     ↓ (MockConfig 반환)                     ↓ (비동기)
-              MockResponseScheduler                  SSE로 클라이언트 푸시
-                    ↓ (DeferredResult)
-              지연 처리 및 동적 상태 코드 응답
+              MockResponse 동적 응답                 SSE로 클라이언트 푸시
 ```
 
 - **WebhookService는 SSE를 모름.** 저장 + 이벤트 발행만.
@@ -90,7 +88,7 @@ com.flashhook
     │   └── AccessTokenUtil.java               // SHA-256 해시 생성/비교
     ├── ratelimit/
     │   ├── RateLimitFilter.java               // Rate Limiting Servlet Filter
-    │   └── RateLimitService.java              // Redis Sliding Window Counter
+    │   └── RateLimitService.java              // Redis Fixed Window Counter
     ├── exception/
     │   ├── GlobalExceptionHandler.java        // @RestControllerAdvice
     │   ├── ErrorCode.java                     // 에러 코드 enum
@@ -109,14 +107,14 @@ com.flashhook
 // global/config/AsyncConfig.java
 @Configuration
 @EnableAsync
-public class AsyncConfig implements AsyncConfigurer {
-    @Override
-    public Executor getAsyncExecutor() {
+public class AsyncConfig {
+    @Bean(name = "taskExecutor")
+    public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(16);
+        executor.setMaxPoolSize(8);
         executor.setQueueCapacity(100);
-        executor.setThreadNamePrefix("sse-push-");
+        executor.setThreadNamePrefix("async-");
         executor.initialize();
         return executor;
     }
@@ -130,45 +128,68 @@ public class AsyncConfig implements AsyncConfigurer {
 @Service
 @RequiredArgsConstructor
 public class WebhookService {
-    private final WebhookLogRepository logRepository;
+    private final WebhookLogRepository webhookLogRepository;
     private final EndpointRepository endpointRepository;
-    private final MongoTemplate mongoTemplate;
     private final ApplicationEventPublisher eventPublisher;
+    private final MongoTemplate mongoTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public MockConfig receive(String endpointId, HttpServletRequest request) {
-        // 1. 엔드포인트 존재 확인
+    @Transactional
+    public MockConfig receive(String endpointId, IncomingWebhookPayload payload) {
+        // 1. 엔드포인트 확인
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
-            .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
 
-        // 2. 캡 체크 (500건/5MB) → 초과 시 순환 삭제
-        enforceLogCap(endpoint);
+        // 2. Object Body 및 Preview 생성
+        Object bodyObj = payload.getRawBody();
+        if (payload.getContentType() != null && payload.getContentType().toLowerCase().contains("application/json")) {
+            try {
+                bodyObj = objectMapper.readValue(payload.getRawBody(), Object.class);
+            } catch (Exception e) {
+                // 파싱 실패 시 원본 문자열 유지
+            }
+        }
 
-        // 3. bodyPreview 생성 (앞 300자)
-        String rawBody = extractBody(request);
-        String bodyPreview = rawBody.substring(0, Math.min(rawBody.length(), 300));
+        String bodyPreview = payload.getRawBody();
+        if (payload.getRawBody() != null && payload.getRawBody().length() > 300) {
+            bodyPreview = payload.getRawBody().substring(0, 300); // 실제 코드는 이모지 깨짐 방지 로직 적용
+        }
 
-        // 4. 로그 저장
+        // 3. 로그 저장
         WebhookLog log = WebhookLog.builder()
-            .endpointId(endpointId)
-            .method(request.getMethod())
-            .headers(extractHeaders(request))
-            .body(rawBody)
-            .bodyPreview(bodyPreview)
-            .clientIp(IpExtractor.extract(request))
-            .build();
-        logRepository.save(log);
+                .logId(UUID.randomUUID().toString().replace("-", ""))
+                .endpointId(endpointId)
+                .method(payload.getMethod())
+                .url(payload.getUrl())
+                .headers(payload.getHeaders())
+                .queryParams(payload.getQueryParams())
+                .body(bodyObj)
+                .bodyPreview(bodyPreview)
+                .contentType(payload.getContentType())
+                .clientIp(payload.getClientIp())
+                .bodySize(payload.getBodySize())
+                .receivedAt(Instant.now())
+                .build();
+        webhookLogRepository.save(log);
 
-        // 5. 메타 카운터 업데이트 (findAndModify Atomic 연산)
-        mongoTemplate.findAndModify(
-            Query.query(Criteria.where("endpointId").is(endpointId)),
-            new Update().inc("logCount", 1).inc("logSizeBytes", log.getBodySize()),
+        // 4. 엔드포인트 카운터 업데이트 (Atomic)
+        Query query = Query.query(Criteria.where("endpointId").is(endpointId));
+        Update update = new Update().inc("logCount", 1).inc("logSizeBytes", payload.getBodySize());
+        Endpoint updatedEndpoint = mongoTemplate.findAndModify(
+            query, 
+            update, 
+            org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true), 
             Endpoint.class
         );
 
-        // 6. 이벤트 발행 (SSE 푸시는 비동기로 처리됨)
+        if (updatedEndpoint != null) {
+            enforceLogCap(updatedEndpoint);
+        }
+
+        // 5. 이벤트 발행 (SSE 전파용)
         eventPublisher.publishEvent(new WebhookReceivedEvent(log));
 
-        return endpoint.getMockConfig();
+        return endpoint.getMockConfig() != null ? endpoint.getMockConfig() : new MockConfig();
     }
 }
 ```
@@ -255,6 +276,11 @@ MVP (EC2 1대):
 
 SseEmitterService 코드 변경 없이 이벤트 소스만 교체.
 
+### 3.5. 로그 조회 및 페이징 (Cursor Pagination)
+
+대량의 웹훅 로그 조회를 최적화하기 위해 커서 기반 페이징(Cursor Pagination)을 사용합니다.
+클라이언트는 `lastSeenId` (마지막으로 조회한 로그 ID)를 전달하며, 응답은 Spring Data `Page` 객체 형태(`content`, `totalElements` 등)로 반환되어 일관된 인터페이스를 제공합니다.
+
 ---
 
 ## 4. Filter 체인
@@ -264,7 +290,7 @@ HTTP 요청 인입
     ↓
 [RateLimitFilter]     ← /api/endpoints (생성), /api/hooks/* (수신)
     ↓
-[AccessTokenFilter]   ← /api/endpoints/{id}/**, /api/endpoints/{id}/stream
+[AccessTokenFilter]   ← /api/endpoints/{id}/** (단, GET /stream 제외)
     ↓
 [DispatcherServlet → Controller → Service → Repository]
 ```
@@ -272,7 +298,7 @@ HTTP 요청 인입
 | Filter            | 적용 경로                               | 동작                                              |
 | ----------------- | --------------------------------------- | ------------------------------------------------- |
 | RateLimitFilter   | `/api/endpoints` (POST), `/api/hooks/*` | Redis 카운터 체크 → 초과 시 429                   |
-| AccessTokenFilter | `/api/endpoints/{id}/**` (GET/DELETE/PATCH) | X-Access-Token 헤더 or ?token= 검증 → 실패 시 403 |
+| AccessTokenFilter | `/api/endpoints/{id}/**` (단, GET `/stream` 제외) | X-Access-Token 헤더 검증 → 실패 시 403. GET `/stream`은 별도 `streamToken` 검증 |
 
 > `/api/hooks/{id}` (웹훅 수신)은 AccessTokenFilter 미적용. 외부 서비스가 호출하므로.
 

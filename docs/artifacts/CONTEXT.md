@@ -31,11 +31,12 @@ sequenceDiagram
 
 ## 3. Backend Structure (Spring Boot)
 
-The backend uses Java 21, Spring Boot 3.3.x, and a standard 3-Layer Architecture.
+The backend uses Java 21, Spring Boot 3.5.0, and a **Package-by-Feature (Domain-Driven)** folder structure combining a 3-Layer Architecture (`controller`, `service`, `repository`) within each domain (`domain/endpoint`, `domain/webhook`).
 
-- **Routing & Events**:
+- **Routing & Events** (The system exposes 11 API endpoints in total):
   - `EndpointController` for metadata CRUD.
   - `WebhookReceiveController` for incoming traffic.
+  - `WebhookLogController` for log retrieval (using Spring Data Page with `lastSeenId` cursor) and deletion.
   - `MockResponseScheduler` generates mock HTTP responses for webhooks and returns them asynchronously via `DeferredResult` after a configured delay.
   - `WebhookStreamController` handles real-time SSE subscriptions.
 - **Real-time SSE Logic**:
@@ -45,14 +46,14 @@ The backend uses Java 21, Spring Boot 3.3.x, and a standard 3-Layer Architecture
   - A `@Scheduled` task sends a `ping` every 30 seconds (configurable via properties) to keep the connection alive through proxies.
 - **Database Interaction**:
   - **MongoDB**: Primary datastore. Uses `MongoTemplate` for atomic operations (e.g., updating log counts securely) and TTL indexes for 24-hour expiration.
-  - **Redis**: Handles Rate Limiting (Sliding Window via Lua scripts) and temporary caches. Follows a fail-open strategy if Redis goes down.
+  - **Redis**: Handles Rate Limiting (Fixed Window via Lua scripts) and temporary caches. Follows a fail-open strategy if Redis goes down.
 
 ## 4. Frontend Structure (React/Vite)
 
-The frontend uses React 19, TypeScript 5.x, and follows **Feature-Sliced Design (FSD)** to maintain strict boundaries.
+The frontend uses React 19, TypeScript 5.7.x, and follows **Feature-Sliced Design (FSD)** to maintain strict boundaries.
 
-- **`app/`**: Global providers (`QueryProvider`) and routing (`react-router-dom`).
-- **`pages/`**: Main views (`LandingPage`, `DashboardPage`).
+- **`app/`**: Global providers (`QueryProvider`) and routing (`react-router-dom`). Includes a globally rendered `CookieBanner`.
+- **`pages/`**: Main views (`LandingPage`, `DashboardPage`, `About`, `Contact`, `Terms`, `Privacy`).
 - **`widgets/`**: Reusable complex blocks (`LogList`, `LogDetail`).
 - **`features/`**: User interactions that span multiple entities (e.g., mock response configuration).
 - **`entities/`**: Core domain logic. Uses **Zod** to validate API contracts.
@@ -64,7 +65,7 @@ The frontend uses React 19, TypeScript 5.x, and follows **Feature-Sliced Design 
 ## 5. Data Flow (Webhook to Dashboard)
 
 1. **Creation**: User clicks "Create" on the frontend. The backend generates a UUID v4 `endpointId` and saves it to MongoDB.
-2. **Subscription**: The frontend Dashboard opens and calls `WebhookStreamController` to establish an SSE connection using `useSSE`.
+2. **Subscription**: The frontend Dashboard opens and performs a 2-step SSE handshake: it POSTs to `/api/endpoints/{id}/stream-token` with its access token to receive a short-lived token, then calls `WebhookStreamController` to establish the SSE connection via GET `/api/endpoints/{id}/stream?streamToken={token}`.
 3. **Reception**: A third-party app POSTs to the webhook URL. The request is parsed into an `IncomingWebhookPayload` DTO.
 4. **Validation**: The backend checks Redis for rate limits. If passed, the log is persisted in MongoDB.
 5. **Notification**: An internal Spring Event is fired. `SseEmitterService` catches it and writes the JSON payload to the corresponding SSE emitters.
@@ -86,6 +87,8 @@ To test the full lifecycle, including external webhook reception, follow these s
 4. **Test**: Create an endpoint on your local frontend, but register the Cloudflare Tunnel URL with the third-party service (e.g., Stripe, GitHub).
 
 ## 7. Deployment & Infrastructure
+
+*Note: Continuous Integration (CI) with Docker Compose and Playwright is implemented, but the Continuous Deployment (CD) pipeline to AWS (EC2/ECS) is currently planned and not yet implemented.*
 
 When moving from local to production, note these architectural behaviors:
 

@@ -1,6 +1,6 @@
 # FlashHook — FE 화면 구성
 
-> React (Vite) + TypeScript / MVP & Phase 2: Webhook Catcher + Mock API
+> React (Vite) + TypeScript / Webhook Catcher + Mock API (Phase 2 구현 완료)
 > 최종 수정: 2026-06-10
 
 ---
@@ -12,6 +12,10 @@
 | 1   | 랜딩 페이지 | `/`                       | 서비스 소개 + 엔드포인트 생성     |
 | 2   | 대시보드    | `/dashboard/{endpointId}` | 실시간 로그 모니터링 및 Mock 설정 (핵심) |
 | 3   | 404 / 만료  | `/not-found`              | 잘못된 URL 또는 만료된 엔드포인트 |
+| 4   | 서비스 소개 | `/about`                  | 서비스 소개 페이지                |
+| 5   | 문의하기    | `/contact`                | 연락처 및 문의 안내               |
+| 6   | 이용약관    | `/terms`                  | 서비스 이용약관                   |
+| 7   | 개인정보    | `/privacy`                | 개인정보 처리방침                 |
 
 **테마**: 다크 모드 기본 (개발자 툴 감성)
 
@@ -35,7 +39,7 @@
 ├──────────────────────────────────────────────┤
 │  📋 이런 분들이 씁니다                         │
 │  • BE 개발자: 외부 웹훅 Payload 확인          │
-│  • FE 개발자: Mock API 테스트 (Phase 2)       │
+│  • FE 개발자: Mock API 테스트                 │
 ├──────────────────────────────────────────────┤
 │  footer: GitHub · 만든이                      │
 └──────────────────────────────────────────────┘
@@ -127,7 +131,7 @@
 | HTTP Method 배지 | `POST`=초록, `GET`=파랑, `PUT`=주황, `DELETE`=빨강 |
 | bodyPreview      | 앞 300자 텍스트 미리보기                           |
 | 메타 정보        | Client IP, Body 크기, 수신 시각                    |
-| 실시간 업데이트  | SSE → 새 로그 상단 추가 + 슬라이드인 애니메이션    |
+| 실시간 업데이트  | SSE(2-Step 토큰 인증) → 새 로그 상단 추가 + 애니메이션 |
 | 클릭             | 해당 로그 상세를 우측 탭 패널에 표시                  |
 
 ### 3.3. 우측: 탭 패널 (로그 상세 / Mock 설정)
@@ -198,12 +202,15 @@ src/
 ├── pages/
 │   ├── landing/ui/             // 랜딩 페이지
 │   ├── dashboard/ui/           // 대시보드 페이지 (Split View 및 Tab 상태 관리)
-│   └── not-found/ui/           // 404 및 만료 안내 페이지
+│   ├── not-found/ui/           // 404 및 만료 안내 페이지
+│   ├── about/ui/               // 서비스 소개 및 문의하기 페이지
+│   └── legal/                  // 이용약관 및 개인정보 처리방침 페이지
 ├── widgets/
 │   ├── header/ui/              // 공통 헤더 (로고)
 │   ├── endpoint-info/ui/       // 상단 정보 바 (EndpointInfo, ConnectionStatus, CountdownTimer)
 │   ├── log-viewer/ui/          // 로그 목록 및 상세 뷰 (LogList, LogItem, LogDetail, JsonViewer)
-│   └── mock-config/ui/         // Mock API 응답 설정 패널 (MockConfigPanel)
+│   ├── mock-config/ui/         // Mock API 응답 설정 패널 (MockConfigPanel)
+│   └── legal/                  // 쿠키 배너 컴포넌트 (CookieBanner)
 ├── features/
 │   └── realtime-logs/          // SSE 실시간 로그 수신 로직 (useRealtimeLogs)
 ├── entities/
