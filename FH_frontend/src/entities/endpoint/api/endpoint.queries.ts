@@ -31,8 +31,12 @@ export const useCreateEndpointMutation = () => {
 };
 
 export function useDeleteEndpointMutation() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteEndpoint(id),
+    onSuccess: (_, id) => {
+      queryClient.removeQueries({ queryKey: ['endpoint', id] });
+    },
   });
 }
 
