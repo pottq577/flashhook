@@ -18,14 +18,15 @@
 ### 1.2. 핵심 이벤트 흐름
 
 ```
-[외부 서비스] → POST /api/hooks/{id}
+[외부 서비스] → ANY /api/hooks/{id}
                     ↓
             WebhookService.receive()
-              ├─ 캡 체크 (500건/5MB)
-              ├─ MongoDB 저장
+              ├─ 캡 체크 및 MongoDB 저장 (findAndModify)
               └─ ApplicationEvent 발행 ──(@Async)──→ SseEmitterService.push()
-                    ↓ (즉시)                              ↓ (비동기)
-              200 OK 응답                          SSE로 클라이언트 푸시
+                    ↓ (MockConfig 반환)                     ↓ (비동기)
+              MockResponseScheduler                  SSE로 클라이언트 푸시
+                    ↓ (DeferredResult)
+              지연 처리 및 동적 상태 코드 응답
 ```
 
 - **WebhookService는 SSE를 모름.** 저장 + 이벤트 발행만.
@@ -133,7 +134,7 @@ public class WebhookService {
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public WebhookLog receive(String endpointId, HttpServletRequest request) {
+    public MockConfig receive(String endpointId, HttpServletRequest request) {
         // 1. 엔드포인트 존재 확인
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
             .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
@@ -156,14 +157,17 @@ public class WebhookService {
             .build();
         logRepository.save(log);
 
-        // 5. 메타 카운터 업데이트
-        endpoint.incrementLogCount(log.getBodySize());
-        endpointRepository.save(endpoint);
+        // 5. 메타 카운터 업데이트 (findAndModify Atomic 연산)
+        mongoTemplate.findAndModify(
+            Query.query(Criteria.where("endpointId").is(endpointId)),
+            new Update().inc("logCount", 1).inc("logSizeBytes", log.getBodySize()),
+            Endpoint.class
+        );
 
         // 6. 이벤트 발행 (SSE 푸시는 비동기로 처리됨)
         eventPublisher.publishEvent(new WebhookReceivedEvent(log));
 
-        return log;
+        return endpoint.getMockConfig();
     }
 }
 ```
@@ -267,7 +271,7 @@ HTTP 요청 인입
 | Filter            | 적용 경로                               | 동작                                              |
 | ----------------- | --------------------------------------- | ------------------------------------------------- |
 | RateLimitFilter   | `/api/endpoints` (POST), `/api/hooks/*` | Redis 카운터 체크 → 초과 시 429                   |
-| AccessTokenFilter | `/api/endpoints/{id}/**` (GET/DELETE)   | X-Access-Token 헤더 or ?token= 검증 → 실패 시 403 |
+| AccessTokenFilter | `/api/endpoints/{id}/**` (GET/DELETE/PATCH) | X-Access-Token 헤더 or ?token= 검증 → 실패 시 403 |
 
 > `/api/hooks/{id}` (웹훅 수신)은 AccessTokenFilter 미적용. 외부 서비스가 호출하므로.
 
@@ -277,7 +281,7 @@ HTTP 요청 인입
 
 | 영역      | 기술                                  |
 | --------- | ------------------------------------- |
-| Framework | Spring Boot 4.0.6                     |
+| Framework | Spring Boot 3.5.0                     |
 | Language  | Java 21+                              |
 | DB        | Spring Data MongoDB                   |
 | Cache     | Spring Data Redis                     |

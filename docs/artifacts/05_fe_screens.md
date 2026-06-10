@@ -1,7 +1,7 @@
 # FlashHook — FE 화면 구성
 
-> React (Vite) + TypeScript / MVP: Webhook Catcher
-> 최종 수정: 2026-06-07
+> React (Vite) + TypeScript / MVP & Phase 2: Webhook Catcher + Mock API
+> 최종 수정: 2026-06-10
 
 ---
 
@@ -10,7 +10,7 @@
 | #   | 페이지      | 경로                      | 설명                              |
 | --- | ----------- | ------------------------- | --------------------------------- |
 | 1   | 랜딩 페이지 | `/`                       | 서비스 소개 + 엔드포인트 생성     |
-| 2   | 대시보드    | `/dashboard/{endpointId}` | 실시간 로그 모니터링 (핵심)       |
+| 2   | 대시보드    | `/dashboard/{endpointId}` | 실시간 로그 모니터링 및 Mock 설정 (핵심) |
 | 3   | 404 / 만료  | `/not-found`              | 잘못된 URL 또는 만료된 엔드포인트 |
 
 **테마**: 다크 모드 기본 (개발자 툴 감성)
@@ -19,7 +19,7 @@
 
 ## 2. 랜딩 페이지 (`/`)
 
-```
+```text
 ┌──────────────────────────────────────────────┐
 │  🔗 FlashHook                                │
 ├──────────────────────────────────────────────┤
@@ -53,7 +53,7 @@
 
 ### 동작 플로우
 
-```
+```text
 [생성 버튼 클릭]
   → POST /api/endpoints { "label": "..." }
   → 응답에서 accessToken 추출
@@ -65,9 +65,10 @@
 
 ## 3. 대시보드 (`/dashboard/{endpointId}`)
 
-**레이아웃**: 좌우 Split View (좌: 로그 목록, 우: 로그 상세)
+**레이아웃**: 좌우 Split View (좌: 로그 목록, 우: 탭 기반 상세 뷰)
+모바일 환경에서는 우측 상세 뷰가 Bottom Sheet 형태로 제공됩니다.
 
-```
+```text
 ┌──────────────────────────────────────────────────────────┐
 │  🔗 FlashHook    "토스 결제테스트"     ⏱ 23:41:22 남음    │
 ├──────────────────────────────────────────────────────────┤
@@ -79,7 +80,7 @@
 │  ● SSE 연결됨    로그 42건 / 500건    128KB / 5MB         │
 │                                                          │
 ├─────────────────────────────┬────────────────────────────┤
-│  📋 로그 목록 (실시간)        │  🔍 로그 상세               │
+│  📋 로그 목록 (실시간)        │ [ 로그 상세 ] [ Mock 설정 ] │
 │                             │                            │
 │  ▶ POST  22:40:00          │  Method: POST              │
 │    {"event": "payme...     │  URL: /api/hooks/a1b2...   │
@@ -127,16 +128,26 @@
 | bodyPreview      | 앞 300자 텍스트 미리보기                           |
 | 메타 정보        | Client IP, Body 크기, 수신 시각                    |
 | 실시간 업데이트  | SSE → 새 로그 상단 추가 + 슬라이드인 애니메이션    |
-| 클릭             | 해당 로그 상세를 우측 패널에 표시                  |
+| 클릭             | 해당 로그 상세를 우측 탭 패널에 표시                  |
 
-### 3.3. 우측: 로그 상세 패널
+### 3.3. 우측: 탭 패널 (로그 상세 / Mock 설정)
 
+**[로그 상세 탭]**
 | 요소         | 설명                               |
 | ------------ | ---------------------------------- |
 | 전체 Headers | key-value 테이블                   |
 | 전체 Body    | JSON → syntax highlight + 포맷팅   |
 | Query Params | 파싱된 key-value                   |
 | 메타 정보    | Method, Client IP, Size, Timestamp |
+
+**[Mock 설정 탭]**
+| 요소         | 설명                               |
+| ------------ | ---------------------------------- |
+| Preset 선택  | K-API (토스, 카카오 등) 템플릿 주입|
+| Status Code  | HTTP 상태 코드 설정 (200, 400 등)  |
+| Delay (ms)   | 응답 지연 시간 설정 (최대 10000ms) |
+| Headers      | 커스텀 응답 헤더 추가 (Key-Value)  |
+| Body         | 커스텀 응답 Body 설정 (JSON 등)    |
 
 ### 3.4. 하단: 액션 버튼
 
@@ -159,7 +170,7 @@
 
 ## 4. 404 / 만료 페이지
 
-```
+```text
 ┌──────────────────────────────────────────┐
 │                                          │
 │   🔗 FlashHook                           │
@@ -174,32 +185,29 @@
 
 ---
 
-## 5. 주요 FE 컴포넌트
+## 5. 주요 FE 컴포넌트 구조 (FSD)
 
-```
+```text
 src/
+├── app/
+│   ├── App.tsx                 // 앱 전역 라우팅
+│   └── providers/              // QueryProvider 등 앱 프로바이더
 ├── pages/
-│   ├── LandingPage.tsx
-│   ├── DashboardPage.tsx
-│   └── NotFoundPage.tsx
-├── components/
-│   ├── Header.tsx              // 공통 헤더 (로고)
-│   ├── EndpointInfo.tsx        // 상단 정보 바 (URL, 카운트다운, 상태)
-│   ├── CopyButton.tsx          // URL 복사 버튼 + 토스트
-│   ├── LogList.tsx             // 좌측 로그 목록 (SSE 실시간)
-│   ├── LogItem.tsx             // 개별 로그 항목
-│   ├── LogDetail.tsx           // 우측 상세 패널
-│   ├── MethodBadge.tsx         // HTTP Method 컬러 배지
-│   ├── JsonViewer.tsx          // Body JSON syntax highlight
-│   ├── CountdownTimer.tsx      // 만료 카운트다운
-│   ├── ConnectionStatus.tsx    // SSE 연결 상태 표시
-│   └── ConfirmModal.tsx        // 삭제 확인 모달
-├── hooks/
-│   ├── useSSE.ts               // SSE 연결 관리 커스텀 훅
-│   └── useEndpoint.ts          // 엔드포인트 API 호출 훅
-├── utils/
-│   ├── api.ts                  // API 클라이언트
-│   └── tokenStorage.ts         // sessionStorage 토큰 관리
-└── styles/
-    └── index.css               // 다크 모드 디자인 시스템
+│   ├── landing/ui/             // 랜딩 페이지
+│   ├── dashboard/ui/           // 대시보드 페이지 (Split View 및 Tab 상태 관리)
+│   └── not-found/ui/           // 404 및 만료 안내 페이지
+├── widgets/
+│   ├── header/ui/              // 공통 헤더 (로고)
+│   ├── endpoint-info/ui/       // 상단 정보 바 (EndpointInfo, ConnectionStatus, CountdownTimer)
+│   ├── log-viewer/ui/          // 로그 목록 및 상세 뷰 (LogList, LogItem, LogDetail, JsonViewer)
+│   └── mock-config/ui/         // Mock API 응답 설정 패널 (MockConfigPanel)
+├── features/
+│   └── realtime-logs/          // SSE 실시간 로그 수신 로직 (useRealtimeLogs)
+├── entities/
+│   ├── endpoint/               // 엔드포인트 도메인 API 및 쿼리
+│   └── log/                    // 로그 도메인 모델, 상태 스토어(Zustand), API
+└── shared/
+    ├── api/                    // API 클라이언트 (fetch 래퍼)
+    ├── lib/                    // 커스텀 훅 및 유틸 (useIsMobile 등)
+    └── ui/                     // 재사용 공통 컴포넌트 (MethodBadge, Toast, CopyButton, ConfirmModal 등)
 ```
