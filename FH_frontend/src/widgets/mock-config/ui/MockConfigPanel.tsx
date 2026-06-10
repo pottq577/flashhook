@@ -23,15 +23,27 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     const headers = endpoint.mockConfig?.headers || {};
     return Object.entries(headers).map(([k, v]) => `${k}: ${v}`).join('\n');
   });
+  const [headerWarning, setHeaderWarning] = useState<string | null>(null);
 
   const handleApply = () => {
     const headers: Record<string, string> = {};
+    let hasInvalidLines = false;
+    setHeaderWarning(null);
+
     headersText.split('\n').forEach(line => {
-      const [k, ...v] = line.split(':');
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      const [k, ...v] = trimmed.split(':');
       if (k && v.length) {
         headers[k.trim()] = v.join(':').trim();
+      } else {
+        hasInvalidLines = true;
       }
     });
+
+    if (hasInvalidLines) {
+      setHeaderWarning('일부 헤더 형식이 올바르지 않아 무시되었습니다. (Key: Value 형식 확인)');
+    }
 
     mutate({
       statusCode,
@@ -69,8 +81,10 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             <label>상태 코드 (Status Code)</label>
             <input 
               type="number" 
+              min="100"
+              max="599"
               value={statusCode} 
-              onChange={e => setStatusCode(Number(e.target.value))} 
+              onChange={e => setStatusCode(Math.min(599, Math.max(100, Number(e.target.value))))} 
               className={styles.input}
             />
           </div>
@@ -97,6 +111,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             rows={3}
             placeholder="Content-Type: application/json"
           />
+          {headerWarning && <p className={styles.warning}>{headerWarning}</p>}
         </div>
 
         <div className={styles.formGroup}>
