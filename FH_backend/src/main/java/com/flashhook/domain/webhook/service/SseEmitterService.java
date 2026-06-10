@@ -88,8 +88,7 @@ public class SseEmitterService {
     }
 
     private void removeEmitter(String endpointId, SseEmitter emitter) {
-        emitters.compute(endpointId, (key, endpointEmitters) -> {
-            if (endpointEmitters == null) return null;
+        emitters.computeIfPresent(endpointId, (key, endpointEmitters) -> {
             endpointEmitters.remove(emitter);
             return endpointEmitters.isEmpty() ? null : endpointEmitters;
         });
