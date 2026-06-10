@@ -92,7 +92,10 @@ db.endpoints.createIndex({ endpointId: 1 }, { unique: true });
 db.logs.createIndex({ receivedAt: 1 }, { expireAfterSeconds: 86400 });
 
 // 엔드포인트별 로그 조회 (최신순 정렬)
-db.logs.createIndex({ endpointId: 1, receivedAt: -1, logId: -1 }, { name: "idx_endpoint_received_logId" });
+db.logs.createIndex(
+  { endpointId: 1, receivedAt: -1, logId: -1 },
+  { name: "idx_endpoint_received_logId" },
+);
 
 // 개별 로그 상세 조회용 (getLogDetail 쿼리 대응)
 db.logs.createIndex({ logId: 1 }, { unique: true });
@@ -122,14 +125,18 @@ endpoint:count:{ip}                 → INCR/DECR + TTL 없음 (MongoDB와 동�
 FlashHook은 무한히 증가할 수 있는 웹훅 데이터로 인한 스토리지 비용 폭증을 막고, 휘발성 테스트 목적에 맞게 단기 데이터 보존 원칙을 따릅니다.
 
 ### 4.1. 보존 기간 (TTL) 및 자동 폐기
+
 모든 엔드포인트와 해당 엔드포인트로 수신된 로그는 **생성 시점으로부터 24시간 후 자동 폐기**됩니다.
-*   **MongoDB**: `endpoints`와 `logs` 컬렉션에 설정된 TTL 인덱스(`expireAfterSeconds: 86400`)에 의해 몽고DB 백그라운드 프로세스가 오래된 문서를 자동 삭제합니다.
-*   **Redis**: Rate Limiting 키 및 상태 캐시 키들은 각각 설정된 TTL(`60s` ~ `86400s`)에 맞춰 자동 만료(Eviction)됩니다. 별도의 애플리케이션 레벨 배치 작업 없이도 데이터베이스 엔진 레벨에서 수명 주기가 관리됩니다.
+
+- **MongoDB**: `endpoints`와 `logs` 컬렉션에 설정된 TTL 인덱스(`expireAfterSeconds: 86400`)에 의해 몽고DB 백그라운드 프로세스가 오래된 문서를 자동 삭제합니다.
+- **Redis**: Rate Limiting 키 및 상태 캐시 키들은 각각 설정된 TTL(`60s` ~ `86400s`)에 맞춰 자동 만료(Eviction)됩니다. 별도의 애플리케이션 레벨 배치 작업 없이도 데이터베이스 엔진 레벨에서 수명 주기가 관리됩니다.
 
 ### 4.2. 앱 레벨 스토리지 캡 (Storage Cap)
+
 단일 엔드포인트가 비정상적으로 많은 웹훅을 수신하여 몽고DB 스토리지를 독점하는 것을 방지하기 위해 캡(Cap)을 적용합니다.
-*   **개수 제한**: 엔드포인트당 최대 500건의 로그만 유지 (초과 시 오래된 로그 순환 덮어쓰기)
-*   **용량 제한**: 엔드포인트당 누적 로그 크기 최대 5MB 유지
+
+- **개수 제한**: 엔드포인트당 최대 500건의 로그만 유지 (초과 시 오래된 로그 순환 덮어쓰기)
+- **용량 제한**: 엔드포인트당 누적 로그 크기 최대 5MB 유지
 
 ### 4.3. 데이터 흐름도
 
@@ -170,7 +177,6 @@ void saveLog(WebhookLog log) {
     endpointRepository.save(meta);
 }
 ```
-
 
 # FlashHook — 인프라 아키텍처 (비용 최적화)
 
@@ -355,7 +361,6 @@ location /api/endpoints/ {
 | MongoDB Atlas  | Oracle Cloud IP 화이트리스트만 허용                               |
 | SSH            | Key Pair 인증. 비밀번호 로그인 비활성화                           |
 
-
 # FlashHook — 백엔드 아키텍처
 
 > Java Spring Boot / 3-Layer + ApplicationEvent
@@ -535,9 +540,9 @@ public class WebhookService {
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
         Update update = new Update().inc("logCount", 1).inc("logSizeBytes", payload.getBodySize());
         Endpoint updatedEndpoint = mongoTemplate.findAndModify(
-            query, 
-            update, 
-            org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true), 
+            query,
+            update,
+            org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true),
             Endpoint.class
         );
 
@@ -654,9 +659,9 @@ HTTP 요청 인입
 [DispatcherServlet → Controller → Service → Repository]
 ```
 
-| Filter            | 적용 경로                               | 동작                                              |
-| ----------------- | --------------------------------------- | ------------------------------------------------- |
-| RateLimitFilter   | `/api/endpoints` (POST), `/api/hooks/*` | Redis 카운터 체크 → 초과 시 429                   |
+| Filter            | 적용 경로                                         | 동작                                                                            |
+| ----------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- |
+| RateLimitFilter   | `/api/endpoints` (POST), `/api/hooks/*`           | Redis 카운터 체크 → 초과 시 429                                                 |
 | AccessTokenFilter | `/api/endpoints/{id}/**` (단, GET `/stream` 제외) | X-Access-Token 헤더 검증 → 실패 시 403. GET `/stream`은 별도 `streamToken` 검증 |
 
 > `/api/hooks/{id}` (웹훅 수신)은 AccessTokenFilter 미적용. 외부 서비스가 호출하므로.
@@ -676,7 +681,6 @@ HTTP 요청 인입
 | 빌드      | Gradle                                |
 | 컨테이너  | Docker + docker-compose               |
 
-
 # FlashHook — 프론트엔드 아키텍처 (FSD 기반)
 
 > React 19 (Vite 8) + TypeScript / FSD 아키텍처 기반 다크 모드 SPA
@@ -686,17 +690,17 @@ HTTP 요청 인입
 
 ## 1. 기술 스택
 
-| 영역      | 기술                        | 이유                                          |
-| --------- | --------------------------- | --------------------------------------------- |
-| Framework | React 19.2 (Vite 8.0)       | 최신 렌더링 최적화, 압도적인 빌드 속도        |
-| Language  | TypeScript 5.7              | 컴파일 타임 안정성 및 강화된 타입 추론        |
-| Routing   | react-router-dom v7.17      | 최신 SPA 라우팅 지원                          |
-| 아키텍처  | FSD (Feature-Sliced Design) | 비즈니스 로직과 UI 분리, 모듈 확장성 극대화   |
-| 상태 관리 | Zustand 5.0                 | 간편하고 성능이 우수한 전역 상태 관리         |
-| 비동기    | TanStack Query 5.101        | API 패칭, 캐싱, 서버 상태 동기화              |
-| 애니메이션| Framer Motion 12.40         | 매끄러운 뷰 트랜지션 및 마이크로 인터랙션     |
-| E2E/A11y  | Playwright + Axe            | CI/CD 연동 자동화 테스트 및 웹 접근성 검사    |
-| 스타일    | Vanilla CSS (CSS Modules)   | 다크 모드 디자인 시스템. 충돌 없는 스타일링   |
+| 영역       | 기술                        | 이유                                        |
+| ---------- | --------------------------- | ------------------------------------------- |
+| Framework  | React 19.2 (Vite 8.0)       | 최신 렌더링 최적화, 압도적인 빌드 속도      |
+| Language   | TypeScript 5.7              | 컴파일 타임 안정성 및 강화된 타입 추론      |
+| Routing    | react-router-dom v7.17      | 최신 SPA 라우팅 지원                        |
+| 아키텍처   | FSD (Feature-Sliced Design) | 비즈니스 로직과 UI 분리, 모듈 확장성 극대화 |
+| 상태 관리  | Zustand 5.0                 | 간편하고 성능이 우수한 전역 상태 관리       |
+| 비동기     | TanStack Query 5.101        | API 패칭, 캐싱, 서버 상태 동기화            |
+| 애니메이션 | Framer Motion 12.40         | 매끄러운 뷰 트랜지션 및 마이크로 인터랙션   |
+| E2E/A11y   | Playwright + Axe            | CI/CD 연동 자동화 테스트 및 웹 접근성 검사  |
+| 스타일     | Vanilla CSS (CSS Modules)   | 다크 모드 디자인 시스템. 충돌 없는 스타일링 |
 
 ---
 
@@ -749,21 +753,26 @@ src/
 초기 기획과 다르게 프로젝트 확장성과 코드의 간결성을 위해 **Zustand**와 **React Query**를 도입했습니다.
 
 ### 4.1. 서버 상태 동기화 (TanStack Query)
+
 REST API 통신은 React Query를 통해 캐싱되고 관리됩니다.
+
 - **엔드포인트 정보 및 초기 로그 조회**: `lastSeenId` 커서 기반의 Spring Data Page 객체(`content`, `totalElements`)를 사용하여, 불필요한 네트워크 요청을 줄이고 스크롤 기반의 효율적인 데이터 페칭을 수행합니다.
 
 ### 4.2. 전역 상태 관리 (Zustand)
+
 로그 목록 및 선택된 로그 상태는 Zustand 스토어(`useLogStore`)를 통해 관리합니다. SSE 이벤트를 수신하면 Zustand 스토어가 업데이트되며, 이를 구독하는 `widgets`가 반응적으로 렌더링됩니다.
 
 ### 4.3. 상태 동기화 및 캐시 무효화 전략 (Cache Invalidation)
+
 데이터 동기화 및 최신 상태 유지를 위해 아래와 같은 캐시 관리 전략을 취합니다.
-*   **SSE 웹훅 이벤트 수신 시 (Optimistic/Reactive Update)**:
-    - 새로운 웹훅 로그가 들어오면 무거운 백엔드 전체 로그 조회 API(`GET /logs`)를 다시 호출하지 않습니다.
-    - SSE로 넘어온 `data` (단일 로그 JSON)를 Zustand 스토어 배열의 **맨 앞(Unshift)**에 직접 주입하여 즉각적인 UI 반영(낙관적 렌더링)을 수행합니다.
-*   **로그 전체 삭제 시 (Query Invalidation)**:
-    - 사용자가 "모든 로그 삭제"를 수행하면 React Query의 `invalidateQueries({ queryKey: ['logs', endpointId] })`를 호출하여 서버 상태와 클라이언트 상태를 강제 동기화하고 로컬 캐시를 파기합니다.
-*   **만료(TTL)로 인한 엔드포인트 증발 시**:
-    - React Query 폴링이나 SSE 도중 `404 ENDPOINT_NOT_FOUND` 또는 `403 INVALID_TOKEN` 에러가 발생하면, 글로벌 에러 핸들러에서 이를 낚아채어 로컬 스토리지 및 내부 상태를 초기화하고 만료 안내 페이지 또는 홈으로 리다이렉션합니다.
+
+- **SSE 웹훅 이벤트 수신 시 (Optimistic/Reactive Update)**:
+  - 새로운 웹훅 로그가 들어오면 무거운 백엔드 전체 로그 조회 API(`GET /logs`)를 다시 호출하지 않습니다.
+  - SSE로 넘어온 `data` (단일 로그 JSON)를 Zustand 스토어 배열의 **맨 앞(Unshift)**에 직접 주입하여 즉각적인 UI 반영(낙관적 렌더링)을 수행합니다.
+- **로그 전체 삭제 시 (Query Invalidation)**:
+  - 사용자가 "모든 로그 삭제"를 수행하면 React Query의 `invalidateQueries({ queryKey: ['logs', endpointId] })`를 호출하여 서버 상태와 클라이언트 상태를 강제 동기화하고 로컬 캐시를 파기합니다.
+- **만료(TTL)로 인한 엔드포인트 증발 시**:
+  - React Query 폴링이나 SSE 도중 `404 ENDPOINT_NOT_FOUND` 또는 `403 INVALID_TOKEN` 에러가 발생하면, 글로벌 에러 핸들러에서 이를 낚아채어 로컬 스토리지 및 내부 상태를 초기화하고 만료 안내 페이지 또는 홈으로 리다이렉션합니다.
 
 ---
 
@@ -804,7 +813,6 @@ Zustand Store 업데이트 (addLog - entities/log/model)
 ## 7. 접근성 및 테스트 (Playwright)
 
 초기 계획에 없던 Playwright를 도입하여 E2E 테스트 및 접근성(A11y) 검사를 자동화했습니다.
+
 - `@axe-core/playwright`를 통해 WCAG 2.1 AA 기준을 통과하는지 검증합니다.
 - CI 파이프라인에서 자동으로 구동되어 회귀 오류(Regression)를 방지합니다.
-
-

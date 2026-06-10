@@ -54,14 +54,14 @@
 
 ## 5. 기술 스택
 
-| 영역          | 기술                      | 선택 이유                                                       |
-| ------------- | ------------------------- | --------------------------------------------------------------- |
-| Backend       | Java 21 + Spring Boot 3.5.0 | 최신 LTS 및 프레임워크 도입으로 성능 최적화 및 최신 스펙 활용   |
-| Frontend      | React 19 (Vite 8) + TS    | 최신 React 19 기능 활용, Zustand/React Query 도입, FSD 아키텍처 |
-| Main DB       | MongoDB                   | 스키마리스 Payload, JOIN 불필요, 쓰기 폭증, TTL Index 자동 파기 |
-| Cache/Session | Redis                     | SSE 인증 토큰(Stream Token) 관리, Rate Limiting, 임시 캐시 |
-| 실시간 통신   | SSE (Server-Sent Events)  | 단방향 푸시 충분. 구현 단순. Spring 지원 우수                   |
-| 배포 / CI/CD  | CI: GitHub Actions, CD: AWS (예정) | Playwright E2E 통합 (CI 구축 완료, CD 파이프라인은 구축 예정) |
+| 영역          | 기술                               | 선택 이유                                                       |
+| ------------- | ---------------------------------- | --------------------------------------------------------------- |
+| Backend       | Java 21 + Spring Boot 3.5.0        | 최신 LTS 및 프레임워크 도입으로 성능 최적화 및 최신 스펙 활용   |
+| Frontend      | React 19 (Vite 8) + TS             | 최신 React 19 기능 활용, Zustand/React Query 도입, FSD 아키텍처 |
+| Main DB       | MongoDB                            | 스키마리스 Payload, JOIN 불필요, 쓰기 폭증, TTL Index 자동 파기 |
+| Cache/Session | Redis                              | SSE 인증 토큰(Stream Token) 관리, Rate Limiting, 임시 캐시      |
+| 실시간 통신   | SSE (Server-Sent Events)           | 단방향 푸시 충분. 구현 단순. Spring 지원 우수                   |
+| 배포 / CI/CD  | CI: GitHub Actions, CD: AWS (예정) | Playwright E2E 통합 (CI 구축 완료, CD 파이프라인은 구축 예정)   |
 
 ### 5.1. MongoDB 선택 근거 (vs PostgreSQL)
 
@@ -85,7 +85,6 @@
 - 토이 프로젝트로 시작하되, 완성 시 **실제 배포 및 서비스 운영** 목표
 - 포트폴리오 어필: CRUD를 넘어선 실시간/대규모 인프라 경험 증명
 
-
 # FlashHook — FE 화면 구성
 
 > React (Vite) + TypeScript / Webhook Catcher + Mock API (Phase 2 구현 완료)
@@ -95,15 +94,15 @@
 
 ## 1. 페이지 목록
 
-| #   | 페이지      | 경로                      | 설명                              |
-| --- | ----------- | ------------------------- | --------------------------------- |
-| 1   | 랜딩 페이지 | `/`                       | 서비스 소개 + 엔드포인트 생성     |
+| #   | 페이지      | 경로                      | 설명                                     |
+| --- | ----------- | ------------------------- | ---------------------------------------- |
+| 1   | 랜딩 페이지 | `/`                       | 서비스 소개 + 엔드포인트 생성            |
 | 2   | 대시보드    | `/dashboard/{endpointId}` | 실시간 로그 모니터링 및 Mock 설정 (핵심) |
-| 3   | 404 / 만료  | `/not-found`              | 잘못된 URL 또는 만료된 엔드포인트 |
-| 4   | 서비스 소개 | `/about`                  | 서비스 소개 페이지                |
-| 5   | 문의하기    | `/contact`                | 연락처 및 문의 안내               |
-| 6   | 이용약관    | `/terms`                  | 서비스 이용약관                   |
-| 7   | 개인정보    | `/privacy`                | 개인정보 처리방침                 |
+| 3   | 404 / 만료  | `/not-found`              | 잘못된 URL 또는 만료된 엔드포인트        |
+| 4   | 서비스 소개 | `/about`                  | 서비스 소개 페이지                       |
+| 5   | 문의하기    | `/contact`                | 연락처 및 문의 안내                      |
+| 6   | 이용약관    | `/terms`                  | 서비스 이용약관                          |
+| 7   | 개인정보    | `/privacy`                | 개인정보 처리방침                        |
 
 **테마**: 다크 모드 기본 (개발자 툴 감성)
 
@@ -214,13 +213,13 @@
 
 ### 3.2. 좌측: 로그 목록 (실시간)
 
-| 요소             | 설명                                               |
-| ---------------- | -------------------------------------------------- |
-| HTTP Method 배지 | `POST`=초록, `GET`=파랑, `PUT`=주황, `DELETE`=빨강 |
-| bodyPreview      | 앞 300자 텍스트 미리보기                           |
-| 메타 정보        | Client IP, Body 크기, 수신 시각                    |
+| 요소             | 설명                                                   |
+| ---------------- | ------------------------------------------------------ |
+| HTTP Method 배지 | `POST`=초록, `GET`=파랑, `PUT`=주황, `DELETE`=빨강     |
+| bodyPreview      | 앞 300자 텍스트 미리보기                               |
+| 메타 정보        | Client IP, Body 크기, 수신 시각                        |
 | 실시간 업데이트  | SSE(2-Step 토큰 인증) → 새 로그 상단 추가 + 애니메이션 |
-| 클릭             | 해당 로그 상세를 우측 탭 패널에 표시                  |
+| 클릭             | 해당 로그 상세를 우측 탭 패널에 표시                   |
 
 ### 3.3. 우측: 탭 패널 (로그 상세 / Mock 설정)
 
@@ -235,14 +234,13 @@
 
 **[Mock 설정 탭]**
 
-| 요소         | 설명                               |
-| ------------ | ---------------------------------- |
-| Preset 선택  | K-API (토스, 카카오 등) 템플릿 주입|
-| Status Code  | HTTP 상태 코드 설정 (200, 400 등)  |
-| Delay (ms)   | 응답 지연 시간 설정 (최대 10000ms) |
-| Headers      | 커스텀 응답 헤더 추가 (Key-Value)  |
-| Body         | 커스텀 응답 Body 설정 (JSON 등)    |
-
+| 요소        | 설명                                |
+| ----------- | ----------------------------------- |
+| Preset 선택 | K-API (토스, 카카오 등) 템플릿 주입 |
+| Status Code | HTTP 상태 코드 설정 (200, 400 등)   |
+| Delay (ms)  | 응답 지연 시간 설정 (최대 10000ms)  |
+| Headers     | 커스텀 응답 헤더 추가 (Key-Value)   |
+| Body        | 커스텀 응답 Body 설정 (JSON 등)     |
 
 ### 3.4. 하단: 액션 버튼
 
@@ -309,7 +307,6 @@ src/
     ├── lib/                    // 커스텀 훅 및 유틸 (useIsMobile 등)
     └── ui/                     // 재사용 공통 컴포넌트 (MethodBadge, Toast, CopyButton, ConfirmModal 등)
 ```
-
 
 # FlashHook — Phase 2: Mock API 기획 및 설계서
 
@@ -391,7 +388,6 @@ Mock 설정을 동적으로 업데이트하기 위한 부분 수정(PATCH) API�
 1. **지연(Delay) 처리**: `delayMs`가 0보다 클 경우 지정된 시간만큼 응답을 대기합니다. (Tomcat 스레드 점유 최소화를 위해 현재 `DeferredResult`와 `MockResponseScheduler`를 활용하여 비동기 지연 응답을 반환하도록 구현되어 있습니다.)
 2. **헤더 주입**: `mockConfig.headers`의 모든 Key-Value를 HTTP 응답 헤더에 삽입합니다.
 3. **상태 및 본문 반환**: 설정된 `statusCode`와 `body` 데이터를 담아 최종 `ResponseEntity`를 반환합니다. (로그 저장 및 SSE 푸시 흐름은 기존과 동일하게 비동기로 병행 동작합니다.)
-
 
 # FlashHook Mock API & Webhook Presets (최종 병합본)
 
@@ -502,5 +498,3 @@ Mock 설정을 동적으로 업데이트하기 위한 부분 수정(PATCH) API�
 ### **Slack Events API 공식 문서 원본 링크**
 
 [Slack Events API 문서](https://api.slack.com/events-api)
-
-
