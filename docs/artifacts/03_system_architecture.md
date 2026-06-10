@@ -125,12 +125,15 @@ Route 53, S3, CloudFront를 AWS로 구성하는 절충안도 있지만, Vercel�
 ### 1.4. CI/CD 파이프라인
 
 #### 현재 구축 상태 (CI)
+
 현재는 GitHub Actions 기반의 지속적 통합(CI) 파이프라인(`.github/workflows/ci.yml`)만 구성되어 있습니다.
+
 - **공통**: Docker Compose를 활용한 로컬 DB 구동
 - **백엔드**: Java 21 기반 Gradle 빌드, 테스트
 - **프론트엔드**: Playwright E2E 테스트 자동화
 
 #### MVP 배포 파이프라인 (CD)
+
 ```text
 [GitHub Push]
     ├─ FE (Vercel): Push 즉시 Vercel 연동으로 자동 빌드 & 배포
@@ -150,6 +153,7 @@ Oracle Cloud ARM 인스턴스
 ```
 
 #### Nginx 설정 핵심 (SSE)
+
 ```nginx
 # SSE를 위한 프록시 설정
 location /api/endpoints/ {
@@ -189,6 +193,7 @@ location /api/endpoints/ {
 ### 2.2. MongoDB Collections
 
 #### 2.2.1. endpoints
+
 엔드포인트 메타데이터. 생성 시 1건 삽입, 24시간 후 TTL 자동 삭제.
 
 ```json
@@ -213,6 +218,7 @@ location /api/endpoints/ {
 ```
 
 **인덱스:**
+
 ```javascript
 // TTL Index — 24시간 후 자동 삭제
 db.endpoints.createIndex({ createdAt: 1 }, { expireAfterSeconds: 86400 });
@@ -221,6 +227,7 @@ db.endpoints.createIndex({ endpointId: 1 }, { unique: true });
 ```
 
 #### 2.2.2. logs
+
 웹훅 수신 로그. 엔드포인트당 최대 500건 OR 5MB (앱 레벨 순환 덮어쓰기).
 
 ```json
@@ -251,13 +258,14 @@ db.endpoints.createIndex({ endpointId: 1 }, { unique: true });
 ```
 
 **인덱스:**
+
 ```javascript
 // TTL Index — 24시간 후 자동 삭제
 db.logs.createIndex({ receivedAt: 1 }, { expireAfterSeconds: 86400 });
 // 엔드포인트별 로그 조회 (최신순 정렬)
 db.logs.createIndex(
   { endpointId: 1, receivedAt: -1, logId: -1 },
-  { name: "idx_endpoint_received_logId" }
+  { name: "idx_endpoint_received_logId" },
 );
 // 개별 로그 상세 조회용
 db.logs.createIndex({ logId: 1 }, { unique: true });
@@ -288,6 +296,7 @@ FlashHook은 무한히 증가할 수 있는 웹훅 데이터로 인한 스토리
    - 용량 제한: 누적 로그 크기 최대 5MB 유지
 
 **[데이터 흐름도]**
+
 ```text
 [생성] → endpoints + Redis 카운터
   ↓
@@ -299,6 +308,7 @@ FlashHook은 무한히 증가할 수 있는 웹훅 데이터로 인한 스토리
 ```
 
 #### 앱 레벨 캡 적용 로직 (의사코드)
+
 ```java
 void saveLog(WebhookLog log) {
     // 1. 용량 체크
@@ -335,6 +345,7 @@ void saveLog(WebhookLog log) {
 단순하지만 쓰기 작업과 SSE 푸시가 하나의 Service 클래스에 섞이는 문제를 해결하기 위해, 3-Layer의 단순함은 유지하면서 웹훅 수신 후 SSE로 보내는 흐름만 이벤트로 분리했습니다. CQRS는 현재 도메인 복잡도 대비 오버엔지니어링으로 판단해 제외했습니다.
 
 **[핵심 이벤트 흐름]**
+
 ```text
 [외부 서비스] → ANY /api/hooks/{id}
                     ↓
@@ -344,6 +355,7 @@ void saveLog(WebhookLog log) {
                     ↓ (MockConfig 반환)                     ↓ (비동기)
               MockResponse 동적 응답                 SSE로 클라이언트 푸시
 ```
+
 - **WebhookService는 SSE를 모름.** 저장 + 이벤트 발행만.
 - **SseEmitterService는 저장을 모름.** 이벤트 수신 + 푸시만.
 - **@Async 필수.** 동기 시 SSE 푸시 지연이 외부 서비스의 타임아웃을 유발할 위험이 있음.
@@ -372,7 +384,7 @@ com.flashhook
 │       │   ├── WebhookLogService.java         // 로그 조회/삭제
 │       │   └── SseEmitterService.java         // SSE 관리 + @Async 이벤트 수신 → 푸시
 │       ├── repository/
-│       │   └── WebhookLogRepository.java      
+│       │   └── WebhookLogRepository.java
 │       ├── dto/
 │       ├── model/
 │       └── event/
@@ -413,7 +425,7 @@ HTTP 요청 인입
 
 > React 19 (Vite 8) + TypeScript / FSD 아키텍처 기반 다크 모드 SPA
 
-#### 4.4.1. 기술 스택 요약
+### 4.1. 기술 스택 요약
 
 - **Framework**: React 19.2 (Vite 8.0)
 - **Language**: TypeScript 5.7
@@ -424,7 +436,7 @@ HTTP 요청 인입
 - **E2E/A11y**: Playwright + Axe
 - **Styling**: Vanilla CSS (CSS Modules, 다크 모드 중심)
 
-#### 4.4.2. 디렉토리 구조 (FSD)
+### 4.2. 디렉토리 구조 (FSD)
 
 ```text
 src/
@@ -440,7 +452,7 @@ src/
     └── ui/            // 공통 UI 요소 (MethodBadge, Toast, CopyButton, ConfirmModal 등)
 ```
 
-#### 4.4.3. 핵심 상태 관리 및 캐시 무효화 전략
+### 4.3. 핵심 상태 관리 및 캐시 무효화 전략
 
 - **서버 상태 동기화 (TanStack Query)**: REST API 통신은 React Query로 캐싱되며, `lastSeenId` 커서 기반 페이징을 통해 스크롤 시 효율적 데이터를 불러옵니다.
 - **전역 상태 관리 (Zustand)**: `useLogStore`를 통해 SSE를 수신하면 React 컴포넌트가 즉시 렌더링되게 관리합니다.

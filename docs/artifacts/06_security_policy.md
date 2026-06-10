@@ -1,28 +1,28 @@
 # 보안 및 리소스 제한 정책
 
-### 1. 인증 설계
+## 1. 인증 설계
 
-#### 1.1. 핵심 전제
+### 1.1. 핵심 전제
 
 회원가입 없음 → 전통적 인증(JWT, 세션) 불가. **URL 토큰 기반 접근 제어** 적용.
 
-#### 1.2. URL 분리 전략
+### 1.2. URL 분리 전략
 
 | URL 유형         | 용도               |       공개 여부        |
 | ---------------- | ------------------ | :--------------------: |
 | Webhook 수신 URL | 외부 서비스에 등록 |        **공개**        |
 | Dashboard URL    | 로그 열람          | **비공개** (토큰 필요) |
 
-```
+```text
 [수신 URL]    POST https://flashhook.kr/api/hooks/{endpointId}
 [대시보드 URL] GET  https://flashhook.kr/dashboard/{endpointId}?token={accessToken}
 ```
 
 수신 URL이 노출되어도 → 대시보드 접근 불가 (토큰 분리).
 
-#### 1.3. 토큰 생성 및 저장
+### 1.3. 토큰 생성 및 저장
 
-```
+```text
 생성 시:
   endpointId  = UUID v4 (공개용, 2^122 조합 → 무차별 대입 비현실적)
   accessToken = crypto-random 32byte → Base64URL 인코딩 (비공개)
@@ -32,9 +32,9 @@
   클라이언트: 원본 accessToken은 생성 시 1회만 반환, 이후 서버에서 소멸
 ```
 
-#### 1.4. 토큰 전달 방식
+### 1.4. 토큰 전달 방식
 
-```
+```text
 REST API  → Header: X-Access-Token: {accessToken}
 SSE 스트림 → 1단계: POST `/api/endpoints/{id}/stream-token` (헤더 인증) -> 일회용 `streamToken` 발급
             2단계: GET `/api/endpoints/{id}/stream?streamToken={streamToken}` (EventSource 사용)
@@ -44,7 +44,7 @@ SSE 스트림 → 1단계: POST `/api/endpoints/{id}/stream-token` (헤더 인�
 
 ---
 
-### 2. 접근 제어 매트릭스
+## 2. 접근 제어 매트릭스
 
 | 동작             |  필요한 인증  | 설명                          |
 | ---------------- | :-----------: | ----------------------------- |
@@ -57,7 +57,7 @@ SSE 스트림 → 1단계: POST `/api/endpoints/{id}/stream-token` (헤더 인�
 
 ---
 
-### 3. Rate Limiting 정책
+## 3. Rate Limiting 정책
 
 Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
@@ -73,9 +73,9 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
 ---
 
-### 4. 리소스 제한 정책
+## 4. 리소스 제한 정책
 
-#### 4.1. 엔드포인트 제한
+### 4.1. 엔드포인트 제한
 
 | 항목                      | 제한값           | 상태 |
 | ------------------------- | ---------------- | :--: |
@@ -83,7 +83,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 | 엔드포인트 수명 (TTL)     | 24시간           | 완료 |
 | 수동 삭제                 | 가능 (토큰 인증) | 완료 |
 
-#### 4.2. 요청 제한
+### 4.2. 요청 제한
 
 | 항목                | 제한값                                     |
 | ------------------- | ------------------------------------------ |
@@ -92,7 +92,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 | 허용 HTTP 메소드    | 모든 메소드 (GET/POST/PUT/PATCH/DELETE 등) |
 | Content-Type 제한   | 없음 (JSON, XML, form-data 등 전부 수신)   |
 
-#### 4.3. 로그 저장 제한
+### 4.3. 로그 저장 제한
 
 | 항목                        | 제한값                                |
 | --------------------------- | ------------------------------------- |
@@ -102,7 +102,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 | 초과 시 동작                | 순환 덮어쓰기 (가장 오래된 로그 삭제) |
 | 로그 보존 기간              | 24시간 (TTL Index)                    |
 
-#### 4.4. SSE 연결 제한
+### 4.4. SSE 연결 제한
 
 | 항목               | 제한값                                            | 상태 |
 | ------------------ | ------------------------------------------------- | :--: |
@@ -112,7 +112,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
 ---
 
-### 5. 위협 대응
+## 5. 위협 대응
 
 | 위협                        | 대응                                         |
 | --------------------------- | -------------------------------------------- |
@@ -125,7 +125,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
 ---
 
-### 6. 보안 적용 현황 (MVP)
+## 6. 보안 적용 현황 (MVP)
 
 MVP 개발 과정에서 아래 주요 보안 이슈들이 모두 코드로 구현 완료되었습니다.
 
@@ -137,9 +137,9 @@ MVP 개발 과정에서 아래 주요 보안 이슈들이 모두 코드로 구�
 
 ---
 
-### 7. 전체 플로우 요약
+## 7. 전체 플로우 요약
 
-```
+```text
 [유저] → 생성 버튼 클릭
   ↓
 [서버] → endpointId(UUID) + accessToken(random) 생성
