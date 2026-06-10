@@ -29,8 +29,10 @@ src/
 ├── pages/             // 페이지 컴포넌트 (라우팅 뷰)
 │   ├── landing/
 │   ├── dashboard/
-│   └── not-found/
-├── widgets/           // 독립적인 UI 블록 (header, endpoint-info, log-viewer, mock-config)
+│   ├── not-found/
+│   ├── about/
+│   └── legal/
+├── widgets/           // 독립적인 UI 블록 (header, endpoint-info, log-viewer, mock-config, legal)
 ├── features/          // 사용자 상호작용 및 비즈니스 로직 단위 (realtime-logs)
 ├── entities/          // 도메인 핵심 데이터 구조, 스토어, API (endpoint, log)
 └── shared/            // 재사용 가능한 공통 컴포넌트, 유틸, API 클라이언트
@@ -46,11 +48,18 @@ src/
 ```tsx
 // app/App.tsx
 <BrowserRouter>
-  <Routes>
-    <Route path="/" element={<LandingPage />} />
-    <Route path="/dashboard/:endpointId" element={<DashboardPage />} />
-    <Route path="*" element={<NotFoundPage />} />
-  </Routes>
+  <main>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/dashboard/:endpointId" element={<DashboardPage />} />
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsOfServicePage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  </main>
+  <CookieBanner />
 </BrowserRouter>
 ```
 
@@ -61,7 +70,8 @@ src/
 초기 기획과 다르게 프로젝트 확장성과 코드의 간결성을 위해 **Zustand**와 **React Query**를 도입했습니다.
 
 ### 4.1. 서버 상태 동기화 (TanStack Query)
-REST API 통신은 React Query를 통해 캐싱되고 관리됩니다. 엔드포인트 정보 조회 및 초기 로그 로드 시 불필요한 네트워크 요청을 줄이고 로딩/에러 상태를 직관적으로 처리합니다.
+REST API 통신은 React Query를 통해 캐싱되고 관리됩니다.
+- **엔드포인트 정보 및 초기 로그 조회**: `lastSeenId` 커서 기반의 Spring Data Page 객체(`content`, `totalElements`)를 사용하여, 불필요한 네트워크 요청을 줄이고 스크롤 기반의 효율적인 데이터 페칭을 수행합니다.
 
 ### 4.2. 전역 상태 관리 (Zustand)
 로그 목록 및 선택된 로그 상태는 Zustand 스토어(`useLogStore`)를 통해 관리합니다. SSE 이벤트를 수신하면 Zustand 스토어가 업데이트되며, 이를 구독하는 `widgets`가 반응적으로 렌더링됩니다.
@@ -71,7 +81,17 @@ REST API 통신은 React Query를 통해 캐싱되고 관리됩니다. 엔드포
 ## 5. 데이터 흐름 (DashboardPage)
 
 ```text
-[SSE 이벤트 수신 - features/realtime-logs]
+[초기 로그 로드]
+    ↓ API: GET /api/endpoints/{id}/logs?lastSeenId={cursor} (Spring Data Page 형식)
+    ↓ 응답의 content를 Store에 적재 (totalElements 확인)
+
+[SSE 연결 플로우 - features/realtime-logs]
+    1. POST /api/endpoints/{id}/stream-token (Header: X-Access-Token)
+       → 단기 일회성 streamToken 발급
+    2. EventSource 연결: GET /api/endpoints/{id}/stream?streamToken={streamToken}
+       → SSE 수신 대기
+
+[SSE 이벤트 수신]
     ↓ onMessage
 Zustand Store 업데이트 (addLog - entities/log/model)
     ↓
@@ -80,7 +100,7 @@ Zustand Store 업데이트 (addLog - entities/log/model)
   ├── <LogList> (widgets/log-viewer)      - 좌측: 새로운 로그 슬라이드인 애니메이션
   └── Tab Navigation (DashboardPage)      - 우측: 조건부 렌더링
         ├── <LogDetail> (widgets/log-viewer) - 로그 상세 뷰
-        └── <MockConfigPanel> (widgets/mock-config) - Mock 응답 설정 패널
+        └── <MockConfigPanel> (widgets/mock-config) - Mock 응답 설정 패널 (Phase 2 동작 중)
 ```
 
 ---

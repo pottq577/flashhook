@@ -30,7 +30,7 @@
   "logCount": 42,                               // 현재 로그 수 (앱 레벨 관리)
   "logSizeBytes": 128000,                       // 현재 로그 총 크기 (앱 레벨 관리)
   "version": 0,                                 // Optimistic Locking 필드
-  "mockConfig": {                               // Phase 2: 응답 모의 설정
+  "mockConfig": {                               // 응답 모의 설정
     "statusCode": 200,
     "delayMs": 0,
     "headers": {},
@@ -50,8 +50,8 @@ db.endpoints.createIndex({ createdAt: 1 }, { expireAfterSeconds: 86400 });
 // 조회용
 db.endpoints.createIndex({ endpointId: 1 }, { unique: true });
 
-// IP 기반 활성 엔드포인트 수 조회용
-db.endpoints.createIndex({ creatorIp: 1 });
+// IP 기반 활성 엔드포인트 수 조회용 (코드 미구현 상태, 향후 필요시 추가)
+// db.endpoints.createIndex({ creatorIp: 1 });
 ```
 
 ### 2.2. logs
@@ -94,8 +94,8 @@ db.logs.createIndex({ receivedAt: 1 }, { expireAfterSeconds: 86400 });
 // 엔드포인트별 로그 조회 (최신순 정렬)
 db.logs.createIndex({ endpointId: 1, receivedAt: -1, logId: -1 }, { name: "idx_endpoint_received_logId" });
 
-// 개별 로그 조회
-db.logs.createIndex({ logId: 1 }, { unique: true });
+// 개별 로그 조회 (코드 미구현 상태, 향후 필요시 추가)
+// db.logs.createIndex({ logId: 1 }, { unique: true });
 ```
 
 ---
@@ -103,13 +103,13 @@ db.logs.createIndex({ logId: 1 }, { unique: true });
 ## 3. Redis Key 설계
 
 ```
-# Rate Limiting — Sliding Window Counter
-ratelimit:create:{ip}               → INCR + EXPIRE 600s (5개/IP/10분)
-ratelimit:webhook:{endpointId}      → INCR + EXPIRE 60s  (100건/EP/분)
-ratelimit:dashboard:{tokenHash}     → INCR + EXPIRE 60s  (60회/토큰/분)
+# Rate Limiting — Fixed Window Counter
+rl:create:{ip}                      → INCR + EXPIRE 86400s (5개/IP/24시간)
+rl:hook:{endpointId}:{ip}           → INCR + EXPIRE 60s  (100건/EP/IP/분)
 
 # SSE 연결 관리
-sse:connections:{ip}                → SET (동시 SSE 수 추적, 최대 5)
+stream_token:{token}                → SET + EXPIRE 30s (SSE 연결용 일회용 토큰)
+sse:connections:{ip}                → SET (동시 SSE 수 추적, 최대 5) (예정)
 
 # IP당 활성 엔드포인트 수 (빠른 조회용 캐시)
 endpoint:count:{ip}                 → INCR/DECR + TTL 없음 (MongoDB와 동기화)
