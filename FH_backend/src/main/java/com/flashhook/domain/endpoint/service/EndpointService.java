@@ -19,9 +19,7 @@ import java.util.Map;
 import org.springframework.context.ApplicationEventPublisher;
 import com.flashhook.global.event.EndpointDeletedEvent;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import com.flashhook.global.ratelimit.RateLimitService;
 
 /**
  * 엔드포인트 비즈니스 로직
@@ -32,7 +30,7 @@ public class EndpointService {
 
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final MongoTemplate mongoTemplate;
+    private final RateLimitService rateLimitService;
 
     @Value("${flashhook.log.max-count:500}")
     private int maxLogCount;
@@ -53,16 +51,8 @@ public class EndpointService {
      * 엔드포인트 생성
      */
     public EndpointResponse create(EndpointCreateRequest request, String ip) {
-        Instant cutoff = Instant.now().minus(Duration.ofHours(24));
-        long activeCount = mongoTemplate.count(
-            Query.query(
-                Criteria.where("creatorIp").is(ip)
-                    .and("createdAt").gte(cutoff)
-            ),
-            Endpoint.class
-        );
-        
-        if (activeCount >= endpointCreateLimit) {
+        String key = "rl:create:" + ip;
+        if (!rateLimitService.isAllowed(key, endpointCreateLimit, 24 * 60 * 60)) {
             throw new CustomException(ErrorCode.RATE_LIMIT_EXCEEDED);
         }
 
