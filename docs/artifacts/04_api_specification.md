@@ -150,7 +150,7 @@ DELETE /api/endpoints/{endpointId}
 
 ### 2.4. 모의 응답(Mock) 설정 업데이트
 
-```
+```http
 PATCH /api/endpoints/{endpointId}/mock
 ```
 
