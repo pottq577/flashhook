@@ -75,6 +75,6 @@ Mock 설정을 동적으로 업데이트하기 위한 부분 수정(PATCH) API�
 
 기존에는 수신된 로그 정보를 JSON으로 무조건 200 OK와 함께 반환했으나, 이제는 해당 엔드포인트의 `mockConfig`를 기반으로 동적인 응답을 생성해야 합니다.
 
-1. **지연(Delay) 처리**: `delayMs`가 0보다 클 경우 지정된 시간만큼 응답을 대기합니다. (Tomcat 스레드 점유 최소화를 위해 `CompletableFuture` 등 비동기 지연 응답 방식을 고려할 수 있습니다.)
+1. **지연(Delay) 처리**: `delayMs`가 0보다 클 경우 지정된 시간만큼 응답을 대기합니다. (Tomcat 스레드 점유 최소화를 위해 현재 `DeferredResult`와 `MockResponseScheduler`를 활용하여 비동기 지연 응답을 반환하도록 구현되어 있습니다.)
 2. **헤더 주입**: `mockConfig.headers`의 모든 Key-Value를 HTTP 응답 헤더에 삽입합니다.
 3. **상태 및 본문 반환**: 설정된 `statusCode`와 `body` 데이터를 담아 최종 `ResponseEntity`를 반환합니다. (로그 저장 및 SSE 푸시 흐름은 기존과 동일하게 비동기로 병행 동작합니다.)

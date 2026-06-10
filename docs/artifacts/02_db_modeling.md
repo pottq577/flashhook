@@ -29,6 +29,13 @@
   "creatorIp": "203.0.113.1",                   // 생성자 IP (Rate Limit 용)
   "logCount": 42,                               // 현재 로그 수 (앱 레벨 관리)
   "logSizeBytes": 128000,                       // 현재 로그 총 크기 (앱 레벨 관리)
+  "version": 0,                                 // Optimistic Locking 필드
+  "mockConfig": {                               // Phase 2: 응답 모의 설정
+    "statusCode": 200,
+    "delayMs": 0,
+    "headers": {},
+    "body": "ok"
+  },
   "createdAt": ISODate("2026-06-07T22:35:00Z"), // TTL Index 기준 필드
   "expiresAt": ISODate("2026-06-08T22:35:00Z")  // FE 표시용
 }
@@ -85,7 +92,7 @@ db.endpoints.createIndex({ creatorIp: 1 });
 db.logs.createIndex({ receivedAt: 1 }, { expireAfterSeconds: 86400 });
 
 // 엔드포인트별 로그 조회 (최신순 정렬)
-db.logs.createIndex({ endpointId: 1, receivedAt: -1 });
+db.logs.createIndex({ endpointId: 1, receivedAt: -1, logId: -1 }, { name: "idx_endpoint_received_logId" });
 
 // 개별 로그 조회
 db.logs.createIndex({ logId: 1 }, { unique: true });
