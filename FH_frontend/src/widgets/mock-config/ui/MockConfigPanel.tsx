@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useUpdateMockConfigMutation } from '../../../entities/endpoint/api/endpoint.queries';
-import type { Endpoint } from '../../../entities/endpoint/model/endpoint.schema';
+import { useUpdateMockConfigMutation } from '@/entities/endpoint/api/endpoint.queries';
+import type { Endpoint } from '@/entities/endpoint/model/endpoint.schema';
 import styles from './MockConfigPanel.module.css';
 
 interface MockConfigPanelProps {

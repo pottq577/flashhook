@@ -1,5 +1,5 @@
-import { useLogDetailQuery } from '../../../entities/log/api/log.queries';
-import MethodBadge from '../../../shared/ui/MethodBadge';
+import { useLogDetailQuery } from '@/entities/log/api/log.queries';
+import MethodBadge from '@/shared/ui/MethodBadge';
 import JsonViewer from './JsonViewer';
 import styles from './LogDetail.module.css';
 
