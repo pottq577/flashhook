@@ -76,6 +76,16 @@ REST API 통신은 React Query를 통해 캐싱되고 관리됩니다.
 ### 4.2. 전역 상태 관리 (Zustand)
 로그 목록 및 선택된 로그 상태는 Zustand 스토어(`useLogStore`)를 통해 관리합니다. SSE 이벤트를 수신하면 Zustand 스토어가 업데이트되며, 이를 구독하는 `widgets`가 반응적으로 렌더링됩니다.
 
+### 4.3. 상태 동기화 및 캐시 무효화 전략 (Cache Invalidation)
+데이터 동기화 및 최신 상태 유지를 위해 아래와 같은 캐시 관리 전략을 취합니다.
+*   **SSE 웹훅 이벤트 수신 시 (Optimistic/Reactive Update)**:
+    - 새로운 웹훅 로그가 들어오면 무거운 백엔드 전체 로그 조회 API(`GET /logs`)를 다시 호출하지 않습니다.
+    - SSE로 넘어온 `data` (단일 로그 JSON)를 Zustand 스토어 배열의 **맨 앞(Unshift)**에 직접 주입하여 즉각적인 UI 반영(낙관적 렌더링)을 수행합니다.
+*   **로그 전체 삭제 시 (Query Invalidation)**:
+    - 사용자가 "모든 로그 삭제"를 수행하면 React Query의 `invalidateQueries({ queryKey: ['logs', endpointId] })`를 호출하여 서버 상태와 클라이언트 상태를 강제 동기화하고 로컬 캐시를 파기합니다.
+*   **만료(TTL)로 인한 엔드포인트 증발 시**:
+    - React Query 폴링이나 SSE 도중 `404 ENDPOINT_NOT_FOUND` 또는 `403 INVALID_TOKEN` 에러가 발생하면, 글로벌 에러 핸들러에서 이를 낚아채어 로컬 스토리지 및 내부 상태를 초기화하고 만료 안내 페이지 또는 홈으로 리다이렉션합니다.
+
 ---
 
 ## 5. 데이터 흐름 (DashboardPage)
