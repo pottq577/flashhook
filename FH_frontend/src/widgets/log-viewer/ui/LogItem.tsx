@@ -1,5 +1,5 @@
-import type { WebhookLog } from '../../../entities/log/model/log.schema';
-import MethodBadge from '../../../shared/ui/MethodBadge';
+import type { WebhookLog } from '@/entities/log/model/log.schema';
+import MethodBadge from '@/shared/ui/MethodBadge';
 import styles from './LogItem.module.css';
 
 interface LogItemProps {

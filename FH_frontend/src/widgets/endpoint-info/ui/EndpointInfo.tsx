@@ -1,5 +1,5 @@
-import type { Endpoint } from '../../../entities/endpoint/model/endpoint.schema';
-import CopyButton from '../../../shared/ui/CopyButton';
+import type { Endpoint } from '@/entities/endpoint/model/endpoint.schema';
+import CopyButton from '@/shared/ui/CopyButton';
 import styles from './EndpointInfo.module.css';
 
 function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {

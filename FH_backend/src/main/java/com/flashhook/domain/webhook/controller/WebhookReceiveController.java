@@ -1,20 +1,23 @@
 package com.flashhook.domain.webhook.controller;
 
+import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
+import com.flashhook.domain.webhook.service.MockResponseScheduler;
 import com.flashhook.domain.webhook.service.WebhookService;
+import com.flashhook.global.exception.CustomException;
+import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.util.IpExtractor;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.annotation.PreDestroy;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import com.flashhook.domain.endpoint.model.MockConfig;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.Set;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 웹훅 수신 컨트롤러
@@ -25,28 +28,11 @@ import java.util.Set;
 public class WebhookReceiveController {
 
     private final WebhookService webhookService;
-    private final ScheduledExecutorService scheduler;
+    private final MockResponseScheduler mockResponseScheduler;
 
-    private static final Set<String> ALLOWED_HEADERS = Set.of(
-        "content-type", "access-control-allow-origin", "cache-control", "x-mock-response"
-    );
-
-    public WebhookReceiveController(WebhookService webhookService) {
+    public WebhookReceiveController(WebhookService webhookService, MockResponseScheduler mockResponseScheduler) {
         this.webhookService = webhookService;
-        this.scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2);
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        scheduler.shutdown();
-        try {
-            if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
-                scheduler.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            scheduler.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+        this.mockResponseScheduler = mockResponseScheduler;
     }
 
     /**
@@ -59,57 +45,77 @@ public class WebhookReceiveController {
     public DeferredResult<ResponseEntity<?>> receive(
             @PathVariable String endpointId,
             HttpServletRequest request) {
-        MockConfig mockConfig = webhookService.receive(endpointId, request);
 
-        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L); // 15s timeout
-        deferredResult.onTimeout(() -> 
-            deferredResult.setErrorResult(
-                ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT)
-                    .body("Mock response timeout")
-            )
-        );
+        IncomingWebhookPayload payload = parseRequest(request);
+        var mockConfig = webhookService.receive(endpointId, payload);
 
-        Runnable task = () -> {
-            try {
-                int status = mockConfig.getStatusCode();
-                if (status < 100 || status > 599) {
-                    status = 200; // fallback
-                }
+        return mockResponseScheduler.schedule(mockConfig);
+    }
 
-                HttpHeaders headers = new HttpHeaders();
-                if (mockConfig.getHeaders() != null) {
-                    mockConfig.getHeaders().forEach((k, v) -> {
-                        if (k == null || v == null) return;
-                        if (ALLOWED_HEADERS.contains(k.toLowerCase())) {
-                            String sanitizedValue = v.replaceAll("[\\x00-\\x1F\\x7F]", "");
-                            headers.add(k, sanitizedValue);
-                        }
-                    });
-                }
-                
-                if (headers.getContentType() == null) {
-                    headers.setContentType(MediaType.TEXT_PLAIN);
-                }
+    private IncomingWebhookPayload parseRequest(HttpServletRequest request) {
+        String method = request.getMethod();
+        String url = request.getRequestURL().toString()
+                + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
+        String contentType = request.getContentType();
+        String clientIp = IpExtractor.extract(request);
 
-                ResponseEntity<?> response = ResponseEntity
-                        .status(status)
-                        .headers(headers)
-                        .body(mockConfig.getBody());
-                deferredResult.setResult(response);
-            } catch (Exception e) {
-                deferredResult.setErrorResult(
-                    ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Internal Server Error processing mock response")
-                );
-            }
-        };
-
-        if (mockConfig.getDelayMs() > 0) {
-            scheduler.schedule(task, Math.min(mockConfig.getDelayMs(), 10000L), TimeUnit.MILLISECONDS);
-        } else {
-            task.run();
+        Map<String, String> headers = new HashMap<>();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames != null && headerNames.hasMoreElements()) {
+            String name = headerNames.nextElement();
+            headers.put(name.toLowerCase(), request.getHeader(name));
         }
 
-        return deferredResult;
+        Map<String, String> queryParams = new HashMap<>();
+        String queryString = request.getQueryString();
+        if (queryString != null && !queryString.isEmpty()) {
+            for (String param : queryString.split("&")) {
+                String[] pair = param.split("=", 2);
+                String key = decodeQueryComponent(pair[0]);
+                String value = pair.length > 1 ? decodeQueryComponent(pair[1]) : "";
+                queryParams.put(key, queryParams.containsKey(key) ? queryParams.get(key) + "," + value : value);
+            }
+        }
+
+        long MAX_SIZE = 1024 * 1024;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] data = new byte[8192];
+        int nRead;
+        long bodySize = 0;
+        try (InputStream is = request.getInputStream()) {
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+                bodySize += nRead;
+                if (bodySize > MAX_SIZE) {
+                    throw new CustomException(ErrorCode.PAYLOAD_TOO_LARGE);
+                }
+            }
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INTERNAL_ERROR);
+        }
+
+        String rawBody = "";
+        if (bodySize > 0) {
+            rawBody = buffer.toString(StandardCharsets.UTF_8);
+        }
+
+        return IncomingWebhookPayload.builder()
+                .method(method)
+                .url(url)
+                .contentType(contentType)
+                .clientIp(clientIp)
+                .headers(headers)
+                .queryParams(queryParams)
+                .rawBody(rawBody)
+                .bodySize(bodySize)
+                .build();
+    }
+
+    private String decodeQueryComponent(String value) {
+        try {
+            return java.net.URLDecoder.decode(value, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            return value;
+        }
     }
 }
