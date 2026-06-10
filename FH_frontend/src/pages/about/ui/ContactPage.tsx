@@ -16,8 +16,12 @@ function ContactPage() {
         <div className={styles.contactBox}>
           <h3>이메일 지원</h3>
           <p className={styles.contactText}>
-            일반적인 문의, 버그 리포트, 또는 기능 제안이 있으시다면 아래 이메일로 연락해주세요:<br/>
-            <strong>support@flashhook.kr</strong>
+            일반적인 문의, 버그 리포트, 또는 기능 제안이 있으시다면 아래 구글 폼을 이용해주세요:<br/>
+            <strong>
+              <a href="https://forms.gle/5mQCgRZktwEyaYcx7" target="_blank" rel="noopener noreferrer" className={styles.link}>
+                문의하기 (Google Forms)
+              </a>
+            </strong>
           </p>
         </div>
 
