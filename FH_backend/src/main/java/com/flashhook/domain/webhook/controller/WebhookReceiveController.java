@@ -2,6 +2,8 @@ package com.flashhook.domain.webhook.controller;
 
 import com.flashhook.domain.webhook.service.WebhookService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.annotation.PreDestroy;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -34,6 +36,19 @@ public class WebhookReceiveController {
         this.scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     }
 
+    @PreDestroy
+    public void shutdown() {
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
     /**
      * 웹훅 수신 (모든 HTTP 메소드 허용)
      */
@@ -47,6 +62,12 @@ public class WebhookReceiveController {
         MockConfig mockConfig = webhookService.receive(endpointId, request);
 
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L); // 15s timeout
+        deferredResult.onTimeout(() -> 
+            deferredResult.setErrorResult(
+                ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT)
+                    .body("Mock response timeout")
+            )
+        );
 
         Runnable task = () -> {
             int status = mockConfig.getStatusCode();
@@ -58,7 +79,8 @@ public class WebhookReceiveController {
             if (mockConfig.getHeaders() != null) {
                 mockConfig.getHeaders().forEach((k, v) -> {
                     if (ALLOWED_HEADERS.contains(k.toLowerCase())) {
-                        headers.add(k, v);
+                        String sanitizedValue = v.replaceAll("[\\x00-\\x1F\\x7F]", "");
+                        headers.add(k, sanitizedValue);
                     }
                 });
             }
