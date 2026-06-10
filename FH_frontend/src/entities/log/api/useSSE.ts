@@ -38,6 +38,7 @@ export function useSSE(
         eventSource = new EventSource(url);
 
     eventSource.onopen = () => {
+      if (!isMounted) return;
       setStatus('connected');
       logger.info('SSE Connected');
     };
@@ -55,11 +56,13 @@ export function useSSE(
     eventSource.addEventListener('ping', () => {});
 
     eventSource.onerror = () => {
+      if (!isMounted) return;
       setStatus('disconnected');
         eventSource?.close();
         logger.warn('SSE Disconnected');
       };
       } catch (err) {
+        if (!isMounted) return;
         setStatus('disconnected');
         logger.error('SSE connect error', err);
       }
