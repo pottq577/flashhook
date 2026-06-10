@@ -22,16 +22,17 @@ export const queryClient = new QueryClient({
       }
       
       // 3. 기타 사용자 귀책 사유 (400, 429 등)
-      try {
-        // "API Error 429: {"code":"RATE_LIMIT_EXCEEDED","message":"..."}" 
-        const jsonStr = msg.split('API Error')[1].substring(5);
-        const parsed = JSON.parse(jsonStr);
-        if (parsed.message) {
-          alert(parsed.message);
-          return;
+      const jsonMatch = msg.match(/\{.*\}/);
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (parsed.message) {
+            alert(parsed.message);
+            return;
+          }
+        } catch {
+          // ignore
         }
-      } catch {
-        // ignore
       }
       alert(msg);
     }
