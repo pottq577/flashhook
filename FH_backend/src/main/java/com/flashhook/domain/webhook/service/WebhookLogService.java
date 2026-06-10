@@ -29,7 +29,7 @@ public class WebhookLogService {
     /**
      * 로그 목록 조회 (페이징)
      */
-    public Page<WebhookLogResponse> getLogs(String endpointId, int page, int size, String sort) {
+    public Page<WebhookLogResponse> getLogs(String endpointId, String lastSeenId, int page, int size, String sort) {
         if (page < 0 || size <= 0 || size > 100) {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
@@ -41,8 +41,18 @@ public class WebhookLogService {
         PageRequest pageRequest = PageRequest.of(page,
                 size, Sort.by(direction, "receivedAt"));
 
-        Page<WebhookLog> logPage = webhookLogRepository.findByEndpointId(endpointId,
-                pageRequest);
+        Page<WebhookLog> logPage;
+        if (lastSeenId != null && !lastSeenId.isEmpty()) {
+            WebhookLog lastLog = webhookLogRepository.findByLogId(lastSeenId).orElse(null);
+            if (lastLog != null) {
+                logPage = webhookLogRepository.findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDesc(endpointId, lastLog.getReceivedAt(), pageRequest);
+            } else {
+                logPage = webhookLogRepository.findByEndpointId(endpointId, pageRequest);
+            }
+        } else {
+            logPage = webhookLogRepository.findByEndpointId(endpointId, pageRequest);
+        }
+        
         return logPage.map(WebhookLogResponse::from);
     }
 
