@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCreateEndpointMutation } from '../../../entities/endpoint/api/endpoint.queries';
+import { useCreateEndpointMutation } from '@/entities/endpoint/api/endpoint.queries';
 import styles from './LandingPage.module.css';
 
 function LandingPage() {

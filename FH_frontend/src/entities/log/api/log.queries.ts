@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getLogs, getLogDetail } from './log.api';
-import { useLogStore } from '../model/log.store';
-import { logger } from '../../../shared/lib/logger';
+import { useLogStore } from '@/entities/log/model/log.store';
+import { logger } from '@/shared/lib/logger';
 
 export const useLogsQuery = (endpointId: string, page = 0, size = 50, lastSeenId?: string) => {
   const setLogs = useLogStore((state) => state.setLogs);
