@@ -15,6 +15,10 @@ import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.util.IpExtractor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
@@ -34,6 +38,7 @@ public class WebhookService {
     private final WebhookLogRepository webhookLogRepository;
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MongoTemplate mongoTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${flashhook.log.max-count:500}")
@@ -100,9 +105,11 @@ public class WebhookService {
             }
         }
 
-        String bodyPreview = rawBody.length() > bodyPreviewLength
-                ? rawBody.substring(0, bodyPreviewLength)
-                : rawBody;
+        String bodyPreview = rawBody;
+        if (rawBody.length() > bodyPreviewLength) {
+            int cutIndex = rawBody.offsetByCodePoints(0, Math.min(rawBody.codePointCount(0, rawBody.length()), bodyPreviewLength));
+            bodyPreview = rawBody.substring(0, cutIndex);
+        }
 
         // 5. Capped Collection 로직 (오래된 로그 순환 삭제)
         enforceLogCap(endpoint, bodySize);
@@ -124,9 +131,10 @@ public class WebhookService {
                 .build();
         webhookLogRepository.save(log);
 
-        // 7. 엔드포인트 카운터 업데이트
-        endpoint.incrementLogStats(bodySize);
-        endpointRepository.save(endpoint);
+        // 7. 엔드포인트 카운터 업데이트 (Atomic)
+        Query query = Query.query(Criteria.where("endpointId").is(endpointId));
+        Update update = new Update().inc("logCount", 1).inc("logSizeBytes", bodySize);
+        mongoTemplate.updateFirst(query, update, Endpoint.class);
 
         // 8. 이벤트 발행 (SSE 전파용)
         eventPublisher.publishEvent(new WebhookReceivedEvent(log));
@@ -143,7 +151,12 @@ public class WebhookService {
                 break;
             }
             webhookLogRepository.delete(oldLog);
-            endpoint.decrementLogStats(oldLog.getBodySize());
+            
+            Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
+            Update update = new Update().inc("logCount", -1).inc("logSizeBytes", -oldLog.getBodySize());
+            mongoTemplate.updateFirst(query, update, Endpoint.class);
+            
+            endpoint.decrementLogStats(oldLog.getBodySize()); // Update local copy for loop limit check
 
             // 만약 로그가 비었는데도 용량이 초과라면 (newBodySize가 매우 큼) 루프 탈출
             if (endpoint.getLogCount() == 0) {
