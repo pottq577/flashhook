@@ -24,7 +24,7 @@ function ContactPage() {
           <h3>GitHub 이슈</h3>
           <p style={{ marginTop: '0.5rem' }}>
             공개적으로 이슈를 추적하는 것을 선호하신다면 GitHub 저장소에 이슈를 등록하실 수 있습니다.<br/>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)' }}>GitHub 저장소 보기</a>
+            <a href="https://github.com/pottq577/flashhook" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)' }}>GitHub 저장소 보기</a>
           </p>
         </div>
       </section>
