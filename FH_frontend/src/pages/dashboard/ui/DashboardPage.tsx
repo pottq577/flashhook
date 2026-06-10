@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEndpointQuery } from '../../../entities/endpoint/api/endpoint.queries';
@@ -10,10 +11,12 @@ import EndpointInfo from '../../../widgets/endpoint-info/ui/EndpointInfo';
 import ConnectionStatus from '../../../widgets/endpoint-info/ui/ConnectionStatus';
 import LogList from '../../../widgets/log-viewer/ui/LogList';
 import LogDetail from '../../../widgets/log-viewer/ui/LogDetail';
+import MockConfigPanel from '../../../widgets/mock-config/ui/MockConfigPanel';
 import styles from './DashboardPage.module.css';
 
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
+  const [activeTab, setActiveTab] = useState<'log' | 'mock'>('log');
   
   const { data: endpoint, isLoading, error } = useEndpointQuery(endpointId);
   const isMobile = useIsMobile();
@@ -53,7 +56,27 @@ function DashboardPage() {
         {/* Desktop Detail View */}
         {!isMobile && (
           <section className={styles.content}>
-            <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
+            <div className={styles.tabs}>
+              <button 
+                className={`${styles.tabBtn} ${activeTab === 'log' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('log')}
+              >
+                로그 상세
+              </button>
+              <button 
+                className={`${styles.tabBtn} ${activeTab === 'mock' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('mock')}
+              >
+                Mock 설정
+              </button>
+            </div>
+            <div className={styles.tabContent}>
+              {activeTab === 'log' ? (
+                <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
+              ) : (
+                <MockConfigPanel endpoint={endpoint} />
+              )}
+            </div>
           </section>
         )}
 
@@ -82,7 +105,25 @@ function DashboardPage() {
               >
                 <div className={styles.bottomSheetHandle} />
                 <div className={styles.bottomSheetContent}>
-                  <LogDetail logId={selectedLog.logId} endpointId={endpointId} />
+                  <div className={styles.tabsMobile}>
+                    <button 
+                      className={`${styles.tabBtn} ${activeTab === 'log' ? styles.activeTab : ''}`}
+                      onClick={() => setActiveTab('log')}
+                    >
+                      로그 상세
+                    </button>
+                    <button 
+                      className={`${styles.tabBtn} ${activeTab === 'mock' ? styles.activeTab : ''}`}
+                      onClick={() => setActiveTab('mock')}
+                    >
+                      Mock 설정
+                    </button>
+                  </div>
+                  {activeTab === 'log' ? (
+                    <LogDetail logId={selectedLog.logId} endpointId={endpointId} />
+                  ) : (
+                    <MockConfigPanel endpoint={endpoint} />
+                  )}
                 </div>
               </motion.div>
             </>
