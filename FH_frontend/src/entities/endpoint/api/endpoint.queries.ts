@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getEndpoint, createEndpoint, deleteEndpoint, updateMockConfig, type MockUpdateRequest } from './endpoint.api';
-import * as tokenStorage from '../../../shared/lib/tokenStorage';
+import * as tokenStorage from '@/shared/lib/tokenStorage';
 
 export const useEndpointQuery = (endpointId: string | undefined) => {
   return useQuery({

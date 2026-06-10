@@ -1,4 +1,4 @@
-import type { WebhookLog } from '../../../entities/log/model/log.schema';
+import type { WebhookLog } from '@/entities/log/model/log.schema';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import LogItem from './LogItem';

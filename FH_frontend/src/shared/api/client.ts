@@ -1,4 +1,4 @@
-import * as tokenStorage from '../lib/tokenStorage';
+import * as tokenStorage from '@/shared/lib/tokenStorage';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 
