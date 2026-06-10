@@ -169,6 +169,7 @@ public class WebhookService {
             
             currentCount--;
             currentSize -= oldLog.getBodySize();
+            currentSize = Math.max(0, currentSize);
 
             if (currentCount <= 0) {
                 break;
