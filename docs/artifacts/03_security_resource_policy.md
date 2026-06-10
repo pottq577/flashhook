@@ -1,7 +1,7 @@
 # FlashHook — 보안 및 리소스 제한 정책
 
 > 비로그인 서비스의 접근 제어, Rate Limiting, 리소스 상한
-> 최종 수정: 2026-06-07
+> 최종 수정: 2026-06-10
 
 ---
 
@@ -44,6 +44,8 @@ REST API  → Header: X-Access-Token: {accessToken}
 SSE 스트림 → Query:  ?token={accessToken}  (EventSource API 커스텀 헤더 미지원)
 ```
 
+> **보안 참고:** 클라이언트에서 토큰을 `sessionStorage`에 저장 후, 브라우저 History API(`replaceState`)를 사용하여 URL에서 토큰을 즉시 제거하여 유출을 방지합니다.
+
 ---
 
 ## 2. 접근 제어 매트릭스
@@ -61,16 +63,17 @@ SSE 스트림 → Query:  ?token={accessToken}  (EventSource API 커스텀 헤�
 
 ## 3. Rate Limiting 정책
 
-Redis 기반 Sliding Window Counter 구현.
+Redis 기반 Sliding Window/고정 Window Counter 구현.
 
-| 대상            | 제한      | Window | Redis Key                         |
-| --------------- | --------- | ------ | --------------------------------- |
-| 엔드포인트 생성 | 5개/IP    | 10분   | `ratelimit:create:{ip}`           |
-| 웹훅 수신       | 100건/EP  | 1분    | `ratelimit:webhook:{endpointId}`  |
-| 대시보드 조회   | 60회/토큰 | 1분    | `ratelimit:dashboard:{tokenHash}` |
-| SSE 동시 연결   | 5개/IP    | -      | `sse:connections:{ip}`            |
+| 대상            | 제한            | Window | Redis Key                         | 상태 |
+| --------------- | --------------- | ------ | --------------------------------- | :---: |
+| 엔드포인트 생성 | 5개/IP          | 24시간 | `rl:create:{ip}`                  | 완료 |
+| 웹훅 수신       | 100건/EP/IP     | 1분    | `rl:hook:{endpointId}:{ip}`       | 완료 |
+| 대시보드 조회   | -               | -      | -                                 | 예정 |
+| SSE 동시 연결   | -               | -      | -                                 | 예정 |
 
-> **NAT 공유 환경 고려**: Window 크기를 줄여(10분) 짧은 시간의 도배만 차단. 동일 공인 IP를 공유하는 학원/회사 환경에서 정상 사용 방해 방지.
+> **엔드포인트 생성 제한**: 무분별한 생성을 막기 위해 24시간 동안 IP당 5개로 제한합니다.
+> **웹훅 수신 제한**: 악의적인 도배 요청을 막기 위해 동일 IP에서 특정 엔드포인트로의 요청을 분당 100건으로 제한합니다.
 
 ---
 
@@ -78,17 +81,17 @@ Redis 기반 Sliding Window Counter 구현.
 
 ### 4.1. 엔드포인트 제한
 
-| 항목                      | 제한값           |
-| ------------------------- | ---------------- |
-| IP당 동시 활성 엔드포인트 | 10개             |
-| 엔드포인트 수명 (TTL)     | 24시간           |
-| 수동 삭제                 | 가능 (토큰 인증) |
+| 항목                      | 제한값           | 상태 |
+| ------------------------- | ---------------- | :---: |
+| IP당 동시 활성 엔드포인트 | 10개             | 예정 |
+| 엔드포인트 수명 (TTL)     | 24시간           | 완료 |
+| 수동 삭제                 | 가능 (토큰 인증) | 완료 |
 
 ### 4.2. 요청 제한
 
 | 항목                | 제한값                                     |
 | ------------------- | ------------------------------------------ |
-| 단일 요청 Body 크기 | 1MB                                        |
+| 단일 요청 Body 크기 | 1MB (Spring Boot 레벨 하드 리밋)           |
 | 요청 Header 총 크기 | 8KB (Tomcat 기본값)                        |
 | 허용 HTTP 메소드    | 모든 메소드 (GET/POST/PUT/PATCH/DELETE 등) |
 | Content-Type 제한   | 없음 (JSON, XML, form-data 등 전부 수신)   |
@@ -105,11 +108,11 @@ Redis 기반 Sliding Window Counter 구현.
 
 ### 4.4. SSE 연결 제한
 
-| 항목               | 제한값                                            |
-| ------------------ | ------------------------------------------------- |
-| IP당 동시 SSE 연결 | 5개                                               |
-| SSE 최대 유지 시간 | 30분 (이후 자동 끊김, FE EventSource 자동 재연결) |
-| Heartbeat 주기     | 30초                                              |
+| 항목               | 제한값                                            | 상태 |
+| ------------------ | ------------------------------------------------- | :---: |
+| IP당 동시 SSE 연결 | 최대 5개                                          | 예정 |
+| SSE 최대 유지 시간 | 30분 (이후 자동 끊김, FE EventSource 자동 재연결) | 완료 |
+| Heartbeat 주기     | 30초 (좀비 커넥션 방지)                           | 완료 |
 
 ---
 
@@ -118,21 +121,23 @@ Redis 기반 Sliding Window Counter 구현.
 | 위협                        | 대응                                         |
 | --------------------------- | -------------------------------------------- |
 | 엔드포인트 ID 무차별 대입   | UUID v4 = 2^122 조합 → 현실적 불가능         |
-| 봇 대량 생성                | Rate Limit (5개/IP/10분) + (선택) CAPTCHA    |
+| 봇 대량 생성                | Rate Limit (5개/IP/24시간)                   |
 | Payload 악성 스크립트 (XSS) | 대시보드 로그 렌더링 시 HTML 이스케이프 필수 |
-| 대용량 Payload 공격         | 1MB 하드 리밋 (Spring Boot 레벨)             |
+| 대용량 Payload 공격         | 1MB 하드 리밋 (Spring Boot 설정)             |
 | 좀비 SSE 커넥션             | 30초 Heartbeat + 전송 실패 시 자원 회수      |
 | 만료 후 데이터 잔존         | MongoDB TTL Index 자동 삭제 + 모니터링       |
 
 ---
 
-## 6. MVP 이후 보안 강화 백로그
+## 6. 보안 적용 현황 (MVP)
 
-| #   | 항목                   | 구현 방식                                                                          |
-| --- | ---------------------- | ---------------------------------------------------------------------------------- |
-| 1   | URL 토큰 유출 방지     | `sessionStorage` 저장 → `history.replaceState()`로 쿼리스트링 제거                 |
-| 2   | Payload 크기 절대 제한 | `spring.servlet.multipart.max-file-size` + `server.tomcat.max-http-form-post-size` |
-| 3   | SSE Idle Timeout       | 30초 Heartbeat (`:heartbeat\n\n`). L4/L7 스위치 연결 유지 + 좀비 커넥션 자원 회수  |
+MVP 개발 과정에서 아래 주요 보안 이슈들이 모두 코드로 구현 완료되었습니다.
+
+| 항목                   | 구현 방식 및 위치                                                                    | 상태 |
+| ---------------------- | ------------------------------------------------------------------------------------ | ---- |
+| URL 토큰 유출 방지     | 프론트엔드 `endpoint.queries.ts`에서 `window.history.replaceState()`로 토큰 제거     | 완료 |
+| Payload 크기 절대 제한 | `application.yaml`의 `multipart.max-file-size` 및 `max-http-form-post-size` 1MB 적용 | 완료 |
+| SSE Idle Timeout       | `SseEmitterService.java` 내 30초 주기의 Heartbeat 핑(`:ping\n\n`) 전송               | 완료 |
 
 ---
 
