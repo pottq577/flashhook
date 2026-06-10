@@ -24,10 +24,11 @@ public class WebhookLogController {
     @GetMapping
     public ResponseEntity<Page<WebhookLogResponse>> list(
             @PathVariable String endpointId,
+            @RequestParam(required = false) String lastSeenId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "desc") String sort) {
-        Page<WebhookLogResponse> response = webhookLogService.getLogs(endpointId, page, size, sort);
+        Page<WebhookLogResponse> response = webhookLogService.getLogs(endpointId, lastSeenId, page, size, sort);
         return ResponseEntity.ok(response);
     }
 

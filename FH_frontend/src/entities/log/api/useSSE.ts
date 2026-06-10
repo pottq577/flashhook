@@ -14,13 +14,31 @@ export function useSSE(
   useEffect(() => {
     if (!endpointId) return;
 
-    const token = tokenStorage.get(endpointId);
-    const baseUrl = import.meta.env.VITE_API_BASE_URL as string;
-    const url = `${baseUrl}/endpoints/${endpointId}/stream${token ? `?token=${token}` : ''}`;
+    let eventSource: EventSource | null = null;
+    let isMounted = true;
 
-    const eventSource = new EventSource(url);
+    async function connectSSE() {
+      try {
+        const token = tokenStorage.get(endpointId!);
+        const baseUrl = import.meta.env.VITE_API_BASE_URL as string;
+        
+        // Fetch stream-token
+        const res = await fetch(`${baseUrl}/endpoints/${endpointId}/stream-token`, {
+          method: 'POST',
+          headers: token ? { 'X-Access-Token': token } : {}
+        });
+        
+        if (!res.ok) throw new Error('Failed to get stream token');
+        const data = await res.json();
+        const streamToken = data.streamToken;
+        
+        if (!isMounted) return;
+
+        const url = `${baseUrl}/endpoints/${endpointId}/stream?streamToken=${streamToken}`;
+        eventSource = new EventSource(url);
 
     eventSource.onopen = () => {
+      if (!isMounted) return;
       setStatus('connected');
       logger.info('SSE Connected');
     };
@@ -38,13 +56,25 @@ export function useSSE(
     eventSource.addEventListener('ping', () => {});
 
     eventSource.onerror = () => {
+      if (!isMounted) return;
       setStatus('disconnected');
-      eventSource.close();
-      logger.warn('SSE Disconnected');
-    };
+        eventSource?.close();
+        logger.warn('SSE Disconnected');
+      };
+      } catch (err) {
+        if (!isMounted) return;
+        setStatus('disconnected');
+        logger.error('SSE connect error', err);
+      }
+    }
+    
+    connectSSE();
 
     return () => {
-      eventSource.close();
+      isMounted = false;
+      if (eventSource) {
+        eventSource.close();
+      }
     };
   }, [endpointId, onMessage]);
 

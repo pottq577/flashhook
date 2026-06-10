@@ -41,6 +41,11 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         // /api/endpoints/{id} 또는 /api/endpoints/{id}/... 형태인지 확인
         // (단, POST /api/endpoints는 제외)
         if (path.startsWith("/api/endpoints/") && path.length() > "/api/endpoints/".length()) {
+            if (path.endsWith("/stream") && "GET".equalsIgnoreCase(method)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            
             String[] parts = path.split("/");
             if (parts.length >= 4) { // ["", "api", "endpoints", "{id}", ...]
                 String endpointId = parts[3];

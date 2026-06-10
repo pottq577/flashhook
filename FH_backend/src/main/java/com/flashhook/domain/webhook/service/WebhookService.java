@@ -15,6 +15,10 @@ import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.util.IpExtractor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
@@ -34,6 +38,7 @@ public class WebhookService {
     private final WebhookLogRepository webhookLogRepository;
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MongoTemplate mongoTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${flashhook.log.max-count:500}")
@@ -100,12 +105,13 @@ public class WebhookService {
             }
         }
 
-        String bodyPreview = rawBody.length() > bodyPreviewLength
-                ? rawBody.substring(0, bodyPreviewLength)
-                : rawBody;
+        String bodyPreview = rawBody;
+        if (rawBody.length() > bodyPreviewLength) {
+            int cutIndex = rawBody.offsetByCodePoints(0, Math.min(rawBody.codePointCount(0, rawBody.length()), bodyPreviewLength));
+            bodyPreview = rawBody.substring(0, cutIndex);
+        }
 
-        // 5. Capped Collection 로직 (오래된 로그 순환 삭제)
-        enforceLogCap(endpoint, bodySize);
+        // 5. Capped Collection 로직은 DB 저장 후 처리 (원자적 카운트 이후)
 
         // 6. DB 저장
         WebhookLog log = WebhookLog.builder()
@@ -124,9 +130,19 @@ public class WebhookService {
                 .build();
         webhookLogRepository.save(log);
 
-        // 7. 엔드포인트 카운터 업데이트
-        endpoint.incrementLogStats(bodySize);
-        endpointRepository.save(endpoint);
+        // 7. 엔드포인트 카운터 업데이트 (Atomic)
+        Query query = Query.query(Criteria.where("endpointId").is(endpointId));
+        Update update = new Update().inc("logCount", 1).inc("logSizeBytes", bodySize);
+        Endpoint updatedEndpoint = mongoTemplate.findAndModify(
+            query, 
+            update, 
+            org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true), 
+            Endpoint.class
+        );
+
+        if (updatedEndpoint != null) {
+            enforceLogCap(updatedEndpoint);
+        }
 
         // 8. 이벤트 발행 (SSE 전파용)
         eventPublisher.publishEvent(new WebhookReceivedEvent(log));
@@ -134,8 +150,11 @@ public class WebhookService {
         return endpoint.getMockConfig() != null ? endpoint.getMockConfig() : new MockConfig();
     }
 
-    private void enforceLogCap(Endpoint endpoint, long newBodySize) {
-        while (endpoint.getLogCount() >= maxLogCount || (endpoint.getLogSizeBytes() + newBodySize) > maxLogSizeBytes) {
+    private void enforceLogCap(Endpoint endpoint) {
+        long currentCount = endpoint.getLogCount();
+        long currentSize = endpoint.getLogSizeBytes();
+
+        while (currentCount > maxLogCount || currentSize > maxLogSizeBytes) {
             // 가장 오래된 로그 찾아 삭제
             WebhookLog oldLog = webhookLogRepository.findFirstByEndpointIdOrderByReceivedAtAsc(endpoint.getEndpointId())
                     .orElse(null);
@@ -143,10 +162,16 @@ public class WebhookService {
                 break;
             }
             webhookLogRepository.delete(oldLog);
-            endpoint.decrementLogStats(oldLog.getBodySize());
+            
+            Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
+            Update update = new Update().inc("logCount", -1).inc("logSizeBytes", -oldLog.getBodySize());
+            mongoTemplate.updateFirst(query, update, Endpoint.class);
+            
+            currentCount--;
+            currentSize -= oldLog.getBodySize();
+            currentSize = Math.max(0, currentSize);
 
-            // 만약 로그가 비었는데도 용량이 초과라면 (newBodySize가 매우 큼) 루프 탈출
-            if (endpoint.getLogCount() == 0) {
+            if (currentCount <= 0) {
                 break;
             }
         }

@@ -10,8 +10,30 @@ export function get(endpointId: string): string | null {
 
 export function set(endpointId: string, token: string): void {
   sessionStorage.setItem(buildKey(endpointId), token);
+  
+  const historyRaw = localStorage.getItem('fh_history') || '[]';
+  try {
+    const parsed = JSON.parse(historyRaw);
+    const history = Array.isArray(parsed) ? parsed : [];
+    if (!history.includes(endpointId)) {
+       history.push(endpointId);
+       localStorage.setItem('fh_history', JSON.stringify(history));
+    }
+  } catch {
+    localStorage.setItem('fh_history', JSON.stringify([endpointId]));
+  }
 }
 
 export function remove(endpointId: string): void {
   sessionStorage.removeItem(buildKey(endpointId));
+  
+  const historyRaw = localStorage.getItem('fh_history') || '[]';
+  try {
+    const parsed = JSON.parse(historyRaw);
+    const history = Array.isArray(parsed) ? parsed : [];
+    const newHistory = history.filter((id: string) => id !== endpointId);
+    localStorage.setItem('fh_history', JSON.stringify(newHistory));
+  } catch {
+    localStorage.setItem('fh_history', '[]');
+  }
 }
