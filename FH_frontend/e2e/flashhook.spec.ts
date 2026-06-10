@@ -6,8 +6,12 @@ test.describe('FlashHook Core Journey', () => {
     await page.goto('/');
     
     // 버튼 텍스트나 접근성 역할에 맞춰 수정 필요
-    const createBtn = page.getByRole('button', { name: /generate url/i });
+    const createBtn = page.getByRole('button', { name: /URL 생성하기/i });
     await createBtn.click();
+
+    // 동의 모달에서 동의 버튼 클릭
+    const acceptBtn = page.getByRole('button', { name: /모두 동의하고 생성하기/i });
+    await acceptBtn.click();
 
     // URL 표출 대기
     const urlLocator = page.getByTestId('webhook-url'); 
