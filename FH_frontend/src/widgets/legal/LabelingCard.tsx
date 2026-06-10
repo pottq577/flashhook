@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './legal.module.css';
 
-export const LabelingCard: React.FC = () => {
+export const LabelingCard = () => {
   return (
     <div className={`${styles.highlightBox} ${styles.securityCard}`}>
       <div className={styles.securityIcon} aria-hidden="true">🔒</div>
