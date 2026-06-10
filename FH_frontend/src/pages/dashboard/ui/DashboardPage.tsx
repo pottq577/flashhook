@@ -27,10 +27,10 @@ function DashboardPage() {
   const { logs, selectedLog, setSelectedLog } = useLogStore();
   const { status } = useRealtimeLogs(endpointId);
 
-  if (!endpointId) return <div className={styles.center}>Invalid Endpoint ID</div>;
-  if (isLoading) return <div className={styles.center}>Loading...</div>;
-  if (error) return <div className={styles.center}>Error: {(error as Error).message}</div>;
-  if (!endpoint) return <div className={styles.center}>Endpoint not found</div>;
+  if (!endpointId) return <div className={styles.center}>유효하지 않은 엔드포인트 ID입니다</div>;
+  if (isLoading) return <div className={styles.center}>로딩 중...</div>;
+  if (error) return <div className={styles.center}>오류: {(error as Error).message}</div>;
+  if (!endpoint) return <div className={styles.center}>엔드포인트를 찾을 수 없습니다</div>;
 
   return (
     <div className={styles.container}>

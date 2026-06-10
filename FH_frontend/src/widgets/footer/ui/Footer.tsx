@@ -6,13 +6,13 @@ function Footer() {
     <footer className={styles.footer}>
       <div className={styles.container}>
         <div className={styles.links}>
-          <Link to="/about">About Us</Link>
-          <Link to="/contact">Contact</Link>
-          <Link to="/privacy">Privacy Policy</Link>
-          <Link to="/terms">Terms of Service</Link>
+          <Link to="/about">서비스 소개</Link>
+          <Link to="/contact">문의하기</Link>
+          <Link to="/privacy">개인정보처리방침</Link>
+          <Link to="/terms">이용약관</Link>
         </div>
         <div className={styles.copyright}>
-          &copy; {new Date().getFullYear()} FlashHook. All rights reserved.
+          &copy; {new Date().getFullYear()} FlashHook. 모든 권리 보유.
         </div>
       </div>
     </footer>
