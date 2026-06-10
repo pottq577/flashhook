@@ -1,17 +1,19 @@
-# FlashHook — 보안 및 리소스 제한 정책
+# FlashHook — 통합 API 및 정책 명세서
 
-> 비로그인 서비스의 접근 제어, Rate Limiting, 리소스 상한
+> Webhook Catcher (Phase 1) 전체 엔드포인트, 보안/리소스 제한, 통합 에러 코드
 > 최종 수정: 2026-06-10
 
 ---
 
-## 1. 인증 설계
+## Part 1. 보안 및 리소스 제한 정책
 
-### 1.1. 핵심 전제
+### 1. 인증 설계
+
+#### 1.1. 핵심 전제
 
 회원가입 없음 → 전통적 인증(JWT, 세션) 불가. **URL 토큰 기반 접근 제어** 적용.
 
-### 1.2. URL 분리 전략
+#### 1.2. URL 분리 전략
 
 | URL 유형         | 용도               |       공개 여부        |
 | ---------------- | ------------------ | :--------------------: |
@@ -25,7 +27,7 @@
 
 수신 URL이 노출되어도 → 대시보드 접근 불가 (토큰 분리).
 
-### 1.3. 토큰 생성 및 저장
+#### 1.3. 토큰 생성 및 저장
 
 ```
 생성 시:
@@ -37,7 +39,7 @@
   클라이언트: 원본 accessToken은 생성 시 1회만 반환, 이후 서버에서 소멸
 ```
 
-### 1.4. 토큰 전달 방식
+#### 1.4. 토큰 전달 방식
 
 ```
 REST API  → Header: X-Access-Token: {accessToken}
@@ -49,7 +51,7 @@ SSE 스트림 → 1단계: POST `/api/endpoints/{id}/stream-token` (헤더 인�
 
 ---
 
-## 2. 접근 제어 매트릭스
+### 2. 접근 제어 매트릭스
 
 | 동작             |  필요한 인증  | 설명                          |
 | ---------------- | :-----------: | ----------------------------- |
@@ -62,7 +64,7 @@ SSE 스트림 → 1단계: POST `/api/endpoints/{id}/stream-token` (헤더 인�
 
 ---
 
-## 3. Rate Limiting 정책
+### 3. Rate Limiting 정책
 
 Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
@@ -78,9 +80,9 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
 ---
 
-## 4. 리소스 제한 정책
+### 4. 리소스 제한 정책
 
-### 4.1. 엔드포인트 제한
+#### 4.1. 엔드포인트 제한
 
 | 항목                      | 제한값           | 상태 |
 | ------------------------- | ---------------- | :--: |
@@ -88,7 +90,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 | 엔드포인트 수명 (TTL)     | 24시간           | 완료 |
 | 수동 삭제                 | 가능 (토큰 인증) | 완료 |
 
-### 4.2. 요청 제한
+#### 4.2. 요청 제한
 
 | 항목                | 제한값                                     |
 | ------------------- | ------------------------------------------ |
@@ -97,7 +99,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 | 허용 HTTP 메소드    | 모든 메소드 (GET/POST/PUT/PATCH/DELETE 등) |
 | Content-Type 제한   | 없음 (JSON, XML, form-data 등 전부 수신)   |
 
-### 4.3. 로그 저장 제한
+#### 4.3. 로그 저장 제한
 
 | 항목                        | 제한값                                |
 | --------------------------- | ------------------------------------- |
@@ -107,7 +109,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 | 초과 시 동작                | 순환 덮어쓰기 (가장 오래된 로그 삭제) |
 | 로그 보존 기간              | 24시간 (TTL Index)                    |
 
-### 4.4. SSE 연결 제한
+#### 4.4. SSE 연결 제한
 
 | 항목               | 제한값                                            | 상태 |
 | ------------------ | ------------------------------------------------- | :--: |
@@ -117,7 +119,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
 ---
 
-## 5. 위협 대응
+### 5. 위협 대응
 
 | 위협                        | 대응                                         |
 | --------------------------- | -------------------------------------------- |
@@ -130,7 +132,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
 ---
 
-## 6. 보안 적용 현황 (MVP)
+### 6. 보안 적용 현황 (MVP)
 
 MVP 개발 과정에서 아래 주요 보안 이슈들이 모두 코드로 구현 완료되었습니다.
 
@@ -142,7 +144,7 @@ MVP 개발 과정에서 아래 주요 보안 이슈들이 모두 코드로 구�
 
 ---
 
-## 7. 전체 플로우 요약
+### 7. 전체 플로우 요약
 
 ```
 [유저] → 생성 버튼 클릭
@@ -161,32 +163,29 @@ MVP 개발 과정에서 아래 주요 보안 이슈들이 모두 코드로 구�
 [24시간 후] → TTL Index → 엔드포인트 + 로그 자동 삭제
 ```
 
-# FlashHook — MVP API 명세서
-
-> Webhook Catcher (Phase 1) 전체 엔드포인트
-> 최종 수정: 2026-06-07
-
 ---
 
-## 1. 공통 사항
+## Part 2. MVP API 명세서
 
 > **기술 스택**: Java 21, Spring Boot 3.5.0
 > **Rate Limit**: Redis를 이용한 고정 윈도우(Fixed Window Counter) 알고리즘 기반으로 적용됩니다.
 
-### 1.1. Base URL
+### 1. 공통 사항
+
+#### 1.1. Base URL
 
 ```
 https://flashhook.kr/api
 ```
 
-### 1.2. 인증 방식
+#### 1.2. 인증 방식
 
 ```
 REST API  → Header: X-Access-Token: {accessToken}
 SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=...)
 ```
 
-### 1.3. 공통 에러 응답 형식
+#### 1.3. 공통 에러 응답 형식
 
 ```json
 {
@@ -198,7 +197,7 @@ SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=
 }
 ```
 
-### 1.4. 에러 코드 목록
+#### 1.4. 에러 코드 목록
 
 | HTTP Status | Code                      | 설명                      |
 | :---------: | ------------------------- | ------------------------- |
@@ -211,9 +210,9 @@ SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=
 
 ---
 
-## 2. 엔드포인트 관리
+### 2. 엔드포인트 관리
 
-### 2.1. 엔드포인트 생성
+#### 2.1. 엔드포인트 생성
 
 ```
 POST /api/endpoints
@@ -264,7 +263,7 @@ Content-Type: application/json (선택)
 
 ---
 
-### 2.2. 엔드포인트 정보 조회
+#### 2.2. 엔드포인트 정보 조회
 
 ```
 GET /api/endpoints/{endpointId}
@@ -297,7 +296,7 @@ GET /api/endpoints/{endpointId}
 
 ---
 
-### 2.3. 엔드포인트 삭제
+#### 2.3. 엔드포인트 삭제
 
 ```
 DELETE /api/endpoints/{endpointId}
@@ -311,7 +310,7 @@ DELETE /api/endpoints/{endpointId}
 
 ---
 
-### 2.4. 모의 응답(Mock) 설정 업데이트
+#### 2.4. 모의 응답(Mock) 설정 업데이트
 
 ```http
 PATCH /api/endpoints/{endpointId}/mock
@@ -337,9 +336,9 @@ PATCH /api/endpoints/{endpointId}/mock
 
 ---
 
-## 3. 웹훅 수신
+### 3. 웹훅 수신
 
-### 3.1. 웹훅 수신 (외부 서비스 호출)
+#### 3.1. 웹훅 수신 (외부 서비스 호출)
 
 ```
 ANY /api/hooks/{endpointId}
@@ -378,9 +377,9 @@ ok
 
 ---
 
-## 4. 로그 조회
+### 4. 로그 조회
 
-### 4.1. 로그 목록 조회
+#### 4.1. 로그 목록 조회
 
 ```
 GET /api/endpoints/{endpointId}/logs
@@ -424,7 +423,7 @@ GET /api/endpoints/{endpointId}/logs
 
 ---
 
-### 4.2. 로그 상세 조회
+#### 4.2. 로그 상세 조회
 
 ```
 GET /api/endpoints/{endpointId}/logs/{logId}
@@ -465,7 +464,7 @@ GET /api/endpoints/{endpointId}/logs/{logId}
 
 ---
 
-### 4.3. 로그 전체 삭제
+#### 4.3. 로그 전체 삭제
 
 ```
 DELETE /api/endpoints/{endpointId}/logs
@@ -477,13 +476,13 @@ DELETE /api/endpoints/{endpointId}/logs
 
 ---
 
-## 5. 실시간 스트림
+### 5. 실시간 스트림
 
-### 5.1. SSE 연결
+#### 5.1. SSE 연결
 
 실시간 스트림은 보안을 위해 `streamToken`을 먼저 발급받은 후 `EventSource`를 연결하는 2-Step 방식으로 동작합니다.
 
-#### 1) Stream Token 발급
+##### 1) Stream Token 발급
 
 ```http
 POST /api/endpoints/{endpointId}/stream-token
@@ -499,7 +498,7 @@ POST /api/endpoints/{endpointId}/stream-token
 }
 ```
 
-#### 2) SSE 연결
+##### 2) SSE 연결
 
 ```http
 GET /api/endpoints/{endpointId}/stream?streamToken={streamToken}
@@ -529,12 +528,13 @@ data: {"logId":"log_abc123","method":"POST","contentType":"application/json","cl
 
 - IP당 동시 SSE: 5개
 - 최대 유지 시간: 서버 설정 시간 (연결 종료 시 FE EventSource 자동 재연결)
+- Heartbeat 주기: 30초 (좀비 커넥션 방지)
 
 ---
 
-## 6. 시스템
+### 6. 시스템
 
-### 6.1. 헬스체크
+#### 6.1. 헬스체크
 
 ```
 GET /api/health
@@ -553,7 +553,7 @@ GET /api/health
 
 ---
 
-## 7. 전체 엔드포인트 요약
+### 7. 전체 엔드포인트 요약
 
 | Method   | Path                               | 인증 | 설명               |
 | -------- | ---------------------------------- | :--: | ------------------ |
@@ -571,18 +571,17 @@ GET /api/health
 
 **총 11개 엔드포인트 (MVP)**
 
-# FlashHook — 통합 에러 코드 사전 (Error Dictionary)
-
-> 애플리케이션 전역 통합 에러 코드 및 예외 처리 정책
-> 최종 수정: 2026-06-10
-
 ---
 
-## 1. 개요
+## Part 3. 통합 에러 코드 사전 (Error Dictionary)
+
+> 애플리케이션 전역 통합 에러 코드 및 예외 처리 정책
+
+### 1. 개요
 
 FlashHook은 프론트엔드 및 서드파티 클라이언트가 시스템 오류를 명확히 인지하고 적절히 대응할 수 있도록 `GlobalExceptionHandler`를 통해 일관된 에러 응답 포맷을 반환합니다.
 
-### 1.1. 에러 응답 포맷 (Flat JSON)
+#### 1.1. 에러 응답 포맷 (Flat JSON)
 
 ```json
 {
@@ -594,7 +593,7 @@ FlashHook은 프론트엔드 및 서드파티 클라이언트가 시스템 오�
 
 ---
 
-## 2. 통합 에러 코드 맵
+### 2. 통합 에러 코드 맵
 
 백엔드(`ErrorCode.java`)에 정의된 모든 비즈니스 예외 및 시스템 오류 코드입니다. 프론트엔드는 `code` 문자열을 기반으로 분기 처리를 수행해야 합니다.
 
@@ -613,7 +612,7 @@ FlashHook은 프론트엔드 및 서드파티 클라이언트가 시스템 오�
 
 ---
 
-## 3. 프론트엔드 예외 처리 정책
+### 3. 프론트엔드 예외 처리 정책
 
 1. **사용자 귀책 사유 (400, 403, 404, 409, 413, 429)**
    - 단순 알림이 필요한 경우 우측 하단 토스트(Toast) 메시지를 통해 서버의 `message`를 그대로 띄워 사용자에게 행동 교정을 유도합니다.
