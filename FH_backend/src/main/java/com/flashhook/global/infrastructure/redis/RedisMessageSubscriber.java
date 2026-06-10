@@ -13,6 +13,6 @@ public class RedisMessageSubscriber implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        // TODO: 스케일아웃 시 활성화
+        // 향후 스케일아웃 시 Redis Pub/Sub 로직 활성화
     }
 }
