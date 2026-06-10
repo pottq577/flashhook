@@ -19,9 +19,15 @@ public class MockConfig {
     @Builder.Default
     private long delayMs = 0;
     
-    @Builder.Default
-    private Map<String, String> headers = new HashMap<>();
+    private Map<String, String> headers;
     
     @Builder.Default
     private String body = "ok";
+
+    public Map<String, String> getHeaders() {
+        if (headers == null) {
+            return new HashMap<>();
+        }
+        return headers;
+    }
 }
