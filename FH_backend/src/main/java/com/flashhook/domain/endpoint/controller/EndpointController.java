@@ -50,4 +50,15 @@ public class EndpointController {
         endpointService.delete(endpointId);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * 모의 설정 업데이트
+     */
+    @PatchMapping("/{endpointId}/mock")
+    public ResponseEntity<EndpointResponse> updateMock(
+            @PathVariable String endpointId,
+            @Valid @RequestBody com.flashhook.domain.endpoint.dto.MockUpdateRequest request) {
+        EndpointResponse response = endpointService.updateMockConfig(endpointId, request);
+        return ResponseEntity.ok(response);
+    }
 }
