@@ -11,11 +11,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
 import java.util.Map;
 
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+
 /**
  * 웹훅 로그 도큐먼트 (MongoDB)
  * TTL: receivedAt 기준 24시간 후 자동 삭제
  */
 @Document(collection = "logs")
+@CompoundIndex(name = "idx_endpoint_received_logId", def = "{'endpointId': 1, 'receivedAt': -1, 'logId': -1}")
 @Getter
 @Builder
 @NoArgsConstructor
