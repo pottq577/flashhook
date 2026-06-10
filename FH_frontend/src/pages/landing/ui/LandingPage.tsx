@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateEndpointMutation } from '@/entities/endpoint/api/endpoint.queries';
 import Footer from '@/widgets/footer/ui/Footer';
+import { ConsentModal } from '@/widgets/legal/ConsentModal';
 import styles from './LandingPage.module.css';
 
 function LandingPage() {
@@ -9,8 +10,14 @@ function LandingPage() {
   const { mutateAsync: createEndpoint } = useCreateEndpointMutation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isConsentOpen, setIsConsentOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsConsentOpen(true);
+  };
 
   const handleCreate = async () => {
+    setIsConsentOpen(false);
     setIsLoading(true);
     setError(null);
     try {
@@ -39,7 +46,7 @@ function LandingPage() {
           
           <button 
             className={styles.button} 
-            onClick={handleCreate}
+            onClick={handleCreateClick}
             disabled={isLoading}
             aria-busy={isLoading}
           >
@@ -104,6 +111,11 @@ function LandingPage() {
       </section>
 
       <Footer />
+      <ConsentModal 
+        isOpen={isConsentOpen} 
+        onAccept={handleCreate} 
+        onDecline={() => setIsConsentOpen(false)} 
+      />
     </div>
   );
 }
