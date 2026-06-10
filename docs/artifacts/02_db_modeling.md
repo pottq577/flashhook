@@ -50,7 +50,7 @@ db.endpoints.createIndex({ createdAt: 1 }, { expireAfterSeconds: 86400 });
 // 조회용
 db.endpoints.createIndex({ endpointId: 1 }, { unique: true });
 
-// IP 기반 활성 엔드포인트 수 조회용 (코드 미구현 상태, 향후 필요시 추가)
+// IP 기반 활성 엔드포인트 수 조회용 (향후 creatorIp 기반 조회 쿼리 추가 시 인덱스 필요)
 // db.endpoints.createIndex({ creatorIp: 1 });
 ```
 
@@ -153,7 +153,7 @@ void saveLog(WebhookLog log) {
     EndpointMeta meta = endpointRepository.findByEndpointId(log.getEndpointId());
 
     // 2. 500건 초과 OR 5MB 초과 → 가장 오래된 로그 삭제
-    if (meta.getLogCount() >= 500 || meta.getLogSizeBytes() >= 5_242_880) {
+    if (meta.getLogCount() > maxLogCount || meta.getLogSizeBytes() > maxLogSizeBytes) {
         WebhookLog oldest = logRepository.findOldestByEndpointId(log.getEndpointId());
         logRepository.delete(oldest);
         meta.decrementLogCount();
