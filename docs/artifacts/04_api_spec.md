@@ -370,7 +370,7 @@ data: {"logId":"log_abc123","method":"POST","contentType":"application/json","cl
 ### 6.1. 헬스체크
 
 ```text
-GET /api/health
+GET /api/actuator/health
 ```
 
 **인증**: 없음
@@ -379,8 +379,7 @@ GET /api/health
 
 ```json
 {
-  "status": "UP",
-  "timestamp": "2026-06-07T22:40:00Z"
+  "status": "UP"
 }
 ```
 
@@ -400,6 +399,6 @@ GET /api/health
 | `DELETE` | `/api/endpoints/{id}/logs`         | 토큰 | 로그 전체 삭제     |
 | `POST`   | `/api/endpoints/{id}/stream-token` | 토큰 | 스트림 토큰 발급   |
 | `GET`    | `/api/endpoints/{id}/stream`       | 토큰 | SSE 실시간 스트림  |
-| `GET`    | `/api/health`                      |  -   | 헬스체크           |
+| `GET`    | `/api/actuator/health`             |  -   | 헬스체크           |
 
 총 11개 엔드포인트 (MVP)
