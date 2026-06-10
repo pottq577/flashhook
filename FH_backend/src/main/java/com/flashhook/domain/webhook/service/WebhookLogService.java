@@ -14,6 +14,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.PageRequest;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.domain.endpoint.model.Endpoint;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -25,6 +29,7 @@ public class WebhookLogService {
 
     private final WebhookLogRepository webhookLogRepository;
     private final EndpointRepository endpointRepository;
+    private final MongoTemplate mongoTemplate;
 
     /**
      * 로그 목록 조회 (페이징)
@@ -41,11 +46,17 @@ public class WebhookLogService {
         PageRequest pageRequest = PageRequest.of(page,
                 size, Sort.by(direction, "receivedAt"));
 
-        Page<WebhookLog> logPage;
         if (lastSeenId != null && !lastSeenId.isEmpty()) {
+            // 커서 기반 조회 시 페이지는 0으로 고정
+            pageRequest = PageRequest.of(0, size, Sort.by(direction, "receivedAt"));
+            
             WebhookLog lastLog = webhookLogRepository.findByLogId(lastSeenId).orElse(null);
             if (lastLog != null) {
-                logPage = webhookLogRepository.findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDesc(endpointId, lastLog.getReceivedAt(), pageRequest);
+                if (direction == Direction.ASC) {
+                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtGreaterThanOrderByReceivedAtAsc(endpointId, lastLog.getReceivedAt(), pageRequest);
+                } else {
+                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDesc(endpointId, lastLog.getReceivedAt(), pageRequest);
+                }
             } else {
                 logPage = webhookLogRepository.findByEndpointId(endpointId, pageRequest);
             }
@@ -79,11 +90,8 @@ public class WebhookLogService {
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
 
         webhookLogRepository.deleteAllByEndpointId(endpointId);
-        
-        Endpoint updated = endpoint.toBuilder()
-                .logCount(0)
-                .logSizeBytes(0L)
-                .build();
-        endpointRepository.save(updated);
+        Query query = Query.query(Criteria.where("endpointId").is(endpointId));
+        Update update = new Update().set("logCount", 0).set("logSizeBytes", 0L);
+        mongoTemplate.updateFirst(query, update, Endpoint.class);
     }
 }
