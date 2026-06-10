@@ -46,6 +46,7 @@ public class WebhookLogService {
         PageRequest pageRequest = PageRequest.of(page,
                 size, Sort.by(direction, "receivedAt"));
 
+        Page<WebhookLog> logPage;
         if (lastSeenId != null && !lastSeenId.isEmpty()) {
             // 커서 기반 조회 시 페이지는 0으로 고정
             pageRequest = PageRequest.of(0, size, Sort.by(direction, "receivedAt"));
