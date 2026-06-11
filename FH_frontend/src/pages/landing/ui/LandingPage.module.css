@@ -126,7 +126,8 @@
   font-size: 1.1rem;
   cursor: pointer;
   width: 100%;
-  max-width: 300px;
+  max-width: 350px;
+  white-space: nowrap;
   transition: all 0.2s ease;
   text-shadow: var(--terminal-glow);
   box-shadow: 0 0 10px rgba(0, 255, 102, 0.1) inset;
