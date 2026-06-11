@@ -25,8 +25,11 @@ public class RateLimitDevController {
     @DeleteMapping("/reset")
     public ResponseEntity<Void> resetRateLimit(HttpServletRequest request) {
         String clientIp = IpExtractor.extract(request);
+        if (!"127.0.0.1".equals(clientIp) && !"0:0:0:0:0:0:0:1".equals(clientIp)) {
+            return ResponseEntity.status(403).build();
+        }
         // RateLimitFilter에서 사용하는 엔드포인트 생성 키 삭제
-        redisTemplate.delete("rl:create2:" + clientIp);
+        redisTemplate.delete(RateLimitFilter.CREATE_LIMIT_PREFIX + clientIp);
         return ResponseEntity.ok().build();
     }
 }
