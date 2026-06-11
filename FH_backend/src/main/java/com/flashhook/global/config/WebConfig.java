@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Configuration
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
-public class WebConfig implements WebMvcConfigurer {
+public class WebConfig {
 
     @Autowired
     private Environment environment;
