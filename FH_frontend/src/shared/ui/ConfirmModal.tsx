@@ -1,3 +1,8 @@
+import styles from './ConfirmModal.module.css';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useEffect, useId, useState } from 'react';
+import { useFocusTrap } from '../hooks/useFocusTrap';
+
 interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
@@ -7,15 +12,54 @@ interface ConfirmModalProps {
 }
 
 function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }: ConfirmModalProps) {
-  if (!isOpen) return null;
+  const modalId = useId();
+  const shouldReduceMotion = useReducedMotion();
+  
+  const [isActive, setIsActive] = useState(isOpen);
+  if (isOpen && !isActive) {
+    setIsActive(true);
+  }
+
+  const modalRef = useFocusTrap(isActive);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onCancel]);
 
   return (
-    <div>
-      <h2>{title}</h2>
-      <p>{message}</p>
-      <button onClick={onConfirm}>Confirm</button>
-      <button onClick={onCancel}>Cancel</button>
-    </div>
+    <AnimatePresence onExitComplete={() => setIsActive(false)}>
+      {isOpen && (
+        <div className={styles.overlay} onClick={onCancel}>
+          <motion.div 
+            ref={modalRef}
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`confirm-modal-title-${modalId}`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.header}>
+              <h2 id={`confirm-modal-title-${modalId}`}>{title}</h2>
+            </div>
+            <div className={styles.content}>
+              <p>{message}</p>
+            </div>
+            <div className={styles.actions}>
+              <button className={styles.btnCancel} onClick={onCancel}>취소</button>
+              <button className={styles.btnConfirm} onClick={onConfirm}>확인</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
 

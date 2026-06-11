@@ -63,16 +63,16 @@
   background-color: var(--accent-hover);
 }
 
+.button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
 .button:disabled {
   background-color: var(--text-muted);
   cursor: not-allowed;
 }
 
-.error {
-  color: var(--danger);
-  margin-top: 1rem;
-  font-size: 0.9rem;
-}
+
 
 /* Sections */
 .section {

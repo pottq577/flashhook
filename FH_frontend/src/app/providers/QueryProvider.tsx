@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
+import { useToastStore } from '@/shared/lib/toast.store';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const queryClient = new QueryClient({
@@ -17,7 +18,7 @@ export const queryClient = new QueryClient({
       
       // 2. 서버 에러
       if (msg.includes('500') || msg.includes('INTERNAL_ERROR')) {
-        alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        useToastStore.getState().addToast('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         return;
       }
       
@@ -27,14 +28,14 @@ export const queryClient = new QueryClient({
         try {
           const parsed = JSON.parse(jsonMatch[0]);
           if (parsed.message) {
-            alert(parsed.message);
+            useToastStore.getState().addToast(parsed.message);
             return;
           }
         } catch {
           // ignore
         }
       }
-      alert(msg);
+      useToastStore.getState().addToast(msg);
     }
   }),
   defaultOptions: {

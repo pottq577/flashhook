@@ -50,10 +50,10 @@ function LandingPage() {
             disabled={isLoading}
             aria-busy={isLoading}
           >
-            {isLoading ? '생성 중...' : 'URL 생성하기'}
+            {isLoading ? '생성 중…' : 'URL 생성하기'}
           </button>
           
-          {error && <p className={styles.error} role="alert">{error}</p>}
+          {error && <div className="errorBox" role="alert">⚠️ {error}</div>}
         </div>
       </header>
 

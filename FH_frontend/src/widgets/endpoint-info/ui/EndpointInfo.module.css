@@ -23,6 +23,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
 }
 .code {
   background-color: var(--bg-tertiary);
@@ -31,6 +32,9 @@
   color: var(--accent);
   font-size: 1rem;
   border: 1px solid var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .statsGroup {
   display: flex;

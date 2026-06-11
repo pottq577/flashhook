@@ -12,12 +12,12 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   const { data: log, isLoading } = useLogDetailQuery(endpointId || '', logId);
 
   if (isLoading) {
-    return <div className={styles.emptyContainer}>상세 정보 로딩 중...</div>;
+    return <div role="status" className={styles.emptyContainer}>상세 정보 로딩 중…</div>;
   }
 
   if (!log) {
     return (
-      <div className={styles.emptyContainer}>
+      <div role="status" className={styles.emptyContainer}>
         <div className={styles.emptyText}>상세 정보를 볼 요청을 선택하세요</div>
       </div>
     );
@@ -62,7 +62,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
               <span className={styles.value}>{String(value)}</span>
             </div>
           ))}
-          {(!log.headers || Object.keys(log.headers).length === 0) && <span className={styles.empty}>헤더 없음</span>}
+          {(!log.headers || Object.keys(log.headers).length === 0) && <div role="status" className={styles.empty}>헤더 없음</div>}
         </div>
       </div>
 
@@ -75,7 +75,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
               <span className={styles.value}>{String(value)}</span>
             </div>
           ))}
-          {(!log.queryParams || Object.keys(log.queryParams).length === 0) && <span className={styles.empty}>쿼리 파라미터 없음</span>}
+          {(!log.queryParams || Object.keys(log.queryParams).length === 0) && <div role="status" className={styles.empty}>쿼리 파라미터 없음</div>}
         </div>
       </div>
 

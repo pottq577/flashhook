@@ -70,7 +70,7 @@
   justify-content: space-between;
   align-items: center;
   z-index: 50;
-  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .bannerText {
@@ -86,11 +86,16 @@
   border: none;
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
+  min-height: 40px;
 }
 
 .button:hover {
   background-color: #2563eb;
+}
+
+.button:active {
+  transform: scale(0.96);
 }
 
 .modalOverlay {
