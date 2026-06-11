@@ -27,6 +27,12 @@
   50% { opacity: 0.5; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .emptyTitle {
+    animation: none;
+  }
+}
+
 .emptyDesc {
   color: var(--text-secondary);
   font-family: var(--font-sans);
