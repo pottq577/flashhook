@@ -62,6 +62,12 @@ public class MockResponseScheduler {
                         if (k == null || v == null) return;
                         if (ALLOWED_HEADERS.contains(k.toLowerCase())) {
                             String sanitizedValue = v.replaceAll("[\\x00-\\x1F\\x7F]", "");
+                            if ("content-type".equalsIgnoreCase(k)) {
+                                String lowerValue = sanitizedValue.toLowerCase();
+                                if (!lowerValue.contains("application/json") && !lowerValue.contains("text/plain")) {
+                                    sanitizedValue = "text/plain";
+                                }
+                            }
                             headers.add(k, sanitizedValue);
                         }
                     });
