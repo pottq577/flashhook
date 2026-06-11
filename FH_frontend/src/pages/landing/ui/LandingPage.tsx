@@ -20,7 +20,10 @@ function LandingPage() {
 
   useEffect(() => {
     clearExpired();
-    const interval = setInterval(() => setNow(Date.now()), 60000);
+    const interval = setInterval(() => {
+      setNow(Date.now());
+      clearExpired();
+    }, 60000);
     return () => {
       clearInterval(interval);
       if (timerRef.current) clearTimeout(timerRef.current);
