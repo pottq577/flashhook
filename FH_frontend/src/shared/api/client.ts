@@ -38,6 +38,12 @@ export async function apiRequest(
 
     if (response.status >= 500) {
       throw new Error(`서버에서 문제가 발생했습니다 (${response.status}). 잠시 후 다시 시도해주세요.`);
+    } else if (response.status === 401) {
+      throw new Error('인증이 필요합니다. 다시 로그인해주세요.');
+    } else if (response.status === 403) {
+      throw new Error('접근 권한이 없습니다.');
+    } else if (response.status === 404) {
+      throw new Error('요청한 리소스를 찾을 수 없습니다.');
     } else {
       throw new Error(`API 요청에 실패했습니다 (${response.status}).`);
     }
