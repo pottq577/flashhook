@@ -7,7 +7,6 @@
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
   gap: 1rem;
-  font-family: var(--font-mono);
 }
 .infoGroup {
   display: flex;
@@ -32,6 +31,7 @@
   padding: 0.4rem 0.8rem;
   color: var(--accent);
   font-size: 1rem;
+  font-family: var(--font-mono);
   border: 1px solid var(--border);
   white-space: nowrap;
   overflow: hidden;
@@ -50,9 +50,11 @@
 .statLabel {
   font-size: 0.75rem;
   color: var(--text-muted);
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-weight: 500;
 }
 .statValue {
   font-size: 0.9rem;
   color: var(--text-primary);
+  font-family: var(--font-mono);
 }
