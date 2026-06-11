@@ -27,10 +27,10 @@ function DashboardPage() {
   const { logs, selectedLog, setSelectedLog } = useLogStore();
   const { status } = useRealtimeLogs(endpointId);
 
-  if (!endpointId) return <div className={styles.center}>유효하지 않은 엔드포인트 ID입니다</div>;
-  if (isLoading) return <div className={styles.center}>로딩 중...</div>;
-  if (error) return <div className={styles.center}>오류: {(error as Error).message}</div>;
-  if (!endpoint) return <div className={styles.center}>엔드포인트를 찾을 수 없습니다</div>;
+  if (!endpointId) return <div className={styles.center}><p>유효하지 않은 엔드포인트 ID입니다</p><a href="/" className={styles.btnAction}>홈으로 가기</a></div>;
+  if (isLoading) return <div className={styles.center}><div className={styles.spinner}></div><p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>데이터를 불러오는 중입니다...</p></div>;
+  if (error) return <div className={styles.center}><div className={styles.errorBox}>⚠️ 오류가 발생했습니다.<br/><br/><span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{(error as Error).message}</span></div><button className={styles.btnAction} onClick={() => window.location.reload()}>재시도</button></div>;
+  if (!endpoint) return <div className={styles.center}><p>엔드포인트를 찾을 수 없습니다</p><a href="/" className={styles.btnAction}>홈으로 가기</a></div>;
 
   return (
     <div className={styles.container}>
@@ -100,7 +100,7 @@ function DashboardPage() {
                 aria-label="로그 상세"
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
-                exit={{ y: '100%' }}
+                exit={{ y: '100%', transition: { type: "tween", duration: 0.15, ease: "easeIn" } }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
               >
                 <div className={styles.bottomSheetHandle} />
