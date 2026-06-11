@@ -12,11 +12,16 @@ interface ToastState {
   removeToast: (id: string) => void;
 }
 
+const MAX_TOASTS = 5;
+
 export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
   addToast: (message, duration = 3000) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    set((state) => ({ toasts: [...state.toasts, { id, message, duration }] }));
+    const id = crypto.randomUUID();
+    set((state) => {
+      const newToasts = [...state.toasts, { id, message, duration }];
+      return { toasts: newToasts.slice(-MAX_TOASTS) };
+    });
   },
   removeToast: (id) => {
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
