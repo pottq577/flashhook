@@ -30,8 +30,8 @@ function LogList({ logs, selectedLogId, onSelect }: LogListProps) {
   if (!logs || logs.length === 0) {
     return (
       <div role="status" className={styles.empty}>
-        <p>아직 수신된 웹훅이 없습니다.</p>
-        <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>위의 웹훅 URL로 요청을 보내면 이곳에 실시간으로 표시됩니다.</p>
+        <p>아직 들어온 웹훅이 없어요.</p>
+        <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>위의 웹훅 URL로 요청을 보내면 이곳에서 실시간으로 확인할 수 있어요.</p>
       </div>
     );
   }
