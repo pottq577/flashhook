@@ -10,13 +10,13 @@ function ContactPage() {
       
       <section className={styles.section}>
         <p>
-          FlashHook을 사용하시면서 겪은 문제나 피드백을 언제든지 알려주세요.
+          FlashHook을 쓰면서 겪은 문제나 피드백을 언제든지 알려주세요.
         </p>
         
         <div className={styles.contactBox}>
           <h3>이메일 지원</h3>
           <p className={styles.contactText}>
-            일반적인 문의, 버그 리포트, 또는 기능 제안이 있으시다면 아래 구글 폼을 이용해주세요:<br/>
+            궁금한 점이나 버그 제보, 기능 제안이 있다면 아래 구글 폼을 이용해주세요:<br/>
             <strong>
               <a href="https://forms.gle/5mQCgRZktwEyaYcx7" target="_blank" rel="noopener noreferrer" className={styles.link}>
                 문의하기 (Google Forms)
@@ -28,7 +28,7 @@ function ContactPage() {
         <div className={styles.contactBoxSecondary}>
           <h3>GitHub 이슈</h3>
           <p className={styles.contactText}>
-            공개적으로 이슈를 추적하는 것을 선호하신다면 GitHub 저장소에 이슈를 등록하실 수 있습니다.<br/>
+            공개적으로 이슈를 남기고 싶다면 GitHub 저장소에 등록할 수 있어요.<br/>
             <a href="https://github.com/pottq577/flashhook/issues" target="_blank" rel="noopener noreferrer" className={styles.link}>GitHub 저장소 보기</a>
           </p>
         </div>
