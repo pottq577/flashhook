@@ -18,7 +18,7 @@ import styles from './DashboardPage.module.css';
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
   const [isMockPanelOpen, setIsMockPanelOpen] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(420);
+  const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
   const isDragging = useRef(false);
   const shouldReduceMotion = useReducedMotion();
@@ -41,7 +41,7 @@ function DashboardPage() {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
       const newWidth = window.innerWidth - e.clientX;
-      if (newWidth >= 420 && newWidth < 800) {
+      if (newWidth >= 440 && newWidth < 800) {
         setSidebarWidth(newWidth);
       }
     };

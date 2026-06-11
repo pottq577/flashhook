@@ -153,7 +153,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     ? `Custom: ${statusCode}` 
                     : (() => {
                         const s = COMMON_STATUS_CODES.find(c => c.value === Number(statusCode));
-                        return s ? `${s.value} ${s.label} ${s.desc}` : 'Select Status...';
+                        return s ? `${s.value} ${s.label}` : 'Select Status...';
                       })()
                   }
                 </span>

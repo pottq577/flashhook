@@ -33,12 +33,13 @@
 }
 
 .row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
 .row .formGroup {
-  flex: 1;
+  min-width: 0;
 }
 
 .formGroup {
@@ -125,6 +126,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  min-width: 0;
   padding: 0.75rem;
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border);
@@ -144,9 +146,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+  text-align: left;
 }
 
 .customSelectIcon {
+  flex-shrink: 0;
   font-size: 0.6rem;
   color: var(--text-muted);
   margin-left: 0.5rem;
