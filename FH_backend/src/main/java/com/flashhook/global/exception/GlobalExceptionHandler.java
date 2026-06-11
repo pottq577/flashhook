@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.MediaType;
 
 import java.time.Instant;
 
@@ -17,7 +18,10 @@ public class GlobalExceptionHandler {
      * CustomException 처리
      */
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ErrorResponse> handleCustomException(CustomException e, HttpServletRequest request) {
+    public ResponseEntity<?> handleCustomException(CustomException e, HttpServletRequest request) {
+        if (isSseRequest(request)) {
+            return ResponseEntity.status(e.getErrorCode().getStatus()).build();
+        }
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
                 .body(ErrorResponse.builder()
@@ -33,7 +37,10 @@ public class GlobalExceptionHandler {
      * 낙관적 락 예외 처리
      */
     @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
-    public ResponseEntity<ErrorResponse> handleOptimisticLockingFailureException(org.springframework.dao.OptimisticLockingFailureException e, HttpServletRequest request) {
+    public ResponseEntity<?> handleOptimisticLockingFailureException(org.springframework.dao.OptimisticLockingFailureException e, HttpServletRequest request) {
+        if (isSseRequest(request)) {
+            return ResponseEntity.status(ErrorCode.CONCURRENT_MODIFICATION.getStatus()).build();
+        }
         return ResponseEntity
                 .status(ErrorCode.CONCURRENT_MODIFICATION.getStatus())
                 .body(ErrorResponse.builder()
@@ -49,7 +56,10 @@ public class GlobalExceptionHandler {
      * 기타 예외 처리
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
+    public ResponseEntity<?> handleException(Exception e, HttpServletRequest request) {
+        if (isSseRequest(request)) {
+            return ResponseEntity.status(500).build();
+        }
         return ResponseEntity
                 .status(500)
                 .body(ErrorResponse.builder()
@@ -59,5 +69,10 @@ public class GlobalExceptionHandler {
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
                         .build());
+    }
+
+    private boolean isSseRequest(HttpServletRequest request) {
+        String accept = request.getHeader("Accept");
+        return accept != null && accept.contains(MediaType.TEXT_EVENT_STREAM_VALUE);
     }
 }
