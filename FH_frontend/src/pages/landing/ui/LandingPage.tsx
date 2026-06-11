@@ -86,7 +86,7 @@ function LandingPage() {
           <div className={styles.textContent}>
             <h2 className={styles.sectionTitle}>01. Instant Setup</h2>
             <p className={styles.textBody}>
-              불필요한 가입 절차나 CLI 설치를 강요하지 않습니다. 즉시 임시 URL을 발급받고 터미널로 돌아가세요.
+              불필요한 가입 절차나 CLI 설치 없이 바로 쓸 수 있어요. 임시 URL을 발급받고 터미널로 돌아가세요.
             </p>
           </div>
           <div className={styles.codeBlock}>
@@ -117,7 +117,7 @@ function LandingPage() {
           <div className={styles.textContent}>
             <h2 className={styles.sectionTitle}>02. Real-time Inspection</h2>
             <p className={styles.textBody}>
-              SSE(Server-Sent Events)를 통해 대시보드에서 실시간으로 페이로드를 확인합니다. 모든 로그는 24시간 후 자동 파기됩니다.
+              대시보드에서 실시간으로 웹훅 내용을 확인할 수 있어요. 남은 로그는 24시간 뒤에 안전하게 모두 지울게요.
             </p>
           </div>
         </div>
