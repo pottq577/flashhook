@@ -13,9 +13,9 @@ function ContactPage() {
           FlashHook을 쓰면서 불편했던 점이나 의견이 있다면 편하게 알려주세요.
         </p>
 
-        <div className={styles.contactMethod}>
+        <div className={styles.contactBox}>
           <h3>이메일 지원</h3>
-          <p style={{ textWrap: 'pretty' }}>
+          <p className={styles.contactText} style={{ textWrap: 'pretty' }}>
             궁금한 점이나 버그, 필요한 기능이 있다면 아래 링크로 남겨주세요:<br/>
             <a href="https://forms.gle/5mQCgRZktwEyaYcx7" target="_blank" rel="noopener noreferrer" className={styles.link}>
               문의하기 (Google Forms)
