@@ -32,10 +32,17 @@
   --terminal-glow: 0 0 10px rgba(74, 222, 128, 0.1);
 
   /* Glassmorphism Tokens */
-  --glass-bg: rgba(10, 10, 12, 0.7);
+  --glass-bg: rgba(18, 18, 18, 0.6);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-  --glass-blur: blur(24px);
+  --glass-blur: blur(16px);
+  
+  --shadow-sm: none;
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-inner: inset 0 0 0 1px var(--border);
+
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-track: rgba(0, 0, 0, 0.1);
 
   /* Typography */
   --font-sans: 'Geist', 'Pretendard', 'Inter', -apple-system, sans-serif;
@@ -59,12 +66,30 @@
   --radius-md: 2px;
   --radius-lg: 4px;
   --radius-full: 9999px;
+}
 
-  /* Shadows - Minimalist, flat */
-  --shadow-sm: none;
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
-  --shadow-inner: inset 0 0 0 1px var(--border);
+/* Custom Webkit Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--bg-primary); /* creates a padding effect */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 * {

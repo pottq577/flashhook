@@ -169,6 +169,7 @@
 }
 
 .mockSidebarContainer {
+  position: relative; /* added for resize handle */
   height: 100%;
   background-color: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -179,8 +180,25 @@
   flex-shrink: 0;
 }
 
+.resizeHandle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 30;
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.resizeHandle:hover,
+.resizeHandle:active {
+  background-color: var(--accent);
+}
+
 .mockSidebarInner {
-  width: 400px;
+  width: 100%; /* controlled via inline style */
   height: 100%;
   display: flex;
   flex-direction: column;
