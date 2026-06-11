@@ -161,80 +161,77 @@
 
 .recentTitle {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px dashed var(--border);
+  margin-bottom: 0.5rem;
 }
 
 .recentList {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.2rem;
 }
 
 .recentItemWrapper {
   display: flex;
-  align-items: stretch;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .recentItem {
-  flex: 1;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  padding: 0.6rem 0.75rem;
-  border-radius: 4px;
+  gap: 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  transition: all 0.2s;
-  cursor: pointer;
-  color: var(--text-primary);
+  font-size: 0.95rem;
   text-decoration: none;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+  padding: 0.2rem 0;
 }
 
 .recentItem:hover {
-  border-color: var(--accent);
-  box-shadow: 0 0 5px rgba(0, 255, 102, 0.2);
+  color: var(--accent);
 }
 
-.recentItemLeft {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
+.recentItem:hover .recentId {
+  color: var(--accent);
+  text-shadow: var(--terminal-glow);
+}
+
+.recentPrefix {
+  color: var(--text-muted);
 }
 
 .recentId {
   color: var(--accent-secondary);
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .recentTime {
-  font-size: 0.7rem;
   color: var(--text-muted);
-  font-family: var(--font-sans);
+  font-size: 0.8rem;
 }
 
 .recentRemove {
   background: transparent;
-  border: 1px solid transparent;
+  border: none;
   color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
   cursor: pointer;
-  padding: 0 0.5rem;
-  border-radius: 4px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0;
+  transition: color 0.2s;
+  opacity: 0.5;
+}
+
+.recentItemWrapper:hover .recentRemove {
+  opacity: 1;
 }
 
 .recentRemove:hover {
   color: #FF5F56;
-  background: rgba(255, 95, 86, 0.1);
-  border-color: #FF5F56;
 }
 
 .section {

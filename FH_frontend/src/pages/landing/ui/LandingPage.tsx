@@ -93,14 +93,14 @@ function LandingPage() {
                   {endpoints.map((ep) => {
                     const diffMins = Math.floor((now - ep.createdAt) / 60000);
                     const timeStr = diffMins < 60 ? `${diffMins}분 전` : `${Math.floor(diffMins / 60)}시간 전`;
+                    const shortId = ep.id.substring(0, 8);
+                    
                     return (
                       <div key={ep.id} className={styles.recentItemWrapper}>
                         <Link to={`/dashboard/${ep.id}`} className={styles.recentItem}>
-                          <div className={styles.recentItemLeft}>
-                            <span className={styles.recentId}>{ep.id}</span>
-                            <span className={styles.recentTime}>{timeStr} 생성됨</span>
-                          </div>
-                          <span>&gt;</span>
+                          <span className={styles.recentPrefix}>$ resume</span>
+                          <span className={styles.recentId}>{shortId}</span>
+                          <span className={styles.recentTime}>[{timeStr}]</span>
                         </Link>
                         <button 
                           className={styles.recentRemove} 
@@ -108,7 +108,7 @@ function LandingPage() {
                           title="기록 삭제"
                           aria-label="기록 삭제"
                         >
-                          ✕
+                          [✕]
                         </button>
                       </div>
                     );
