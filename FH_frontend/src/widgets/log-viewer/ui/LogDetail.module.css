@@ -3,93 +3,136 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--text-muted);
+  padding: 2rem;
+  background-color: var(--bg-primary);
+  font-family: var(--font-mono);
 }
+
 .emptyText {
-  font-size: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 600px;
+  width: 100%;
 }
+
+.emptyTitle {
+  font-size: 1.25rem;
+  color: var(--accent);
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.emptyDesc {
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+
+.curlBlock {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
 .container {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  font-family: var(--font-mono);
 }
+
 .header {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 1rem;
   background-color: var(--bg-secondary);
-  border-radius: var(--radius-md);
   border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
+
 .url {
-  font-family: var(--font-mono);
-  color: var(--text-primary);
+  color: var(--accent-secondary);
   word-break: break-all;
 }
+
 .metaInfo {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
+
 .metaItem {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
+
 .metaLabel {
   font-size: 0.75rem;
-  text-transform: uppercase;
   color: var(--text-muted);
 }
+
 .section {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
+
 .sectionTitle {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: var(--text-primary);
+  font-size: 1rem;
+  color: var(--accent);
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.5rem;
   margin: 0;
 }
+
 .keyValueMap {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  font-family: var(--font-mono);
   font-size: 0.85rem;
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-secondary);
   padding: 1rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
+
 .keyValueRow {
   display: flex;
   gap: 1rem;
 }
+
 .key {
-  color: var(--accent);
+  color: var(--accent-secondary);
   min-width: 200px;
 }
+
 .value {
   color: var(--text-primary);
   word-break: break-all;
   min-width: 0;
 }
+
 .empty {
   color: var(--text-muted);
-  font-style: italic;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background-color: var(--bg-tertiary);
-  border: 1px dashed var(--border);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
 }
