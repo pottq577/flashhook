@@ -70,7 +70,7 @@
   justify-content: space-between;
   align-items: center;
   z-index: 50;
-  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .bannerText {
@@ -87,6 +87,7 @@
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.2s, transform 0.2s;
+  min-height: 40px;
 }
 
 .button:hover {
