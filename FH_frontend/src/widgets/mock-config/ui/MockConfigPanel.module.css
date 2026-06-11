@@ -77,12 +77,16 @@
   border-radius: 0.5rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s, opacity 0.2s;
+  transition: background-color 0.2s, opacity 0.2s, transform 0.2s;
   align-self: flex-start;
 }
 
 .button:hover:not(:disabled) {
   background-color: var(--accent-hover, #2563eb);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 .button:disabled {

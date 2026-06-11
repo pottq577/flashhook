@@ -86,11 +86,15 @@
   border: none;
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .button:hover {
   background-color: #2563eb;
+}
+
+.button:active {
+  transform: scale(0.96);
 }
 
 .modalOverlay {

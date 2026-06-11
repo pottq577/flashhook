@@ -81,7 +81,7 @@ function DashboardPage() {
         )}
 
         {/* Mobile Bottom Sheet Detail View */}
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           {isMobile && selectedLog && (
             <>
               <motion.button
