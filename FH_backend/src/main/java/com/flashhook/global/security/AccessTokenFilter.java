@@ -24,6 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AccessTokenFilter extends OncePerRequestFilter {
 
+    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
     private final EndpointRepository endpointRepository;
 
     @Override
@@ -42,7 +43,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         // /api/endpoints/{id} 또는 /api/endpoints/{id}/... 형태인지 확인
         // (단, POST /api/endpoints는 제외)
         if (path.startsWith("/api/endpoints/") && path.length() > "/api/endpoints/".length()) {
-            if (new AntPathMatcher().match("/api/endpoints/*/stream", path) && "GET".equalsIgnoreCase(method)) {
+            if (PATH_MATCHER.match("/api/endpoints/*/stream", path) && "GET".equalsIgnoreCase(method)) {
                 filterChain.doFilter(request, response);
                 return;
             }
