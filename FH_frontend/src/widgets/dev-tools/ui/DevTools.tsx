@@ -15,13 +15,13 @@ export function DevTools() {
         method: 'DELETE',
       });
       if (res.ok) {
-        alert('✅ 성공: Rate Limit이 해제되었습니다. 이제 엔드포인트를 다시 생성할 수 있습니다.');
+        alert('✅ 생성 제한을 풀었어요. 이제 다시 엔드포인트를 만들 수 있어요.');
       } else {
-        alert('❌ 실패: Rate Limit 해제에 실패했습니다.');
+        alert('❌ 제한을 풀지 못했어요. 잠시 후 다시 시도해주세요.');
       }
     } catch (err) {
       console.error(err);
-      alert('❌ 에러: 서버와 통신할 수 없습니다.');
+      alert('❌ 서버와 연결할 수 없어요.');
     } finally {
       setIsLoading(false);
     }

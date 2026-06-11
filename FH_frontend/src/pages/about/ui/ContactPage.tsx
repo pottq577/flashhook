@@ -9,19 +9,17 @@ function ContactPage() {
       <h1 className={styles.title}>문의하기</h1>
       
       <section className={styles.section}>
-        <p>
-          FlashHook을 쓰면서 겪은 문제나 피드백을 언제든지 알려주세요.
+        <p className={styles.description}>
+          FlashHook을 쓰면서 불편했던 점이나 의견이 있다면 편하게 알려주세요.
         </p>
-        
-        <div className={styles.contactBox}>
+
+        <div className={styles.contactMethod}>
           <h3>이메일 지원</h3>
-          <p className={styles.contactText}>
-            궁금한 점이나 버그 제보, 기능 제안이 있다면 아래 구글 폼을 이용해주세요:<br/>
-            <strong>
-              <a href="https://forms.gle/5mQCgRZktwEyaYcx7" target="_blank" rel="noopener noreferrer" className={styles.link}>
-                문의하기 (Google Forms)
-              </a>
-            </strong>
+          <p>
+            궁금한 점이나 버그, 필요한 기능이 있다면 아래 링크로 남겨주세요:<br/>
+            <a href="https://forms.gle/5mQCgRZktwEyaYcx7" target="_blank" rel="noopener noreferrer" className={styles.link}>
+              문의하기 (Google Forms)
+            </a>
           </p>
         </div>
 
