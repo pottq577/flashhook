@@ -48,45 +48,55 @@ function DashboardPage() {
       <ConnectionStatus status={status} />
       
       <main className={styles.main}>
-        <section className={styles.sidebar}>
-          <LogList 
-            logs={logs} 
-            selectedLogId={selectedLog?.logId || null} 
-            onSelect={(logId) => {
-              const log = logs.find(l => l.logId === logId);
-              if (log) {
-                setSelectedLog({ ...log, url: '', headers: {}, queryParams: {}, body: {} }); 
-              }
-            }} 
-            endpointId={endpointId}
-          />
-        </section>
-        
-        {/* Desktop Detail View */}
-        {!isMobile && (
-          <section className={styles.content}>
-            <div className={styles.tabs}>
-              <button 
-                className={`${styles.tabBtn} ${activeTab === 'log' ? styles.activeTab : ''}`}
-                onClick={() => setActiveTab('log')}
-              >
-                로그 상세
-              </button>
-              <button 
-                className={`${styles.tabBtn} ${activeTab === 'mock' ? styles.activeTab : ''}`}
-                onClick={() => setActiveTab('mock')}
-              >
-                Mock 설정
-              </button>
-            </div>
-            <div className={styles.tabContent}>
-              {activeTab === 'log' ? (
-                <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
-              ) : (
-                <MockConfigPanel endpoint={endpoint} />
-              )}
-            </div>
-          </section>
+        {logs.length > 0 ? (
+          <>
+            <section className={styles.sidebar}>
+              <LogList 
+                logs={logs} 
+                selectedLogId={selectedLog?.logId || null} 
+                onSelect={(logId) => {
+                  const log = logs.find(l => l.logId === logId);
+                  if (log) {
+                    setSelectedLog({ ...log, url: '', headers: {}, queryParams: {}, body: {} }); 
+                  }
+                }} 
+                endpointId={endpointId}
+              />
+            </section>
+            
+            {/* Desktop Detail View */}
+            {!isMobile && (
+              <section className={styles.content}>
+                <div className={styles.tabs}>
+                  <button 
+                    className={`${styles.tabBtn} ${activeTab === 'log' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('log')}
+                  >
+                    로그 상세
+                  </button>
+                  <button 
+                    className={`${styles.tabBtn} ${activeTab === 'mock' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('mock')}
+                  >
+                    Mock 설정
+                  </button>
+                </div>
+                <div className={styles.tabContent}>
+                  {activeTab === 'log' ? (
+                    <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
+                  ) : (
+                    <MockConfigPanel endpoint={endpoint} />
+                  )}
+                </div>
+              </section>
+            )}
+          </>
+        ) : (
+          <div className={styles.waitingState}>
+            <div className={styles.radarPulse}></div>
+            <p className={styles.waitingText}>Waiting for first webhook...</p>
+            <p className={styles.waitingSub}>Send a request to your URL to get started.</p>
+          </div>
         )}
 
         {/* Mobile Bottom Sheet Detail View */}
