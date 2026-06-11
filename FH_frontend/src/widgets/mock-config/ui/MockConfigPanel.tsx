@@ -9,10 +9,10 @@ interface MockConfigPanelProps {
 }
 
 const PRESETS = [
-  { label: 'DEFAULT (200 OK)', status: 200, body: 'ok' },
-  { label: 'TOSS_PAYMENTS (400 ERROR)', status: 400, body: '{\n  "code": "INVALID_API_KEY",\n  "message": "잘못된 시크릿 키 연동입니다."\n}' },
-  { label: 'KAKAO_LOGIN (401 ERROR)', status: 401, body: '{\n  "msg": "this access token does not exist",\n  "code": -401\n}' },
-  { label: 'PORTONE (500 ERROR)', status: 500, body: '{\n  "code": -1,\n  "message": "Internal Server Error"\n}' }
+  { label: 'DEFAULT', desc: '(200 OK)', status: 200, body: 'ok' },
+  { label: 'TOSS_PAYMENTS', desc: '(400 ERROR)', status: 400, body: '{\n  "code": "INVALID_API_KEY",\n  "message": "잘못된 시크릿 키 연동입니다."\n}' },
+  { label: 'KAKAO_LOGIN', desc: '(401 ERROR)', status: 401, body: '{\n  "msg": "this access token does not exist",\n  "code": -401\n}' },
+  { label: 'PORTONE', desc: '(500 ERROR)', status: 500, body: '{\n  "code": -1,\n  "message": "Internal Server Error"\n}' }
 ];
 
 const COMMON_STATUS_CODES = [
@@ -29,21 +29,21 @@ const COMMON_STATUS_CODES = [
 ];
 
 const COMMON_HEADER_KEYS = [
-  'Content-Type',
-  'Authorization',
-  'Cache-Control',
-  'Access-Control-Allow-Origin',
-  'X-Webhook-Signature',
-  'X-Custom-Header'
+  { value: 'Content-Type', label: 'Content-Type' },
+  { value: 'Authorization', label: 'Authorization' },
+  { value: 'Cache-Control', label: 'Cache-Control' },
+  { value: 'Access-Control-Allow-Origin', label: 'Access-Control-Allow-Origin' },
+  { value: 'X-Webhook-Signature', label: 'X-Webhook-Signature' },
+  { value: 'X-Custom-Header', label: 'X-Custom-Header' }
 ];
 
 const COMMON_HEADER_VALUES = [
-  'application/json',
-  'application/x-www-form-urlencoded',
-  'text/plain',
-  'Bearer <token>',
-  'no-cache',
-  '*'
+  { value: 'application/json', label: 'application/json' },
+  { value: 'application/x-www-form-urlencoded', label: 'application/x-www-form-urlencoded' },
+  { value: 'text/plain', label: 'text/plain' },
+  { value: 'Bearer <token>', label: 'Bearer <token>' },
+  { value: 'no-cache', label: 'no-cache' },
+  { value: '*', label: '*' }
 ];
 
 const clampOrFallback = (raw: string, min: number, max: number, fallback: number) => {
@@ -52,6 +52,80 @@ const clampOrFallback = (raw: string, min: number, max: number, fallback: number
   return Math.min(max, Math.max(min, n));
 };
 
+function CustomDropdown({ 
+  value, 
+  options, 
+  onSelect, 
+  onCustom, 
+  customLabel, 
+  placeholder, 
+  isOpen, 
+  onToggle, 
+  isCustomStatus,
+  displayValue
+}: {
+  value: string | number;
+  options: { value: string | number; label: string; desc?: string }[];
+  onSelect: (val: string | number) => void;
+  onCustom?: () => void;
+  customLabel?: string;
+  placeholder: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  isCustomStatus?: boolean;
+  displayValue?: (val: string | number, opt?: { value: string | number; label: string; desc?: string }) => string;
+}) {
+  const selected = options.find(o => o.value === value);
+  const isCustom = isCustomStatus ?? (!selected && value !== '');
+
+  return (
+    <div className={styles.statusInputWrapper}>
+      <div className={styles.customSelectTrigger} onClick={onToggle}>
+        <span className={styles.customSelectText}>
+          {isCustom && customLabel
+            ? `${customLabel}: ${value}` 
+            : (selected ? (displayValue ? displayValue(value, selected) : `${selected.value !== selected.label ? selected.value + ' ' : ''}${selected.label}`) : placeholder)}
+        </span>
+        <span className={styles.customSelectIcon}>▼</span>
+      </div>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            className={styles.customSelectDropdown}
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.15 }}
+          >
+            {options.map(o => (
+              <div 
+                key={String(o.value)} 
+                className={`${styles.customSelectOption} ${value === o.value && !isCustom ? styles.selected : ''}`}
+                onClick={(e) => { e.stopPropagation(); onSelect(o.value); }}
+              >
+                {o.value !== o.label && <span className={styles.optionValue}>{o.value}</span>}
+                <div className={styles.optionTextContainer}>
+                  <span className={styles.optionLabel}>{o.label}</span>
+                  {o.desc && <span className={styles.optionDesc}>{o.desc}</span>}
+                </div>
+              </div>
+            ))}
+            {onCustom && (
+              <div 
+                className={`${styles.customSelectOption} ${isCustom ? styles.selected : ''}`}
+                onClick={(e) => { e.stopPropagation(); onCustom(); }}
+              >
+                <span className={styles.optionValue}>Custom...</span>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { mutate, isPending } = useUpdateMockConfigMutation(endpoint.endpointId);
   const [statusCode, setStatusCode] = useState<number | string>(endpoint.mockConfig?.statusCode || 200);
@@ -59,30 +133,35 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     const code = endpoint.mockConfig?.statusCode || 200;
     return !COMMON_STATUS_CODES.some(c => c.value === code);
   });
-  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
   const [delayMs, setDelayMs] = useState(endpoint.mockConfig?.delayMs || 0);
   const [body, setBody] = useState(endpoint.mockConfig?.body || 'ok');
   
-  const [headerList, setHeaderList] = useState<{id: string, key: string, value: string}[]>(() => {
+  const [headerList, setHeaderList] = useState<{id: string, key: string, value: string, isCustomKey: boolean, isCustomValue: boolean}[]>(() => {
     const headers = endpoint.mockConfig?.headers || {};
-    return Object.entries(headers).map(([k, v]) => ({ id: crypto.randomUUID(), key: k, value: String(v) }));
+    return Object.entries(headers).map(([k, v]) => ({ 
+      id: crypto.randomUUID(), 
+      key: k, 
+      value: String(v),
+      isCustomKey: !COMMON_HEADER_KEYS.some(x => x.value === k),
+      isCustomValue: !COMMON_HEADER_VALUES.some(x => x.value === String(v))
+    }));
   });
   
   const [headerWarning, setHeaderWarning] = useState<string | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsStatusDropdownOpen(false);
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpenDropdownId(null);
       }
     };
-    if (isStatusDropdownOpen) {
+    if (openDropdownId) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isStatusDropdownOpen]);
+  }, [openDropdownId]);
 
   const handleApply = () => {
     const headers: Record<string, string> = {};
@@ -111,13 +190,15 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     });
   };
 
-  const applyPreset = (preset: typeof PRESETS[0]) => {
+  const applyPreset = (index: number) => {
+    const preset = PRESETS[index];
     setStatusCode(preset.status);
+    setIsCustomStatus(!COMMON_STATUS_CODES.some(c => c.value === preset.status));
     setBody(preset.body);
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={containerRef}>
       <div className={styles.header}>
         <h2>[ MOCK_API_CONFIG ]</h2>
         <p>&gt; EXTERNAL_SERVICE_INTEGRATION_TEST_MODE</p>
@@ -125,93 +206,54 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
       <div className={styles.form}>
         <div className={styles.formGroup}>
-          <label htmlFor="select-preset">TARGET_PRESET</label>
-          <select 
-            id="select-preset" 
-            name="preset" 
-            onChange={(e) => applyPreset(PRESETS[Number(e.target.value)])} 
-            defaultValue="" 
-            className={styles.select}
-          >
-            <option value="" disabled>SELECT_PRESET...</option>
-            {PRESETS.map((p, i) => (
-              <option key={p.label} value={i}>{p.label}</option>
-            ))}
-          </select>
+          <label>TARGET_PRESET</label>
+          <CustomDropdown
+            value={''}
+            options={PRESETS.map((p, i) => ({ value: i, label: p.label, desc: p.desc }))}
+            onSelect={(val) => {
+              applyPreset(Number(val));
+              setOpenDropdownId(null);
+            }}
+            placeholder="SELECT_PRESET..."
+            isOpen={openDropdownId === 'preset'}
+            onToggle={() => setOpenDropdownId(openDropdownId === 'preset' ? null : 'preset')}
+            displayValue={(val, opt) => opt ? `${opt.label}` : 'SELECT_PRESET...'}
+          />
         </div>
 
         <div className={styles.row}>
           <div className={styles.formGroup}>
             <label>STATUS_CODE</label>
-            <div className={styles.statusInputWrapper} ref={dropdownRef}>
-              <div 
-                className={styles.customSelectTrigger} 
-                onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-              >
-                <span className={styles.customSelectText}>
-                  {isCustomStatus 
-                    ? `Custom: ${statusCode}` 
-                    : (() => {
-                        const s = COMMON_STATUS_CODES.find(c => c.value === Number(statusCode));
-                        return s ? `${s.value} ${s.label}` : 'Select Status...';
-                      })()
-                  }
-                </span>
-                <span className={styles.customSelectIcon}>▼</span>
-              </div>
-              
-              <AnimatePresence>
-                {isStatusDropdownOpen && (
-                  <motion.div 
-                    className={styles.customSelectDropdown}
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {COMMON_STATUS_CODES.map(c => (
-                      <div 
-                        key={c.value} 
-                        className={`${styles.customSelectOption} ${Number(statusCode) === c.value && !isCustomStatus ? styles.selected : ''}`}
-                        onClick={() => {
-                          setStatusCode(c.value);
-                          setIsCustomStatus(false);
-                          setIsStatusDropdownOpen(false);
-                        }}
-                      >
-                        <span className={styles.optionValue}>{c.value}</span>
-                        <div className={styles.optionTextContainer}>
-                          <span className={styles.optionLabel}>{c.label}</span>
-                          {c.desc && <span className={styles.optionDesc}>{c.desc}</span>}
-                        </div>
-                      </div>
-                    ))}
-                    <div 
-                      className={`${styles.customSelectOption} ${isCustomStatus ? styles.selected : ''}`}
-                      onClick={() => {
-                        setIsCustomStatus(true);
-                        setStatusCode('');
-                        setIsStatusDropdownOpen(false);
-                      }}
-                    >
-                      <span className={styles.optionValue}>Custom...</span>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {isCustomStatus && (
-                <input 
-                  type="number"
-                  min="100" max="599"
-                  placeholder="e.g., 418"
-                  value={statusCode}
-                  onChange={e => setStatusCode(Number(e.target.value))}
-                  className={styles.input}
-                  style={{ marginTop: '0.5rem' }}
-                />
-              )}
-            </div>
+            <CustomDropdown
+              value={statusCode}
+              options={COMMON_STATUS_CODES}
+              onSelect={(val) => {
+                setStatusCode(val);
+                setIsCustomStatus(false);
+                setOpenDropdownId(null);
+              }}
+              onCustom={() => {
+                setIsCustomStatus(true);
+                setStatusCode('');
+                setOpenDropdownId(null);
+              }}
+              customLabel="Custom"
+              placeholder="Select Status..."
+              isOpen={openDropdownId === 'status'}
+              onToggle={() => setOpenDropdownId(openDropdownId === 'status' ? null : 'status')}
+              isCustomStatus={isCustomStatus}
+            />
+            {isCustomStatus && (
+              <input 
+                type="number"
+                min="100" max="599"
+                placeholder="e.g., 418"
+                value={statusCode}
+                onChange={e => setStatusCode(Number(e.target.value))}
+                className={styles.input}
+                style={{ marginTop: '0.5rem' }}
+              />
+            )}
           </div>
           
           <div className={styles.formGroup}>
@@ -235,34 +277,90 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           <div className={styles.headerList}>
             {headerList.map((h, i) => (
               <div key={h.id} className={styles.headerRow}>
-                <input
-                  type="text"
-                  placeholder="Key"
-                  value={h.key}
-                  onChange={e => {
-                    const newHeaders = [...headerList];
-                    newHeaders[i].key = e.target.value;
-                    setHeaderList(newHeaders);
-                  }}
-                  className={`${styles.input} ${styles.headerInput}`}
-                  list="header-keys"
-                />
-                <span className={styles.headerColon}>:</span>
-                <input
-                  type="text"
-                  placeholder="Value"
-                  value={h.value}
-                  onChange={e => {
-                    const newHeaders = [...headerList];
-                    newHeaders[i].value = e.target.value;
-                    setHeaderList(newHeaders);
-                  }}
-                  className={`${styles.input} ${styles.headerInput}`}
-                  list="header-values"
-                />
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <CustomDropdown
+                    value={h.key}
+                    options={COMMON_HEADER_KEYS}
+                    onSelect={(val) => {
+                      const newHeaders = [...headerList];
+                      newHeaders[i].key = String(val);
+                      newHeaders[i].isCustomKey = false;
+                      setHeaderList(newHeaders);
+                      setOpenDropdownId(null);
+                    }}
+                    onCustom={() => {
+                      const newHeaders = [...headerList];
+                      newHeaders[i].key = '';
+                      newHeaders[i].isCustomKey = true;
+                      setHeaderList(newHeaders);
+                      setOpenDropdownId(null);
+                    }}
+                    customLabel="Custom"
+                    placeholder="Header Key"
+                    isOpen={openDropdownId === `header-key-${h.id}`}
+                    onToggle={() => setOpenDropdownId(openDropdownId === `header-key-${h.id}` ? null : `header-key-${h.id}`)}
+                    isCustomStatus={h.isCustomKey}
+                  />
+                  {h.isCustomKey && (
+                    <input
+                      type="text"
+                      placeholder="Custom Key"
+                      value={h.key}
+                      onChange={e => {
+                        const newHeaders = [...headerList];
+                        newHeaders[i].key = e.target.value;
+                        setHeaderList(newHeaders);
+                      }}
+                      className={styles.input}
+                    />
+                  )}
+                </div>
+                
+                <span className={styles.headerColon} style={{ marginTop: '0.6rem' }}>:</span>
+                
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <CustomDropdown
+                    value={h.value}
+                    options={COMMON_HEADER_VALUES}
+                    onSelect={(val) => {
+                      const newHeaders = [...headerList];
+                      newHeaders[i].value = String(val);
+                      newHeaders[i].isCustomValue = false;
+                      setHeaderList(newHeaders);
+                      setOpenDropdownId(null);
+                    }}
+                    onCustom={() => {
+                      const newHeaders = [...headerList];
+                      newHeaders[i].value = '';
+                      newHeaders[i].isCustomValue = true;
+                      setHeaderList(newHeaders);
+                      setOpenDropdownId(null);
+                    }}
+                    customLabel="Custom"
+                    placeholder="Header Value"
+                    isOpen={openDropdownId === `header-value-${h.id}`}
+                    onToggle={() => setOpenDropdownId(openDropdownId === `header-value-${h.id}` ? null : `header-value-${h.id}`)}
+                    isCustomStatus={h.isCustomValue}
+                  />
+                  {h.isCustomValue && (
+                    <input
+                      type="text"
+                      placeholder="Custom Value"
+                      value={h.value}
+                      onChange={e => {
+                        const newHeaders = [...headerList];
+                        newHeaders[i].value = e.target.value;
+                        setHeaderList(newHeaders);
+                      }}
+                      className={styles.input}
+                    />
+                  )}
+                </div>
+                
                 <button 
                   type="button" 
                   className={styles.removeBtn} 
+                  style={{ alignSelf: 'flex-start', marginTop: '0.5rem' }}
                   onClick={() => setHeaderList(headerList.filter(item => item.id !== h.id))}
                   title="Remove Header"
                 >✕</button>
@@ -271,19 +369,12 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             <button 
               type="button" 
               className={styles.addHeaderBtn} 
-              onClick={() => setHeaderList([...headerList, { id: crypto.randomUUID(), key: '', value: '' }])}
+              onClick={() => setHeaderList([...headerList, { id: crypto.randomUUID(), key: '', value: '', isCustomKey: true, isCustomValue: true }])}
             >
               + ADD HEADER
             </button>
           </div>
           {headerWarning && <p className={styles.warning}>{headerWarning}</p>}
-
-          <datalist id="header-keys">
-            {COMMON_HEADER_KEYS.map(k => <option key={k} value={k} />)}
-          </datalist>
-          <datalist id="header-values">
-            {COMMON_HEADER_VALUES.map(v => <option key={v} value={v} />)}
-          </datalist>
         </div>
 
         <div className={styles.formGroup}>
@@ -311,3 +402,4 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     </div>
   );
 }
+
