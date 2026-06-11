@@ -18,8 +18,12 @@ import org.springframework.beans.factory.annotation.Value;
 import com.flashhook.global.util.IpExtractor;
 import com.flashhook.global.exception.ErrorCode;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+
 @Component
 @RequiredArgsConstructor
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitService rateLimitService;
@@ -61,8 +65,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // 2. 엔드포인트 생성 API (POST /api/endpoints)
         if ("POST".equalsIgnoreCase(method) && "/api/endpoints".equals(path)) {
             String clientIp = IpExtractor.extract(request);
-            String key = "rl:create:" + clientIp;
-            if (!rateLimitService.isAllowed(key, endpointCreateLimit, 24 * 60 * 60)) {
+            String key = "rl:create2:" + clientIp;
+            // 10분(600초) 기준
+            if (!rateLimitService.isAllowed(key, endpointCreateLimit, 10 * 60)) {
                 sendErrorResponse(response, ErrorCode.ENDPOINT_LIMIT_EXCEEDED);
                 return;
             }
