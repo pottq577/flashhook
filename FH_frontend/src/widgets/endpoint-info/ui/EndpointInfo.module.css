@@ -2,11 +2,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  background-color: var(--bg-tertiary);
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
   gap: 1rem;
+  font-family: var(--font-mono);
 }
 .infoGroup {
   display: flex;
@@ -18,6 +19,7 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin: 0;
 }
 .valueRow {
   display: flex;
@@ -26,19 +28,19 @@
   min-width: 0;
 }
 .code {
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-secondary);
   padding: 0.4rem 0.8rem;
-  border-radius: var(--radius-sm);
   color: var(--accent);
   font-size: 1rem;
   border: 1px solid var(--border);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: var(--terminal-glow);
 }
 .statsGroup {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 .statItem {
   display: flex;

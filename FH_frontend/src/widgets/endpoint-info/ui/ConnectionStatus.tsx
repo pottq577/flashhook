@@ -12,10 +12,10 @@ function ConnectionStatus({ status }: { status: 'connecting' | 'connected' | 'di
 
   const getStatusText = () => {
     switch (status) {
-      case 'connected': return '연결됨';
-      case 'connecting': return '연결 중';
-      case 'disconnected': return '연결 끊김';
-      default: return status;
+      case 'connected': return '[ CONNECTED ]';
+      case 'connecting': return '[ CONNECTING ]';
+      case 'disconnected': return '[ DISCONNECTED ]';
+      default: return `[ ${status.toUpperCase()} ]`;
     }
   };
 
