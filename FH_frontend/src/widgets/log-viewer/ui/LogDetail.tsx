@@ -16,7 +16,8 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   }
 
   if (!log) {
-    const webhookUrl = `https://flashhook.dev/api/e/${endpointId}`;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://flashhook.kr/api';
+    const webhookUrl = `${baseUrl}/hooks/${endpointId}`;
     return (
       <div role="status" className={styles.emptyContainer}>
         <div className={styles.emptyText}>
