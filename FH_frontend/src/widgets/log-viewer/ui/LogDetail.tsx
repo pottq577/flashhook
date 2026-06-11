@@ -18,14 +18,29 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   }
 
   if (!log) {
+    if (!endpointId) {
+      return (
+        <div role="status" className={styles.emptyContainer}>
+          <div className={styles.emptyText}>
+            <div className={styles.emptyTitle}>&gt; WAITING_FOR_ENDPOINT...</div>
+            <p className={styles.emptyDesc}>엔드포인트를 먼저 생성하거나 선택해주세요.</p>
+          </div>
+        </div>
+      );
+    }
+
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://flashhook.kr/api';
     const webhookUrl = `${baseUrl}/hooks/${endpointId}`;
     const curlCommand = `curl -X POST ${webhookUrl} \\\n  -H "Content-Type: application/json" \\\n  -d '{"message": "Hello from FlashHook!"}'`;
 
-    const handleCopy = () => {
-      navigator.clipboard.writeText(curlCommand);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    const handleCopy = async () => {
+      try {
+        await navigator.clipboard.writeText(curlCommand);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        setCopied(false);
+      }
     };
 
     return (
