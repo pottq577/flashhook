@@ -19,6 +19,7 @@ function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
   const [isMockPanelOpen, setIsMockPanelOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(420);
+  const [isResizing, setIsResizing] = useState(false);
   const isDragging = useRef(false);
   const shouldReduceMotion = useReducedMotion();
   
@@ -31,6 +32,7 @@ function DashboardPage() {
 
   const startResizing = useCallback(() => {
     isDragging.current = true;
+    setIsResizing(true);
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none'; // Prevent text selection while dragging
   }, []);
@@ -46,6 +48,7 @@ function DashboardPage() {
     const handleMouseUp = () => {
       if (isDragging.current) {
         isDragging.current = false;
+        setIsResizing(false);
         document.body.style.cursor = 'default';
         document.body.style.userSelect = 'auto';
       }
@@ -129,7 +132,7 @@ function DashboardPage() {
                   initial={{ width: 0, opacity: 0 }}
                   animate={{ width: sidebarWidth, opacity: 1 }}
                   exit={{ width: 0, opacity: 0 }}
-                  transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+                  transition={isResizing ? { duration: 0 } : { type: "spring", bounce: 0, duration: 0.4 }}
                 >
                   <div className={styles.resizeHandle} onPointerDown={startResizing} />
                   <div className={styles.mockSidebarInner} style={{ width: sidebarWidth }}>
