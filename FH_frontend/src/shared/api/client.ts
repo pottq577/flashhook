@@ -34,7 +34,11 @@ export async function apiRequest(
 
   if (!response.ok) {
     const errorBody = await response.text();
-    logger.error(`API Error ${response.status}:`, errorBody);
+    if (import.meta.env.MODE === 'development') {
+      logger.error(`API Error ${response.status}:`, errorBody.slice(0, 500));
+    } else {
+      logger.error(`API Error ${response.status}`);
+    }
 
     if (response.status >= 500) {
       throw new Error(`서버에서 문제가 발생했습니다 (${response.status}). 잠시 후 다시 시도해주세요.`);
