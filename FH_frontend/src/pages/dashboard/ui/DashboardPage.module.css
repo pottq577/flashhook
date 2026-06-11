@@ -18,7 +18,14 @@
 }
 
 @keyframes spin {
+  from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 3s;
+  }
 }
 
 .errorBox {
@@ -51,6 +58,11 @@
 
 .btnAction:active {
   transform: scale(0.96);
+}
+
+.btnAction:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .container {
@@ -157,6 +169,12 @@
 
 .tabBtn:hover {
   color: var(--text-primary);
+}
+
+.tabBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
 }
 
 .activeTab {

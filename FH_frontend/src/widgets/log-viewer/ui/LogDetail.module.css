@@ -79,8 +79,17 @@
 .value {
   color: var(--text-primary);
   word-break: break-all;
+  min-width: 0;
 }
 .empty {
   color: var(--text-muted);
   font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: var(--bg-tertiary);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
 }
