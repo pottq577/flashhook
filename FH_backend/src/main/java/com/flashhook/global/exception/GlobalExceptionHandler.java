@@ -59,14 +59,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e, HttpServletRequest request) {
         if (isSseRequest(request)) {
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.status(ErrorCode.INTERNAL_ERROR.getStatus()).build();
         }
         return ResponseEntity
-                .status(500)
+                .status(ErrorCode.INTERNAL_ERROR.getStatus())
                 .body(ErrorResponse.builder()
                         .code(ErrorCode.INTERNAL_ERROR.getCode())
                         .message(ErrorCode.INTERNAL_ERROR.getMessage())
-                        .status(500)
+                        .status(ErrorCode.INTERNAL_ERROR.getStatus())
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
                         .build());
