@@ -28,6 +28,14 @@ const COMMON_STATUS_CODES = [
   { value: 503, label: 'Service Unavailable', desc: '' },
 ];
 
+const COMMON_DELAY_PRESETS = [
+  { value: 0, label: '0ms', desc: '(Instant)' },
+  { value: 500, label: '500ms', desc: '(Typical)' },
+  { value: 1000, label: '1000ms', desc: '(1s)' },
+  { value: 3000, label: '3000ms', desc: '(3s)' },
+  { value: 5000, label: '5000ms', desc: '(5s)' },
+];
+
 const COMMON_HEADER_KEYS = [
   { value: 'Content-Type', label: 'Content-Type' },
   { value: 'Authorization', label: 'Authorization' },
@@ -46,12 +54,6 @@ const COMMON_HEADER_VALUES = [
   { value: '*', label: '*' }
 ];
 
-const clampOrFallback = (raw: string, min: number, max: number, fallback: number) => {
-  const n = Number(raw);
-  if (!Number.isFinite(n)) return fallback;
-  return Math.min(max, Math.max(min, n));
-};
-
 function CustomDropdown({ 
   value, 
   options, 
@@ -63,7 +65,9 @@ function CustomDropdown({
   onToggle, 
   isCustomStatus,
   displayValue,
-  alignRight
+  alignRight,
+  isEditable,
+  onEdit
 }: {
   value: string | number;
   options: { value: string | number; label: string; desc?: string }[];
@@ -76,19 +80,42 @@ function CustomDropdown({
   isCustomStatus?: boolean;
   displayValue?: (val: string | number, opt?: { value: string | number; label: string; desc?: string }) => string;
   alignRight?: boolean;
+  isEditable?: boolean;
+  onEdit?: (val: string) => void;
 }) {
   const selected = options.find(o => o.value === value);
   const isCustom = isCustomStatus ?? (!selected && value !== '');
 
+  const filteredOptions = isEditable && value !== '' 
+    ? options.filter(o => 
+        String(o.label).toLowerCase().includes(String(value).toLowerCase()) || 
+        String(o.value).toLowerCase().includes(String(value).toLowerCase())
+      )
+    : options;
+
   return (
     <div className={styles.statusInputWrapper}>
-      <div className={styles.customSelectTrigger} onClick={onToggle}>
-        <span className={styles.customSelectText}>
-          {isCustom
-            ? (customLabel ? `${customLabel}: ${value}` : (value || placeholder))
-            : (selected ? (displayValue ? displayValue(value, selected) : `${selected.value !== selected.label ? selected.value + ' ' : ''}${selected.label}`) : placeholder)}
-        </span>
-        <span className={styles.customSelectIcon}>▼</span>
+      <div className={styles.customSelectTrigger} onClick={!isEditable ? onToggle : undefined}>
+        {isEditable ? (
+          <input 
+            type="text" 
+            className={styles.customSelectInput}
+            value={value} 
+            onChange={e => {
+               if (onEdit) onEdit(e.target.value);
+               if (!isOpen) onToggle();
+            }}
+            onFocus={() => { if (!isOpen) onToggle(); }}
+            placeholder={placeholder}
+          />
+        ) : (
+          <span className={styles.customSelectText}>
+            {isCustom
+              ? (customLabel ? `${customLabel}: ${value}` : (value || placeholder))
+              : (selected ? (displayValue ? displayValue(value, selected) : `${selected.value !== selected.label ? selected.value + ' ' : ''}${selected.label}`) : placeholder)}
+          </span>
+        )}
+        <span className={styles.customSelectIcon} onClick={(e) => { e.stopPropagation(); onToggle(); }}>▼</span>
       </div>
       
       <AnimatePresence>
@@ -101,11 +128,15 @@ function CustomDropdown({
             exit={{ opacity: 0, y: -5 }}
             transition={{ duration: 0.15 }}
           >
-            {options.map(o => (
+            {filteredOptions.length > 0 ? filteredOptions.map(o => (
               <div 
                 key={String(o.value)} 
                 className={`${styles.customSelectOption} ${value === o.value && !isCustom ? styles.selected : ''}`}
-                onClick={(e) => { e.stopPropagation(); onSelect(o.value); }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation(); 
+                  onSelect(o.value); 
+                }}
               >
                 {o.value !== o.label && <span className={styles.optionValue}>{o.value}</span>}
                 <div className={styles.optionTextContainer}>
@@ -113,8 +144,12 @@ function CustomDropdown({
                   {o.desc && <span className={styles.optionDesc}>{o.desc}</span>}
                 </div>
               </div>
-            ))}
-            {onCustom && (
+            )) : (
+              <div className={styles.customSelectOption} style={{ opacity: 0.5 }}>
+                <span className={styles.optionLabel}>No matching options</span>
+              </div>
+            )}
+            {onCustom && !isEditable && (
               <div 
                 className={`${styles.customSelectOption} ${isCustom ? styles.selected : ''}`}
                 onClick={(e) => { e.stopPropagation(); onCustom(); }}
@@ -136,17 +171,15 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     const code = endpoint.mockConfig?.statusCode || 200;
     return !COMMON_STATUS_CODES.some(c => c.value === code);
   });
-  const [delayMs, setDelayMs] = useState(endpoint.mockConfig?.delayMs || 0);
+  const [delayMs, setDelayMs] = useState<number | string>(endpoint.mockConfig?.delayMs || 0);
   const [body, setBody] = useState(endpoint.mockConfig?.body || 'ok');
   
-  const [headerList, setHeaderList] = useState<{id: string, key: string, value: string, isCustomKey: boolean, isCustomValue: boolean}[]>(() => {
+  const [headerList, setHeaderList] = useState<{id: string, key: string, value: string}[]>(() => {
     const headers = endpoint.mockConfig?.headers || {};
     return Object.entries(headers).map(([k, v]) => ({ 
       id: crypto.randomUUID(), 
       key: k, 
-      value: String(v),
-      isCustomKey: !COMMON_HEADER_KEYS.some(x => x.value === k),
-      isCustomValue: !COMMON_HEADER_VALUES.some(x => x.value === String(v))
+      value: String(v)
     }));
   });
   
@@ -187,7 +220,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
     mutate({
       statusCode: Number(statusCode) || 200,
-      delayMs,
+      delayMs: Number(delayMs) || 0,
       body,
       headers
     });
@@ -200,6 +233,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     setBody(preset.body);
   };
 
+  const currentPresetIdx = PRESETS.findIndex(p => p.status === Number(statusCode) && p.body === body);
+  const presetValue = currentPresetIdx !== -1 ? currentPresetIdx : '';
+
   return (
     <div className={styles.container} ref={containerRef}>
       <div className={styles.header}>
@@ -211,7 +247,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
         <div className={styles.formGroup}>
           <label>TARGET_PRESET</label>
           <CustomDropdown
-            value={''}
+            value={presetValue}
             options={PRESETS.map((p, i) => ({ value: i, label: p.label, desc: p.desc }))}
             onSelect={(val) => {
               applyPreset(Number(val));
@@ -260,17 +296,19 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           </div>
           
           <div className={styles.formGroup}>
-            <label htmlFor="input-delay">RESPONSE_DELAY (ms)</label>
-            <input 
-              id="input-delay"
-              name="delayMs"
-              type="number" 
-              min="0" 
-              max="10000" 
-              value={delayMs} 
-              onChange={e => setDelayMs(prev => clampOrFallback(e.target.value, 0, 10000, prev))} 
-              className={styles.input}
-              autoComplete="off"
+            <label>RESPONSE_DELAY (ms)</label>
+            <CustomDropdown
+              value={delayMs}
+              options={COMMON_DELAY_PRESETS}
+              onSelect={(val) => {
+                setDelayMs(val);
+                setOpenDropdownId(null);
+              }}
+              placeholder="e.g., 500"
+              isOpen={openDropdownId === 'delay'}
+              onToggle={() => setOpenDropdownId(openDropdownId === 'delay' ? null : 'delay')}
+              isEditable={true}
+              onEdit={(val) => setDelayMs(val.replace(/[^0-9]/g, ''))}
             />
           </div>
         </div>
@@ -287,35 +325,19 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     onSelect={(val) => {
                       const newHeaders = [...headerList];
                       newHeaders[i].key = String(val);
-                      newHeaders[i].isCustomKey = false;
-                      setHeaderList(newHeaders);
-                      setOpenDropdownId(null);
-                    }}
-                    onCustom={() => {
-                      const newHeaders = [...headerList];
-                      newHeaders[i].key = '';
-                      newHeaders[i].isCustomKey = true;
                       setHeaderList(newHeaders);
                       setOpenDropdownId(null);
                     }}
                     placeholder="Header Key"
                     isOpen={openDropdownId === `header-key-${h.id}`}
                     onToggle={() => setOpenDropdownId(openDropdownId === `header-key-${h.id}` ? null : `header-key-${h.id}`)}
-                    isCustomStatus={h.isCustomKey}
+                    isEditable={true}
+                    onEdit={(val) => {
+                      const newHeaders = [...headerList];
+                      newHeaders[i].key = val;
+                      setHeaderList(newHeaders);
+                    }}
                   />
-                  {h.isCustomKey && (
-                    <input
-                      type="text"
-                      placeholder="Custom Key"
-                      value={h.key}
-                      onChange={e => {
-                        const newHeaders = [...headerList];
-                        newHeaders[i].key = e.target.value;
-                        setHeaderList(newHeaders);
-                      }}
-                      className={styles.input}
-                    />
-                  )}
                 </div>
                 
                 <span className={styles.headerColon} style={{ marginTop: '0.6rem' }}>:</span>
@@ -327,36 +349,20 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     onSelect={(val) => {
                       const newHeaders = [...headerList];
                       newHeaders[i].value = String(val);
-                      newHeaders[i].isCustomValue = false;
-                      setHeaderList(newHeaders);
-                      setOpenDropdownId(null);
-                    }}
-                    onCustom={() => {
-                      const newHeaders = [...headerList];
-                      newHeaders[i].value = '';
-                      newHeaders[i].isCustomValue = true;
                       setHeaderList(newHeaders);
                       setOpenDropdownId(null);
                     }}
                     placeholder="Header Value"
                     isOpen={openDropdownId === `header-value-${h.id}`}
                     onToggle={() => setOpenDropdownId(openDropdownId === `header-value-${h.id}` ? null : `header-value-${h.id}`)}
-                    isCustomStatus={h.isCustomValue}
                     alignRight={true}
+                    isEditable={true}
+                    onEdit={(val) => {
+                      const newHeaders = [...headerList];
+                      newHeaders[i].value = val;
+                      setHeaderList(newHeaders);
+                    }}
                   />
-                  {h.isCustomValue && (
-                    <input
-                      type="text"
-                      placeholder="Custom Value"
-                      value={h.value}
-                      onChange={e => {
-                        const newHeaders = [...headerList];
-                        newHeaders[i].value = e.target.value;
-                        setHeaderList(newHeaders);
-                      }}
-                      className={styles.input}
-                    />
-                  )}
                 </div>
                 
                 <button 
@@ -371,7 +377,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             <button 
               type="button" 
               className={styles.addHeaderBtn} 
-              onClick={() => setHeaderList([...headerList, { id: crypto.randomUUID(), key: '', value: '', isCustomKey: true, isCustomValue: true }])}
+              onClick={() => setHeaderList([...headerList, { id: crypto.randomUUID(), key: '', value: '' }])}
             >
               + ADD HEADER
             </button>
