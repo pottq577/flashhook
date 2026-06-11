@@ -8,10 +8,10 @@ interface MockConfigPanelProps {
 }
 
 const PRESETS = [
-  { label: '기본 (200 OK)', status: 200, body: 'ok' },
-  { label: 'Toss Payments (400 Error)', status: 400, body: '{\n  "code": "INVALID_API_KEY",\n  "message": "잘못된 시크릿 키 연동입니다."\n}' },
-  { label: 'Kakao Login (401 Error)', status: 401, body: '{\n  "msg": "this access token does not exist",\n  "code": -401\n}' },
-  { label: 'PortOne (500 Error)', status: 500, body: '{\n  "code": -1,\n  "message": "Internal Server Error"\n}' }
+  { label: 'DEFAULT (200 OK)', status: 200, body: 'ok' },
+  { label: 'TOSS_PAYMENTS (400 ERROR)', status: 400, body: '{\n  "code": "INVALID_API_KEY",\n  "message": "잘못된 시크릿 키 연동입니다."\n}' },
+  { label: 'KAKAO_LOGIN (401 ERROR)', status: 401, body: '{\n  "msg": "this access token does not exist",\n  "code": -401\n}' },
+  { label: 'PORTONE (500 ERROR)', status: 500, body: '{\n  "code": -1,\n  "message": "Internal Server Error"\n}' }
 ];
 
 export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
@@ -42,7 +42,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     });
 
     if (hasInvalidLines) {
-      setHeaderWarning('일부 헤더 형식이 맞지 않아 무시했어요. (Key: Value 형식 확인)');
+      setHeaderWarning('INVALID_HEADER_FORMAT_IGNORED');
     }
 
     mutate({
@@ -75,7 +75,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             defaultValue="" 
             className={styles.select}
           >
-            <option value="" disabled>프리셋 선택…</option>
+            <option value="" disabled>SELECT_PRESET...</option>
             {PRESETS.map((p, i) => (
               <option key={p.label} value={i}>{p.label}</option>
             ))}

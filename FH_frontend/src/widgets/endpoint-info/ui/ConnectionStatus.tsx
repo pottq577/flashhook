@@ -15,7 +15,7 @@ function ConnectionStatus({ status }: { status: 'connecting' | 'connected' | 'di
       case 'connected': return '[ CONNECTED ]';
       case 'connecting': return '[ CONNECTING ]';
       case 'disconnected': return '[ DISCONNECTED ]';
-      default: return `[ ${status.toUpperCase()} ]`;
+      default: return `[ ${String(status).toUpperCase()} ]`;
     }
   };
 
