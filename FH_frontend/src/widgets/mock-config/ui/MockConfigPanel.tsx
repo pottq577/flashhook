@@ -42,7 +42,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     });
 
     if (hasInvalidLines) {
-      setHeaderWarning('일부 헤더 형식이 올바르지 않아 무시되었습니다. (Key: Value 형식 확인)');
+      setHeaderWarning('일부 헤더 형식이 맞지 않아 무시했어요. (Key: Value 형식 확인)');
     }
 
     mutate({
@@ -62,7 +62,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Mock API 설정</h2>
-        <p>외부 서비스 연동 테스트를 위해 커스텀 응답을 설정합니다.</p>
+        <p>외부 서비스 연동 테스트를 위해 원하는 응답을 설정해요.</p>
       </div>
 
       <div className={styles.form}>
@@ -149,7 +149,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           disabled={isPending}
           className={styles.button}
         >
-          {isPending ? '저장 중…' : '설정 저장'}
+          {isPending ? '저장하고 있어요…' : '설정 저장'}
         </button>
       </div>
     </div>
