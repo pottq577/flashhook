@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useEndpointQuery } from '@/entities/endpoint/api/endpoint.queries';
@@ -18,6 +18,8 @@ import styles from './DashboardPage.module.css';
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
   const [isMockPanelOpen, setIsMockPanelOpen] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(400);
+  const isDragging = useRef(false);
   const shouldReduceMotion = useReducedMotion();
   
   const { data: endpoint, isLoading, error } = useEndpointQuery(endpointId);
@@ -25,6 +27,36 @@ function DashboardPage() {
 
   const toggleMockPanel = useCallback(() => {
     setIsMockPanelOpen(prev => !prev);
+  }, []);
+
+  const startResizing = useCallback(() => {
+    isDragging.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none'; // Prevent text selection while dragging
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const newWidth = window.innerWidth - e.clientX;
+      if (newWidth > 300 && newWidth < 800) {
+        setSidebarWidth(newWidth);
+      }
+    };
+    const handleMouseUp = () => {
+      if (isDragging.current) {
+        isDragging.current = false;
+        document.body.style.cursor = 'default';
+        document.body.style.userSelect = 'auto';
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
   }, []);
 
   useEffect(() => {
@@ -95,11 +127,12 @@ function DashboardPage() {
                 <motion.div 
                   className={styles.mockSidebarContainer}
                   initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 400, opacity: 1 }}
+                  animate={{ width: sidebarWidth, opacity: 1 }}
                   exit={{ width: 0, opacity: 0 }}
                   transition={{ type: "spring", bounce: 0, duration: 0.4 }}
                 >
-                  <div className={styles.mockSidebarInner}>
+                  <div className={styles.resizeHandle} onPointerDown={startResizing} />
+                  <div className={styles.mockSidebarInner} style={{ width: sidebarWidth }}>
                     <div className={styles.mockPanelHeader}>
                       <h3 className={styles.mockPanelTitle}>Mock Configuration</h3>
                       <button className={styles.mockPanelCloseBtn} onClick={() => setIsMockPanelOpen(false)}>✕</button>
