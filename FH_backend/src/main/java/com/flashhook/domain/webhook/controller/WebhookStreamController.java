@@ -40,7 +40,7 @@ public class WebhookStreamController {
     /**
      * SSE 스트림 구독
      */
-    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/stream", produces = {MediaType.TEXT_EVENT_STREAM_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<SseEmitter> stream(@PathVariable String endpointId, @RequestParam(name = "streamToken", required = false) String streamToken) {
         if (streamToken == null || streamToken.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
