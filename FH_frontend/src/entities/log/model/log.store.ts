@@ -17,7 +17,7 @@ export const useLogStore = create<LogState>((set) => ({
   addLog: (log) => set((state) => {
     // Only add if it doesn't already exist to prevent duplicates from SSE
     if (state.logs.some(l => l.logId === log.logId)) return state;
-    return { logs: [log, ...state.logs] };
+    return { logs: [log, ...state.logs].slice(0, 500) };
   }),
   setSelectedLog: (selectedLog) => set({ selectedLog }),
   clearLogs: () => set({ logs: [], selectedLog: null }),
