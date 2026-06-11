@@ -28,6 +28,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitService rateLimitService;
 
+    public static final String CREATE_LIMIT_PREFIX = "rl:create2:";
+
     @Value("${flashhook.ratelimit.endpoint-create:5}")
     private int endpointCreateLimit;
 
@@ -65,7 +67,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // 2. 엔드포인트 생성 API (POST /api/endpoints)
         if ("POST".equalsIgnoreCase(method) && "/api/endpoints".equals(path)) {
             String clientIp = IpExtractor.extract(request);
-            String key = "rl:create2:" + clientIp;
+            String key = CREATE_LIMIT_PREFIX + clientIp;
             // 10분(600초) 기준
             if (!rateLimitService.isAllowed(key, endpointCreateLimit, 10 * 60)) {
                 sendErrorResponse(response, ErrorCode.ENDPOINT_LIMIT_EXCEEDED);
