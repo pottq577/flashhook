@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCreateEndpointMutation } from '@/entities/endpoint/api/endpoint.queries';
 import Footer from '@/widgets/footer/ui/Footer';
 import { ConsentModal } from '@/widgets/legal/ConsentModal';
+import ConfirmModal from '@/shared/ui/ConfirmModal';
 import { useEndpointStore } from '@/entities/endpoint/model/endpoint.store';
 import styles from './LandingPage.module.css';
 
@@ -12,6 +13,7 @@ function LandingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [terminalLines, setTerminalLines] = useState<string[]>(['$ flashhook --init', '> System ready. Waiting for command...']);
   
   const { endpoints, clearExpired, removeEndpoint, addEndpoint } = useEndpointStore();
@@ -31,7 +33,16 @@ function LandingPage() {
   }, [clearExpired]);
 
   const handleCreateClick = () => {
-    setIsConsentOpen(true);
+    if (localStorage.getItem('flashhook-consent') === 'true') {
+      handleCreate();
+    } else {
+      setIsConsentOpen(true);
+    }
+  };
+
+  const handleAcceptConsent = () => {
+    localStorage.setItem('flashhook-consent', 'true');
+    handleCreate();
   };
 
   const handleCreate = async () => {
@@ -113,7 +124,7 @@ function LandingPage() {
                         </Link>
                         <button 
                           className={styles.recentRemove} 
-                          onClick={() => removeEndpoint(ep.id)}
+                          onClick={() => setDeleteTargetId(ep.id)}
                           title="기록 삭제"
                           aria-label="기록 삭제"
                         >
@@ -175,8 +186,18 @@ function LandingPage() {
       <Footer />
       <ConsentModal 
         isOpen={isConsentOpen} 
-        onAccept={handleCreate} 
+        onAccept={handleAcceptConsent} 
         onDecline={() => setIsConsentOpen(false)} 
+      />
+      <ConfirmModal
+        isOpen={deleteTargetId !== null}
+        title="엔드포인트 삭제"
+        message="이 엔드포인트의 접근 기록을 삭제하시겠습니까? (서버의 데이터는 삭제되지 않습니다)"
+        onConfirm={() => {
+          if (deleteTargetId) removeEndpoint(deleteTargetId);
+          setDeleteTargetId(null);
+        }}
+        onCancel={() => setDeleteTargetId(null)}
       />
     </div>
   );
