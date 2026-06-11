@@ -19,9 +19,17 @@ export const WebhookLogDetailSchema = WebhookLogSchema.extend({
 
 export const LogsResponseSchema = z.object({
   content: z.array(WebhookLogSchema),
-  totalElements: z.number(),
-  totalPages: z.number(),
-});
+  page: z.object({
+    totalElements: z.number(),
+    totalPages: z.number(),
+  }).optional(),
+  totalElements: z.number().optional(),
+  totalPages: z.number().optional(),
+}).transform((data) => ({
+  content: data.content,
+  totalElements: data.page?.totalElements ?? data.totalElements ?? 0,
+  totalPages: data.page?.totalPages ?? data.totalPages ?? 0,
+}));
 
 export type WebhookLog = z.infer<typeof WebhookLogSchema>;
 export type WebhookLogDetail = z.infer<typeof WebhookLogDetailSchema>;
