@@ -53,7 +53,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }: ConfirmMo
               <p>{message}</p>
             </div>
             <div className={styles.actions}>
-              <button className={styles.btnCancel} onClick={onCancel}>취소</button>
+              <button className={styles.btnCancel} onClick={onCancel}>닫기</button>
               <button className={styles.btnConfirm} onClick={onConfirm}>확인</button>
             </div>
           </motion.div>

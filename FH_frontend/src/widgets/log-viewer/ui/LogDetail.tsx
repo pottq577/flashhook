@@ -12,20 +12,20 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   const { data: log, isLoading } = useLogDetailQuery(endpointId || '', logId);
 
   if (isLoading) {
-    return <div role="status" className={styles.emptyContainer}>상세 정보 로딩 중…</div>;
+    return <div role="status" className={styles.emptyContainer}>상세 정보를 불러오고 있어요…</div>;
   }
 
   if (!log) {
     return (
       <div role="status" className={styles.emptyContainer}>
-        <div className={styles.emptyText}>상세 정보를 볼 요청을 선택하세요</div>
+        <div className={styles.emptyText}>상세 정보를 볼 요청을 선택해주세요</div>
       </div>
     );
   }
 
   const date = new Date(log.receivedAt);
   const isValidDate = !isNaN(date.getTime());
-  const dateString = isValidDate ? date.toLocaleString() : '잘못된 날짜';
+  const dateString = isValidDate ? date.toLocaleString() : '잘못된 날짜예요';
 
   return (
     <div className={styles.container} data-testid="log-detail">
