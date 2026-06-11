@@ -61,13 +61,13 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Mock API 설정</h2>
-        <p>외부 서비스 연동 테스트를 위해 원하는 응답을 설정해요.</p>
+        <h2>[ MOCK_API_CONFIG ]</h2>
+        <p>&gt; EXTERNAL_SERVICE_INTEGRATION_TEST_MODE</p>
       </div>
 
       <div className={styles.form}>
         <div className={styles.formGroup}>
-          <label htmlFor="select-preset">K-API 프리셋</label>
+          <label htmlFor="select-preset">TARGET_PRESET</label>
           <select 
             id="select-preset" 
             name="preset" 
@@ -84,7 +84,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
         <div className={styles.row}>
           <div className={styles.formGroup}>
-            <label htmlFor="input-status-code">상태 코드 (Status Code)</label>
+            <label htmlFor="input-status-code">STATUS_CODE</label>
             <input 
               id="input-status-code"
               name="statusCode"
@@ -99,7 +99,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           </div>
           
           <div className={styles.formGroup}>
-            <label htmlFor="input-delay">응답 지연 (Delay ms)</label>
+            <label htmlFor="input-delay">RESPONSE_DELAY (ms)</label>
             <input 
               id="input-delay"
               name="delayMs"
@@ -115,7 +115,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="input-headers">응답 헤더 (Key: Value 형태로 한 줄씩 입력)</label>
+          <label htmlFor="input-headers">RESPONSE_HEADERS (Key: Value)</label>
           <textarea 
             id="input-headers"
             name="headers"
@@ -131,7 +131,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="input-body">응답 본문 (Body)</label>
+          <label htmlFor="input-body">RESPONSE_BODY</label>
           <textarea 
             id="input-body"
             name="body"
@@ -149,7 +149,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           disabled={isPending}
           className={styles.button}
         >
-          {isPending ? '저장하고 있어요…' : '설정 저장'}
+          {isPending ? 'SAVING_CONFIG...' : 'APPLY_CONFIG'}
         </button>
       </div>
     </div>
