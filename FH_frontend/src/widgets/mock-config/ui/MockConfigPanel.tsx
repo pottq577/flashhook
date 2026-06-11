@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useUpdateMockConfigMutation } from '@/entities/endpoint/api/endpoint.queries';
 import type { Endpoint } from '@/entities/endpoint/model/endpoint.schema';
 import styles from './MockConfigPanel.module.css';
@@ -15,16 +16,16 @@ const PRESETS = [
 ];
 
 const COMMON_STATUS_CODES = [
-  { value: 200, label: '200 OK (Success)' },
-  { value: 201, label: '201 Created' },
-  { value: 400, label: '400 Bad Request (Invalid Parameters)' },
-  { value: 401, label: '401 Unauthorized (Invalid Token)' },
-  { value: 403, label: '403 Forbidden' },
-  { value: 404, label: '404 Not Found' },
-  { value: 429, label: '429 Too Many Requests' },
-  { value: 500, label: '500 Internal Server Error' },
-  { value: 502, label: '502 Bad Gateway' },
-  { value: 503, label: '503 Service Unavailable' },
+  { value: 200, label: 'OK', desc: '(Success)' },
+  { value: 201, label: 'Created', desc: '' },
+  { value: 400, label: 'Bad Request', desc: '(Invalid Parameters)' },
+  { value: 401, label: 'Unauthorized', desc: '(Invalid Token)' },
+  { value: 403, label: 'Forbidden', desc: '' },
+  { value: 404, label: 'Not Found', desc: '' },
+  { value: 429, label: 'Too Many Requests', desc: '' },
+  { value: 500, label: 'Internal Server Error', desc: '' },
+  { value: 502, label: 'Bad Gateway', desc: '' },
+  { value: 503, label: 'Service Unavailable', desc: '' },
 ];
 
 const COMMON_HEADER_KEYS = [
@@ -54,6 +55,13 @@ const clampOrFallback = (raw: string, min: number, max: number, fallback: number
 export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { mutate, isPending } = useUpdateMockConfigMutation(endpoint.endpointId);
   const [statusCode, setStatusCode] = useState<number | string>(endpoint.mockConfig?.statusCode || 200);
+  const [isCustomStatus, setIsCustomStatus] = useState(() => {
+    const code = endpoint.mockConfig?.statusCode || 200;
+    return !COMMON_STATUS_CODES.some(c => c.value === code);
+  });
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const [delayMs, setDelayMs] = useState(endpoint.mockConfig?.delayMs || 0);
   const [body, setBody] = useState(endpoint.mockConfig?.body || 'ok');
   
@@ -63,6 +71,18 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   });
   
   const [headerWarning, setHeaderWarning] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsStatusDropdownOpen(false);
+      }
+    };
+    if (isStatusDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isStatusDropdownOpen]);
 
   const handleApply = () => {
     const headers: Record<string, string> = {};
@@ -122,25 +142,70 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
         <div className={styles.row}>
           <div className={styles.formGroup}>
-            <label htmlFor="select-status-code">STATUS_CODE</label>
-            <div className={styles.statusInputWrapper}>
-              <select 
-                id="select-status-code"
-                name="statusCode"
-                value={statusCode} 
-                onChange={e => setStatusCode(e.target.value)} 
-                className={styles.select}
+            <label>STATUS_CODE</label>
+            <div className={styles.statusInputWrapper} ref={dropdownRef}>
+              <div 
+                className={styles.customSelectTrigger} 
+                onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
               >
-                {COMMON_STATUS_CODES.map(c => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
-                ))}
-                <option value="custom">Custom...</option>
-              </select>
-              {statusCode === 'custom' && (
+                <span className={styles.customSelectText}>
+                  {isCustomStatus 
+                    ? `Custom: ${statusCode}` 
+                    : (() => {
+                        const s = COMMON_STATUS_CODES.find(c => c.value === Number(statusCode));
+                        return s ? `${s.value} ${s.label} ${s.desc}` : 'Select Status...';
+                      })()
+                  }
+                </span>
+                <span className={styles.customSelectIcon}>▼</span>
+              </div>
+              
+              <AnimatePresence>
+                {isStatusDropdownOpen && (
+                  <motion.div 
+                    className={styles.customSelectDropdown}
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    {COMMON_STATUS_CODES.map(c => (
+                      <div 
+                        key={c.value} 
+                        className={`${styles.customSelectOption} ${Number(statusCode) === c.value && !isCustomStatus ? styles.selected : ''}`}
+                        onClick={() => {
+                          setStatusCode(c.value);
+                          setIsCustomStatus(false);
+                          setIsStatusDropdownOpen(false);
+                        }}
+                      >
+                        <span className={styles.optionValue}>{c.value}</span>
+                        <div className={styles.optionTextContainer}>
+                          <span className={styles.optionLabel}>{c.label}</span>
+                          {c.desc && <span className={styles.optionDesc}>{c.desc}</span>}
+                        </div>
+                      </div>
+                    ))}
+                    <div 
+                      className={`${styles.customSelectOption} ${isCustomStatus ? styles.selected : ''}`}
+                      onClick={() => {
+                        setIsCustomStatus(true);
+                        setStatusCode('');
+                        setIsStatusDropdownOpen(false);
+                      }}
+                    >
+                      <span className={styles.optionValue}>Custom...</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {isCustomStatus && (
                 <input 
                   type="number"
                   min="100" max="599"
-                  placeholder="200"
+                  placeholder="e.g., 418"
+                  value={statusCode}
                   onChange={e => setStatusCode(Number(e.target.value))}
                   className={styles.input}
                   style={{ marginTop: '0.5rem' }}
