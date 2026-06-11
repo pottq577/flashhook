@@ -6,7 +6,7 @@ export const PrivacyPolicyPage = () => {
     <div className={styles.legalContainer}>
       <h1 className={styles.title}>개인정보처리방침</h1>
       <p className={styles.paragraph}>
-        FlashHook(이하 "서비스")은 통신비밀보호법, 전기통신사업법, 정보통신망 이용촉진 및 정보보호 등에 관한 법률, 개인정보보호법 등 관련 법령에 따른 개인정보 보호 규정을 준수합니다. 본 방침은 [TODO: 서비스 오픈일 확정 시 기재]부터 시행됩니다.
+        플래시훅(FlashHook)은 소중한 개인정보를 안전하게 보호하기 위해 관련 법령을 엄격히 준수하고 있어요. 아래 내용은 서비스 이용 시 어떤 데이터가 어떻게 처리되는지 설명하는 공식 방침입니다. 본 방침은 [TODO: 서비스 오픈일 확정 시 기재]부터 시행됩니다.
       </p>
 
       <h2 className={styles.sectionTitle}>1. 개인정보의 수집 항목 및 방법</h2>
@@ -19,7 +19,7 @@ export const PrivacyPolicyPage = () => {
 
       <div className={styles.highlightBox}>
         <strong>[주의] 제3자 개인정보 유입 가능성 안내</strong>
-        <p>본 서비스는 웹훅 수신을 위한 유틸리티로, 사용자가 지정한 외부 시스템으로부터 인입되는 웹훅 Payload(예: 결제 정보, 이메일, 이름 등)에 제3자의 개인정보가 포함될 수 있습니다. 이는 서비스 구조상 불가피하게 유입되는 것이며, 서비스 제공자가 의도적으로 수집하는 개인정보가 아닙니다.</p>
+        <p>플래시훅은 웹훅 수신 도구이므로, 연결하신 외부 시스템에서 들어오는 데이터(예: 결제 정보, 이메일, 이름 등)에 다른 사람의 개인정보가 섞여 있을 수 있어요. 이는 서비스 구조상 불가피하게 들어오는 데이터이며, 플래시훅이 의도적으로 수집하는 개인정보가 아니라는 점을 꼭 확인해주세요.</p>
       </div>
 
       <h2 className={styles.sectionTitle}>2. 개인정보의 처리 목적</h2>
