@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AccessTokenFilter extends OncePerRequestFilter {
 
+    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
     private final EndpointRepository endpointRepository;
 
     @Override
@@ -41,7 +43,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         // /api/endpoints/{id} 또는 /api/endpoints/{id}/... 형태인지 확인
         // (단, POST /api/endpoints는 제외)
         if (path.startsWith("/api/endpoints/") && path.length() > "/api/endpoints/".length()) {
-            if (path.endsWith("/stream") && "GET".equalsIgnoreCase(method)) {
+            if (PATH_MATCHER.match("/api/endpoints/*/stream", path) && "GET".equalsIgnoreCase(method)) {
                 filterChain.doFilter(request, response);
                 return;
             }
