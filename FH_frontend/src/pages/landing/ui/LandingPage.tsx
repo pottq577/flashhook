@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCreateEndpointMutation } from '@/entities/endpoint/api/endpoint.queries';
 import Footer from '@/widgets/footer/ui/Footer';
@@ -15,10 +15,16 @@ function LandingPage() {
   const [terminalLines, setTerminalLines] = useState<string[]>(['$ flashhook --init', '> System ready. Waiting for command...']);
   
   const { endpoints, clearExpired, removeEndpoint, addEndpoint } = useEndpointStore();
-  const [now] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now());
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     clearExpired();
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => {
+      clearInterval(interval);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, [clearExpired]);
 
   const handleCreateClick = () => {
@@ -33,8 +39,8 @@ function LandingPage() {
     try {
       const response = await createEndpoint(undefined);
       setTerminalLines(prev => [...prev, `> Success! ID: ${response.endpointId}`, '> Redirecting to dashboard...']);
-      addEndpoint(response.endpointId);
-      setTimeout(() => {
+      addEndpoint(response.endpointId, response.expiresAt);
+      timerRef.current = setTimeout(() => {
         navigate(`/dashboard/${response.endpointId}`);
       }, 500);
     } catch (err: unknown) {
