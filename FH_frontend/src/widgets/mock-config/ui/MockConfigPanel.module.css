@@ -112,3 +112,65 @@
   font-size: 0.85rem;
   margin-top: 0.5rem;
 }
+
+/* New UI Elements */
+.statusInputWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.headerList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.headerInput {
+  flex: 1;
+}
+
+.headerColon {
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  transition: color 0.2s;
+}
+
+.removeBtn:hover {
+  color: var(--danger);
+}
+
+.addHeaderBtn {
+  align-self: flex-start;
+  background: none;
+  border: 1px dashed var(--border-focus);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.25rem;
+}
+
+.addHeaderBtn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background-color: rgba(0, 255, 102, 0.05);
+}
