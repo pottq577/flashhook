@@ -311,25 +311,33 @@ FlashHook은 무한히 증가할 수 있는 웹훅 데이터로 인한 스토리
 
 ```java
 void saveLog(WebhookLog log) {
-    // 1. 용량 체크
-    EndpointMeta meta = endpointRepository.findByEndpointId(log.getEndpointId());
+    // 1. bodyPreview 생성 (앞 300자)
+    log.setBodyPreview(truncate(log.getRawBody(), 300));
+    
+    // 2. 로그 저장
+    logRepository.save(log);
 
-    // 2. 500건 초과 OR 5MB 초과 → 가장 오래된 로그 삭제
+    // 3. 카운터 원자적 증가 (MongoDB findAndModify - $inc)
+    EndpointMeta meta = mongoTemplate.findAndModify(
+        query(where("endpointId").is(log.getEndpointId())),
+        new Update().inc("logCount", 1).inc("logSizeBytes", log.getBodySize()),
+        options().returnNew(true),
+        EndpointMeta.class
+    );
+
+    // 4. 캡(Cap) 초과 검사 및 삭제
+    // *동시성 주의: delete와 update의 원자성을 보장하기 위해 MongoDB @Transactional 반경 내에서 묶어 처리하거나 단일 오퍼레이션으로 구현합니다.
     if (meta.getLogCount() > maxLogCount || meta.getLogSizeBytes() > maxLogSizeBytes) {
         WebhookLog oldest = logRepository.findOldestByEndpointId(log.getEndpointId());
-        logRepository.delete(oldest);
-        meta.decrementLogCount();
-        meta.subtractLogSize(oldest.getBodySize());
+        if (oldest != null) {
+            logRepository.delete(oldest);
+            mongoTemplate.updateFirst(
+                query(where("endpointId").is(log.getEndpointId())),
+                new Update().inc("logCount", -1).inc("logSizeBytes", -oldest.getBodySize()),
+                EndpointMeta.class
+            );
+        }
     }
-
-    // 3. bodyPreview 생성 (앞 300자)
-    log.setBodyPreview(truncate(log.getRawBody(), 300));
-
-    // 4. 저장
-    logRepository.save(log);
-    meta.incrementLogCount();
-    meta.addLogSize(log.getBodySize());
-    endpointRepository.save(meta);
 }
 ```
 

@@ -30,16 +30,23 @@ SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=
 }
 ```
 
-### 1.4. 에러 코드 목록
+### 1.4. 에러 코드 목록 (주요 항목)
 
-| HTTP Status | Code                      | 설명                      |
-| :---------: | ------------------------- | ------------------------- |
-|     403     | `INVALID_TOKEN`           | 토큰 없음 또는 불일치     |
-|     404     | `ENDPOINT_NOT_FOUND`      | 엔드포인트 없음 또는 만료 |
-|     413     | `PAYLOAD_TOO_LARGE`       | 요청 Body 1MB 초과        |
-|     429     | `RATE_LIMIT_EXCEEDED`     | Rate Limit 초과           |
-|     429     | `ENDPOINT_LIMIT_EXCEEDED` | IP당 엔드포인트 수 초과   |
-|     500     | `INTERNAL_ERROR`          | 서버 내부 에러            |
+> **참고**: 전체 에러 코드 및 상세 조치 방안은 `05_error_dictionary.md` (통합 에러 코드 사전) 문서를 참조하세요.
+
+| HTTP Status | Code                        | 설명                      |
+| :---------: | --------------------------- | ------------------------- |
+|     400     | `INVALID_REQUEST`           | 잘못된 요청 파라미터/형식 |
+|     403     | `INVALID_TOKEN`             | 토큰 없음 또는 불일치     |
+|     403     | `FORBIDDEN`                 | 권한 없음                 |
+|     404     | `ENDPOINT_NOT_FOUND`        | 엔드포인트 없음 또는 만료 |
+|     404     | `LOG_NOT_FOUND`             | 요청한 로그가 없음        |
+|     408     | `REQUEST_TIMEOUT`           | 처리 시간 지연 타임아웃   |
+|     409     | `CONCURRENT_MODIFICATION`   | 동시성 충돌 발생          |
+|     413     | `PAYLOAD_TOO_LARGE`         | 요청 Body 1MB 초과        |
+|     429     | `RATE_LIMIT_EXCEEDED`       | Rate Limit 초과           |
+|     429     | `ENDPOINT_LIMIT_EXCEEDED`   | IP당 엔드포인트 수 초과   |
+|     500     | `INTERNAL_ERROR`            | 서버 내부 에러            |
 
 ---
 
@@ -206,7 +213,7 @@ ok
 - `404 ENDPOINT_NOT_FOUND`: 존재하지 않거나 만료된 엔드포인트
 - `413 PAYLOAD_TOO_LARGE`: Body 1MB 초과
 - `429 RATE_LIMIT_EXCEEDED`: 100건/EP/1분 초과 (고정 윈도우)
-- `408 REQUEST_TIMEOUT`: 지연 시간이 너무 길어 타임아웃 발생 시 (최대 15초)
+- `408 REQUEST_TIMEOUT`: 지연 시간이 너무 길어 타임아웃 발생 시 (서버 하드 타임아웃 15초, Mock 설정은 최대 10초까지 허용)
 
 ---
 
