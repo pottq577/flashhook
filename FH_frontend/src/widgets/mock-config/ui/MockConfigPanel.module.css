@@ -58,9 +58,10 @@
   transition: border-color 0.2s;
 }
 
-.input:focus, .select:focus, .textarea:focus {
-  outline: none;
-  border-color: var(--accent-color, #2563eb);
+.input:focus-visible, .select:focus-visible, .textarea:focus-visible {
+  outline: 2px solid var(--accent, #2563eb);
+  outline-offset: 2px;
+  border-color: transparent;
 }
 
 .textarea {

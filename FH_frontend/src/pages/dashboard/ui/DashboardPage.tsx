@@ -28,7 +28,7 @@ function DashboardPage() {
   const { status } = useRealtimeLogs(endpointId);
 
   if (!endpointId) return <div className={styles.center}><p>유효하지 않은 엔드포인트 ID입니다</p><a href="/" className={styles.btnAction}>홈으로 가기</a></div>;
-  if (isLoading) return <div className={styles.center}><div className={styles.spinner}></div><p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>데이터를 불러오는 중입니다...</p></div>;
+  if (isLoading) return <div className={styles.center}><div className={styles.spinner}></div><p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>데이터를 불러오는 중입니다…</p></div>;
   if (error) return <div className={styles.center}><div className={styles.errorBox}>⚠️ 오류가 발생했습니다.<br/><br/><span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{(error as Error).message}</span></div><button className={styles.btnAction} onClick={() => window.location.reload()}>재시도</button></div>;
   if (!endpoint) return <div className={styles.center}><p>엔드포인트를 찾을 수 없습니다</p><a href="/" className={styles.btnAction}>홈으로 가기</a></div>;
 
