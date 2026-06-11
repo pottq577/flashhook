@@ -1,5 +1,5 @@
 import type { WebhookLog } from '@/entities/log/model/log.schema';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import LogItem from './LogItem';
 import styles from './LogList.module.css';
@@ -43,15 +43,22 @@ function LogList({ logs, selectedLogId, onSelect }: LogListProps) {
       initial={shouldReduceMotion ? false : "hidden"}
       animate={shouldReduceMotion ? undefined : "show"}
     >
-      {logs.map((log) => (
-        <motion.div key={log.logId} variants={shouldReduceMotion ? undefined : itemVariants}>
-          <LogItem 
-            log={log} 
-            isSelected={selectedLogId === log.logId} 
-            onClick={() => onSelect(log.logId)} 
-          />
-        </motion.div>
-      ))}
+      <AnimatePresence initial={false}>
+        {logs.map((log) => (
+          <motion.div 
+            key={log.logId} 
+            variants={shouldReduceMotion ? undefined : itemVariants}
+            layout
+            exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+          >
+            <LogItem 
+              log={log} 
+              isSelected={selectedLogId === log.logId} 
+              onClick={() => onSelect(log.logId)} 
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </motion.div>
   );
 }
