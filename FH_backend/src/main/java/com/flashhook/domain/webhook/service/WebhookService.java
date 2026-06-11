@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.domain.Sort;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
@@ -108,13 +109,14 @@ public class WebhookService {
         long currentSize = endpoint.getLogSizeBytes();
 
         while (currentCount > maxLogCount || currentSize > maxLogSizeBytes) {
-            // 가장 오래된 로그 찾아 삭제
-            WebhookLog oldLog = webhookLogRepository.findFirstByEndpointIdOrderByReceivedAtAsc(endpoint.getEndpointId())
-                    .orElse(null);
+            // 가장 오래된 로그 원자적 찾아 삭제 (findAndRemove)
+            Query findOldestQuery = new Query(Criteria.where("endpointId").is(endpoint.getEndpointId()))
+                    .with(Sort.by(Sort.Direction.ASC, "receivedAt"));
+            WebhookLog oldLog = mongoTemplate.findAndRemove(findOldestQuery, WebhookLog.class);
+            
             if (oldLog == null) {
                 break;
             }
-            webhookLogRepository.delete(oldLog);
             
             Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
             Update update = new Update().inc("logCount", -1).inc("logSizeBytes", -oldLog.getBodySize());
