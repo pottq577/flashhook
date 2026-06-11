@@ -74,6 +74,7 @@ function CustomDropdown({
   onToggle: () => void;
   isCustomStatus?: boolean;
   displayValue?: (val: string | number, opt?: { value: string | number; label: string; desc?: string }) => string;
+  alignRight?: boolean;
 }) {
   const selected = options.find(o => o.value === value);
   const isCustom = isCustomStatus ?? (!selected && value !== '');
@@ -93,6 +94,7 @@ function CustomDropdown({
         {isOpen && (
           <motion.div 
             className={styles.customSelectDropdown}
+            style={alignRight ? { right: 0, left: 'auto' } : undefined}
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
@@ -341,6 +343,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     isOpen={openDropdownId === `header-value-${h.id}`}
                     onToggle={() => setOpenDropdownId(openDropdownId === `header-value-${h.id}` ? null : `header-value-${h.id}`)}
                     isCustomStatus={h.isCustomValue}
+                    alignRight={true}
                   />
                   {h.isCustomValue && (
                     <input
