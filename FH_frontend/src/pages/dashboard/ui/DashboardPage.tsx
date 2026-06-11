@@ -31,10 +31,10 @@ function DashboardPage() {
   const addEndpoint = useEndpointStore((state) => state.addEndpoint);
 
   useEffect(() => {
-    if (endpointId && endpoint) {
-      addEndpoint(endpointId);
+    if (endpointId && endpoint?.expiresAt) {
+      addEndpoint(endpointId, endpoint.expiresAt);
     }
-  }, [endpointId, endpoint, addEndpoint]);
+  }, [endpointId, endpoint?.expiresAt, addEndpoint]);
 
   if (!endpointId) return <div className={styles.center}><p>엔드포인트 ID가 맞지 않아요</p><a href="/" className={styles.btnAction}>홈으로 돌아가기</a></div>;
   if (isLoading) return <div className={styles.center}><div className={styles.spinner}></div><p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>데이터를 불러오고 있어요…</p></div>;
