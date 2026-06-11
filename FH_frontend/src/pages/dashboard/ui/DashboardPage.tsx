@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useEndpointQuery } from '@/entities/endpoint/api/endpoint.queries';
 import { useLogsQuery } from '@/entities/log/api/log.queries';
 import { useRealtimeLogs } from '@/features/realtime-logs';
 import { useLogStore } from '@/entities/log/model/log.store';
+import { useEndpointStore } from '@/entities/endpoint/model/endpoint.store';
 import { useIsMobile } from '@/shared/lib/useIsMobile';
 import Header from '@/widgets/header/ui/Header';
 import EndpointInfo from '@/widgets/endpoint-info/ui/EndpointInfo';
@@ -27,6 +28,13 @@ function DashboardPage() {
 
   const { logs, selectedLog, setSelectedLog } = useLogStore();
   const { status } = useRealtimeLogs(endpointId);
+  const addEndpoint = useEndpointStore((state) => state.addEndpoint);
+
+  useEffect(() => {
+    if (endpointId && endpoint) {
+      addEndpoint(endpointId);
+    }
+  }, [endpointId, endpoint, addEndpoint]);
 
   if (!endpointId) return <div className={styles.center}><p>엔드포인트 ID가 맞지 않아요</p><a href="/" className={styles.btnAction}>홈으로 돌아가기</a></div>;
   if (isLoading) return <div className={styles.center}><div className={styles.spinner}></div><p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>데이터를 불러오고 있어요…</p></div>;
