@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.MediaType;
+import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.time.Instant;
 
@@ -36,8 +37,8 @@ public class GlobalExceptionHandler {
     /**
      * 낙관적 락 예외 처리
      */
-    @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
-    public ResponseEntity<?> handleOptimisticLockingFailureException(org.springframework.dao.OptimisticLockingFailureException e, HttpServletRequest request) {
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<?> handleOptimisticLockingFailureException(OptimisticLockingFailureException e, HttpServletRequest request) {
         if (isSseRequest(request)) {
             return ResponseEntity.status(ErrorCode.CONCURRENT_MODIFICATION.getStatus()).build();
         }
