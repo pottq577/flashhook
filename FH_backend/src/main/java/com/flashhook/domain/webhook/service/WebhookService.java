@@ -61,7 +61,8 @@ public class WebhookService {
 
         String bodyPreview = payload.getRawBody();
         if (payload.getRawBody() != null && payload.getRawBody().length() > bodyPreviewLength) {
-            int cutIndex = payload.getRawBody().offsetByCodePoints(0, Math.min(payload.getRawBody().codePointCount(0, payload.getRawBody().length()), bodyPreviewLength));
+            int cutIndex = payload.getRawBody().offsetByCodePoints(0,
+                    Math.min(payload.getRawBody().codePointCount(0, payload.getRawBody().length()), bodyPreviewLength));
             bodyPreview = payload.getRawBody().substring(0, cutIndex);
         }
 
@@ -88,11 +89,10 @@ public class WebhookService {
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
         Update update = new Update().inc("logCount", 1).inc("logSizeBytes", payload.getBodySize());
         Endpoint updatedEndpoint = mongoTemplate.findAndModify(
-            query, 
-            update, 
-            org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true), 
-            Endpoint.class
-        );
+                query,
+                update,
+                org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true),
+                Endpoint.class);
 
         if (updatedEndpoint != null) {
             enforceLogCap(updatedEndpoint);
@@ -111,17 +111,18 @@ public class WebhookService {
         while (currentCount > maxLogCount || currentSize > maxLogSizeBytes) {
             // 가장 오래된 로그 원자적 찾아 삭제 (findAndRemove)
             Query findOldestQuery = new Query(Criteria.where("endpointId").is(endpoint.getEndpointId()))
-                    .with(Sort.by(Sort.Direction.ASC, "receivedAt"));
+                    .with(Sort.by(Sort.Direction.ASC, "receivedAt"))
+                    .limit(1);
             WebhookLog oldLog = mongoTemplate.findAndRemove(findOldestQuery, WebhookLog.class);
-            
+
             if (oldLog == null) {
                 break;
             }
-            
+
             Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
             Update update = new Update().inc("logCount", -1).inc("logSizeBytes", -oldLog.getBodySize());
             mongoTemplate.updateFirst(query, update, Endpoint.class);
-            
+
             currentCount--;
             currentSize -= oldLog.getBodySize();
             currentSize = Math.max(0, currentSize);
