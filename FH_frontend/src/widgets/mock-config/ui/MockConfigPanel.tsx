@@ -14,6 +14,12 @@ const PRESETS = [
   { label: 'PORTONE (500 ERROR)', status: 500, body: '{\n  "code": -1,\n  "message": "Internal Server Error"\n}' }
 ];
 
+const clampOrFallback = (raw: string, min: number, max: number, fallback: number) => {
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+};
+
 export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { mutate, isPending } = useUpdateMockConfigMutation(endpoint.endpointId);
   const [statusCode, setStatusCode] = useState(endpoint.mockConfig?.statusCode || 200);
@@ -24,12 +30,6 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     return Object.entries(headers).map(([k, v]) => `${k}: ${v}`).join('\n');
   });
   const [headerWarning, setHeaderWarning] = useState<string | null>(null);
-
-  const clampOrFallback = (raw: string, min: number, max: number, fallback: number) => {
-    const n = Number(raw);
-    if (!Number.isFinite(n)) return fallback;
-    return Math.min(max, Math.max(min, n));
-  };
 
   const handleApply = () => {
     const headers: Record<string, string> = {};
