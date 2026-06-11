@@ -8,6 +8,7 @@ import { CookieBanner } from '@/widgets/legal/CookieBanner';
 import AboutPage from '@/pages/about/ui/AboutPage';
 import ContactPage from '@/pages/about/ui/ContactPage';
 import { QueryProvider } from './providers/QueryProvider';
+import { ToastContainer } from '@/shared/ui/ToastContainer';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           </Routes>
         </main>
         <CookieBanner />
+        <ToastContainer />
       </BrowserRouter>
     </QueryProvider>
   );
