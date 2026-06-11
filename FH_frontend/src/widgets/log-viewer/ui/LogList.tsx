@@ -49,7 +49,7 @@ function LogList({ logs, selectedLogId, onSelect }: LogListProps) {
             key={log.logId} 
             variants={shouldReduceMotion ? undefined : itemVariants}
             layout
-            exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+            exit={shouldReduceMotion ? undefined : { opacity: 0, height: 0, overflow: 'hidden' }}
           >
             <LogItem 
               log={log} 
