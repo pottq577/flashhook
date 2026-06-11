@@ -16,8 +16,16 @@ function LogItem({ log, isSelected, onClick }: LogItemProps) {
 
   return (
     <div 
+      role="button"
+      tabIndex={0}
       className={`${styles.container} ${isSelected ? styles.selected : ''}`}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <div className={styles.header}>
         <MethodBadge method={log.method} />

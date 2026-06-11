@@ -67,9 +67,15 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
       <div className={styles.form}>
         <div className={styles.formGroup}>
-          <label>K-API 프리셋</label>
-          <select onChange={(e) => applyPreset(PRESETS[Number(e.target.value)])} defaultValue="" className={styles.select}>
-            <option value="" disabled>프리셋 선택...</option>
+          <label htmlFor="select-preset">K-API 프리셋</label>
+          <select 
+            id="select-preset" 
+            name="preset" 
+            onChange={(e) => applyPreset(PRESETS[Number(e.target.value)])} 
+            defaultValue="" 
+            className={styles.select}
+          >
+            <option value="" disabled>프리셋 선택…</option>
             {PRESETS.map((p, i) => (
               <option key={p.label} value={i}>{p.label}</option>
             ))}
@@ -78,49 +84,63 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
         <div className={styles.row}>
           <div className={styles.formGroup}>
-            <label>상태 코드 (Status Code)</label>
+            <label htmlFor="input-status-code">상태 코드 (Status Code)</label>
             <input 
+              id="input-status-code"
+              name="statusCode"
               type="number" 
               min="100"
               max="599"
               value={statusCode} 
               onChange={e => setStatusCode(Math.min(599, Math.max(100, Number(e.target.value))))} 
               className={styles.input}
+              autoComplete="off"
             />
           </div>
           
           <div className={styles.formGroup}>
-            <label>응답 지연 (Delay ms)</label>
+            <label htmlFor="input-delay">응답 지연 (Delay ms)</label>
             <input 
+              id="input-delay"
+              name="delayMs"
               type="number" 
               min="0" 
               max="10000" 
               value={delayMs} 
               onChange={e => setDelayMs(Math.min(10000, Math.max(0, Number(e.target.value))))} 
               className={styles.input}
+              autoComplete="off"
             />
           </div>
         </div>
 
         <div className={styles.formGroup}>
-          <label>응답 헤더 (Key: Value 형태로 한 줄씩 입력)</label>
+          <label htmlFor="input-headers">응답 헤더 (Key: Value 형태로 한 줄씩 입력)</label>
           <textarea 
+            id="input-headers"
+            name="headers"
             value={headersText} 
             onChange={e => setHeadersText(e.target.value)} 
             className={styles.textarea}
             rows={3}
             placeholder="Content-Type: application/json"
+            spellCheck={false}
+            autoComplete="off"
           />
           {headerWarning && <p className={styles.warning}>{headerWarning}</p>}
         </div>
 
         <div className={styles.formGroup}>
-          <label>응답 본문 (Body)</label>
+          <label htmlFor="input-body">응답 본문 (Body)</label>
           <textarea 
+            id="input-body"
+            name="body"
             value={body} 
             onChange={e => setBody(e.target.value)} 
             className={`${styles.textarea} ${styles.bodyArea}`}
             rows={8}
+            spellCheck={false}
+            autoComplete="off"
           />
         </div>
 
@@ -129,7 +149,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           disabled={isPending}
           className={styles.button}
         >
-          {isPending ? '저장 중...' : '설정 저장'}
+          {isPending ? '저장 중…' : '설정 저장'}
         </button>
       </div>
     </div>

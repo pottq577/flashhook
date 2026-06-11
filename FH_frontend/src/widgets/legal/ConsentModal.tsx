@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useId, useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useFocusTrap } from '../../shared/hooks/useFocusTrap';
 import { LabelingCard } from './LabelingCard';
 import styles from './legal.module.css';
 
@@ -9,7 +11,18 @@ interface ConsentModalProps {
 }
 
 export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, onDecline }) => {
-  React.useEffect(() => {
+  const modalId = useId();
+  const shouldReduceMotion = useReducedMotion();
+  
+  const [isActive, setIsActive] = useState(isOpen);
+  if (isOpen && !isActive) {
+    setIsActive(true);
+  }
+
+  const modalRef = useFocusTrap(isActive);
+
+  // Escape key
+  useEffect(() => {
     if (!isOpen) return;
 
     const handleEscape = (e: KeyboardEvent) => {
@@ -20,18 +33,22 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onDecline]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className={styles.modalOverlay} onClick={onDecline}>
-      <div 
-        className={styles.modalContent}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="consent-modal-title"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="consent-modal-title" className={styles.sectionTitle} style={{ marginTop: 0 }}>서비스 이용 동의</h2>
+    <AnimatePresence onExitComplete={() => setIsActive(false)}>
+      {isOpen && (
+        <div className={styles.modalOverlay} onClick={onDecline}>
+          <motion.div 
+            ref={modalRef as React.RefObject<HTMLDivElement>}
+            className={styles.modalContent}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`consent-modal-title-${modalId}`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+        <h2 id={`consent-modal-title-${modalId}`} className={styles.sectionTitle} style={{ marginTop: 0 }}>서비스 이용 동의</h2>
         <p className={styles.paragraph}>
           FlashHook Endpoint를 생성하기 위해 아래 약관에 동의해 주세요.
         </p>
@@ -63,7 +80,9 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
             모두 동의하고 생성하기
           </button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
