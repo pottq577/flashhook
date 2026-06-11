@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLogDetailQuery } from '@/entities/log/api/log.queries';
 import MethodBadge from '@/shared/ui/MethodBadge';
 import JsonViewer from './JsonViewer';
@@ -10,6 +11,7 @@ interface LogDetailProps {
 
 function LogDetail({ logId, endpointId }: LogDetailProps) {
   const { data: log, isLoading } = useLogDetailQuery(endpointId || '', logId);
+  const [copied, setCopied] = useState(false);
 
   if (isLoading) {
     return <div role="status" className={styles.emptyContainer}>&gt; LOADING_PAYLOAD...</div>;
@@ -18,17 +20,24 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   if (!log) {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://flashhook.kr/api';
     const webhookUrl = `${baseUrl}/hooks/${endpointId}`;
+    const curlCommand = `curl -X POST ${webhookUrl} \\\n  -H "Content-Type: application/json" \\\n  -d '{"message": "Hello from FlashHook!"}'`;
+
+    const handleCopy = () => {
+      navigator.clipboard.writeText(curlCommand);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
     return (
       <div role="status" className={styles.emptyContainer}>
         <div className={styles.emptyText}>
           <div className={styles.emptyTitle}>&gt; WAITING_FOR_REQUEST...</div>
           <p className={styles.emptyDesc}>요청 목록이 비어있습니다. 아래 명령어로 테스트 웹훅을 발송해 보세요.</p>
           <div className={styles.curlBlock}>
-            <code>
-              curl -X POST {webhookUrl} \<br/>
-              &nbsp;&nbsp;-H "Content-Type: application/json" \<br/>
-              &nbsp;&nbsp;-d '{`{"message": "Hello from FlashHook!"}`}'
-            </code>
+            <button className={styles.copyButton} onClick={handleCopy} title="Copy to clipboard">
+              {copied ? 'COPIED!' : 'COPY'}
+            </button>
+            <code>{curlCommand}</code>
           </div>
         </div>
       </div>

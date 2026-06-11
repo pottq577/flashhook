@@ -33,14 +33,44 @@
 }
 
 .curlBlock {
+  position: relative;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   padding: 1.5rem;
+  padding-right: 4rem; /* button space */
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 0.9rem;
   line-height: 1.6;
-  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.copyButton {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+  font-family: var(--font-mono);
+  font-weight: bold;
+}
+
+.copyButton:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(0, 255, 102, 0.1);
+  box-shadow: 0 0 8px rgba(0, 255, 102, 0.2) inset;
+}
+
+.copyButton:active {
+  transform: translateY(1px);
 }
 
 .container {
