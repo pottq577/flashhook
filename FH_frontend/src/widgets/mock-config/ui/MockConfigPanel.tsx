@@ -67,8 +67,14 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
       <div className={styles.form}>
         <div className={styles.formGroup}>
-          <label>K-API 프리셋</label>
-          <select onChange={(e) => applyPreset(PRESETS[Number(e.target.value)])} defaultValue="" className={styles.select}>
+          <label htmlFor="select-preset">K-API 프리셋</label>
+          <select 
+            id="select-preset" 
+            name="preset" 
+            onChange={(e) => applyPreset(PRESETS[Number(e.target.value)])} 
+            defaultValue="" 
+            className={styles.select}
+          >
             <option value="" disabled>프리셋 선택…</option>
             {PRESETS.map((p, i) => (
               <option key={p.label} value={i}>{p.label}</option>
