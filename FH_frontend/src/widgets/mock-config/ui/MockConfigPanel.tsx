@@ -352,7 +352,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                       setPresetIdx(4);
                       setOpenDropdownId(null);
                     }}
-                    placeholder="Header Key"
+                    placeholder="Key"
                     isOpen={openDropdownId === `header-key-${h.id}`}
                     onToggle={() => setOpenDropdownId(openDropdownId === `header-key-${h.id}` ? null : `header-key-${h.id}`)}
                     isEditable={true}
@@ -365,7 +365,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                   />
                 </div>
                 
-                <span className={styles.headerColon} style={{ marginTop: '0.6rem' }}>:</span>
+                <span className={styles.headerColon}>:</span>
                 
                 <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <CustomDropdown
@@ -378,7 +378,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                       setPresetIdx(4);
                       setOpenDropdownId(null);
                     }}
-                    placeholder="Header Value"
+                    placeholder="Value"
                     isOpen={openDropdownId === `header-value-${h.id}`}
                     onToggle={() => setOpenDropdownId(openDropdownId === `header-value-${h.id}` ? null : `header-value-${h.id}`)}
                     alignRight={true}
@@ -395,7 +395,6 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 <button 
                   type="button" 
                   className={styles.removeBtn} 
-                  style={{ alignSelf: 'flex-start', marginTop: '0.5rem' }}
                   onClick={() => {
                     setHeaderList(headerList.filter(item => item.id !== h.id));
                     setPresetIdx(4);
