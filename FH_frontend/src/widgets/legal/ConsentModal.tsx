@@ -1,4 +1,4 @@
-import React, { useEffect, useId } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useFocusTrap } from '../../shared/hooks/useFocusTrap';
 import { LabelingCard } from './LabelingCard';
@@ -13,7 +13,13 @@ interface ConsentModalProps {
 export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, onDecline }) => {
   const modalId = useId();
   const shouldReduceMotion = useReducedMotion();
-  const modalRef = useFocusTrap(isOpen);
+  
+  const [isActive, setIsActive] = useState(isOpen);
+  if (isOpen && !isActive) {
+    setIsActive(true);
+  }
+
+  const modalRef = useFocusTrap(isActive);
 
   // Escape key
   useEffect(() => {
@@ -28,7 +34,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
   }, [isOpen, onDecline]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={() => setIsActive(false)}>
       {isOpen && (
         <div className={styles.modalOverlay} onClick={onDecline}>
           <motion.div 

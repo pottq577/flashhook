@@ -1,6 +1,6 @@
 import styles from './ConfirmModal.module.css';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface ConfirmModalProps {
@@ -14,7 +14,13 @@ interface ConfirmModalProps {
 function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }: ConfirmModalProps) {
   const modalId = useId();
   const shouldReduceMotion = useReducedMotion();
-  const modalRef = useFocusTrap(isOpen);
+  
+  const [isActive, setIsActive] = useState(isOpen);
+  if (isOpen && !isActive) {
+    setIsActive(true);
+  }
+
+  const modalRef = useFocusTrap(isActive);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -26,7 +32,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }: ConfirmMo
   }, [isOpen, onCancel]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={() => setIsActive(false)}>
       {isOpen && (
         <div className={styles.overlay} onClick={onCancel}>
           <motion.div 
