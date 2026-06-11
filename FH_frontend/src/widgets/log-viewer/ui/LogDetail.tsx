@@ -12,12 +12,12 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   const { data: log, isLoading } = useLogDetailQuery(endpointId || '', logId);
 
   if (isLoading) {
-    return <div className={styles.emptyContainer}>상세 정보 로딩 중…</div>;
+    return <div role="status" className={styles.emptyContainer}>상세 정보 로딩 중…</div>;
   }
 
   if (!log) {
     return (
-      <div className={styles.emptyContainer}>
+      <div role="status" className={styles.emptyContainer}>
         <div className={styles.emptyText}>상세 정보를 볼 요청을 선택하세요</div>
       </div>
     );

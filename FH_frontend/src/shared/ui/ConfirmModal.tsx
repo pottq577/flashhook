@@ -7,11 +7,12 @@ interface ConfirmModalProps {
 }
 
 import styles from './ConfirmModal.module.css';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useId } from 'react';
 
 function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }: ConfirmModalProps) {
   const modalId = useId();
+  const shouldReduceMotion = useReducedMotion();
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -83,7 +84,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }: ConfirmMo
             aria-labelledby={`confirm-modal-title-${modalId}`}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.header}>

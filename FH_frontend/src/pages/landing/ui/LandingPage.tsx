@@ -53,7 +53,7 @@ function LandingPage() {
             {isLoading ? '생성 중…' : 'URL 생성하기'}
           </button>
           
-          {error && <div className={styles.errorBox} role="alert">⚠️ {error}</div>}
+          {error && <div className="errorBox" role="alert">⚠️ {error}</div>}
         </div>
       </header>
 
