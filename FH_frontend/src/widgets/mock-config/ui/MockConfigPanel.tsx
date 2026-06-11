@@ -62,7 +62,8 @@ function CustomDropdown({
   isOpen, 
   onToggle, 
   isCustomStatus,
-  displayValue
+  displayValue,
+  alignRight
 }: {
   value: string | number;
   options: { value: string | number; label: string; desc?: string }[];
@@ -83,8 +84,8 @@ function CustomDropdown({
     <div className={styles.statusInputWrapper}>
       <div className={styles.customSelectTrigger} onClick={onToggle}>
         <span className={styles.customSelectText}>
-          {isCustom && customLabel
-            ? `${customLabel}: ${value}` 
+          {isCustom
+            ? (customLabel ? `${customLabel}: ${value}` : (value || placeholder))
             : (selected ? (displayValue ? displayValue(value, selected) : `${selected.value !== selected.label ? selected.value + ' ' : ''}${selected.label}`) : placeholder)}
         </span>
         <span className={styles.customSelectIcon}>▼</span>
@@ -297,7 +298,6 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                       setHeaderList(newHeaders);
                       setOpenDropdownId(null);
                     }}
-                    customLabel="Custom"
                     placeholder="Header Key"
                     isOpen={openDropdownId === `header-key-${h.id}`}
                     onToggle={() => setOpenDropdownId(openDropdownId === `header-key-${h.id}` ? null : `header-key-${h.id}`)}
@@ -338,7 +338,6 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                       setHeaderList(newHeaders);
                       setOpenDropdownId(null);
                     }}
-                    customLabel="Custom"
                     placeholder="Header Value"
                     isOpen={openDropdownId === `header-value-${h.id}`}
                     onToggle={() => setOpenDropdownId(openDropdownId === `header-value-${h.id}` ? null : `header-value-${h.id}`)}
