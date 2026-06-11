@@ -150,6 +150,93 @@
   cursor: not-allowed;
 }
 
+.recentEndpoints {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.recentTitle {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px dashed var(--border);
+}
+
+.recentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recentItemWrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.recentItem {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  padding: 0.6rem 0.75rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.recentItem:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 5px rgba(0, 255, 102, 0.2);
+}
+
+.recentItemLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.recentId {
+  color: var(--accent-secondary);
+}
+
+.recentTime {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+
+.recentRemove {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recentRemove:hover {
+  color: #FF5F56;
+  background: rgba(255, 95, 86, 0.1);
+  border-color: #FF5F56;
+}
+
 .section {
   max-width: 1000px;
   margin: 0 auto;
