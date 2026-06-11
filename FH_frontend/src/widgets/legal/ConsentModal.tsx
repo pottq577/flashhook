@@ -50,7 +50,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
           >
         <h2 id={`consent-modal-title-${modalId}`} className={styles.sectionTitle} style={{ marginTop: 0 }}>서비스 이용 동의</h2>
         <p className={styles.paragraph}>
-          FlashHook Endpoint를 생성하기 위해 아래 약관에 동의해 주세요.
+          FlashHook Endpoint를 사용하려면 아래 약관에 동의해야 해요.
         </p>
 
         <LabelingCard />
@@ -64,8 +64,8 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
           </li>
         </ul>
         <div className={styles.todoBox}>
-          본 서비스는 24시간 내 데이터가 자동 파기되는 테스트 유틸리티로, 
-          데이터 유실 및 제3자 정보 전송에 대한 면책 조항이 적용됩니다.
+          본 서비스는 24시간 안에 데이터가 자동 삭제되는 테스트 도구로, 
+          데이터 유실 및 제3자 정보 전송에 대한 면책 조항이 적용돼요.
         </div>
         
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
@@ -74,10 +74,10 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
             className={styles.button} 
             style={{ backgroundColor: 'transparent', color: '#9ca3af', border: '1px solid #4b5563' }}
           >
-            취소
+            닫기
           </button>
           <button onClick={onAccept} className={styles.button}>
-            모두 동의하고 생성하기
+            모두 동의하고 시작하기
           </button>
         </div>
           </motion.div>
