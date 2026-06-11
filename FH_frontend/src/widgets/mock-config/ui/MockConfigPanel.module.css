@@ -115,8 +115,111 @@
 
 /* New UI Elements */
 .statusInputWrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
+}
+
+.customSelectTrigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.customSelectTrigger:hover {
+  border-color: var(--accent);
+}
+
+.customSelectText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customSelectIcon {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  margin-left: 0.5rem;
+}
+
+.customSelectDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+}
+
+.customSelectOption {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.customSelectOption:last-child {
+  border-bottom: none;
+}
+
+.customSelectOption:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.customSelectOption.selected {
+  background-color: rgba(74, 222, 128, 0.1);
+}
+
+.optionValue {
+  font-weight: bold;
+  color: var(--accent);
+  min-width: 45px;
+}
+
+.optionTextContainer {
+  display: flex;
+  flex-direction: column;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.optionLabel {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.optionDesc {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .headerList {
