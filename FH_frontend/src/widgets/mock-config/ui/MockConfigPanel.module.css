@@ -4,7 +4,7 @@
   height: 100%;
   padding: 1.5rem;
   overflow-y: auto;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .header {
@@ -61,7 +61,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 0.85rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -83,10 +83,10 @@
   color: var(--accent);
   border: 1px solid var(--accent);
   border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   align-self: flex-start;
   text-shadow: var(--terminal-glow);
 }
@@ -97,7 +97,7 @@
 }
 
 .button:active:not(:disabled) {
-  transform: translateY(2px);
+  transform: scale(0.96);
 }
 
 .button:disabled {
