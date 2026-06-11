@@ -1,24 +1,19 @@
-# FlashHook — MVP API 명세서
-
-> Webhook Catcher (Phase 1) 전체 엔드포인트
-> 최종 수정: 2026-06-07
-
----
-
-## 1. 공통 사항
+# MVP API 명세서
 
 > **기술 스택**: Java 21, Spring Boot 3.5.0
 > **Rate Limit**: Redis를 이용한 고정 윈도우(Fixed Window Counter) 알고리즘 기반으로 적용됩니다.
 
+## 1. 공통 사항
+
 ### 1.1. Base URL
 
-```
+```text
 https://flashhook.kr/api
 ```
 
 ### 1.2. 인증 방식
 
-```
+```text
 REST API  → Header: X-Access-Token: {accessToken}
 SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=...)
 ```
@@ -35,16 +30,23 @@ SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=
 }
 ```
 
-### 1.4. 에러 코드 목록
+### 1.4. 에러 코드 목록 (주요 항목)
 
-| HTTP Status | Code                      | 설명                      |
-| :---------: | ------------------------- | ------------------------- |
-|     403     | `INVALID_TOKEN`           | 토큰 없음 또는 불일치     |
-|     404     | `ENDPOINT_NOT_FOUND`      | 엔드포인트 없음 또는 만료 |
-|     413     | `PAYLOAD_TOO_LARGE`       | 요청 Body 1MB 초과        |
-|     429     | `RATE_LIMIT_EXCEEDED`     | Rate Limit 초과           |
-|     429     | `ENDPOINT_LIMIT_EXCEEDED` | IP당 엔드포인트 수 초과   |
-|     500     | `INTERNAL_ERROR`          | 서버 내부 에러            |
+> **참고**: 전체 에러 코드 및 상세 조치 방안은 `05_error_dictionary.md` (통합 에러 코드 사전) 문서를 참조하세요.
+
+| HTTP Status | Code                        | 설명                      |
+| :---------: | --------------------------- | ------------------------- |
+|     400     | `INVALID_REQUEST`           | 잘못된 요청 파라미터/형식 |
+|     403     | `INVALID_TOKEN`             | 토큰 없음 또는 불일치     |
+|     403     | `FORBIDDEN`                 | 권한 없음                 |
+|     404     | `ENDPOINT_NOT_FOUND`        | 엔드포인트 없음 또는 만료 |
+|     404     | `LOG_NOT_FOUND`             | 요청한 로그가 없음        |
+|     408     | `REQUEST_TIMEOUT`           | 처리 시간 지연 타임아웃   |
+|     409     | `CONCURRENT_MODIFICATION`   | 동시성 충돌 발생          |
+|     413     | `PAYLOAD_TOO_LARGE`         | 요청 Body 1MB 초과        |
+|     429     | `RATE_LIMIT_EXCEEDED`       | Rate Limit 초과           |
+|     429     | `ENDPOINT_LIMIT_EXCEEDED`   | IP당 엔드포인트 수 초과   |
+|     500     | `INTERNAL_ERROR`            | 서버 내부 에러            |
 
 ---
 
@@ -52,7 +54,7 @@ SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=
 
 ### 2.1. 엔드포인트 생성
 
-```
+```text
 POST /api/endpoints
 ```
 
@@ -60,7 +62,7 @@ POST /api/endpoints
 
 **Request**:
 
-```
+```text
 Content-Type: application/json (선택)
 
 // Body 없음 or {} → label 없이 생성
@@ -103,7 +105,7 @@ Content-Type: application/json (선택)
 
 ### 2.2. 엔드포인트 정보 조회
 
-```
+```text
 GET /api/endpoints/{endpointId}
 ```
 
@@ -136,7 +138,7 @@ GET /api/endpoints/{endpointId}
 
 ### 2.3. 엔드포인트 삭제
 
-```
+```text
 DELETE /api/endpoints/{endpointId}
 ```
 
@@ -178,7 +180,7 @@ PATCH /api/endpoints/{endpointId}/mock
 
 ### 3.1. 웹훅 수신 (외부 서비스 호출)
 
-```
+```text
 ANY /api/hooks/{endpointId}
 ```
 
@@ -201,6 +203,7 @@ ANY /api/hooks/{endpointId}
 엔드포인트의 `mockConfig` 설정에 따라 HTTP 상태 코드, 헤더, 지연(Delay), 본문(Body)이 반환됩니다.
 기본 설정(수정하지 않았을 경우) 응답:
 `200 OK`
+
 ```text
 ok
 ```
@@ -210,7 +213,7 @@ ok
 - `404 ENDPOINT_NOT_FOUND`: 존재하지 않거나 만료된 엔드포인트
 - `413 PAYLOAD_TOO_LARGE`: Body 1MB 초과
 - `429 RATE_LIMIT_EXCEEDED`: 100건/EP/1분 초과 (고정 윈도우)
-- `408 REQUEST_TIMEOUT`: 지연 시간이 너무 길어 타임아웃 발생 시 (최대 15초)
+- `408 REQUEST_TIMEOUT`: 지연 시간이 너무 길어 타임아웃 발생 시 (서버 하드 타임아웃 15초, Mock 설정은 최대 10초까지 허용)
 
 ---
 
@@ -218,7 +221,7 @@ ok
 
 ### 4.1. 로그 목록 조회
 
-```
+```text
 GET /api/endpoints/{endpointId}/logs
 ```
 
@@ -226,12 +229,12 @@ GET /api/endpoints/{endpointId}/logs
 
 **Query Parameters**:
 
-| 파라미터   | 타입   | 기본값 | 설명                               |
-| ---------- | ------ | ------ | ---------------------------------- |
-| `lastSeenId`| string | null   | (선택) 커서 기반 페이징을 위한 마지막 로그 ID |
-| `page`     | int    | 0      | 페이지 번호                        |
-| `size`     | int    | 20     | 페이지 크기 (최대 100)             |
-| `sort`     | string | desc   | 정렬 (desc: 최신순, asc: 오래된순) |
+| 파라미터     | 타입   | 기본값 | 설명                                          |
+| ------------ | ------ | ------ | --------------------------------------------- |
+| `lastSeenId` | string | null   | (선택) 커서 기반 페이징을 위한 마지막 로그 ID |
+| `page`       | int    | 0      | 페이지 번호                                   |
+| `size`       | int    | 20     | 페이지 크기 (최대 100)                        |
+| `sort`       | string | desc   | 정렬 (desc: 최신순, asc: 오래된순)            |
 
 **Response**: `200 OK`
 
@@ -262,7 +265,7 @@ GET /api/endpoints/{endpointId}/logs
 
 ### 4.2. 로그 상세 조회
 
-```
+```text
 GET /api/endpoints/{endpointId}/logs/{logId}
 ```
 
@@ -303,7 +306,7 @@ GET /api/endpoints/{endpointId}/logs/{logId}
 
 ### 4.3. 로그 전체 삭제
 
-```
+```text
 DELETE /api/endpoints/{endpointId}/logs
 ```
 
@@ -320,6 +323,7 @@ DELETE /api/endpoints/{endpointId}/logs
 실시간 스트림은 보안을 위해 `streamToken`을 먼저 발급받은 후 `EventSource`를 연결하는 2-Step 방식으로 동작합니다.
 
 #### 1) Stream Token 발급
+
 ```http
 POST /api/endpoints/{endpointId}/stream-token
 ```
@@ -327,6 +331,7 @@ POST /api/endpoints/{endpointId}/stream-token
 **인증**: `X-Access-Token` 헤더
 
 **Response**: `200 OK`
+
 ```json
 {
   "streamToken": "xxx-sample-token-xxx"
@@ -334,6 +339,7 @@ POST /api/endpoints/{endpointId}/stream-token
 ```
 
 #### 2) SSE 연결
+
 ```http
 GET /api/endpoints/{endpointId}/stream?streamToken={streamToken}
 ```
@@ -342,7 +348,7 @@ GET /api/endpoints/{endpointId}/stream?streamToken={streamToken}
 
 **Response**: `200 OK`
 
-```
+```text
 Content-Type: text/event-stream
 Cache-Control: no-cache
 Connection: keep-alive
@@ -350,7 +356,7 @@ Connection: keep-alive
 
 **이벤트 형식**:
 
-```
+```text
 event: ping
 data:
 
@@ -362,6 +368,7 @@ data: {"logId":"log_abc123","method":"POST","contentType":"application/json","cl
 
 - IP당 동시 SSE: 5개
 - 최대 유지 시간: 서버 설정 시간 (연결 종료 시 FE EventSource 자동 재연결)
+- Heartbeat 주기: 30초 (좀비 커넥션 방지)
 
 ---
 
@@ -369,8 +376,8 @@ data: {"logId":"log_abc123","method":"POST","contentType":"application/json","cl
 
 ### 6.1. 헬스체크
 
-```
-GET /api/health
+```text
+GET /api/actuator/health
 ```
 
 **인증**: 없음
@@ -379,8 +386,7 @@ GET /api/health
 
 ```json
 {
-  "status": "UP",
-  "timestamp": "2026-06-07T22:40:00Z"
+  "status": "UP"
 }
 ```
 
@@ -388,18 +394,18 @@ GET /api/health
 
 ## 7. 전체 엔드포인트 요약
 
-| Method   | Path                               | 인증 | 설명              |
-| -------- | ---------------------------------- | :--: | ----------------- |
-| `POST`   | `/api/endpoints`                   |  IP  | 엔드포인트 생성   |
-| `GET`    | `/api/endpoints/{id}`              | 토큰 | 엔드포인트 정보   |
-| `DELETE` | `/api/endpoints/{id}`              | 토큰 | 엔드포인트 삭제   |
-| `PATCH`  | `/api/endpoints/{id}/mock`         | 토큰 | 모의 설정 업데이트|
-| `ANY`    | `/api/hooks/{id}`                  |  -   | 웹훅 수신         |
-| `GET`    | `/api/endpoints/{id}/logs`         | 토큰 | 로그 목록         |
-| `GET`    | `/api/endpoints/{id}/logs/{logId}` | 토큰 | 로그 상세         |
-| `DELETE` | `/api/endpoints/{id}/logs`         | 토큰 | 로그 전체 삭제    |
-| `POST`   | `/api/endpoints/{id}/stream-token` | 토큰 | 스트림 토큰 발급  |
-| `GET`    | `/api/endpoints/{id}/stream`       | 토큰 | SSE 실시간 스트림 |
-| `GET`    | `/api/health`                      |  -   | 헬스체크          |
+| Method   | Path                               | 인증 | 설명               |
+| -------- | ---------------------------------- | :--: | ------------------ |
+| `POST`   | `/api/endpoints`                   |  IP  | 엔드포인트 생성    |
+| `GET`    | `/api/endpoints/{id}`              | 토큰 | 엔드포인트 정보    |
+| `DELETE` | `/api/endpoints/{id}`              | 토큰 | 엔드포인트 삭제    |
+| `PATCH`  | `/api/endpoints/{id}/mock`         | 토큰 | 모의 설정 업데이트 |
+| `ANY`    | `/api/hooks/{id}`                  |  -   | 웹훅 수신          |
+| `GET`    | `/api/endpoints/{id}/logs`         | 토큰 | 로그 목록          |
+| `GET`    | `/api/endpoints/{id}/logs/{logId}` | 토큰 | 로그 상세          |
+| `DELETE` | `/api/endpoints/{id}/logs`         | 토큰 | 로그 전체 삭제     |
+| `POST`   | `/api/endpoints/{id}/stream-token` | 토큰 | 스트림 토큰 발급   |
+| `GET`    | `/api/endpoints/{id}/stream`       | 토큰 | SSE 실시간 스트림  |
+| `GET`    | `/api/actuator/health`             |  -   | 헬스체크           |
 
-**총 11개 엔드포인트 (MVP)**
+총 11개 엔드포인트 (MVP)

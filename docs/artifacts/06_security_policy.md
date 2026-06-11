@@ -1,9 +1,4 @@
-# FlashHook — 보안 및 리소스 제한 정책
-
-> 비로그인 서비스의 접근 제어, Rate Limiting, 리소스 상한
-> 최종 수정: 2026-06-10
-
----
+# 보안 및 리소스 제한 정책
 
 ## 1. 인증 설계
 
@@ -18,7 +13,7 @@
 | Webhook 수신 URL | 외부 서비스에 등록 |        **공개**        |
 | Dashboard URL    | 로그 열람          | **비공개** (토큰 필요) |
 
-```
+```text
 [수신 URL]    POST https://flashhook.kr/api/hooks/{endpointId}
 [대시보드 URL] GET  https://flashhook.kr/dashboard/{endpointId}?token={accessToken}
 ```
@@ -27,7 +22,7 @@
 
 ### 1.3. 토큰 생성 및 저장
 
-```
+```text
 생성 시:
   endpointId  = UUID v4 (공개용, 2^122 조합 → 무차별 대입 비현실적)
   accessToken = crypto-random 32byte → Base64URL 인코딩 (비공개)
@@ -39,7 +34,7 @@
 
 ### 1.4. 토큰 전달 방식
 
-```
+```text
 REST API  → Header: X-Access-Token: {accessToken}
 SSE 스트림 → 1단계: POST `/api/endpoints/{id}/stream-token` (헤더 인증) -> 일회용 `streamToken` 발급
             2단계: GET `/api/endpoints/{id}/stream?streamToken={streamToken}` (EventSource 사용)
@@ -66,12 +61,12 @@ SSE 스트림 → 1단계: POST `/api/endpoints/{id}/stream-token` (헤더 인�
 
 Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
-| 대상            | 제한            | Window | Redis Key                         | 상태 |
-| --------------- | --------------- | ------ | --------------------------------- | :---: |
-| 엔드포인트 생성 | 5개/IP          | 24시간 | `rl:create:{ip}`                  | 완료 |
-| 웹훅 수신       | 100건/EP/IP     | 1분    | `rl:hook:{endpointId}:{ip}`       | 완료 |
-| 대시보드 조회   | -               | -      | -                                 | 예정 |
-| SSE 동시 연결   | -               | -      | -                                 | 예정 |
+| 대상            | 제한        | Window | Redis Key                   | 상태 |
+| --------------- | ----------- | ------ | --------------------------- | :--: |
+| 엔드포인트 생성 | 5개/IP      | 24시간 | `rl:create:{ip}`            | 완료 |
+| 웹훅 수신       | 100건/EP/IP | 1분    | `rl:hook:{endpointId}:{ip}` | 완료 |
+| 대시보드 조회   | -           | -      | -                           | 예정 |
+| SSE 동시 연결   | -           | -      | -                           | 예정 |
 
 > **엔드포인트 생성 제한**: 무분별한 생성을 막기 위해 24시간 동안 IP당 5개로 제한합니다.
 > **웹훅 수신 제한**: 악의적인 도배 요청을 막기 위해 동일 IP에서 특정 엔드포인트로의 요청을 분당 100건으로 제한합니다.
@@ -83,8 +78,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 ### 4.1. 엔드포인트 제한
 
 | 항목                      | 제한값           | 상태 |
-| ------------------------- | ---------------- | :---: |
-| IP당 동시 활성 엔드포인트 | 10개             | 예정 |
+| ------------------------- | ---------------- | :--: |
 | 엔드포인트 수명 (TTL)     | 24시간           | 완료 |
 | 수동 삭제                 | 가능 (토큰 인증) | 완료 |
 
@@ -110,7 +104,7 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 ### 4.4. SSE 연결 제한
 
 | 항목               | 제한값                                            | 상태 |
-| ------------------ | ------------------------------------------------- | :---: |
+| ------------------ | ------------------------------------------------- | :--: |
 | IP당 동시 SSE 연결 | 최대 5개                                          | 예정 |
 | SSE 최대 유지 시간 | 30분 (이후 자동 끊김, FE EventSource 자동 재연결) | 완료 |
 | Heartbeat 주기     | 30초 (좀비 커넥션 방지)                           | 완료 |
@@ -144,7 +138,7 @@ MVP 개발 과정에서 아래 주요 보안 이슈들이 모두 코드로 구�
 
 ## 7. 전체 플로우 요약
 
-```
+```text
 [유저] → 생성 버튼 클릭
   ↓
 [서버] → endpointId(UUID) + accessToken(random) 생성
