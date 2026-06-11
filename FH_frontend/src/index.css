@@ -10,8 +10,8 @@
   --border-focus: #3F3F50;
   
   --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
   
   --accent: #00FF66; /* Neon Green */
   --accent-hover: #33FF85;
@@ -25,7 +25,7 @@
   --method-post: #00FF66;
   --method-put: #F59E0B;
   --method-delete: #FF0055;
-  --method-patch: #8B5CF6;
+  --method-patch: #A78BFA;
 
   /* Terminal specific */
   --terminal-shadow: 0 0 20px rgba(0, 255, 102, 0.05);
