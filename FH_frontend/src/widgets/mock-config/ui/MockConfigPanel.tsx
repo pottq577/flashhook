@@ -14,6 +14,37 @@ const PRESETS = [
   { label: 'PORTONE (500 ERROR)', status: 500, body: '{\n  "code": -1,\n  "message": "Internal Server Error"\n}' }
 ];
 
+const COMMON_STATUS_CODES = [
+  { value: 200, label: '200 OK (Success)' },
+  { value: 201, label: '201 Created' },
+  { value: 400, label: '400 Bad Request (Invalid Parameters)' },
+  { value: 401, label: '401 Unauthorized (Invalid Token)' },
+  { value: 403, label: '403 Forbidden' },
+  { value: 404, label: '404 Not Found' },
+  { value: 429, label: '429 Too Many Requests' },
+  { value: 500, label: '500 Internal Server Error' },
+  { value: 502, label: '502 Bad Gateway' },
+  { value: 503, label: '503 Service Unavailable' },
+];
+
+const COMMON_HEADER_KEYS = [
+  'Content-Type',
+  'Authorization',
+  'Cache-Control',
+  'Access-Control-Allow-Origin',
+  'X-Webhook-Signature',
+  'X-Custom-Header'
+];
+
+const COMMON_HEADER_VALUES = [
+  'application/json',
+  'application/x-www-form-urlencoded',
+  'text/plain',
+  'Bearer <token>',
+  'no-cache',
+  '*'
+];
+
 const clampOrFallback = (raw: string, min: number, max: number, fallback: number) => {
   const n = Number(raw);
   if (!Number.isFinite(n)) return fallback;
@@ -22,13 +53,15 @@ const clampOrFallback = (raw: string, min: number, max: number, fallback: number
 
 export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { mutate, isPending } = useUpdateMockConfigMutation(endpoint.endpointId);
-  const [statusCode, setStatusCode] = useState(endpoint.mockConfig?.statusCode || 200);
+  const [statusCode, setStatusCode] = useState<number | string>(endpoint.mockConfig?.statusCode || 200);
   const [delayMs, setDelayMs] = useState(endpoint.mockConfig?.delayMs || 0);
   const [body, setBody] = useState(endpoint.mockConfig?.body || 'ok');
-  const [headersText, setHeadersText] = useState(() => {
+  
+  const [headerList, setHeaderList] = useState<{id: string, key: string, value: string}[]>(() => {
     const headers = endpoint.mockConfig?.headers || {};
-    return Object.entries(headers).map(([k, v]) => `${k}: ${v}`).join('\n');
+    return Object.entries(headers).map(([k, v]) => ({ id: crypto.randomUUID(), key: k, value: String(v) }));
   });
+  
   const [headerWarning, setHeaderWarning] = useState<string | null>(null);
 
   const handleApply = () => {
@@ -36,23 +69,22 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     let hasInvalidLines = false;
     setHeaderWarning(null);
 
-    headersText.split('\n').forEach(line => {
-      const trimmed = line.trim();
-      if (!trimmed) return;
-      const [k, ...v] = trimmed.split(':');
-      if (k && v.length) {
-        headers[k.trim()] = v.join(':').trim();
-      } else {
+    headerList.forEach(h => {
+      const k = h.key.trim();
+      const v = h.value.trim();
+      if (k) {
+        headers[k] = v;
+      } else if (v) {
         hasInvalidLines = true;
       }
     });
 
     if (hasInvalidLines) {
-      setHeaderWarning('INVALID_HEADER_FORMAT_IGNORED');
+      setHeaderWarning('WARNING: EMPTY_KEY_IGNORED');
     }
 
     mutate({
-      statusCode,
+      statusCode: Number(statusCode) || 200,
       delayMs,
       body,
       headers
@@ -90,18 +122,31 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
         <div className={styles.row}>
           <div className={styles.formGroup}>
-            <label htmlFor="input-status-code">STATUS_CODE</label>
-            <input 
-              id="input-status-code"
-              name="statusCode"
-              type="number" 
-              min="100"
-              max="599"
-              value={statusCode} 
-              onChange={e => setStatusCode(prev => clampOrFallback(e.target.value, 100, 599, prev))} 
-              className={styles.input}
-              autoComplete="off"
-            />
+            <label htmlFor="select-status-code">STATUS_CODE</label>
+            <div className={styles.statusInputWrapper}>
+              <select 
+                id="select-status-code"
+                name="statusCode"
+                value={statusCode} 
+                onChange={e => setStatusCode(e.target.value)} 
+                className={styles.select}
+              >
+                {COMMON_STATUS_CODES.map(c => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+                <option value="custom">Custom...</option>
+              </select>
+              {statusCode === 'custom' && (
+                <input 
+                  type="number"
+                  min="100" max="599"
+                  placeholder="200"
+                  onChange={e => setStatusCode(Number(e.target.value))}
+                  className={styles.input}
+                  style={{ marginTop: '0.5rem' }}
+                />
+              )}
+            </div>
           </div>
           
           <div className={styles.formGroup}>
@@ -121,19 +166,59 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="input-headers">RESPONSE_HEADERS (Key: Value)</label>
-          <textarea 
-            id="input-headers"
-            name="headers"
-            value={headersText} 
-            onChange={e => setHeadersText(e.target.value)} 
-            className={styles.textarea}
-            rows={3}
-            placeholder="Content-Type: application/json"
-            spellCheck={false}
-            autoComplete="off"
-          />
+          <label>RESPONSE_HEADERS</label>
+          <div className={styles.headerList}>
+            {headerList.map((h, i) => (
+              <div key={h.id} className={styles.headerRow}>
+                <input
+                  type="text"
+                  placeholder="Key"
+                  value={h.key}
+                  onChange={e => {
+                    const newHeaders = [...headerList];
+                    newHeaders[i].key = e.target.value;
+                    setHeaderList(newHeaders);
+                  }}
+                  className={`${styles.input} ${styles.headerInput}`}
+                  list="header-keys"
+                />
+                <span className={styles.headerColon}>:</span>
+                <input
+                  type="text"
+                  placeholder="Value"
+                  value={h.value}
+                  onChange={e => {
+                    const newHeaders = [...headerList];
+                    newHeaders[i].value = e.target.value;
+                    setHeaderList(newHeaders);
+                  }}
+                  className={`${styles.input} ${styles.headerInput}`}
+                  list="header-values"
+                />
+                <button 
+                  type="button" 
+                  className={styles.removeBtn} 
+                  onClick={() => setHeaderList(headerList.filter(item => item.id !== h.id))}
+                  title="Remove Header"
+                >✕</button>
+              </div>
+            ))}
+            <button 
+              type="button" 
+              className={styles.addHeaderBtn} 
+              onClick={() => setHeaderList([...headerList, { id: crypto.randomUUID(), key: '', value: '' }])}
+            >
+              + ADD HEADER
+            </button>
+          </div>
           {headerWarning && <p className={styles.warning}>{headerWarning}</p>}
+
+          <datalist id="header-keys">
+            {COMMON_HEADER_KEYS.map(k => <option key={k} value={k} />)}
+          </datalist>
+          <datalist id="header-values">
+            {COMMON_HEADER_VALUES.map(v => <option key={v} value={v} />)}
+          </datalist>
         </div>
 
         <div className={styles.formGroup}>
