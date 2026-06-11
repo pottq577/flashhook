@@ -4,8 +4,8 @@
   background-color: var(--bg-tertiary);
   border-bottom: 1px solid var(--border);
   cursor: pointer;
-  transition: all 0.2s;
-  font-family: var(--font-mono);
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+  font-family: var(--font-sans);
 }
 
 .container:hover {

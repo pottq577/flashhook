@@ -5,7 +5,7 @@
   height: 100%;
   padding: 2rem;
   background-color: var(--bg-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .emptyText {
@@ -45,6 +45,7 @@
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-all;
+  font-family: var(--font-mono);
 }
 
 .copyButton {
@@ -57,10 +58,15 @@
   border-radius: 4px;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 4px 8px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 0.75rem;
-  transition: all 0.2s;
-  font-family: var(--font-mono);
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  font-family: var(--font-sans);
   font-weight: bold;
 }
 
@@ -72,14 +78,14 @@
 }
 
 .copyButton:active {
-  transform: translateY(1px);
+  transform: scale(0.96);
 }
 
 .container {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .header {
