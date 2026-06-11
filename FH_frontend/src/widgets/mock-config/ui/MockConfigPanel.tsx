@@ -25,6 +25,12 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   });
   const [headerWarning, setHeaderWarning] = useState<string | null>(null);
 
+  const clampOrFallback = (raw: string, min: number, max: number, fallback: number) => {
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.min(max, Math.max(min, n));
+  };
+
   const handleApply = () => {
     const headers: Record<string, string> = {};
     let hasInvalidLines = false;
@@ -92,7 +98,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               min="100"
               max="599"
               value={statusCode} 
-              onChange={e => setStatusCode(Math.min(599, Math.max(100, Number(e.target.value))))} 
+              onChange={e => setStatusCode(prev => clampOrFallback(e.target.value, 100, 599, prev))} 
               className={styles.input}
               autoComplete="off"
             />
@@ -107,7 +113,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               min="0" 
               max="10000" 
               value={delayMs} 
-              onChange={e => setDelayMs(Math.min(10000, Math.max(0, Number(e.target.value))))} 
+              onChange={e => setDelayMs(prev => clampOrFallback(e.target.value, 0, 10000, prev))} 
               className={styles.input}
               autoComplete="off"
             />
