@@ -95,3 +95,14 @@ code, pre {
 .tabular {
   font-variant-numeric: tabular-nums;
 }
+
+.errorBox {
+  color: var(--danger);
+  background-color: rgba(220, 38, 38, 0.1);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  text-align: center;
+}

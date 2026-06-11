@@ -28,16 +28,6 @@
   }
 }
 
-.errorBox {
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--danger);
-  padding: 1rem 1.5rem;
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-size: 1rem;
-  text-align: center;
-}
-
 .btnAction {
   padding: 0.75rem 1.5rem;
   background-color: var(--accent);
