@@ -61,7 +61,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -83,7 +83,7 @@
   color: var(--accent);
   border: 1px solid var(--accent);
   border-radius: var(--radius-sm);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-weight: bold;
   cursor: pointer;
   transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
