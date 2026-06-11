@@ -72,10 +72,15 @@
   cursor: not-allowed;
 }
 
-.error {
+.errorBox {
   color: var(--danger);
-  margin-top: 1rem;
-  font-size: 0.9rem;
+  background-color: rgba(220, 38, 38, 0.1);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  text-align: center;
 }
 
 /* Sections */
