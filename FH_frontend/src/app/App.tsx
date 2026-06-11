@@ -9,6 +9,7 @@ import AboutPage from '@/pages/about/ui/AboutPage';
 import ContactPage from '@/pages/about/ui/ContactPage';
 import { QueryProvider } from './providers/QueryProvider';
 import { ToastContainer } from '@/shared/ui/ToastContainer';
+import { DevTools } from '@/widgets/dev-tools/ui/DevTools';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         </main>
         <CookieBanner />
         <ToastContainer />
+        <DevTools />
       </BrowserRouter>
     </QueryProvider>
   );

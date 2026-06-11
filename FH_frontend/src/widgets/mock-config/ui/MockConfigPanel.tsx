@@ -8,11 +8,17 @@ interface MockConfigPanelProps {
 }
 
 const PRESETS = [
-  { label: '기본 (200 OK)', status: 200, body: 'ok' },
-  { label: 'Toss Payments (400 Error)', status: 400, body: '{\n  "code": "INVALID_API_KEY",\n  "message": "잘못된 시크릿 키 연동입니다."\n}' },
-  { label: 'Kakao Login (401 Error)', status: 401, body: '{\n  "msg": "this access token does not exist",\n  "code": -401\n}' },
-  { label: 'PortOne (500 Error)', status: 500, body: '{\n  "code": -1,\n  "message": "Internal Server Error"\n}' }
+  { label: 'DEFAULT (200 OK)', status: 200, body: 'ok' },
+  { label: 'TOSS_PAYMENTS (400 ERROR)', status: 400, body: '{\n  "code": "INVALID_API_KEY",\n  "message": "잘못된 시크릿 키 연동입니다."\n}' },
+  { label: 'KAKAO_LOGIN (401 ERROR)', status: 401, body: '{\n  "msg": "this access token does not exist",\n  "code": -401\n}' },
+  { label: 'PORTONE (500 ERROR)', status: 500, body: '{\n  "code": -1,\n  "message": "Internal Server Error"\n}' }
 ];
+
+const clampOrFallback = (raw: string, min: number, max: number, fallback: number) => {
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+};
 
 export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { mutate, isPending } = useUpdateMockConfigMutation(endpoint.endpointId);
@@ -42,7 +48,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     });
 
     if (hasInvalidLines) {
-      setHeaderWarning('일부 헤더 형식이 맞지 않아 무시했어요. (Key: Value 형식 확인)');
+      setHeaderWarning('INVALID_HEADER_FORMAT_IGNORED');
     }
 
     mutate({
@@ -61,13 +67,13 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Mock API 설정</h2>
-        <p>외부 서비스 연동 테스트를 위해 원하는 응답을 설정해요.</p>
+        <h2>[ MOCK_API_CONFIG ]</h2>
+        <p>&gt; EXTERNAL_SERVICE_INTEGRATION_TEST_MODE</p>
       </div>
 
       <div className={styles.form}>
         <div className={styles.formGroup}>
-          <label htmlFor="select-preset">K-API 프리셋</label>
+          <label htmlFor="select-preset">TARGET_PRESET</label>
           <select 
             id="select-preset" 
             name="preset" 
@@ -75,7 +81,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             defaultValue="" 
             className={styles.select}
           >
-            <option value="" disabled>프리셋 선택…</option>
+            <option value="" disabled>SELECT_PRESET...</option>
             {PRESETS.map((p, i) => (
               <option key={p.label} value={i}>{p.label}</option>
             ))}
@@ -84,7 +90,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
         <div className={styles.row}>
           <div className={styles.formGroup}>
-            <label htmlFor="input-status-code">상태 코드 (Status Code)</label>
+            <label htmlFor="input-status-code">STATUS_CODE</label>
             <input 
               id="input-status-code"
               name="statusCode"
@@ -92,14 +98,14 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               min="100"
               max="599"
               value={statusCode} 
-              onChange={e => setStatusCode(Math.min(599, Math.max(100, Number(e.target.value))))} 
+              onChange={e => setStatusCode(prev => clampOrFallback(e.target.value, 100, 599, prev))} 
               className={styles.input}
               autoComplete="off"
             />
           </div>
           
           <div className={styles.formGroup}>
-            <label htmlFor="input-delay">응답 지연 (Delay ms)</label>
+            <label htmlFor="input-delay">RESPONSE_DELAY (ms)</label>
             <input 
               id="input-delay"
               name="delayMs"
@@ -107,7 +113,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               min="0" 
               max="10000" 
               value={delayMs} 
-              onChange={e => setDelayMs(Math.min(10000, Math.max(0, Number(e.target.value))))} 
+              onChange={e => setDelayMs(prev => clampOrFallback(e.target.value, 0, 10000, prev))} 
               className={styles.input}
               autoComplete="off"
             />
@@ -115,7 +121,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="input-headers">응답 헤더 (Key: Value 형태로 한 줄씩 입력)</label>
+          <label htmlFor="input-headers">RESPONSE_HEADERS (Key: Value)</label>
           <textarea 
             id="input-headers"
             name="headers"
@@ -131,7 +137,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="input-body">응답 본문 (Body)</label>
+          <label htmlFor="input-body">RESPONSE_BODY</label>
           <textarea 
             id="input-body"
             name="body"
@@ -149,7 +155,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           disabled={isPending}
           className={styles.button}
         >
-          {isPending ? '저장하고 있어요…' : '설정 저장'}
+          {isPending ? 'SAVING_CONFIG...' : 'APPLY_CONFIG'}
         </button>
       </div>
     </div>

@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from './legal.module.css';
 
 export const LabelingCard = () => {

@@ -6,6 +6,7 @@
   align-items: center;
   min-height: 100vh;
   font-size: 1.25rem;
+  font-family: var(--font-mono);
 }
 
 .spinner {
@@ -30,29 +31,27 @@
 
 .btnAction {
   padding: 0.75rem 1.5rem;
-  background-color: var(--accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 500;
+  background-color: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-family: var(--font-mono);
+  font-weight: bold;
   cursor: pointer;
   text-decoration: none;
   font-size: 1rem;
-  transition: transform 0.1s ease-out, background-color 0.2s;
-  min-height: 40px;
-  min-width: 120px;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s, transform 0.2s;
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  text-shadow: var(--terminal-glow);
+}
+
+.btnAction:hover {
+  background-color: rgba(0, 255, 102, 0.1);
 }
 
 .btnAction:active {
   transform: scale(0.96);
-}
-
-.btnAction:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 .container {
@@ -60,6 +59,7 @@
   flex-direction: column;
   height: 100vh;
   background-color: var(--bg-primary);
+  overflow: hidden;
 }
 
 .main {
@@ -72,9 +72,9 @@
 
 .sidebar {
   width: 100%;
-  border-right: none;
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-tertiary);
   overflow-y: auto;
+  border-right: none;
 }
 
 .content {
@@ -88,10 +88,10 @@
     border-right: 1px solid var(--border);
   }
   .content {
-    display: block;
+    display: flex;
+    flex-direction: column;
     flex: 1;
-    overflow-y: auto;
-    padding: 1.5rem;
+    overflow: hidden;
     background-color: var(--bg-primary);
   }
 }
@@ -103,9 +103,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.8);
   z-index: 100;
-  backdrop-filter: blur(4px);
 }
 
 .bottomSheetContainer {
@@ -115,9 +114,7 @@
   right: 0;
   height: 85vh;
   background: var(--bg-secondary);
-  border-top-left-radius: var(--radius-lg);
-  border-top-right-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border-top: 1px solid var(--border);
   z-index: 101;
   display: flex;
   flex-direction: column;
@@ -128,7 +125,6 @@
   width: 40px;
   height: 4px;
   background: var(--border-focus);
-  border-radius: 4px;
   margin: 12px auto;
 }
 
@@ -140,39 +136,41 @@
 
 .tabs, .tabsMobile {
   display: flex;
-  gap: 1rem;
+  background-color: var(--bg-tertiary);
   border-bottom: 1px solid var(--border);
-  margin-bottom: 1rem;
 }
 
 .tabBtn {
   background: none;
   border: none;
-  padding: 0.5rem 1rem;
+  border-right: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
   color: var(--text-secondary);
-  cursor: pointer;
+  font-family: var(--font-sans);
   font-weight: 500;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s, border-color 0.2s, background-color 0.2s, transform 0.2s;
-  min-height: 40px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s, transform 0.2s;
+}
+
+.tabBtn:active {
+  transform: scale(0.96);
 }
 
 .tabBtn:hover {
   color: var(--text-primary);
-}
-
-.tabBtn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-  border-radius: var(--radius-sm);
+  background-color: var(--bg-secondary);
 }
 
 .activeTab {
   color: var(--accent);
-  border-bottom-color: var(--accent);
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid transparent;
+  margin-bottom: -1px;
 }
 
 .tabContent {
   flex: 1;
   overflow-y: auto;
+  padding: 1.5rem;
 }

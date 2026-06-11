@@ -17,6 +17,10 @@
   margin-top: 1rem;
 }
 
+.prettyText {
+  text-wrap: pretty;
+}
+
 .contactBox {
   margin-top: 2rem;
   padding: 1.5rem;
