@@ -73,7 +73,7 @@ function LandingPage() {
           
           <div className={styles.terminalActions}>
             <h1 className={styles.title}>FlashHook</h1>
-            <p className={styles.subtitle}>회원가입 없이 1초 만에 웹훅을 수신하고 디버깅하세요.</p>
+            <p className={styles.subtitle}>회원가입 없이 1초 만에 웹훅을 받아보고 테스트할 수 있어요.</p>
             
             <button 
               className={styles.button} 
