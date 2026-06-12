@@ -10,7 +10,11 @@ export const logger = {
     }
   },
   error: (message: string, error?: unknown, ...args: unknown[]) => {
-    console.error(`[ERROR] ${message}`, error, ...args);
+    if (import.meta.env.MODE === 'development') {
+      console.error(`[ERROR] ${message}`, error, ...args);
+    } else {
+      console.error(`[ERROR] ${message}`);
+    }
   },
   debug: (message: string, ...args: unknown[]) => {
     if (import.meta.env.MODE === 'development') {
