@@ -130,3 +130,5 @@ cloudflared tunnel --url http://localhost:8080
 ```
 
 3. 발급된 도메인으로 샌드박스 환경 구축 완료!
+
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/pottq577/flashhook?utm_source=oss&utm_medium=github&utm_campaign=pottq577%2Fflashhook&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
