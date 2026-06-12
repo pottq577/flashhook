@@ -64,6 +64,10 @@ function DashboardPage() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) {
+        return;
+      }
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         toggleMockPanel();
@@ -141,7 +145,7 @@ function DashboardPage() {
                       <button className={styles.mockPanelCloseBtn} onClick={() => setIsMockPanelOpen(false)}>✕</button>
                     </div>
                     <div className={styles.mockPanelBody}>
-                      <MockConfigPanel endpoint={endpoint} />
+                      <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
                     </div>
                   </div>
                 </motion.div>
@@ -161,7 +165,10 @@ function DashboardPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={shouldReduceMotion ? undefined : { opacity: 0 }}
-                onClick={() => setSelectedLog(null)}
+                onClick={() => {
+                  setSelectedLog(null);
+                  setIsMockPanelOpen(false);
+                }}
               />
               <motion.div 
                 className={styles.bottomSheetContainer}
@@ -190,7 +197,7 @@ function DashboardPage() {
                         <h3 className={styles.mockPanelTitle}>Mock Configuration</h3>
                         <button className={styles.btnAction} onClick={() => setIsMockPanelOpen(false)}>뒤로가기</button>
                       </div>
-                      <MockConfigPanel endpoint={endpoint} />
+                      <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
                     </>
                   )}
                 </div>
