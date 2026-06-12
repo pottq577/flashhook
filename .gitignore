@@ -24,7 +24,6 @@ toyproject.md
 docs/review/*
 
 ### Memory MCP ###
-.mcp-memory/node_modules/
 ci.log
 
 ### 추가 보호 대상 (보안 점검 리포트 후속 조치) ###
