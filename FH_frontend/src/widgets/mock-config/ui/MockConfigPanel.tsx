@@ -98,7 +98,16 @@ function CustomDropdown({
 
   return (
     <div className={styles.statusInputWrapper}>
-      <div className={styles.customSelectTrigger} onClick={!isEditable ? onToggle : undefined}>
+      <div 
+        className={styles.customSelectTrigger} 
+        onClick={!isEditable ? onToggle : undefined}
+        role="combobox"
+        aria-expanded={isOpen}
+        tabIndex={!isEditable ? 0 : -1}
+        onKeyDown={!isEditable ? (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); }
+        } : undefined}
+      >
         {isEditable ? (
           <input 
             type="text" 
@@ -125,6 +134,7 @@ function CustomDropdown({
         {isOpen && (
           <motion.div 
             className={styles.customSelectDropdown}
+            role="listbox"
             style={alignRight ? { right: 0, left: 'auto' } : undefined}
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
@@ -135,6 +145,12 @@ function CustomDropdown({
               <div 
                 key={String(o.value)} 
                 className={`${styles.customSelectOption} ${value === o.value && !isCustom ? styles.selected : ''}`}
+                role="option"
+                aria-selected={value === o.value && !isCustom}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(o.value); }
+                }}
                 onMouseDown={(e) => {
                   e.preventDefault();
                   e.stopPropagation(); 
@@ -157,6 +173,12 @@ function CustomDropdown({
             {onCustom && !isEditable && (
               <div 
                 className={`${styles.customSelectOption} ${isCustom ? styles.selected : ''}`}
+                role="option"
+                aria-selected={isCustom}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onCustom(); }
+                }}
                 onClick={(e) => { e.stopPropagation(); onCustom(); }}
               >
                 <span className={styles.optionValue}>Custom...</span>
@@ -214,9 +236,22 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   }, [openDropdownId]);
 
   const handleApply = () => {
+    setHeaderWarning(null);
+    
+    const sCode = Number(statusCode) || 200;
+    const dMs = Number(delayMs) || 0;
+    
+    if (sCode < 100 || sCode > 599) {
+      setHeaderWarning('ERROR: STATUS_CODE MUST BE 100-599');
+      return;
+    }
+    if (dMs < 0 || dMs > 10000) {
+      setHeaderWarning('ERROR: DELAY MUST BE 0-10000ms');
+      return;
+    }
+
     const headers: Record<string, string> = {};
     let hasInvalidLines = false;
-    setHeaderWarning(null);
 
     headerList.forEach(h => {
       const k = h.key.trim();
@@ -233,8 +268,8 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     }
 
     mutate({
-      statusCode: Number(statusCode) || 200,
-      delayMs: Number(delayMs) || 0,
+      statusCode: sCode,
+      delayMs: dMs,
       body,
       headers
     });
