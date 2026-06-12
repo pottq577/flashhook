@@ -49,10 +49,20 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
           <div className={styles.emptyTitle}>&gt; WAITING_FOR_REQUEST...</div>
           <p className={styles.emptyDesc}>아직 들어온 요청이 없어요. 아래 명령어로 테스트 웹훅을 보내보세요.</p>
           <div className={styles.curlBlock}>
-            <button className={styles.copyButton} onClick={handleCopy} title="Copy to clipboard">
-              {copied ? 'COPIED!' : 'COPY'}
-            </button>
-            <code>{curlCommand}</code>
+            <div className={styles.curlHeader}>
+              <div className={styles.macControls} aria-hidden="true">
+                <span className={styles.macDot} style={{ backgroundColor: '#ff5f56' }} />
+                <span className={styles.macDot} style={{ backgroundColor: '#ffbd2e' }} />
+                <span className={styles.macDot} style={{ backgroundColor: '#27c93f' }} />
+              </div>
+              <span className={styles.curlLabel}>bash</span>
+              <button className={styles.copyButton} onClick={handleCopy} title="Copy to clipboard">
+                {copied ? 'COPIED!' : 'COPY'}
+              </button>
+            </div>
+            <div className={styles.curlCodeWrapper}>
+              <code>{curlCommand}</code>
+            </div>
           </div>
         </div>
       </div>

@@ -39,40 +39,59 @@
 }
 
 .curlBlock {
-  position: relative;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 1.5rem;
-  padding-top: 3rem; /* Make room for the copy button */
-  padding-right: 1.5rem;
   border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-all;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.curlHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-tertiary);
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.macControls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 50px; /* To balance the space-between with copy button */
+}
+
+.macDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.curlLabel {
   font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: lowercase;
+  letter-spacing: 0.05em;
+  flex: 1;
+  text-align: center;
 }
 
 .copyButton {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  background: var(--bg-tertiary);
+  background: transparent;
   border: 1px solid var(--border);
-  z-index: 10;
   border-radius: 4px;
   color: var(--text-muted);
   cursor: pointer;
-  min-width: 40px;
-  min-height: 40px;
-  padding: 8px 12px;
+  padding: 4px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
-  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  transition: all 0.2s;
+  font-family: var(--font-mono);
   font-weight: bold;
 }
 
@@ -80,11 +99,21 @@
   color: var(--accent);
   border-color: var(--accent);
   background: rgba(0, 255, 102, 0.1);
-  box-shadow: 0 0 8px rgba(0, 255, 102, 0.2) inset;
 }
 
 .copyButton:active {
   transform: scale(0.96);
+}
+
+.curlCodeWrapper {
+  padding: 1.25rem 1.5rem;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: var(--font-mono);
+  overflow-x: auto;
 }
 
 .container {
