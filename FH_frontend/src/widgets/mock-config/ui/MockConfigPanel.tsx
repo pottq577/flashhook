@@ -304,7 +304,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             placeholder="SELECT_PRESET..."
             isOpen={openDropdownId === 'preset'}
             onToggle={() => setOpenDropdownId(openDropdownId === 'preset' ? null : 'preset')}
-            displayValue={(val, opt) => opt ? `${opt.label}` : 'SELECT_PRESET...'}
+            displayValue={(_val, opt) => opt ? `${opt.label}` : 'SELECT_PRESET...'}
           />
         </div>
 
