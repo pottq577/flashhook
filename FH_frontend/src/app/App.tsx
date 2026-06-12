@@ -9,8 +9,12 @@ import AboutPage from '@/pages/about/ui/AboutPage';
 import ContactPage from '@/pages/about/ui/ContactPage';
 import { QueryProvider } from './providers/QueryProvider';
 import { ToastContainer } from '@/shared/ui/ToastContainer';
-import { DevTools } from '@/widgets/dev-tools/ui/DevTools';
+import { lazy, Suspense } from 'react';
 
+// 개발 환경에서만 DevTools 번들 로드
+const DevTools = import.meta.env.DEV 
+  ? lazy(() => import('@/widgets/dev-tools/ui/DevTools').then(m => ({ default: m.DevTools })))
+  : () => null;
 function App() {
   return (
     <QueryProvider>
@@ -28,7 +32,9 @@ function App() {
         </main>
         <CookieBanner />
         <ToastContainer />
-        <DevTools />
+        <Suspense fallback={null}>
+          <DevTools />
+        </Suspense>
       </BrowserRouter>
     </QueryProvider>
   );
