@@ -60,7 +60,7 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  width: 50px; /* To balance the space-between with copy button */
+  min-width: 50px; /* To balance the space-between with copy button */
 }
 
 .macDot {
