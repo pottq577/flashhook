@@ -89,7 +89,7 @@
   }
   .content {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Change to row for slide-in sidebar */
     flex: 1;
     overflow: hidden;
     background-color: var(--bg-primary);
@@ -134,43 +134,120 @@
   padding: 1rem;
 }
 
-.tabs, .tabsMobile {
+/* Sliding Mock Sidebar (Telemetry Layout) */
+.logDetailWrapper {
   display: flex;
-  background-color: var(--bg-tertiary);
-  border-bottom: 1px solid var(--border);
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.5rem;
+  /* background color matches content */
 }
 
-.tabBtn {
+.mockOverlayTrigger {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+}
+
+.mockOverlayTrigger .btnAction {
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-focus);
+  color: var(--text-primary);
+  border-radius: var(--radius-full);
+  padding: 0.75rem 1.25rem;
+  box-shadow: var(--shadow-lg);
+  font-size: 0.9rem;
+}
+
+.mockOverlayTrigger .btnAction:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent);
+}
+
+.mockSidebarContainer {
+  position: relative; /* added for resize handle */
+  height: 100%;
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-left: 1px solid var(--glass-border);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.4);
+  z-index: 20;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.resizeHandle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 30;
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.resizeHandle:hover,
+.resizeHandle:active {
+  background-color: var(--accent);
+}
+
+.mockSidebarInner {
+  width: 100%; /* controlled via inline style */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mockPanelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.mockPanelTitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.mockPanelCloseBtn {
   background: none;
   border: none;
-  border-right: 1px solid var(--border);
-  padding: 0.75rem 1.5rem;
-  color: var(--text-secondary);
-  font-family: var(--font-sans);
-  font-weight: 500;
-  font-size: 0.95rem;
+  color: var(--text-muted);
   cursor: pointer;
-  transition: color 0.2s, background-color 0.2s, transform 0.2s;
+  font-size: 1.2rem;
+  padding: 0.25rem;
 }
 
-.tabBtn:active {
-  transform: scale(0.96);
-}
-
-.tabBtn:hover {
+.mockPanelCloseBtn:hover {
   color: var(--text-primary);
-  background-color: var(--bg-secondary);
 }
 
-.activeTab {
-  color: var(--accent);
-  background-color: var(--bg-primary);
-  border-bottom: 1px solid transparent;
-  margin-bottom: -1px;
-}
-
-.tabContent {
+.mockPanelBody {
   flex: 1;
   overflow-y: auto;
   padding: 1.5rem;
+}
+
+/* Mobile specific overrides */
+.mockOverlayTriggerMobile {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.mockPanelHeaderMobile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }

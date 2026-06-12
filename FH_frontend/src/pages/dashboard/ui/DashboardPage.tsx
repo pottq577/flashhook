@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useEndpointQuery } from '@/entities/endpoint/api/endpoint.queries';
@@ -17,11 +17,65 @@ import styles from './DashboardPage.module.css';
 
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
-  const [activeTab, setActiveTab] = useState<'log' | 'mock'>('log');
+  const [isMockPanelOpen, setIsMockPanelOpen] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(440);
+  const [isResizing, setIsResizing] = useState(false);
+  const isDragging = useRef(false);
   const shouldReduceMotion = useReducedMotion();
   
   const { data: endpoint, isLoading, error } = useEndpointQuery(endpointId);
   const isMobile = useIsMobile();
+
+  const toggleMockPanel = useCallback(() => {
+    setIsMockPanelOpen(prev => !prev);
+  }, []);
+
+  const startResizing = useCallback(() => {
+    isDragging.current = true;
+    setIsResizing(true);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none'; // Prevent text selection while dragging
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const newWidth = window.innerWidth - e.clientX;
+      if (newWidth >= 440 && newWidth < 800) {
+        setSidebarWidth(newWidth);
+      }
+    };
+    const handleMouseUp = () => {
+      if (isDragging.current) {
+        isDragging.current = false;
+        setIsResizing(false);
+        document.body.style.cursor = 'default';
+        document.body.style.userSelect = 'auto';
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) {
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        toggleMockPanel();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleMockPanel]);
   
   // Fetch initial logs
   useLogsQuery(endpointId || '', 0, 50);
@@ -65,27 +119,38 @@ function DashboardPage() {
         {/* Desktop Detail View */}
         {!isMobile && (
           <section className={styles.content}>
-            <div className={styles.tabs}>
-              <button 
-                className={`${styles.tabBtn} ${activeTab === 'log' ? styles.activeTab : ''}`}
-                onClick={() => setActiveTab('log')}
-              >
-                로그 상세
-              </button>
-              <button 
-                className={`${styles.tabBtn} ${activeTab === 'mock' ? styles.activeTab : ''}`}
-                onClick={() => setActiveTab('mock')}
-              >
-                Mock 설정
-              </button>
-            </div>
-            <div className={styles.tabContent}>
-              {activeTab === 'log' ? (
-                <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
-              ) : (
-                <MockConfigPanel endpoint={endpoint} />
+            <motion.div layout className={styles.logDetailWrapper} style={{ flex: 1, minWidth: 0 }}>
+              <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
+              
+              <div className={styles.mockOverlayTrigger}>
+                <button className={styles.btnAction} onClick={toggleMockPanel}>
+                  ⚡️ Mock 응답 오버라이드 (⌘K)
+                </button>
+              </div>
+            </motion.div>
+
+            <AnimatePresence initial={false}>
+              {isMockPanelOpen && (
+                <motion.div 
+                  className={styles.mockSidebarContainer}
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: sidebarWidth, opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  transition={isResizing ? { duration: 0 } : { type: "spring", bounce: 0, duration: 0.4 }}
+                >
+                  <div className={styles.resizeHandle} onPointerDown={startResizing} />
+                  <div className={styles.mockSidebarInner} style={{ width: sidebarWidth }}>
+                    <div className={styles.mockPanelHeader}>
+                      <h3 className={styles.mockPanelTitle}>Mock Configuration</h3>
+                      <button className={styles.mockPanelCloseBtn} onClick={() => setIsMockPanelOpen(false)}>✕</button>
+                    </div>
+                    <div className={styles.mockPanelBody}>
+                      <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                    </div>
+                  </div>
+                </motion.div>
               )}
-            </div>
+            </AnimatePresence>
           </section>
         )}
 
@@ -100,7 +165,10 @@ function DashboardPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={shouldReduceMotion ? undefined : { opacity: 0 }}
-                onClick={() => setSelectedLog(null)}
+                onClick={() => {
+                  setSelectedLog(null);
+                  setIsMockPanelOpen(false);
+                }}
               />
               <motion.div 
                 className={styles.bottomSheetContainer}
@@ -114,24 +182,23 @@ function DashboardPage() {
               >
                 <div className={styles.bottomSheetHandle} />
                 <div className={styles.bottomSheetContent}>
-                  <div className={styles.tabsMobile}>
-                    <button 
-                      className={`${styles.tabBtn} ${activeTab === 'log' ? styles.activeTab : ''}`}
-                      onClick={() => setActiveTab('log')}
-                    >
-                      로그 상세
-                    </button>
-                    <button 
-                      className={`${styles.tabBtn} ${activeTab === 'mock' ? styles.activeTab : ''}`}
-                      onClick={() => setActiveTab('mock')}
-                    >
-                      Mock 설정
-                    </button>
-                  </div>
-                  {activeTab === 'log' ? (
-                    <LogDetail logId={selectedLog.logId} endpointId={endpointId} />
+                  {!isMockPanelOpen ? (
+                    <>
+                      <LogDetail logId={selectedLog.logId} endpointId={endpointId} />
+                      <div className={styles.mockOverlayTriggerMobile}>
+                        <button className={styles.btnAction} onClick={toggleMockPanel} style={{ width: '100%' }}>
+                          ⚡️ Mock 설정 열기
+                        </button>
+                      </div>
+                    </>
                   ) : (
-                    <MockConfigPanel endpoint={endpoint} />
+                    <>
+                      <div className={styles.mockPanelHeaderMobile}>
+                        <h3 className={styles.mockPanelTitle}>Mock Configuration</h3>
+                        <button className={styles.btnAction} onClick={() => setIsMockPanelOpen(false)}>뒤로가기</button>
+                      </div>
+                      <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                    </>
                   )}
                 </div>
               </motion.div>
