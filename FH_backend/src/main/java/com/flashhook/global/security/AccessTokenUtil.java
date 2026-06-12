@@ -42,11 +42,11 @@ public final class AccessTokenUtil {
         }
     }
 
-    /**
-     * 원본 토큰과 해시값 비교 검증
-     */
     public static boolean verifyToken(String rawToken, String hash) {
         if (rawToken == null || hash == null) return false;
-        return hashToken(rawToken).equals(hash);
+        return MessageDigest.isEqual(
+            hashToken(rawToken).getBytes(StandardCharsets.UTF_8),
+            hash.getBytes(StandardCharsets.UTF_8)
+        );
     }
 }
