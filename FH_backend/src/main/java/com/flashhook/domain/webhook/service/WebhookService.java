@@ -3,6 +3,7 @@ package com.flashhook.domain.webhook.service;
 import com.flashhook.domain.webhook.repository.WebhookLogRepository;
 import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import com.flashhook.domain.endpoint.model.Endpoint;
@@ -18,12 +19,16 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.domain.Sort;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WebhookService {
@@ -54,8 +59,10 @@ public class WebhookService {
         if (payload.getContentType() != null && payload.getContentType().toLowerCase().contains("application/json")) {
             try {
                 bodyObj = objectMapper.readValue(payload.getRawBody(), Object.class);
+            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                log.debug("JSON 파싱 실패, 원본 문자열로 저장합니다.", e);
             } catch (Exception e) {
-                // 파싱 실패 시 원본 문자열 유지
+                log.warn("JSON 파싱 중 예기치 않은 오류 발생", e);
             }
         }
 
@@ -83,7 +90,7 @@ public class WebhookService {
                 .bodySize(payload.getBodySize())
                 .receivedAt(Instant.now())
                 .build();
-        webhookLogRepository.save(log);
+        webhookLogRepository.save(java.util.Objects.requireNonNull(log));
 
         // 7. 엔드포인트 카운터 업데이트 (Atomic)
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
@@ -91,7 +98,7 @@ public class WebhookService {
         Endpoint updatedEndpoint = mongoTemplate.findAndModify(
                 query,
                 update,
-                org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true),
+                FindAndModifyOptions.options().returnNew(true),
                 Endpoint.class);
 
         if (updatedEndpoint != null) {
@@ -109,26 +116,50 @@ public class WebhookService {
         long currentSize = endpoint.getLogSizeBytes();
 
         while (currentCount > maxLogCount || currentSize > maxLogSizeBytes) {
-            // 가장 오래된 로그 원자적 찾아 삭제 (findAndRemove)
+            int fetchSize = (int) Math.max(currentCount - maxLogCount, 50);
+            if (fetchSize > 1000)
+                fetchSize = 1000;
+
             Query findOldestQuery = new Query(Criteria.where("endpointId").is(endpoint.getEndpointId()))
                     .with(Sort.by(Sort.Direction.ASC, "receivedAt"))
-                    .limit(1);
-            WebhookLog oldLog = mongoTemplate.findAndRemove(findOldestQuery, WebhookLog.class);
+                    .limit(fetchSize);
+            findOldestQuery.fields().include("_id").include("bodySize");
 
-            if (oldLog == null) {
+            List<WebhookLog> oldLogs = mongoTemplate.find(findOldestQuery, WebhookLog.class);
+
+            if (oldLogs.isEmpty()) {
                 break;
             }
 
-            Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
-            Update update = new Update().inc("logCount", -1).inc("logSizeBytes", -oldLog.getBodySize());
-            mongoTemplate.updateFirst(query, update, Endpoint.class);
+            List<String> idsToRemove = new ArrayList<>();
 
-            currentCount--;
-            currentSize -= oldLog.getBodySize();
-            currentSize = Math.max(0, currentSize);
+            for (WebhookLog log : oldLogs) {
+                if (currentCount <= maxLogCount && currentSize <= maxLogSizeBytes) {
+                    break;
+                }
+                idsToRemove.add(log.getId());
 
-            if (currentCount <= 0) {
-                break;
+                currentCount--;
+                currentSize -= log.getBodySize();
+                currentSize = Math.max(0, currentSize);
+            }
+
+            if (!idsToRemove.isEmpty()) {
+                Query removeQuery = new Query(new Criteria().andOperator(
+                        Criteria.where("endpointId").is(endpoint.getEndpointId()),
+                        Criteria.where("_id").in(idsToRemove)));
+
+                List<WebhookLog> removedLogs = mongoTemplate.findAllAndRemove(removeQuery, WebhookLog.class);
+                if (removedLogs.isEmpty()) {
+                    break;
+                }
+
+                long removedSize = removedLogs.stream().mapToLong(WebhookLog::getBodySize).sum();
+                int removedCount = removedLogs.size();
+
+                Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
+                Update update = new Update().inc("logCount", -removedCount).inc("logSizeBytes", -removedSize);
+                mongoTemplate.updateFirst(query, update, Endpoint.class);
             }
         }
     }

@@ -13,12 +13,14 @@ import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
 import java.time.Instant;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import com.flashhook.global.event.EndpointDeletedEvent;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
 
 /**
  * 엔드포인트 비즈니스 로직
@@ -64,7 +66,7 @@ public class EndpointService {
                 .expiresAt(expiresAt)
                 .build();
 
-        endpointRepository.save(endpoint);
+        endpointRepository.save(Objects.requireNonNull(endpoint));
 
         return EndpointResponse.builder()
                 .endpointId(endpointId)
@@ -100,17 +102,19 @@ public class EndpointService {
     /**
      * 엔드포인트 삭제
      */
+    @CacheEvict(value = "endpoints", key = "#endpointId")
     @Transactional
     public void delete(String endpointId) {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
-        endpointRepository.delete(endpoint);
+        endpointRepository.delete(Objects.requireNonNull(endpoint));
         eventPublisher.publishEvent(new EndpointDeletedEvent(endpointId));
     }
 
     /**
      * 모의 설정 업데이트
      */
+    @CacheEvict(value = "endpoints", key = "#endpointId")
     @Transactional
     public EndpointResponse updateMockConfig(String endpointId, MockUpdateRequest request) {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
@@ -135,7 +139,7 @@ public class EndpointService {
                 .mockConfig(mockBuilder.build())
                 .build();
 
-        endpointRepository.save(updatedEndpoint);
+        endpointRepository.save(Objects.requireNonNull(updatedEndpoint));
 
         return EndpointResponse.builder()
                 .endpointId(updatedEndpoint.getEndpointId())

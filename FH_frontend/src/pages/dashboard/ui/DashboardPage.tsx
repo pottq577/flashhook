@@ -12,8 +12,10 @@ import EndpointInfo from '@/widgets/endpoint-info/ui/EndpointInfo';
 import ConnectionStatus from '@/widgets/endpoint-info/ui/ConnectionStatus';
 import LogList from '@/widgets/log-viewer/ui/LogList';
 import LogDetail from '@/widgets/log-viewer/ui/LogDetail';
-import MockConfigPanel from '@/widgets/mock-config/ui/MockConfigPanel';
+import { lazy, Suspense } from 'react';
 import styles from './DashboardPage.module.css';
+
+const MockConfigPanel = lazy(() => import('@/widgets/mock-config/ui/MockConfigPanel'));
 
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
@@ -37,18 +39,24 @@ function DashboardPage() {
     document.body.style.userSelect = 'none'; // Prevent text selection while dragging
   }, []);
 
+  const rafRef = useRef<number | null>(null);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
-      const newWidth = window.innerWidth - e.clientX;
-      if (newWidth >= 440 && newWidth < 800) {
-        setSidebarWidth(newWidth);
-      }
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        const newWidth = window.innerWidth - e.clientX;
+        if (newWidth >= 440 && newWidth < 800) {
+          setSidebarWidth(newWidth);
+        }
+      });
     };
     const handleMouseUp = () => {
       if (isDragging.current) {
         isDragging.current = false;
         setIsResizing(false);
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
         document.body.style.cursor = 'default';
         document.body.style.userSelect = 'auto';
       }
@@ -59,6 +67,13 @@ function DashboardPage() {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      isDragging.current = false;
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
     };
   }, []);
 
@@ -107,10 +122,20 @@ function DashboardPage() {
             logs={logs} 
             selectedLogId={selectedLog?.logId || null} 
             onSelect={(logId) => {
-              const log = logs.find(l => l.logId === logId);
-              if (log) {
-                setSelectedLog({ ...log, url: '', headers: {}, queryParams: {}, body: {} }); 
-              }
+              const log = useLogStore.getState().logMap[logId];
+              setSelectedLog({
+                logId,
+                method: log?.method ?? '',
+                contentType: log?.contentType ?? null,
+                clientIp: log?.clientIp ?? '',
+                bodyPreview: log?.bodyPreview ?? '',
+                bodySize: log?.bodySize ?? 0,
+                receivedAt: log?.receivedAt ?? '',
+                url: '',
+                headers: {},
+                queryParams: {},
+                body: null,
+              });
             }} 
             endpointId={endpointId}
           />
@@ -133,10 +158,11 @@ function DashboardPage() {
               {isMockPanelOpen && (
                 <motion.div 
                   className={styles.mockSidebarContainer}
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: sidebarWidth, opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
+                  initial={{ scaleX: 0, opacity: 0, originX: 1 }}
+                  animate={{ scaleX: 1, opacity: 1, originX: 1 }}
+                  exit={{ scaleX: 0, opacity: 0, originX: 1 }}
                   transition={isResizing ? { duration: 0 } : { type: "spring", bounce: 0, duration: 0.4 }}
+                  style={{ width: sidebarWidth }}
                 >
                   <div className={styles.resizeHandle} onPointerDown={startResizing} />
                   <div className={styles.mockSidebarInner} style={{ width: sidebarWidth }}>
@@ -145,7 +171,9 @@ function DashboardPage() {
                       <button className={styles.mockPanelCloseBtn} onClick={() => setIsMockPanelOpen(false)}>✕</button>
                     </div>
                     <div className={styles.mockPanelBody}>
-                      <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                      </Suspense>
                     </div>
                   </div>
                 </motion.div>
@@ -197,7 +225,9 @@ function DashboardPage() {
                         <h3 className={styles.mockPanelTitle}>Mock Configuration</h3>
                         <button className={styles.btnAction} onClick={() => setIsMockPanelOpen(false)}>뒤로가기</button>
                       </div>
-                      <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                      </Suspense>
                     </>
                   )}
                 </div>

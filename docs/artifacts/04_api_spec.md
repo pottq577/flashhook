@@ -1,6 +1,6 @@
 # MVP API 명세서
 
-> **기술 스택**: Java 21, Spring Boot 3.5.0
+> **기술 스택**: Java 21, Spring Boot 3.5.15
 > **Rate Limit**: Redis를 이용한 고정 윈도우(Fixed Window Counter) 알고리즘 기반으로 적용됩니다.
 
 ## 1. 공통 사항

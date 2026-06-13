@@ -3,6 +3,7 @@ import type { WebhookLog, WebhookLogDetail } from './log.schema';
 
 interface LogState {
   logs: WebhookLog[];
+  logMap: Record<string, WebhookLog>;
   selectedLog: WebhookLogDetail | null;
   setLogs: (logs: WebhookLog[]) => void;
   addLog: (log: WebhookLog) => void;
@@ -14,13 +15,31 @@ const MAX_LOGS = 500;
 
 export const useLogStore = create<LogState>((set) => ({
   logs: [],
+  logMap: {},
   selectedLog: null,
-  setLogs: (logs) => set({ logs: logs.slice(0, MAX_LOGS) }),
+  setLogs: (logs) => {
+    const limitedLogs = logs.slice(0, MAX_LOGS);
+    const logMap: Record<string, WebhookLog> = {};
+    for (const l of limitedLogs) logMap[l.logId] = l;
+    set({ logs: limitedLogs, logMap });
+  },
   addLog: (log) => set((state) => {
-    // Only add if it doesn't already exist to prevent duplicates from SSE
-    if (state.logs.some(l => l.logId === log.logId)) return state;
-    return { logs: [log, ...state.logs].slice(0, MAX_LOGS) };
+    if (state.logMap[log.logId]) return state;
+    
+    const newLogs = [log];
+    for (let i = 0; i < Math.min(state.logs.length, MAX_LOGS - 1); i++) {
+        newLogs.push(state.logs[i]);
+    }
+    
+    const newLogMap = { ...state.logMap, [log.logId]: log };
+    if (state.logs.length >= MAX_LOGS) {
+       for (let i = MAX_LOGS - 1; i < state.logs.length; i++) {
+           delete newLogMap[state.logs[i].logId];
+       }
+    }
+    
+    return { logs: newLogs, logMap: newLogMap };
   }),
   setSelectedLog: (selectedLog) => set({ selectedLog }),
-  clearLogs: () => set({ logs: [], selectedLog: null }),
+  clearLogs: () => set({ logs: [], logMap: {}, selectedLog: null }),
 }));

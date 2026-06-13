@@ -15,12 +15,15 @@ import org.springframework.data.annotation.Version;
  * 엔드포인트 도큐먼트 (MongoDB)
  * TTL: createdAt 기준 24시간 후 자동 삭제
  */
+import java.io.Serializable;
+
 @Document(collection = "endpoints")
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Endpoint {
+public class Endpoint implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     private String id;

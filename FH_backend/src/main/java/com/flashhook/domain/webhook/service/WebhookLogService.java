@@ -87,7 +87,7 @@ public class WebhookLogService {
      */
     @Transactional
     public void deleteAll(String endpointId) {
-        Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
+        endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
 
         webhookLogRepository.deleteAllByEndpointId(endpointId);

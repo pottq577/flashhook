@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUpdateMockConfigMutation } from '@/entities/endpoint/api/endpoint.queries';
 import type { Endpoint } from '@/entities/endpoint/model/endpoint.schema';
@@ -66,7 +66,7 @@ function isHeadersEqual(presetHeaders: Record<string, string>, currentHeaders: R
   return presetKeys.every((key) => presetHeaders[key] === currentHeaders[key]);
 }
 
-const generateId = () => `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+const generateId = () => crypto.randomUUID();
 
 function findInitialServiceId(cfg: Endpoint['mockConfig']): string {
   if (!cfg) return CUSTOM_SERVICE_ID;
@@ -147,14 +147,15 @@ function CustomDropdown({
     setInputValue(String(value));
   }
 
-  const filteredOptions =
-    isEditable && inputValue !== ''
-      ? options.filter(
-          (o) =>
-            String(o.label).toLowerCase().includes(inputValue.toLowerCase()) ||
-            String(o.value).toLowerCase().includes(inputValue.toLowerCase()),
-        )
-      : options;
+  const filteredOptions = useMemo(() => {
+    if (!isEditable || inputValue === '') return options;
+    const lowerInput = inputValue.toLowerCase();
+    return options.filter(
+      (o) =>
+        String(o.label).toLowerCase().includes(lowerInput) ||
+        String(o.value).toLowerCase().includes(lowerInput),
+    );
+  }, [isEditable, inputValue, options]);
 
   return (
     <div className={styles.statusInputWrapper}>

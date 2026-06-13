@@ -33,7 +33,11 @@ public class WebhookStreamController {
     @PostMapping("/stream-token")
     public ResponseEntity<Map<String, String>> createStreamToken(@PathVariable String endpointId) {
         String streamToken = UUID.randomUUID().toString().replace("-", "");
-        redisTemplate.opsForValue().set("stream_token:" + streamToken, endpointId, 30, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(
+                "stream_token:" + streamToken,
+                endpointId,
+                30,
+                TimeUnit.SECONDS);
         return ResponseEntity.ok(Map.of("streamToken", streamToken));
     }
 

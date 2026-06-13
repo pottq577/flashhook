@@ -3,6 +3,7 @@ package com.flashhook.domain.webhook.repository;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
@@ -26,7 +27,7 @@ public interface WebhookLogRepository extends MongoRepository<WebhookLog, String
 
     long countByEndpointId(String endpointId);
 
-    @org.springframework.data.mongodb.repository.Aggregation(pipeline = {
+    @Aggregation(pipeline = {
             "{ '$match': { 'endpointId': ?0 } }",
             "{ '$group': { '_id': null, 'total': { '$sum': '$bodySize' } } }"
     })
