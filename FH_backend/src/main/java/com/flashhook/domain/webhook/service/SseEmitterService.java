@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
  * SSE(Server-Sent Events) 관리 서비스
  * 클라이언트 구독 및 웹훅 이벤트 전파 담당
  */
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

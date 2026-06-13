@@ -27,7 +27,7 @@ public interface WebhookLogRepository extends MongoRepository<WebhookLog, String
 
     long countByEndpointId(String endpointId);
 
-    @org.springframework.data.mongodb.repository.Aggregation(pipeline = {
+    @Aggregation(pipeline = {
             "{ '$match': { 'endpointId': ?0 } }",
             "{ '$group': { '_id': null, 'total': { '$sum': '$bodySize' } } }"
     })

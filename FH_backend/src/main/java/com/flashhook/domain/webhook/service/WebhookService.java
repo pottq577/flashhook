@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.domain.Sort;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -97,7 +98,7 @@ public class WebhookService {
         Endpoint updatedEndpoint = mongoTemplate.findAndModify(
                 query,
                 update,
-                org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true),
+                FindAndModifyOptions.options().returnNew(true),
                 Endpoint.class);
 
         if (updatedEndpoint != null) {
