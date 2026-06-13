@@ -14,7 +14,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   const [copied, setCopied] = useState(false);
 
   if (isLoading) {
-    return <div role="status" className={styles.emptyContainer}>&gt; LOADING_PAYLOAD…</div>;
+    return <div role="status" className={styles.emptyContainer}>&gt; LOADING_PAYLOAD...</div>;
   }
 
   if (!log) {
@@ -22,7 +22,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
       return (
         <div role="status" className={styles.emptyContainer}>
           <div className={styles.emptyText}>
-            <div className={styles.emptyTitle}>&gt; WAITING_FOR_ENDPOINT…</div>
+            <div className={styles.emptyTitle}>&gt; WAITING_FOR_ENDPOINT...</div>
             <p className={styles.emptyDesc}>엔드포인트를 먼저 만들거나 선택해주세요.</p>
           </div>
         </div>
@@ -46,7 +46,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
     return (
       <div role="status" className={styles.emptyContainer}>
         <div className={styles.emptyText}>
-          <div className={styles.emptyTitle}>&gt; WAITING_FOR_REQUEST…</div>
+          <div className={styles.emptyTitle}>&gt; WAITING_FOR_REQUEST...</div>
           <p className={styles.emptyDesc}>아직 들어온 요청이 없어요. 아래 명령어로 테스트 웹훅을 보내보세요.</p>
           <div className={styles.curlBlock}>
             <div className={styles.curlHeader}>
@@ -56,7 +56,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
                 <span className={styles.macDot} style={{ backgroundColor: '#27c93f' }} />
               </div>
               <span className={styles.curlLabel}>bash</span>
-              <button className={styles.copyButton} onClick={handleCopy} title="Copy to clipboard" aria-label="Copy to clipboard">
+              <button className={styles.copyButton} onClick={handleCopy} title="Copy to clipboard">
                 {copied ? 'COPIED!' : 'COPY'}
               </button>
             </div>
