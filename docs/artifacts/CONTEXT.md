@@ -24,7 +24,7 @@ FlashHook is a temporary webhook catcher service. It solves a specific problem: 
 
 ## 2. System Architecture & Data Flow
 
-The system uses a Vite/React frontend, a Spring Boot backend, MongoDB (persistence + TTL), and Redis (caching + rate limit + Pub/Sub).
+The system uses a Vite/React frontend, a Spring Boot backend, MongoDB (persistence + TTL), and Redis (caching + rate limit).
 
 **Data Flow (Webhook to Dashboard):**
 
