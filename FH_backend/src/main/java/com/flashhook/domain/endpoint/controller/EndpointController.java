@@ -4,7 +4,6 @@ import com.flashhook.domain.endpoint.dto.EndpointCreateRequest;
 import com.flashhook.domain.endpoint.dto.EndpointResponse;
 import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
 import com.flashhook.domain.endpoint.service.EndpointService;
-import com.flashhook.global.util.IpExtractor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ public class EndpointController {
     public ResponseEntity<EndpointResponse> create(
             @Valid @RequestBody(required = false) EndpointCreateRequest request,
             HttpServletRequest httpRequest) {
-        String ip = IpExtractor.extract(httpRequest);
+        String ip = httpRequest.getRemoteAddr();
         EndpointResponse response = endpointService.create(request, ip);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

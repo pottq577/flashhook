@@ -16,7 +16,6 @@ import java.io.IOException;
  */
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
-import com.flashhook.global.util.IpExtractor;
 import com.flashhook.global.exception.ErrorCode;
 
 import org.springframework.core.Ordered;
@@ -55,7 +54,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             String[] parts = path.split("/");
             if (parts.length >= 4) {
                 String endpointId = parts[3];
-                String clientIp = IpExtractor.extract(request);
+                String clientIp = request.getRemoteAddr();
                 String key = "rl:hook:" + endpointId + ":" + clientIp;
                 // 1분(60초) 기준
                 if (!rateLimitService.isAllowed(key, webhookReceiveLimit, 60)) {
@@ -67,7 +66,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         // 2. 엔드포인트 생성 API (POST /api/endpoints)
         if ("POST".equalsIgnoreCase(method) && "/api/endpoints".equals(path)) {
-            String clientIp = IpExtractor.extract(request);
+            String clientIp = request.getRemoteAddr();
             String key = CREATE_LIMIT_PREFIX + clientIp;
             // 10분(600초) 기준
             if (!rateLimitService.isAllowed(key, endpointCreateLimit, 10 * 60)) {

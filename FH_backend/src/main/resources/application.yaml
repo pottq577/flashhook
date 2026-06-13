@@ -31,6 +31,9 @@ server:
     min-response-size: 1024
   tomcat:
     max-http-form-post-size: 1MB  # Payload 크기 제한
+    remoteip:
+      remote-ip-header: CF-Connecting-IP
+      internal-proxies: 127\.0\.0\.1|0:0:0:0:0:0:0:1|::1
 
 # 커스텀 설정
 flashhook:
