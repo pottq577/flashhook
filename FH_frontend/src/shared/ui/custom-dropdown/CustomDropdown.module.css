@@ -81,7 +81,8 @@
 
 .customSelectOption {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 0.75rem;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -101,18 +102,25 @@
 }
 
 .optionValue {
-  font-weight: bold;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   color: var(--accent);
-  min-width: 45px;
+  opacity: 0.8;
+  word-break: break-all;
 }
 
 .optionTextContainer {
   display: flex;
   flex-direction: column;
-  margin-left: 0.5rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  width: 100%;
+  gap: 0.25rem;
+}
+
+.optionPrimary {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
 .optionLabel {
