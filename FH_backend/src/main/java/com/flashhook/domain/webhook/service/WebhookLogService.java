@@ -111,7 +111,7 @@ public class WebhookLogService {
      * 로그 재전송 (Replay)
      */
     public void replayLog(String endpointId, String logId, String destinationUrl) {
-        validateReplayDestination(destinationUrl);
+        InetAddress resolvedIp = validateReplayDestination(destinationUrl);
 
         WebhookLog log = webhookLogRepository.findByLogId(logId)
                 .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
@@ -120,7 +120,17 @@ public class WebhookLogService {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
+            @Override
+            protected java.net.HttpURLConnection openConnection(java.net.URL url, java.net.Proxy proxy) throws java.io.IOException {
+                java.net.URL pinnedUrl = new java.net.URL(url.getProtocol(), resolvedIp.getHostAddress(), url.getPort(), url.getFile());
+                java.net.HttpURLConnection connection = super.openConnection(pinnedUrl, proxy);
+                if (connection instanceof javax.net.ssl.HttpsURLConnection httpsConnection) {
+                    httpsConnection.setHostnameVerifier((hostname, session) -> true);
+                }
+                return connection;
+            }
+        };
         factory.setConnectTimeout(3000);
         factory.setReadTimeout(5000);
         RestTemplate restTemplate = new RestTemplate(factory);
@@ -129,8 +139,11 @@ public class WebhookLogService {
         if (log.getHeaders() != null) {
             log.getHeaders().forEach(headers::add);
         }
-        // 원래 Host 헤더는 충돌할 수 있으므로 제거
+        // 원래 Host 헤더는 충돌할 수 있으므로 제거 후 새로 주입
         headers.remove(HttpHeaders.HOST);
+        try {
+            headers.add(HttpHeaders.HOST, new URI(destinationUrl).getHost());
+        } catch (URISyntaxException ignored) {}
         
         HttpEntity<Object> entity = new HttpEntity<>(log.getBody(), headers);
         
@@ -146,7 +159,7 @@ public class WebhookLogService {
         }
     }
 
-    private void validateReplayDestination(String destinationUrl) {
+    private InetAddress validateReplayDestination(String destinationUrl) {
         try {
             URI uri = new URI(destinationUrl);
             String scheme = uri.getScheme();
@@ -162,6 +175,7 @@ public class WebhookLogService {
                 inetAddress.isMulticastAddress()) {
                 throw new CustomException(ErrorCode.FORBIDDEN);
             }
+            return inetAddress;
         } catch (URISyntaxException | UnknownHostException e) {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
