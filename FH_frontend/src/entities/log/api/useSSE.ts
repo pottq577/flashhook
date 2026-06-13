@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { WebhookLog } from '@/entities/log/model/log.schema';
 import * as tokenStorage from '@/shared/lib/tokenStorage';
 import { logger } from '@/shared/lib/logger';
+import { resolveApiBaseUrl } from '@/shared/config/api';
 
 type SSEStatus = 'connecting' | 'connected' | 'disconnected';
 
@@ -20,9 +21,7 @@ export function useSSE(
     async function connectSSE() {
       try {
         const token = tokenStorage.get(endpointId!);
-        const baseUrl = import.meta.env.VITE_API_BASE_URL 
-          ? (import.meta.env.VITE_API_BASE_URL as string)
-          : import.meta.env.PROD ? 'https://flashhook.kr/api' : 'http://localhost:8080/api';
+        const baseUrl = resolveApiBaseUrl();
         
         // Fetch stream-token
         const res = await fetch(`${baseUrl}/endpoints/${endpointId}/stream-token`, {
