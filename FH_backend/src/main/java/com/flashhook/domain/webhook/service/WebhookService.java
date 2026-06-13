@@ -3,6 +3,7 @@ package com.flashhook.domain.webhook.service;
 import com.flashhook.domain.webhook.repository.WebhookLogRepository;
 import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import com.flashhook.domain.endpoint.model.Endpoint;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WebhookService {
@@ -54,8 +56,10 @@ public class WebhookService {
         if (payload.getContentType() != null && payload.getContentType().toLowerCase().contains("application/json")) {
             try {
                 bodyObj = objectMapper.readValue(payload.getRawBody(), Object.class);
+            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                log.debug("JSON 파싱 실패, 원본 문자열로 저장합니다.", e);
             } catch (Exception e) {
-                // 파싱 실패 시 원본 문자열 유지
+                log.warn("JSON 파싱 중 예기치 않은 오류 발생", e);
             }
         }
 
