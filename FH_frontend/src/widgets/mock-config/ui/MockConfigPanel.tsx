@@ -26,8 +26,8 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (!target.closest(`[class*="statusInputWrapper"]`)) {
+      const target = event.target as Node;
+      if (containerRef.current && !containerRef.current.contains(target)) {
         setOpenDropdownId(null);
       }
     };
