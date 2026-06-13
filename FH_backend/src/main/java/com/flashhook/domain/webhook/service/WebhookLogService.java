@@ -24,6 +24,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * 웹훅 로그 조회/삭제 서비스
@@ -106,6 +110,8 @@ public class WebhookLogService {
      * 로그 재전송 (Replay)
      */
     public void replayLog(String endpointId, String logId, String destinationUrl) {
+        validateReplayDestination(destinationUrl);
+
         WebhookLog log = webhookLogRepository.findByLogId(logId)
                 .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
 
@@ -132,6 +138,27 @@ public class WebhookLogService {
             );
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INTERNAL_ERROR);
+        }
+    }
+
+    private void validateReplayDestination(String destinationUrl) {
+        try {
+            URI uri = new URI(destinationUrl);
+            String scheme = uri.getScheme();
+            if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
+                throw new CustomException(ErrorCode.INVALID_REQUEST);
+            }
+            
+            InetAddress inetAddress = InetAddress.getByName(uri.getHost());
+            if (inetAddress.isAnyLocalAddress() || 
+                inetAddress.isLoopbackAddress() || 
+                inetAddress.isLinkLocalAddress() || 
+                inetAddress.isSiteLocalAddress() || 
+                inetAddress.isMulticastAddress()) {
+                throw new CustomException(ErrorCode.FORBIDDEN);
+            }
+        } catch (URISyntaxException | UnknownHostException e) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
     }
 }
