@@ -67,15 +67,13 @@ public class SseEmitterService {
             WebhookLogResponse response = WebhookLogResponse.from(event.getWebhookLog());
 
             for (SseEmitter emitter : endpointEmitters) {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        emitter.send(SseEmitter.event()
-                                .name("webhook")
-                                .data(java.util.Objects.requireNonNull(response)));
-                    } catch (Exception e) {
-                        removeEmitter(endpointId, emitter);
-                    }
-                }, taskExecutor);
+                try {
+                    emitter.send(SseEmitter.event()
+                            .name("webhook")
+                            .data(response));
+                } catch (Exception e) {
+                    removeEmitter(endpointId, emitter);
+                }
             }
         }
     }
