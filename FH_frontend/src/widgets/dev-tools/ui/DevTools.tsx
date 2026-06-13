@@ -30,7 +30,7 @@ export function DevTools() {
   return (
     <div className={styles.container}>
       <button onClick={handleReset} disabled={isLoading} className={styles.button}>
-        {isLoading ? '[ RESETTING... ]' : '[ DEV: RESET RATE LIMIT ]'}
+        {isLoading ? '[ RESETTING… ]' : '[ DEV: RESET RATE LIMIT ]'}
       </button>
     </div>
   );

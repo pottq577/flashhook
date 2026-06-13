@@ -61,7 +61,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             onToggle={() =>
               setOpenDropdownId(openDropdownId === 'service' ? null : 'service')
             }
-            displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_SERVICE...')}
+            displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_SERVICE…')}
           />
         </div>
 
@@ -82,7 +82,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               onToggle={() =>
                 setOpenDropdownId(openDropdownId === 'scenario' ? null : 'scenario')
               }
-              displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_PRESET...')}
+              displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_PRESET…')}
             />
             {state.isDynamic && (
               <p className={styles.warning} style={{ marginTop: '0.5rem', color: '#ffcc00' }}>
@@ -303,7 +303,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           disabled={state.isPending || (state.selectedServiceId !== CUSTOM_SERVICE_ID && state.selectedScenarioId === null)}
           className={`${styles.button} ${state.isSaved ? styles.buttonSaved : ''}`}
         >
-          {state.isSaved ? '✔ SAVED!' : state.isPending ? 'SAVING_CONFIG...' : 'APPLY_CONFIG'}
+          {state.isSaved ? '✔ SAVED!' : state.isPending ? 'SAVING_CONFIG…' : 'APPLY_CONFIG'}
         </button>
       </div>
     </div>
