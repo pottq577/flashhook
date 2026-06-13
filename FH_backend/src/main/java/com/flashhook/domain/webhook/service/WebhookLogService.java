@@ -29,15 +29,18 @@ import java.net.URISyntaxException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 웹훅 로그 조회/삭제 서비스
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WebhookLogService {
 
     static {
+        // Host 헤더를 수동으로 설정하기 위해 필요 (IP 핀닝 시 원본 호스트 전달용)
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
     }
 
@@ -117,10 +120,10 @@ public class WebhookLogService {
     public void replayLog(String endpointId, String logId, String destinationUrl) {
         InetAddress resolvedIp = validateReplayDestination(destinationUrl);
 
-        WebhookLog log = webhookLogRepository.findByLogId(logId)
+        WebhookLog webhookLog = webhookLogRepository.findByLogId(logId)
                 .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
 
-        if (!log.getEndpointId().equals(endpointId)) {
+        if (!webhookLog.getEndpointId().equals(endpointId)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
@@ -173,8 +176,8 @@ public class WebhookLogService {
         RestTemplate restTemplate = new RestTemplate(factory);
         
         HttpHeaders headers = new HttpHeaders();
-        if (log.getHeaders() != null) {
-            log.getHeaders().forEach(headers::add);
+        if (webhookLog.getHeaders() != null) {
+            webhookLog.getHeaders().forEach(headers::add);
         }
         // 원래 Host 헤더는 충돌할 수 있으므로 제거 후 새로 주입
         headers.remove(HttpHeaders.HOST);
@@ -190,16 +193,17 @@ public class WebhookLogService {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
         
-        HttpEntity<Object> entity = new HttpEntity<>(log.getBody(), headers);
+        HttpEntity<Object> entity = new HttpEntity<>(webhookLog.getBody(), headers);
         
         try {
             restTemplate.exchange(
                 destinationUrl,
-                HttpMethod.valueOf(log.getMethod()),
+                HttpMethod.valueOf(webhookLog.getMethod()),
                 entity,
                 String.class
             );
         } catch (Exception e) {
+            log.warn("웹훅 재전송 실패: destinationUrl={}, logId={}", destinationUrl, logId, e);
             throw new CustomException(ErrorCode.INTERNAL_ERROR);
         }
     }
