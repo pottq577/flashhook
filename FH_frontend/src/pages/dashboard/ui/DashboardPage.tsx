@@ -67,6 +67,13 @@ function DashboardPage() {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      isDragging.current = false;
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
     };
   }, []);
 
