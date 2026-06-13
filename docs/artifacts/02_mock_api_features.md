@@ -106,14 +106,14 @@ Content-Type: application/json;charset=UTF-8
 
 ---
 
-**[지연] 응답 지연 (3초 / 5초)**
+**[지연] 웹훅 타임아웃 테스트 (3.5초)**
 
 ```
-Status: 200 OK  (delayMs: 3000 또는 5000)
-Content-Type: application/json;charset=UTF-8
+Status: 200 OK  (delayMs: 3500)
+Content-Type: application/json
 ```
 
-_Body는 성공 응답과 동일. Delay 프리셋은 mockConfig의 `delayMs` 필드로 제어._
+_Body는 `ok` 문자열 또는 성공 응답. Delay 프리셋은 mockConfig의 `delayMs` 필드로 제어._
 
 ---
 

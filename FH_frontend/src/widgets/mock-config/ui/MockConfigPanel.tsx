@@ -66,10 +66,7 @@ function isHeadersEqual(presetHeaders: Record<string, string>, currentHeaders: R
   return presetKeys.every((key) => presetHeaders[key] === currentHeaders[key]);
 }
 
-const generateId = () => 
-  typeof crypto !== 'undefined' && crypto.randomUUID 
-    ? crypto.randomUUID() 
-    : Math.random().toString(36).substring(2, 11);
+const generateId = () => `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 
 function findInitialServiceId(cfg: Endpoint['mockConfig']): string {
   if (!cfg) return CUSTOM_SERVICE_ID;
@@ -142,12 +139,20 @@ function CustomDropdown({
   const selected = options.find((o) => o.value === value);
   const isCustom = isCustomStatus ?? (!selected && value !== '');
 
+  const [inputValue, setInputValue] = useState(String(value));
+  const [prevValue, setPrevValue] = useState(String(value));
+  
+  if (String(value) !== prevValue) {
+    setPrevValue(String(value));
+    setInputValue(String(value));
+  }
+
   const filteredOptions =
-    isEditable && value !== ''
+    isEditable && inputValue !== ''
       ? options.filter(
           (o) =>
-            String(o.label).toLowerCase().includes(String(value).toLowerCase()) ||
-            String(o.value).toLowerCase().includes(String(value).toLowerCase()),
+            String(o.label).toLowerCase().includes(inputValue.toLowerCase()) ||
+            String(o.value).toLowerCase().includes(inputValue.toLowerCase()),
         )
       : options;
 
@@ -174,8 +179,9 @@ function CustomDropdown({
           <input
             type="text"
             className={styles.customSelectInput}
-            value={value}
+            value={inputValue}
             onChange={(e) => {
+              setInputValue(e.target.value);
               if (onEdit) onEdit(e.target.value);
               if (!isOpen) onToggle();
             }}
@@ -324,6 +330,31 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const [headerWarning, setHeaderWarning] = useState<string | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const [prevConfig, setPrevConfig] = useState(endpoint.mockConfig);
+
+  if (endpoint.mockConfig !== prevConfig) {
+    setPrevConfig(endpoint.mockConfig);
+    setSelectedServiceId(findInitialServiceId(endpoint.mockConfig));
+    setSelectedScenarioId(
+      findInitialScenarioId(
+        endpoint.mockConfig,
+        findInitialServiceId(endpoint.mockConfig),
+      ),
+    );
+    const code = endpoint.mockConfig?.statusCode || 200;
+    setStatusCode(code);
+    setIsCustomStatus(!COMMON_STATUS_CODES.some((c) => c.value === code));
+    setDelayMs(endpoint.mockConfig?.delayMs || 0);
+    setBody(endpoint.mockConfig?.body || 'ok');
+    
+    const headers = endpoint.mockConfig?.headers || {};
+    setHeaderList(Object.entries(headers).map(([k, v]) => ({
+      id: generateId(),
+      key: k,
+      value: String(v),
+    })));
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -665,7 +696,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
         <button
           onClick={handleApply}
-          disabled={isPending}
+          disabled={isPending || (selectedServiceId !== CUSTOM_SERVICE_ID && selectedScenarioId === null)}
           className={styles.button}
         >
           {isPending ? 'SAVING_CONFIG...' : 'APPLY_CONFIG'}
