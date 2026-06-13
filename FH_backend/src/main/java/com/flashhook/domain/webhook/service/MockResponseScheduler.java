@@ -120,13 +120,13 @@ public class MockResponseScheduler {
     }
 
     private DeferredResult<ResponseEntity<?>> handleSlackUrlVerification(String rawBody) {
-        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
         try {
             JsonNode root = objectMapper.readTree(rawBody);
 
             if (root.has("type") && "url_verification".equals(root.get("type").asText()) && root.has("challenge")) {
                 String challenge = root.get("challenge").asText();
                 Map<String, String> responseBody = Map.of("challenge", challenge);
+                DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
                 deferredResult.setResult(ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(objectMapper.writeValueAsString(responseBody)));
@@ -135,6 +135,7 @@ public class MockResponseScheduler {
             return null;
         } catch (Exception e) {
             log.error("Failed to parse Slack URL Verification payload", e);
+            DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
             deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
             return deferredResult;
         }
