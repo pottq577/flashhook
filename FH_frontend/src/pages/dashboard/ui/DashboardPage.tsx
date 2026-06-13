@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useEndpointQuery } from '@/entities/endpoint/api/endpoint.queries';
@@ -7,6 +7,8 @@ import { useRealtimeLogs } from '@/features/realtime-logs';
 import { useLogStore } from '@/entities/log/model/log.store';
 import { useEndpointStore } from '@/entities/endpoint/model/endpoint.store';
 import { useIsMobile } from '@/shared/lib/useIsMobile';
+import { useShortcut } from '@/shared/lib/useShortcut';
+import { useSidebarResize } from '../model/useSidebarResize';
 import Header from '@/widgets/header/ui/Header';
 import EndpointInfo from '@/widgets/endpoint-info/ui/EndpointInfo';
 import ConnectionStatus from '@/widgets/endpoint-info/ui/ConnectionStatus';
@@ -20,79 +22,15 @@ const MockConfigPanel = lazy(() => import('@/widgets/mock-config/ui/MockConfigPa
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
   const [isMockPanelOpen, setIsMockPanelOpen] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(440);
-  const [isResizing, setIsResizing] = useState(false);
-  const isDragging = useRef(false);
   const shouldReduceMotion = useReducedMotion();
-  
-  const { data: endpoint, isLoading, error } = useEndpointQuery(endpointId);
   const isMobile = useIsMobile();
-
-  const toggleMockPanel = useCallback(() => {
-    setIsMockPanelOpen(prev => !prev);
-  }, []);
-
-  const startResizing = useCallback(() => {
-    isDragging.current = true;
-    setIsResizing(true);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none'; // Prevent text selection while dragging
-  }, []);
-
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging.current) return;
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        const newWidth = window.innerWidth - e.clientX;
-        if (newWidth >= 440 && newWidth < 800) {
-          setSidebarWidth(newWidth);
-        }
-      });
-    };
-    const handleMouseUp = () => {
-      if (isDragging.current) {
-        isDragging.current = false;
-        setIsResizing(false);
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        document.body.style.cursor = 'default';
-        document.body.style.userSelect = 'auto';
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
-      isDragging.current = false;
-      document.body.style.cursor = 'default';
-      document.body.style.userSelect = 'auto';
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (target?.closest('input, textarea, select, [contenteditable="true"]')) {
-        return;
-      }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        toggleMockPanel();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleMockPanel]);
   
-  // Fetch initial logs
+  const { sidebarWidth, isResizing, startResizing } = useSidebarResize(440, 440, 800);
+  const { data: endpoint, isLoading, error } = useEndpointQuery(endpointId);
+
+  const toggleMockPanel = useCallback(() => setIsMockPanelOpen(prev => !prev), []);
+  useShortcut('k', toggleMockPanel);
+
   useLogsQuery(endpointId || '', 0, 50);
 
   const { logs, selectedLog, setSelectedLog } = useLogStore();
