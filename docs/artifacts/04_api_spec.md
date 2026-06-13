@@ -90,7 +90,8 @@ Content-Type: application/json (선택)
     "statusCode": 200,
     "delayMs": 0,
     "headers": {},
-    "body": "ok"
+    "body": "ok",
+    "presetType": null
   }
 }
 ```
@@ -129,7 +130,8 @@ GET /api/endpoints/{endpointId}
     "statusCode": 200,
     "delayMs": 0,
     "headers": {},
-    "body": "ok"
+    "body": "ok",
+    "presetType": null
   }
 }
 ```
@@ -168,9 +170,12 @@ PATCH /api/endpoints/{endpointId}/mock
     "Content-Type": "application/json",
     "X-Custom-Header": "FlashHook"
   },
-  "body": "{\"error\": \"Bad Request\"}"
+  "body": "{\"error\": \"Bad Request\"}",
+  "presetType": "SLACK_URL_VERIFICATION"
 }
 ```
+
+> `presetType`: 동적 응답 핸들러를 지정합니다. `null`일 경우 `statusCode`와 `body` 필드 값으로 고정 응답을 반환하며, `"SLACK_URL_VERIFICATION"` 지정 시 수신된 Body에서 Slack challenge 값을 추출하여 반환하는 등의 동적 응답을 수행합니다.
 
 **Response**: `200 OK` (업데이트된 엔드포인트 정보 반환)
 

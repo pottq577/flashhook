@@ -861,3 +861,13 @@ X-Slack-No-Retry: 1
 #### **Slack Events API 공식 문서 원본 링크**
 
 [Slack Events API 문서](https://api.slack.com/events-api)
+
+---
+
+#### [동적 응답 핸들러: Phase 2 연동]
+
+Slack URL Verification 시나리오는 수신되는 `challenge` 값을 그대로 반환해야 하는 특수성이 있습니다.
+이를 해결하기 위해 FlashHook Backend/Frontend에 `presetType` 기반의 동적 핸들러가 구축되었습니다.
+
+- **Frontend (`presets.ts`)**: Slack URL Verification (Challenge Echo) 시나리오 선택 시 `isDynamic: true` 속성을 사용해 상태 코드/바디 편집 UI를 비활성화하고 `presetType: 'SLACK_URL_VERIFICATION'`을 Backend로 전달합니다.
+- **Backend (`MockResponseScheduler.java`)**: `presetType`이 일치하면 `handleSlackUrlVerification(rawBody)`로 라우팅하여 JSON 페이로드 내 `"type": "url_verification"` 여부를 확인하고 `"challenge"` 값을 동적으로 추출하여 반환합니다.
