@@ -84,7 +84,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } finally {
-            org.slf4j.MDC.remove("traceId");
+            MDC.remove("traceId");
         }
     }
 
