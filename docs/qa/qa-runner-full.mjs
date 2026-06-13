@@ -14,6 +14,7 @@ let bugs = [];
 let passed = 0;
 let failed = 0;
 let skipped = 0;
+let redisCleanupOk = true;
 
 function reportBug(tc, severity, location, phenomenon, expected) {
   const bugId = `BUG-${String(bugs.length + 1).padStart(3, '0')}`;
@@ -54,6 +55,7 @@ async function cleanDb() {
     if (process.env.QA_STRICT_CLEANUP === '1') {
       throw new Error(`Redis cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
     }
+    redisCleanupOk = false;
     skip('PRE-REDIS', 'Redis flush 실패로 레이트리밋 관련 TC 신뢰도 저하 가능');
   }
   console.log('MongoDB cleaned for testing');
@@ -236,11 +238,14 @@ async function run() {
       const res = await fetch(`${baseBe}/api/endpoints/${id}/logs?page=0&size=50`, {
         headers: { 'X-Access-Token': token }
       });
+      if (!res.ok) return -1;
       const data = await res.json();
-      return data.content ? data.content.length : 0;
+      if (!data || !Array.isArray(data.content)) return -1;
+      return data.content.length;
     }, { id: endpointId, baseBe: BASE_BE });
     console.log('TC-20 logs fetched via FE:', logsCount);
-    if (logsCount >= 20) pass('TC-20'); else reportBug('TC-20', 'High', 'API/FE', 'Log pagination failed', '>= 20 logs');
+    if (logsCount >= 20) pass('TC-20');
+    else reportBug('TC-20', 'High', 'API/FE', `Log pagination failed (count=${logsCount})`, '>= 20 logs with valid API response');
     
     // TC-21
     await page.click('[data-testid="log-item"]');
@@ -265,26 +270,34 @@ async function run() {
     if (res.status === 403) pass('TC-24'); else reportBug('TC-24', 'High', 'Auth', 'Did not reject invalid token', '403');
 
     // TC-25: Create Rate Limit (5 per IP).
-    const tc25Ip = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
-    let alternativeEndpointId = '';
-    let alternativeToken = '';
-    for(let i=0; i<5; i++) {
-      const altRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
-      if (i === 0 && altRes.ok) {
-        const altData = await altRes.json();
-        alternativeEndpointId = altData.endpointId;
-        alternativeToken = altData.accessToken;
+    if (!redisCleanupOk) {
+      skip('TC-25', 'Redis cleanup 실패로 신뢰 가능한 검증 불가');
+    } else {
+      const tc25Ip = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+      let alternativeEndpointId = '';
+      let alternativeToken = '';
+      for(let i=0; i<5; i++) {
+        const altRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
+        if (i === 0 && altRes.ok) {
+          const altData = await altRes.json();
+          alternativeEndpointId = altData.endpointId;
+          alternativeToken = altData.accessToken;
+        }
       }
+      let rateLimitRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
+      if (rateLimitRes.status === 429) pass('TC-25'); else reportBug('TC-25', 'High', 'Rate Limit', `Endpoint create rate limit failed, status: ${rateLimitRes.status}`, '429');
     }
-    let rateLimitRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
-    if (rateLimitRes.status === 429) pass('TC-25'); else reportBug('TC-25', 'High', 'Rate Limit', `Endpoint create rate limit failed, status: ${rateLimitRes.status}`, '429');
 
     // TC-26: Receive Rate Limit (100 per min).
-    const rp = [];
-    for (let i=0; i<101; i++) rp.push(fetch(webhookUrl, { method: 'POST', body: '{}' }));
-    const results = await Promise.all(rp);
-    const has429 = results.some(r => r.status === 429);
-    if (has429) pass('TC-26'); else reportBug('TC-26', 'High', 'Rate Limit', 'Webhook receive rate limit failed', '429');
+    if (!redisCleanupOk) {
+      skip('TC-26', 'Redis cleanup 실패로 신뢰 가능한 검증 불가');
+    } else {
+      const rp = [];
+      for (let i=0; i<101; i++) rp.push(fetch(webhookUrl, { method: 'POST', body: '{}' }));
+      const results = await Promise.all(rp);
+      const has429 = results.some(r => r.status === 429);
+      if (has429) pass('TC-26'); else reportBug('TC-26', 'High', 'Rate Limit', 'Webhook receive rate limit failed', '429');
+    }
 
     // TC-27: Token expiry FE
     await page.evaluate(() => sessionStorage.clear());
@@ -328,8 +341,8 @@ async function run() {
     if (await copyBtn.isVisible()) pass('TC-33 (URL copy verified)'); else reportBug('TC-33', 'Low', 'UI', 'Copy button missing', 'Button visible');
     
     // TC-34
-    const countdownText = await page.evaluate(() => document.body.textContent?.match(/\d{2}:\d{2}:\d{2}/));
-    if (countdownText) pass('TC-34 (Countdown verified)'); else reportBug('TC-34', 'Low', 'UI', 'Countdown missing', 'Countdown format HH:MM:SS');
+    const countdownText = await page.locator('[data-testid="countdown"]').textContent();
+    if (countdownText && countdownText.match(/\d{2}:\d{2}:\d{2}/)) pass('TC-34 (Countdown verified)'); else reportBug('TC-34', 'Low', 'UI', 'Countdown missing', 'Countdown format HH:MM:SS');
 
     // Phase 8
     console.log('\n--- Phase 8: 엔드포인트 삭제 ---');
