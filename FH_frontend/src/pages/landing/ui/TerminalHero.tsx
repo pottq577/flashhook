@@ -65,13 +65,13 @@ export function TerminalHero({
               <div className={styles.recentTitle}>&gt; RECENT_SESSIONS</div>
               <div className={styles.recentList}>
                 {endpoints.map((ep) => {
-                  const diffMins = Math.floor((now - ep.createdAt) / 60000);
+                  const diffMins = Math.max(0, Math.floor((now - ep.createdAt) / 60000));
                   const timeStr = diffMins < 60 ? `${diffMins}분 전` : `${Math.floor(diffMins / 60)}시간 전`;
                   const shortId = ep.id.substring(0, 8);
                   
                   return (
                     <div key={ep.id} className={styles.recentItemWrapper}>
-                      <Link to={`/dashboard/${ep.id}`} className={styles.recentItem}>
+                      <Link to={`/dashboard/${encodeURIComponent(ep.id)}`} className={styles.recentItem}>
                         <span className={styles.recentPrefix}>$ resume</span>
                         <span className={styles.recentId}>{shortId}</span>
                         <span className={styles.recentTime}>[{timeStr}]</span>

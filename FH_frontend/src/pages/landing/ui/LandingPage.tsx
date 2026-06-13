@@ -48,6 +48,7 @@ function LandingPage() {
   };
 
   const handleCreate = async () => {
+    if (isLoading) return;
     setIsConsentOpen(false);
     setIsLoading(true);
     setError(null);
@@ -57,7 +58,7 @@ function LandingPage() {
       setTerminalLines(prev => [...prev, `> Success! ID: ${response.endpointId}`, '> Redirecting to dashboard...']);
       addEndpoint(response.endpointId, response.expiresAt);
       timerRef.current = setTimeout(() => {
-        navigate(`/dashboard/${response.endpointId}`);
+        navigate(`/dashboard/${encodeURIComponent(response.endpointId)}`);
       }, 500);
     } catch (err: unknown) {
       setTerminalLines(prev => [...prev, '> Error: Failed to create endpoint']);
