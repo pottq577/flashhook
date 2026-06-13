@@ -23,7 +23,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
         <div role="status" className={styles.emptyContainer}>
           <div className={styles.emptyText}>
             <div className={styles.emptyTitle}>&gt; WAITING_FOR_ENDPOINT...</div>
-            <p className={styles.emptyDesc}>엔드포인트를 먼저 생성하거나 선택해주세요.</p>
+            <p className={styles.emptyDesc}>엔드포인트를 먼저 만들거나 선택해주세요.</p>
           </div>
         </div>
       );

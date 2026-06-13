@@ -18,7 +18,7 @@ export const queryClient = new QueryClient({
       
       // 2. 서버 에러
       if (msg.includes('500') || msg.includes('INTERNAL_ERROR')) {
-        useToastStore.getState().addToast('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        useToastStore.getState().addToast('서버에 문제가 생겼어요. 잠시 후 다시 시도해주세요.');
         return;
       }
       
