@@ -20,6 +20,15 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 /**
  * 웹훅 로그 조회/삭제 서비스
@@ -96,5 +105,65 @@ public class WebhookLogService {
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
         Update update = new Update().set("logCount", 0).set("logSizeBytes", 0L);
         mongoTemplate.updateFirst(query, update, Endpoint.class);
+    }
+
+    /**
+     * 로그 재전송 (Replay)
+     */
+    public void replayLog(String endpointId, String logId, String destinationUrl) {
+        validateReplayDestination(destinationUrl);
+
+        WebhookLog log = webhookLogRepository.findByLogId(logId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
+
+        if (!log.getEndpointId().equals(endpointId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(3000);
+        factory.setReadTimeout(5000);
+        RestTemplate restTemplate = new RestTemplate(factory);
+        
+        HttpHeaders headers = new HttpHeaders();
+        if (log.getHeaders() != null) {
+            log.getHeaders().forEach(headers::add);
+        }
+        // 원래 Host 헤더는 충돌할 수 있으므로 제거
+        headers.remove(HttpHeaders.HOST);
+        
+        HttpEntity<Object> entity = new HttpEntity<>(log.getBody(), headers);
+        
+        try {
+            restTemplate.exchange(
+                destinationUrl,
+                HttpMethod.valueOf(log.getMethod()),
+                entity,
+                String.class
+            );
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_ERROR);
+        }
+    }
+
+    private void validateReplayDestination(String destinationUrl) {
+        try {
+            URI uri = new URI(destinationUrl);
+            String scheme = uri.getScheme();
+            if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
+                throw new CustomException(ErrorCode.INVALID_REQUEST);
+            }
+            
+            InetAddress inetAddress = InetAddress.getByName(uri.getHost());
+            if (inetAddress.isAnyLocalAddress() || 
+                inetAddress.isLoopbackAddress() || 
+                inetAddress.isLinkLocalAddress() || 
+                inetAddress.isSiteLocalAddress() || 
+                inetAddress.isMulticastAddress()) {
+                throw new CustomException(ErrorCode.FORBIDDEN);
+            }
+        } catch (URISyntaxException | UnknownHostException e) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
     }
 }

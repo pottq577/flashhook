@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import com.flashhook.domain.webhook.dto.ReplayRequest;
 
 /**
  * 웹훅 로그 조회/삭제 컨트롤러
@@ -50,5 +52,17 @@ public class WebhookLogController {
     public ResponseEntity<Void> deleteAll(@PathVariable String endpointId) {
         webhookLogService.deleteAll(endpointId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 로그 리플레이 (Replay)
+     */
+    @PostMapping("/{logId}/replay")
+    public ResponseEntity<Void> replay(
+            @PathVariable String endpointId,
+            @PathVariable String logId,
+            @Valid @RequestBody ReplayRequest request) {
+        webhookLogService.replayLog(endpointId, logId, request.getDestinationUrl());
+        return ResponseEntity.ok().build();
     }
 }

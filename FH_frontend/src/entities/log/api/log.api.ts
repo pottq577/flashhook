@@ -38,3 +38,14 @@ export async function deleteAllLogs(endpointId: string): Promise<void> {
     endpointId,
   );
 }
+
+export async function replayLog(endpointId: string, logId: string, destinationUrl: string): Promise<void> {
+  await apiRequest(
+    `/endpoints/${endpointId}/logs/${logId}/replay`,
+    {
+      method: 'POST',
+      body: { destinationUrl },
+    },
+    endpointId,
+  );
+}

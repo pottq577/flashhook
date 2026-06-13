@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { getLogs, getLogDetail, deleteAllLogs } from './log.api';
+import { getLogs, getLogDetail, deleteAllLogs, replayLog } from './log.api';
 import { useLogStore } from '@/entities/log/model/log.store';
 import { logger } from '@/shared/lib/logger';
 import { queryClient } from '@/shared/lib/queryClient';
@@ -52,6 +52,16 @@ export const useDeleteAllLogsMutation = (endpointId: string) => {
     },
     onError: (error) => {
       logger.error('Failed to delete all logs', error);
+    }
+  });
+};
+
+export const useReplayLogMutation = () => {
+  return useMutation({
+    mutationFn: ({ endpointId, logId, destinationUrl }: { endpointId: string; logId: string; destinationUrl: string }) => 
+      replayLog(endpointId, logId, destinationUrl),
+    onError: (error) => {
+      logger.error('Failed to replay log', error);
     }
   });
 };
