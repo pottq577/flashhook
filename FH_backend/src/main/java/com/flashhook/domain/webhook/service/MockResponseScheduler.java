@@ -40,7 +40,11 @@ public class MockResponseScheduler {
         }
     }
 
-    public DeferredResult<ResponseEntity<?>> schedule(MockConfig mockConfig) {
+    public DeferredResult<ResponseEntity<?>> schedule(MockConfig mockConfig, String rawBody) {
+        if ("SLACK_URL_VERIFICATION".equals(mockConfig.getPresetType())) {
+            return handleSlackUrlVerification(rawBody);
+        }
+
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L); // 15s timeout
         deferredResult.onTimeout(() ->
                 deferredResult.setErrorResult(
@@ -106,6 +110,27 @@ public class MockResponseScheduler {
             task.run();
         }
 
+        return deferredResult;
+    }
+
+    private DeferredResult<ResponseEntity<?>> handleSlackUrlVerification(String rawBody) {
+        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(rawBody);
+            
+            if (root.has("type") && "url_verification".equals(root.get("type").asText()) && root.has("challenge")) {
+                String challenge = root.get("challenge").asText();
+                java.util.Map<String, String> responseBody = java.util.Map.of("challenge", challenge);
+                deferredResult.setResult(ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(mapper.writeValueAsString(responseBody)));
+            } else {
+                deferredResult.setResult(ResponseEntity.ok().build());
+            }
+        } catch (Exception e) {
+            deferredResult.setResult(ResponseEntity.ok().build());
+        }
         return deferredResult;
     }
 }

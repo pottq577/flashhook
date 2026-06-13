@@ -123,6 +123,9 @@ public class EndpointService {
         if (request.getDelayMs() != null) mockBuilder.delayMs(request.getDelayMs());
         if (request.getHeaders() != null) mockBuilder.headers(request.getHeaders());
         if (request.getBody() != null) mockBuilder.body(request.getBody());
+        if (request.getPresetType() != null) {
+            mockBuilder.presetType(request.getPresetType().isEmpty() ? null : request.getPresetType());
+        }
 
         Endpoint updatedEndpoint = endpoint.toBuilder()
                 .mockConfig(mockBuilder.build())

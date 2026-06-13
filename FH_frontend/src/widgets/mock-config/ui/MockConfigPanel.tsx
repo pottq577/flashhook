@@ -381,6 +381,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
       desc: s.desc,
     })) ?? [];
 
+  const currentScenario = currentService?.scenarios.find((s) => s.id === selectedScenarioId);
+  const isDynamic = currentScenario?.isDynamic ?? false;
+
   /** 수동 편집 시 서비스/시나리오 선택을 CUSTOM으로 초기화 */
   const resetToCustom = () => {
     setSelectedServiceId(CUSTOM_SERVICE_ID);
@@ -440,8 +443,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
       delayMs: dMs,
       body,
       headers,
-      // 정적 프리셋: 항상 null → 동적 핸들러(Phase 2) 잔존 시 해제 보장
-      presetType: null,
+      presetType: currentScenario?.presetType ?? null,
     });
   };
 
@@ -492,11 +494,16 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               }
               displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_PRESET...')}
             />
+            {isDynamic && (
+              <p className={styles.warning} style={{ marginTop: '0.5rem', color: '#ffcc00' }}>
+                ⚡ 이 프리셋은 BE가 요청을 분석해서 응답합니다. Status Code / Body 설정이 무시됩니다.
+              </p>
+            )}
           </div>
         )}
 
         <div className={styles.row}>
-          <div className={styles.formGroup}>
+          <div className={styles.formGroup} style={{ opacity: isDynamic ? 0.5 : 1, pointerEvents: isDynamic ? 'none' : 'auto' }}>
             <label>STATUS_CODE</label>
             <CustomDropdown
               value={statusCode}
@@ -677,7 +684,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           {headerWarning && <p className={styles.warning}>{headerWarning}</p>}
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.formGroup} style={{ opacity: isDynamic ? 0.5 : 1, pointerEvents: isDynamic ? 'none' : 'auto' }}>
           <label htmlFor="input-body">RESPONSE_BODY</label>
           <textarea
             id="input-body"

@@ -16,6 +16,8 @@ export interface PresetScenario {
   delayMs: number;
   headers: Record<string, string>;
   body: string;
+  isDynamic?: boolean;
+  presetType?: string;
 }
 
 export interface PresetService {
@@ -575,6 +577,17 @@ const slackPresets: PresetService = {
         null,
         2,
       ),
+    },
+    {
+      id: 'slack_url_verification',
+      label: 'URL Verification (Challenge Echo)',
+      desc: '⚡ 동적',
+      isDynamic: true,
+      presetType: 'SLACK_URL_VERIFICATION',
+      statusCode: 200,
+      delayMs: 0,
+      headers: CT_JSON,
+      body: '{"challenge": "동적 처리됨"}',
     },
     {
       id: 'slack_retry',
