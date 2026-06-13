@@ -25,7 +25,8 @@ function LogList({ logs, selectedLogId, onSelect }: LogListProps) {
       <Virtuoso
         style={{ height: '100%' }}
         data={logs}
-        itemContent={(index, log) => (
+        computeItemKey={(_, log) => log.logId}
+        itemContent={(_index, log) => (
           <div style={{ paddingBottom: '0.5rem' }}>
             <LogItem 
               log={log} 
