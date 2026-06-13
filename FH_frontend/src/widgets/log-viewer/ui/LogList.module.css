@@ -4,6 +4,55 @@
   height: 100%;
   flex: 1;
 }
+.header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.headerRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.searchInput {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+}
+.filterSelect {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+}
+.clearBtn {
+  padding: 0.5rem 0.75rem;
+  background-color: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.clearBtn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+.clearBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .empty {
   padding: 2rem 1rem;
   text-align: center;
