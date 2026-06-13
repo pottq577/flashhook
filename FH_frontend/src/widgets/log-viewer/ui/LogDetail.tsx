@@ -4,6 +4,7 @@ import MethodBadge from '@/shared/ui/MethodBadge';
 import PromptModal from '@/shared/ui/PromptModal';
 import { useToastStore } from '@/shared/lib/toast.store';
 import JsonViewer from './JsonViewer';
+import { resolveApiBaseUrl } from '@/shared/config/api';
 import styles from './LogDetail.module.css';
 
 interface LogDetailProps {
@@ -34,9 +35,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
       );
     }
 
-    const baseUrl = (import.meta.env.VITE_API_BASE_URL 
-      || (import.meta.env.PROD ? 'https://flashhook.kr/api' : 'http://localhost:8080/api')
-    ).replace(/\/+$/, '');
+    const baseUrl = resolveApiBaseUrl();
     const webhookUrl = `${baseUrl}/hooks/${endpointId}`;
     const curlCommand = `curl -X POST ${webhookUrl} \\\n  -H "Content-Type: application/json" \\\n  -d '{"message": "Hello from FlashHook!"}'`;
 

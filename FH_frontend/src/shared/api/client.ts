@@ -1,9 +1,9 @@
 import * as tokenStorage from '@/shared/lib/tokenStorage';
 import { logger } from '@/shared/lib/logger';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL 
-  ? (import.meta.env.VITE_API_BASE_URL as string)
-  : import.meta.env.PROD ? 'https://flashhook.kr/api' : 'http://localhost:8080/api';
+import { resolveApiBaseUrl } from '@/shared/config/api';
+
+const BASE_URL = resolveApiBaseUrl();
 
 interface RequestOptions {
   method?: string;

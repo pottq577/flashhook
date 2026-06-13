@@ -32,7 +32,7 @@ function CountdownTimer({ expiresAt }: CountdownTimerProps) {
     return () => clearInterval(intervalId);
   }, [expiresAt]);
 
-  return <span style={{ fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}>{timeLeft}</span>;
+  return <span data-testid="countdown" style={{ fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}>{timeLeft}</span>;
 }
 
 export default CountdownTimer;
