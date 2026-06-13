@@ -16,13 +16,7 @@ export const queryClient = new QueryClient({
         return;
       }
       
-      // 2. 서버 에러
-      if (msg.includes('500') || msg.includes('INTERNAL_ERROR')) {
-        useToastStore.getState().addToast('서버에 문제가 생겼어요. 잠시 후 다시 시도해주세요.');
-        return;
-      }
-      
-      // 3. 기타 사용자 귀책 사유 (400, 429 등)
+      // 2. 기타 사용자 귀책 사유 (400, 429 등)
       const jsonMatch = msg.match(/\{.*\}/);
       if (jsonMatch) {
         try {
