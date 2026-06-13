@@ -12,11 +12,11 @@ interface LogItemProps {
 const timeFormatter = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
 const LogItem = memo(({ log, isSelected, onClick }: LogItemProps) => {
-  const timeString = log._timeString || (() => {
+  const timeString = log._timeString ?? (() => {
     const d = new Date(log.receivedAt);
     return !isNaN(d.getTime()) ? timeFormatter.format(d) : 'Invalid time';
   })();
-  const contentType = log._contentType || (log.contentType ? log.contentType.split(';')[0] : '');
+  const contentType = log._contentType ?? (log.contentType ? log.contentType.split(';')[0] : '');
 
   return (
     <div 

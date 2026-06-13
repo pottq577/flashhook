@@ -27,7 +27,8 @@ export async function apiRequest(
   }
 
   let attempt = 0;
-  const maxRetries = (options.method && options.method !== 'GET') ? 0 : 2;
+  const method = (options.method ?? 'GET').toUpperCase();
+  const maxRetries = method === 'GET' ? 2 : 0;
 
   while (true) {
     const controller = new AbortController();
@@ -35,7 +36,7 @@ export async function apiRequest(
 
     try {
       const response = await fetch(`${BASE_URL}${path}`, {
-        method: options.method ?? 'GET',
+        method,
         headers,
         body: options.body ? JSON.stringify(options.body) : undefined,
         signal: controller.signal,
