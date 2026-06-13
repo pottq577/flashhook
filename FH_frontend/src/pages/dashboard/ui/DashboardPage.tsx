@@ -123,9 +123,19 @@ function DashboardPage() {
             selectedLogId={selectedLog?.logId || null} 
             onSelect={(logId) => {
               const log = useLogStore.getState().logMap[logId];
-              if (log) {
-                setSelectedLog({ ...log, url: '', headers: {}, queryParams: {}, body: {} }); 
-              }
+              setSelectedLog({
+                logId,
+                method: log?.method ?? '',
+                contentType: log?.contentType ?? null,
+                clientIp: log?.clientIp ?? '',
+                bodyPreview: log?.bodyPreview ?? '',
+                bodySize: log?.bodySize ?? 0,
+                receivedAt: log?.receivedAt ?? '',
+                url: '',
+                headers: {},
+                queryParams: {},
+                body: null,
+              });
             }} 
             endpointId={endpointId}
           />
