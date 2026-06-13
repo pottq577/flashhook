@@ -24,6 +24,10 @@ spring:
 
 server:
   port: 8080
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
   tomcat:
     max-http-form-post-size: 1MB  # Payload 크기 제한
 

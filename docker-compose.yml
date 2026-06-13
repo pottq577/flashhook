@@ -8,6 +8,12 @@ services:
     volumes:
       - mongo_data:/data/db
     restart: always
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis:7.4.0-alpine
@@ -15,6 +21,11 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
     restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mongo_data:
