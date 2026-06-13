@@ -34,7 +34,9 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
       );
     }
 
-    const baseUrl = (import.meta.env.VITE_API_BASE_URL || 'https://flashhook.kr/api').replace(/\/+$/, '');
+    const baseUrl = (import.meta.env.VITE_API_BASE_URL 
+      || (import.meta.env.PROD ? 'https://flashhook.kr/api' : 'http://localhost:8080/api')
+    ).replace(/\/+$/, '');
     const webhookUrl = `${baseUrl}/hooks/${endpointId}`;
     const curlCommand = `curl -X POST ${webhookUrl} \\\n  -H "Content-Type: application/json" \\\n  -d '{"message": "Hello from FlashHook!"}'`;
 

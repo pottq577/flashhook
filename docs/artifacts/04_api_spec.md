@@ -90,7 +90,8 @@ Content-Type: application/json (선택)
     "statusCode": 200,
     "delayMs": 0,
     "headers": {},
-    "body": "ok"
+    "body": "ok",
+    "presetType": null
   }
 }
 ```
@@ -129,7 +130,8 @@ GET /api/endpoints/{endpointId}
     "statusCode": 200,
     "delayMs": 0,
     "headers": {},
-    "body": "ok"
+    "body": "ok",
+    "presetType": null
   }
 }
 ```
@@ -168,9 +170,12 @@ PATCH /api/endpoints/{endpointId}/mock
     "Content-Type": "application/json",
     "X-Custom-Header": "FlashHook"
   },
-  "body": "{\"error\": \"Bad Request\"}"
+  "body": "{\"error\": \"Bad Request\"}",
+  "presetType": "SLACK_URL_VERIFICATION"
 }
 ```
+
+> `presetType`: 동적 응답 핸들러를 지정합니다. `null`일 경우 `statusCode`, `headers`, `body` 필드 값으로 고정 응답을 반환합니다. `"SLACK_URL_VERIFICATION"` 같은 동적 프리셋 지정 시, **기존 `statusCode`, `headers`, `body` 값은 무시**되고 핸들러가 동적으로 생성한 응답이 강제 적용되나, **`delayMs`는 여전히 유효**하여 지연 응답 테스트가 가능합니다.
 
 **Response**: `200 OK` (업데이트된 엔드포인트 정보 반환)
 

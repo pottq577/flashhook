@@ -20,7 +20,9 @@ export function useSSE(
     async function connectSSE() {
       try {
         const token = tokenStorage.get(endpointId!);
-        const baseUrl = import.meta.env.VITE_API_BASE_URL as string;
+        const baseUrl = import.meta.env.VITE_API_BASE_URL 
+          ? (import.meta.env.VITE_API_BASE_URL as string)
+          : import.meta.env.PROD ? 'https://flashhook.kr/api' : 'http://localhost:8080/api';
         
         // Fetch stream-token
         const res = await fetch(`${baseUrl}/endpoints/${endpointId}/stream-token`, {

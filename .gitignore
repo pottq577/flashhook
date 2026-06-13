@@ -30,5 +30,8 @@ ci.log
 node_modules/
 .mcp-memory/
 FH_backend/src/main/resources/application-*.yaml
+!FH_backend/src/main/resources/application-*.example.yaml
 
-docs/qa
+### QA Reports ###
+docs/qa/qa-report-full.md
+docs/qa/bugs.md
