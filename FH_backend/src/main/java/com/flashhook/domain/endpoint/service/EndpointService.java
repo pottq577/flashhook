@@ -13,6 +13,7 @@ import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
 import java.time.Instant;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public class EndpointService {
                 .expiresAt(expiresAt)
                 .build();
 
-        endpointRepository.save(endpoint);
+        endpointRepository.save(Objects.requireNonNull(endpoint));
 
         return EndpointResponse.builder()
                 .endpointId(endpointId)
@@ -106,7 +107,7 @@ public class EndpointService {
     public void delete(String endpointId) {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
-        endpointRepository.delete(endpoint);
+        endpointRepository.delete(Objects.requireNonNull(endpoint));
         eventPublisher.publishEvent(new EndpointDeletedEvent(endpointId));
     }
 
@@ -138,7 +139,7 @@ public class EndpointService {
                 .mockConfig(mockBuilder.build())
                 .build();
 
-        endpointRepository.save(updatedEndpoint);
+        endpointRepository.save(Objects.requireNonNull(updatedEndpoint));
 
         return EndpointResponse.builder()
                 .endpointId(updatedEndpoint.getEndpointId())

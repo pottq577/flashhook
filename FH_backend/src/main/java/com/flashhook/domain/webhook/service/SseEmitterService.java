@@ -72,7 +72,7 @@ public class SseEmitterService {
                     try {
                         emitter.send(SseEmitter.event()
                                 .name("webhook")
-                                .data(response));
+                                .data(java.util.Objects.requireNonNull(response)));
                     } catch (Exception e) {
                         removeEmitter(endpointId, emitter);
                     }

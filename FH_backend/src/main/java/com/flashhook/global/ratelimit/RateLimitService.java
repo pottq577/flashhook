@@ -47,7 +47,11 @@ public class RateLimitService {
             redisScript.setScriptText(LUA_SCRIPT);
             redisScript.setResultType(Long.class);
 
-            Long count = redisTemplate.execute(redisScript, Collections.singletonList(key), String.valueOf(windowSeconds));
+            Long count = redisTemplate.execute(
+                    java.util.Objects.requireNonNull(redisScript),
+                    java.util.Objects.requireNonNull(Collections.singletonList(key)),
+                    java.util.Objects.requireNonNull(String.valueOf(windowSeconds))
+            );
             return count != null && count <= limit;
         } catch (Exception e) {
             log.warn("Rate limit Redis error. key={}", key, e);

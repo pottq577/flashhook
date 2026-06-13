@@ -128,8 +128,8 @@ public class MockResponseScheduler {
                 Map<String, String> responseBody = Map.of("challenge", challenge);
                 DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
                 deferredResult.setResult(ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(objectMapper.writeValueAsString(responseBody)));
+                        .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                        .body(java.util.Objects.requireNonNull(objectMapper.writeValueAsString(responseBody))));
                 return deferredResult;
             }
             return null;
