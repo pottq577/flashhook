@@ -27,6 +27,7 @@ FlashHook is a temporary webhook catcher service. It solves a specific problem: 
 The system uses a Vite/React frontend, a Spring Boot backend, MongoDB (persistence + TTL), and Redis (caching + rate limit + Pub/Sub).
 
 **Data Flow (Webhook to Dashboard):**
+
 1. **Creation**: User creates an endpoint. Backend rate-limits the IP via Redis and persists the `Endpoint` in MongoDB.
 2. **Subscription**: Frontend connects to SSE via `/api/endpoints/{id}/stream`.
 3. **Receiving Data**: External provider sends a POST request to the webhook URL.
@@ -46,6 +47,7 @@ The frontend strictly enforces **Feature-Sliced Design (FSD)**.
 - **`shared/`**: UI components, API clients, and `toast.store.ts`.
 
 **State Management:**
+
 - **TanStack Query**: Server state (fetching, mutations). Globally handles token expiration and 500 errors.
 - **Zustand**: Client/UI state. `log.store.ts` manages real-time logs (max 500) from SSE without prop-drilling.
 
