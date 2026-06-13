@@ -47,7 +47,10 @@ public class MockResponseScheduler {
 
     public DeferredResult<ResponseEntity<?>> schedule(MockConfig mockConfig, String rawBody) {
         if ("SLACK_URL_VERIFICATION".equals(mockConfig.getPresetType())) {
-            return handleSlackUrlVerification(rawBody);
+            DeferredResult<ResponseEntity<?>> slackResult = handleSlackUrlVerification(rawBody);
+            if (slackResult != null) {
+                return slackResult;
+            }
         }
 
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L); // 15s timeout
@@ -129,13 +132,13 @@ public class MockResponseScheduler {
                 deferredResult.setResult(ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(objectMapper.writeValueAsString(responseBody)));
-            } else {
-                deferredResult.setResult(ResponseEntity.ok().build());
+                return deferredResult;
             }
+            return null;
         } catch (Exception e) {
             log.error("Failed to parse Slack URL Verification payload", e);
-            deferredResult.setResult(ResponseEntity.ok().build());
+            deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+            return deferredResult;
         }
-        return deferredResult;
     }
 }

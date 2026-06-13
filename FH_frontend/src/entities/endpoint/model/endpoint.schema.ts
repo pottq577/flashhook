@@ -5,7 +5,7 @@ export const MockConfigSchema = z.object({
   delayMs: z.number().min(0).max(10000).default(0),
   headers: z.record(z.string(), z.string()).default({}),
   body: z.string().default('ok'),
-  presetType: z.string().nullish(),
+  presetType: z.string().max(50).nullish(),
 });
 
 export const EndpointSchema = z.object({

@@ -123,8 +123,12 @@ public class EndpointService {
         if (request.getDelayMs() != null) mockBuilder.delayMs(request.getDelayMs());
         if (request.getHeaders() != null) mockBuilder.headers(request.getHeaders());
         if (request.getBody() != null) mockBuilder.body(request.getBody());
-        if (request.getPresetType() != null) {
-            mockBuilder.presetType(request.getPresetType().isEmpty() ? null : request.getPresetType());
+        
+        String presetType = request.getPresetType();
+        if (presetType == null || presetType.isBlank()) {
+            mockBuilder.presetType(null);
+        } else {
+            mockBuilder.presetType(presetType.trim());
         }
 
         Endpoint updatedEndpoint = endpoint.toBuilder()

@@ -496,7 +496,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             />
             {isDynamic && (
               <p className={styles.warning} style={{ marginTop: '0.5rem', color: '#ffcc00' }}>
-                ⚡ 이 프리셋은 BE가 요청을 분석해서 응답합니다. Status Code / Body 설정이 무시됩니다.
+                ⚡ 이 프리셋은 BE가 요청을 분석해서 응답합니다. 아래 설정은 무시됩니다.
               </p>
             )}
           </div>
@@ -545,7 +545,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             )}
           </div>
 
-          <div className={styles.formGroup}>
+          <div className={styles.formGroup} style={{ opacity: isDynamic ? 0.5 : 1, pointerEvents: isDynamic ? 'none' : 'auto' }}>
             <label>RESPONSE_DELAY (ms)</label>
             <CustomDropdown
               value={delayMs}
@@ -570,7 +570,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           </div>
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.formGroup} style={{ opacity: isDynamic ? 0.5 : 1, pointerEvents: isDynamic ? 'none' : 'auto' }}>
           <label>RESPONSE_HEADERS</label>
           <div className={styles.headerList}>
             {headerList.map((h, i) => (
