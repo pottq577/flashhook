@@ -87,9 +87,11 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
     setIsPromptOpen(true);
   };
 
-  const handleConfirmReplay = (destinationUrl: string) => {
+  const handleConfirmReplay = (rawDestinationUrl: string) => {
+    const destinationUrl = rawDestinationUrl.trim();
+    if (!destinationUrl) return;
     setIsPromptOpen(false);
-    if (destinationUrl && endpointId && logId) {
+    if (endpointId && logId) {
       replayMutation.mutate(
         { endpointId, logId, destinationUrl },
         {
