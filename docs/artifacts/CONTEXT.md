@@ -31,7 +31,7 @@ The system uses a Vite/React frontend, a Spring Boot backend, MongoDB (persisten
 2. **Subscription**: Frontend connects to SSE via `/api/endpoints/{id}/stream`.
 3. **Receiving Data**: External provider sends a POST request to the webhook URL.
 4. **Processing & Mocking**: Backend saves the `WebhookLog` to MongoDB. `MockResponseScheduler` reads the `MockConfig` and asynchronously returns the configured HTTP response (with optional delay).
-5. **Distribution**: The webhook event is published over **Redis Pub/Sub** and broadcasted to connected SSE clients.
+5. **Distribution**: The webhook event is published as a **Spring ApplicationEvent (`WebhookReceivedEvent`)** and asynchronously broadcasted to connected SSE clients via `@Async @EventListener`.
 6. **Render**: Frontend `log.store.ts` (Zustand) catches the SSE event and animates it in the UI.
 
 ## 3. Frontend Architecture (React/Vite)
@@ -61,7 +61,7 @@ The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.
 
 ## 5. Infrastructure & Local Development
 
-- **Redis**: Handles fixed-window rate limiting (via Lua script) and Pub/Sub for high-availability SSE distribution across server instances.
+- **Redis**: Handles fixed-window rate limiting (via Lua script) to protect the server from spam/DDoS.
 - **MongoDB**: Relies on TTL indexes for data purging.
 - **Local Testing**:
   1. `docker-compose up -d` for Redis/MongoDB.
