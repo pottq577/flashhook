@@ -1,111 +1,76 @@
 # FlashHook Context
 
-## 1. FlashHook Domain Overview
+## 1. Domain Overview & Core Entities
 
 FlashHook is a temporary webhook catcher service. It solves a specific problem: providing developers a zero-friction, 1-second process to generate a temporary endpoint URL to receive, inspect, and debug external webhooks (like payments or third-party integrations).
 
 **Core Entities:**
 
-- **Endpoint**: A unique URL created by a user without registration. Access to the dashboard is maintained via a temporary access token saved in the browser's `sessionStorage`. All endpoints automatically expire and are purged after 24 hours.
-- **WebhookLog**: The payload received by an Endpoint. Includes headers, query params, raw body, and method. Capped at 500 logs or 5MB per endpoint, automatically expiring along with its Endpoint.
-- **MockConfig**: A sub-document embedded in an Endpoint that controls how FlashHook responds when that endpoint is called. Fields: `statusCode`, `delayMs`, `headers`, `body`. A future `presetType` field (Phase 2) will identify dynamic preset handlers.
-- **Static Preset**: A named scenario (e.g., "토스페이먼츠 — ALREADY_PROCESSED_PAYMENT") that maps to a fixed `{ statusCode, delayMs, headers, body }` tuple. Defined as FE-side constants in `presets.ts`. Applying one issues a `PATCH /api/endpoints/{id}/mock` to overwrite all four MockConfig fields **and always includes `presetType: null`** to clear any previously set dynamic handler.
-- **Dynamic Preset — Type A (Dynamic Response Handler)**: A scenario where FlashHook must parse the incoming request and generate a response based on its content (e.g., Slack URL Verification: echo the `challenge` field). Implemented in Phase 2 via a `presetType` field in MockConfig that routes to a dedicated handler in `MockResponseScheduler`.
-- **Dynamic Preset — Type B (Webhook Sender)**: A scenario where FlashHook must actively *send* a signed webhook payload to the developer's server (e.g., GitHub `X-Hub-Signature-256`, PortOne `webhook-signature`). Requires a separate "Webhook Sender" feature that does not yet exist. Not part of the Mock API preset system.
-- **Preset Catalog**: The FE-side constant file (`presets.ts`) that enumerates all available presets grouped by service (Kakao, Toss Payments, PortOne V2, Solapi, GitHub, Slack). The single source of truth for preset content; changes require a frontend redeploy (accepted trade-off).
+- **Endpoint (`com.flashhook.domain.endpoint.model.Endpoint`)**:
+  - A generated webhook receiver URL.
+  - Stored in MongoDB (`endpoints` collection).
+  - Uses a TTL index to auto-expire 24 hours after creation.
+- **WebhookLog (`com.flashhook.domain.webhook.model.WebhookLog`)**:
+  - The payload of an incoming HTTP request (headers, body, method).
+  - Stored in MongoDB (`logs` collection) with a 24-hour TTL.
+- **MockConfig (`com.flashhook.domain.endpoint.model.MockConfig`)**:
+  - Embedded inside `Endpoint`. Defines the mock HTTP response (status, delay, headers, body) returned to the external caller.
+- **Static Preset (`presets.ts`)**:
+  - Named scenarios (e.g., "카카오 — ALREADY_PROCESSED_PAYMENT") that map to a fixed `MockConfig` tuple.
+  - Applying a preset issues a `PATCH /api/endpoints/{id}/mock` with `presetType: null` to clear any dynamic handlers.
+- **Dynamic Preset (Phase 2 & Future)**:
+  - **Type A (Response Handler)**: Requires parsing the request to echo values (e.g., Slack URL Verification). Routes to `MockResponseScheduler` via `presetType`.
+  - **Type B (Webhook Sender)**: Active sending of signed webhook payloads (e.g., GitHub `X-Hub-Signature-256`).
 
-## 2. System Architecture
+## 2. System Architecture & Data Flow
 
-The system consists of a Vite/React frontend and a Spring Boot backend, utilizing MongoDB for persistence and Redis for fast caching and rate limiting.
+The system uses a Vite/React frontend, a Spring Boot backend, MongoDB (persistence + TTL), and Redis (caching + rate limit + Pub/Sub).
 
-```mermaid
-sequenceDiagram
-    participant WebhookSender as Third-party App
-    participant Spring as Backend (Spring Boot)
-    participant Redis as Redis (Rate Limit)
-    participant Mongo as MongoDB (TTL Data)
-    participant FE as Frontend (React + SSE)
+**Data Flow (Webhook to Dashboard):**
+1. **Creation**: User creates an endpoint. Backend rate-limits the IP via Redis and persists the `Endpoint` in MongoDB.
+2. **Subscription**: Frontend connects to SSE via `/api/endpoints/{id}/stream`.
+3. **Receiving Data**: External provider sends a POST request to the webhook URL.
+4. **Processing & Mocking**: Backend saves the `WebhookLog` to MongoDB. `MockResponseScheduler` reads the `MockConfig` and asynchronously returns the configured HTTP response (with optional delay).
+5. **Distribution**: The webhook event is published over **Redis Pub/Sub** and broadcasted to connected SSE clients.
+6. **Render**: Frontend `log.store.ts` (Zustand) catches the SSE event and animates it in the UI.
 
-    FE->>Spring: 1. Subscribe to Endpoint (SSE)
-    WebhookSender->>Spring: 2. POST /api/hooks/{endpointId}
-    Spring->>Redis: 3. Check Rate Limits
-    Spring->>Mongo: 4. Save WebhookLog
-    Spring-->>FE: 5. Push Event (SSE)
-    FE->>FE: 6. Render Log in Dashboard
-```
+## 3. Frontend Architecture (React/Vite)
 
-## 3. Backend Structure (Spring Boot)
+The frontend strictly enforces **Feature-Sliced Design (FSD)**.
 
-The backend uses Java 21, Spring Boot 3.5.0, and a **Package-by-Feature (Domain-Driven)** folder structure combining a 3-Layer Architecture (`controller`, `service`, `repository`) within each domain (`domain/endpoint`, `domain/webhook`).
+- **`app/`**: Global setups (`QueryProvider.tsx`).
+- **`pages/`**: Routable views (`landing`, `dashboard`, `not-found`).
+- **`widgets/`**: Reusable complex blocks (`MockConfigPanel`, `log-viewer`).
+- **`features/`**: Specific interactions.
+- **`entities/`**: Core domain logic, **Zod** schemas (`endpoint.schema.ts`, `log.schema.ts`), and queries.
+- **`shared/`**: UI components, API clients, and `toast.store.ts`.
 
-- **Routing & Events** (The system exposes 11 API endpoints in total):
-  - `EndpointController` for metadata CRUD.
-  - `WebhookReceiveController` for incoming traffic.
-  - `WebhookLogController` for log retrieval (using Spring Data Page with `lastSeenId` cursor) and deletion.
-  - `MockResponseScheduler` generates mock HTTP responses for webhooks and returns them asynchronously via `DeferredResult` after a configured delay.
-  - `WebhookStreamController` handles real-time SSE subscriptions.
-- **Real-time SSE Logic**:
-  - `SseEmitterService` manages connections (`ConcurrentHashMap`).
-  - To prevent blocking, incoming webhooks trigger a `WebhookReceivedEvent` via Spring's `ApplicationEventPublisher`.
-  - `SseEmitterService` listens via `@EventListener` and `@Async` to push payloads to connected clients.
-  - A `@Scheduled` task sends a `ping` every 30 seconds (configurable via properties) to keep the connection alive through proxies.
-- **Database Interaction**:
-  - **MongoDB**: Primary datastore. Uses `MongoTemplate` for atomic operations (e.g., updating log counts securely) and TTL indexes for 24-hour expiration.
-  - **Redis**: Handles Rate Limiting (Fixed Window via Lua scripts) and temporary caches. Follows a fail-open strategy if Redis goes down.
+**State Management:**
+- **TanStack Query**: Server state (fetching, mutations). Globally handles token expiration and 500 errors.
+- **Zustand**: Client/UI state. `log.store.ts` manages real-time logs (max 500) from SSE without prop-drilling.
 
-## 4. Frontend Structure (React/Vite)
+## 4. Backend Architecture (Spring Boot 3)
 
-The frontend uses React 19, TypeScript 5.7.x, and follows **Feature-Sliced Design (FSD)** to maintain strict boundaries.
+The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.flashhook`.
 
-- **`app/`**: Global providers (`QueryProvider`) and routing (`react-router-dom`). Includes a globally rendered `CookieBanner`.
-- **`pages/`**: Main views (`LandingPage`, `DashboardPage`, `About`, `Contact`, `Terms`, `Privacy`).
-- **`widgets/`**: Reusable complex blocks (`LogList`, `LogDetail`).
-- **`features/`**: User interactions that span multiple entities (e.g., mock response configuration).
-- **`entities/`**: Core domain logic. Uses **Zod** to validate API contracts.
-- **`shared/`**: Generic UI components, API clients, and `sessionStorage` management.
-- **State Management**:
-  - **TanStack Query (React Query)**: Manages server state, like initial data fetching on page load.
-  - **Zustand**: Manages global/real-time state, specifically the `useLogStore`. It captures new SSE events and selectively triggers re-renders for connected components, avoiding prop-drilling.
+- **`domain/`**: Contains `endpoint` and `webhook` packages. Each has `controller`, `service`, `repository`, `model`.
+  - **Controllers**: `EndpointController`, `WebhookReceiveController`, `WebhookStreamController`.
+- **`global/`**: Cross-cutting concerns (`config`, `exception`, `ratelimit`).
+- **SSE Logic (`SseEmitterService`)**: Manages active connections in a `ConcurrentHashMap`. Sends 30-second heartbeats (`ping`).
+- **Mock Responses (`MockResponseScheduler`)**: Evaluates `MockConfig` to delay or customize responses to external callers.
 
-## 5. Data Flow (Webhook to Dashboard)
+## 5. Infrastructure & Local Development
 
-1. **Creation**: User clicks "Create" on the frontend. The backend generates a UUID v4 `endpointId` and saves it to MongoDB.
-2. **Subscription**: The frontend Dashboard opens and performs a 2-step SSE handshake: it POSTs to `/api/endpoints/{id}/stream-token` with its access token to receive a short-lived token, then calls `WebhookStreamController` to establish the SSE connection via GET `/api/endpoints/{id}/stream?streamToken={token}`.
-3. **Reception**: A third-party app POSTs to the webhook URL. The request is parsed into an `IncomingWebhookPayload` DTO.
-4. **Validation**: The backend checks Redis for rate limits. If passed, the log is persisted in MongoDB.
-5. **Notification**: An internal Spring Event is fired. `SseEmitterService` catches it and writes the JSON payload to the corresponding SSE emitters.
-6. **Render**: The `useSSE` hook catches the event, pushes it to Zustand's `useLogStore`, and the `LogList` widget animates the new log via Framer Motion.
+- **Redis**: Handles fixed-window rate limiting (via Lua script) and Pub/Sub for high-availability SSE distribution across server instances.
+- **MongoDB**: Relies on TTL indexes for data purging.
+- **Local Testing**:
+  1. `docker-compose up -d` for Redis/MongoDB.
+  2. Use Cloudflare Tunnel (`cloudflared tunnel --url http://localhost:8080`) to expose the local backend to third-party services like Slack or Stripe.
+- **Proxy Timeouts**: Production proxies (Nginx/AWS ALB) kill idle connections. The 30-second SSE ping prevents this.
 
-## 6. Getting Started
+## 6. Development Guidelines
 
-To test the full lifecycle, including external webhook reception, follow these steps:
-
-1. **Local Services**: Start Redis and MongoDB using Docker.
-   ```bash
-   docker-compose up -d
-   ```
-2. **Start Applications**: Run the backend and frontend development servers.
-3. **Expose Localhost**: Since third-party services cannot hit `localhost`, use Cloudflare Tunnel (or ngrok) to expose your local backend.
-   ```bash
-   cloudflared tunnel --url http://localhost:8080
-   ```
-4. **Test**: Create an endpoint on your local frontend, but register the Cloudflare Tunnel URL with the third-party service (e.g., Stripe, GitHub).
-
-## 7. Deployment & Infrastructure
-
-*Note: Continuous Integration (CI) with Docker Compose and Playwright is implemented, but the Continuous Deployment (CD) pipeline to AWS (EC2/ECS) is currently planned and not yet implemented.*
-
-When moving from local to production, note these architectural behaviors:
-
-- **SSE & Reverse Proxies**: Cloudflare, Nginx, or AWS ALB will silently drop long-running HTTP connections. The backend sends a 30-second heartbeat ping to prevent this. Ensure your proxy timeout settings exceed 30 seconds.
-- **TTL Expiration**: Data deletion relies on MongoDB's TTL thread, which runs periodically (usually every 60 seconds). Expired endpoints might linger for up to a minute before actual deletion.
-- **High Availability**: SSE emitters are currently bound to a single node's JVM memory. If deploying multiple backend pods, you must implement Redis Pub/Sub to distribute `WebhookReceivedEvent` messages across all nodes.
-
-## 8. Development Guidelines
-
-Strict adherence to these rules ensures codebase consistency when AI agents or new developers contribute.
-
-- **FSD Enforcement**: Modules in `entities/` cannot import from `widgets/` or `pages/`. Violations will break the architecture.
-- **API Contracts**: All external JSON payloads must be parsed and validated through Zod on the frontend.
-- **Lombok Conventions**: Use `@Getter`, `@RequiredArgsConstructor`, and `@Slf4j`. Avoid `@Data` or `@Builder` on Mongo Entities to prevent serialization loops or unwanted mutability.
-- **AI Agent Context**: Always point agents to this document and the domain models in `entities/` before requesting feature implementations.
+1. **FSD Enforcement**: Modules in `entities/` MUST NOT import from `widgets/` or `pages/`.
+2. **API Contracts**: All JSON payloads must be parsed/validated through Zod schemas in `entities/`.
+3. **Lombok**: Use `@Getter`, `@RequiredArgsConstructor`. Avoid `@Data` on MongoDB entities to prevent serialization loops.
+4. **Zero Magic**: Keep code explicit. No hidden side-effects. Verification (build/lint/test) must pass before claiming completion.

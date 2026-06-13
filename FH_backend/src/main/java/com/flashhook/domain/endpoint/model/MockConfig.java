@@ -24,6 +24,8 @@ public class MockConfig {
     @Builder.Default
     private String body = "ok";
 
+    private String presetType;
+
     public Map<String, String> getHeaders() {
         if (headers == null) {
             return new HashMap<>();

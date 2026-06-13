@@ -26,4 +26,7 @@ public class MockUpdateRequest {
     
     @Size(max = 65536)
     private String body;
+
+    @Size(max = 50)
+    private String presetType;
 }

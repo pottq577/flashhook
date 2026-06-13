@@ -49,7 +49,7 @@ public class WebhookReceiveController {
         IncomingWebhookPayload payload = parseRequest(request);
         var mockConfig = webhookService.receive(endpointId, payload);
 
-        return mockResponseScheduler.schedule(mockConfig);
+        return mockResponseScheduler.schedule(mockConfig, payload.getRawBody());
     }
 
     private IncomingWebhookPayload parseRequest(HttpServletRequest request) {
