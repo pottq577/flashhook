@@ -1,8 +1,10 @@
 package com.flashhook.domain.endpoint.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.jackson.Jacksonized;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -10,6 +12,8 @@ import jakarta.validation.constraints.Size;
 import java.util.Map;
 
 @Getter
+@Builder
+@Jacksonized
 @NoArgsConstructor
 @AllArgsConstructor
 public class MockUpdateRequest {
