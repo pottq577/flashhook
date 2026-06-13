@@ -37,18 +37,24 @@ function DashboardPage() {
     document.body.style.userSelect = 'none'; // Prevent text selection while dragging
   }, []);
 
+  const rafRef = useRef<number | null>(null);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
-      const newWidth = window.innerWidth - e.clientX;
-      if (newWidth >= 440 && newWidth < 800) {
-        setSidebarWidth(newWidth);
-      }
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        const newWidth = window.innerWidth - e.clientX;
+        if (newWidth >= 440 && newWidth < 800) {
+          setSidebarWidth(newWidth);
+        }
+      });
     };
     const handleMouseUp = () => {
       if (isDragging.current) {
         isDragging.current = false;
         setIsResizing(false);
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
         document.body.style.cursor = 'default';
         document.body.style.userSelect = 'auto';
       }
