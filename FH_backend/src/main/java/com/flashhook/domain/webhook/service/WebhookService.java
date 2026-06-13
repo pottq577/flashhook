@@ -109,25 +109,45 @@ public class WebhookService {
         long currentSize = endpoint.getLogSizeBytes();
 
         while (currentCount > maxLogCount || currentSize > maxLogSizeBytes) {
-            // 가장 오래된 로그 원자적 찾아 삭제 (findAndRemove)
+            int fetchSize = (int) Math.max(currentCount - maxLogCount, 50);
+            if (fetchSize > 1000) fetchSize = 1000;
+            
             Query findOldestQuery = new Query(Criteria.where("endpointId").is(endpoint.getEndpointId()))
                     .with(Sort.by(Sort.Direction.ASC, "receivedAt"))
-                    .limit(1);
-            WebhookLog oldLog = mongoTemplate.findAndRemove(findOldestQuery, WebhookLog.class);
-
-            if (oldLog == null) {
+                    .limit(fetchSize);
+            findOldestQuery.fields().include("_id").include("bodySize");
+            
+            java.util.List<WebhookLog> oldLogs = mongoTemplate.find(findOldestQuery, WebhookLog.class);
+            
+            if (oldLogs.isEmpty()) {
                 break;
             }
-
-            Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
-            Update update = new Update().inc("logCount", -1).inc("logSizeBytes", -oldLog.getBodySize());
-            mongoTemplate.updateFirst(query, update, Endpoint.class);
-
-            currentCount--;
-            currentSize -= oldLog.getBodySize();
-            currentSize = Math.max(0, currentSize);
-
-            if (currentCount <= 0) {
+            
+            long sizeToRemove = 0;
+            int countToRemove = 0;
+            java.util.List<String> idsToRemove = new java.util.ArrayList<>();
+            
+            for (WebhookLog log : oldLogs) {
+                if (currentCount <= maxLogCount && currentSize <= maxLogSizeBytes) {
+                    break;
+                }
+                idsToRemove.add(log.getId());
+                sizeToRemove += log.getBodySize();
+                countToRemove++;
+                
+                currentCount--;
+                currentSize -= log.getBodySize();
+                currentSize = Math.max(0, currentSize);
+            }
+            
+            if (!idsToRemove.isEmpty()) {
+                mongoTemplate.remove(new Query(Criteria.where("_id").in(idsToRemove)), WebhookLog.class);
+                Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
+                Update update = new Update().inc("logCount", -countToRemove).inc("logSizeBytes", -sizeToRemove);
+                mongoTemplate.updateFirst(query, update, Endpoint.class);
+            }
+            
+            if (countToRemove == 0) {
                 break;
             }
         }
