@@ -20,6 +20,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 /**
  * 웹훅 로그 조회/삭제 서비스
@@ -96,5 +100,38 @@ public class WebhookLogService {
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
         Update update = new Update().set("logCount", 0).set("logSizeBytes", 0L);
         mongoTemplate.updateFirst(query, update, Endpoint.class);
+    }
+
+    /**
+     * 로그 재전송 (Replay)
+     */
+    public void replayLog(String endpointId, String logId, String destinationUrl) {
+        WebhookLog log = webhookLogRepository.findByLogId(logId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
+
+        if (!log.getEndpointId().equals(endpointId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        if (log.getHeaders() != null) {
+            log.getHeaders().forEach(headers::add);
+        }
+        // 원래 Host 헤더는 충돌할 수 있으므로 제거
+        headers.remove(HttpHeaders.HOST);
+        
+        HttpEntity<Object> entity = new HttpEntity<>(log.getBody(), headers);
+        
+        try {
+            restTemplate.exchange(
+                destinationUrl,
+                HttpMethod.valueOf(log.getMethod()),
+                entity,
+                String.class
+            );
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_ERROR);
+        }
     }
 }

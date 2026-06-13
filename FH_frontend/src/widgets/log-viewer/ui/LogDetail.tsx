@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useLogDetailQuery } from '@/entities/log/api/log.queries';
+import { useLogDetailQuery, useReplayLogMutation } from '@/entities/log/api/log.queries';
 import MethodBadge from '@/shared/ui/MethodBadge';
+import { useToastStore } from '@/shared/lib/toast.store';
 import JsonViewer from './JsonViewer';
 import styles from './LogDetail.module.css';
 
@@ -11,6 +12,8 @@ interface LogDetailProps {
 
 function LogDetail({ logId, endpointId }: LogDetailProps) {
   const { data: log, isLoading } = useLogDetailQuery(endpointId || '', logId);
+  const replayMutation = useReplayLogMutation();
+  const addToast = useToastStore((state) => state.addToast);
   const [copied, setCopied] = useState(false);
 
   if (isLoading) {
@@ -78,11 +81,40 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   const isValidDate = !isNaN(date.getTime());
   const dateString = isValidDate ? date.toLocaleString() : 'INVALID_DATE';
 
+  const handleReplay = () => {
+    const defaultUrl = 'http://localhost:3000/webhook';
+    const destinationUrl = window.prompt('재전송할 로컬 또는 외부 서버의 전체 URL을 입력하세요.', defaultUrl);
+    
+    if (destinationUrl && endpointId && logId) {
+      replayMutation.mutate(
+        { endpointId, logId, destinationUrl },
+        {
+          onSuccess: () => {
+            addToast(`[Replay] ${destinationUrl} 로 재전송을 요청했습니다.`, 3000);
+          },
+          onError: (err) => {
+            addToast(`[Replay 실패] ${err.message}`, 4000);
+          }
+        }
+      );
+    }
+  };
+
   return (
     <div className={styles.container} data-testid="log-detail">
       <div className={styles.header}>
-        <MethodBadge method={log.method} />
-        <span className={styles.url}>{log.url}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <MethodBadge method={log.method} />
+          <span className={styles.url}>{log.url}</span>
+        </div>
+        <button 
+          className={styles.copyButton} 
+          style={{ padding: '0.25rem 0.75rem', borderRadius: '4px', borderColor: 'var(--primary-color)' }}
+          onClick={handleReplay}
+          disabled={replayMutation.isPending}
+        >
+          {replayMutation.isPending ? 'REPLAYING...' : 'REPLAY'}
+        </button>
       </div>
 
       <div className={styles.metaInfo}>
