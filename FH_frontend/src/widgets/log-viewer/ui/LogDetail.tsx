@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLogDetailQuery, useReplayLogMutation } from '@/entities/log/api/log.queries';
 import MethodBadge from '@/shared/ui/MethodBadge';
+import PromptModal from '@/shared/ui/PromptModal';
 import { useToastStore } from '@/shared/lib/toast.store';
 import JsonViewer from './JsonViewer';
 import styles from './LogDetail.module.css';
@@ -15,6 +16,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   const replayMutation = useReplayLogMutation();
   const addToast = useToastStore((state) => state.addToast);
   const [copied, setCopied] = useState(false);
+  const [isPromptOpen, setIsPromptOpen] = useState(false);
 
   if (isLoading) {
     return <div role="status" className={styles.emptyContainer}>&gt; LOADING_PAYLOAD…</div>;
@@ -81,11 +83,15 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
   const isValidDate = !isNaN(date.getTime());
   const dateString = isValidDate ? date.toLocaleString() : 'INVALID_DATE';
 
-  const handleReplay = () => {
-    const defaultUrl = 'http://localhost:3000/webhook';
-    const destinationUrl = window.prompt('재전송할 로컬 또는 외부 서버의 전체 URL을 입력해 주세요.', defaultUrl);
-    
-    if (destinationUrl && endpointId && logId) {
+  const handleReplayClick = () => {
+    setIsPromptOpen(true);
+  };
+
+  const handleConfirmReplay = (rawDestinationUrl: string) => {
+    const destinationUrl = rawDestinationUrl.trim();
+    if (!destinationUrl) return;
+    setIsPromptOpen(false);
+    if (endpointId && logId) {
       replayMutation.mutate(
         { endpointId, logId, destinationUrl },
         {
@@ -110,7 +116,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
         <button 
           className={styles.copyButton} 
           style={{ padding: '0.25rem 0.75rem', borderRadius: '4px', borderColor: 'var(--primary-color)' }}
-          onClick={handleReplay}
+          onClick={handleReplayClick}
           disabled={replayMutation.isPending}
         >
           {replayMutation.isPending ? 'REPLAYING...' : 'REPLAY'}
@@ -166,6 +172,17 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
         <h3 className={styles.sectionTitle}>[ BODY ]</h3>
         <JsonViewer data={log.body} />
       </div>
+
+      <PromptModal
+        isOpen={isPromptOpen}
+        title="웹훅 재전송"
+        message="어디로 재전송할까요? 전체 URL을 입력해 주세요."
+        defaultValue="http://localhost:3000/webhook"
+        placeholder="https://example.com/webhook"
+        confirmText="재전송"
+        onConfirm={handleConfirmReplay}
+        onCancel={() => setIsPromptOpen(false)}
+      />
     </div>
   );
 }

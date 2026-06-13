@@ -1,6 +1,5 @@
 package com.flashhook.global.ratelimit;
 
-import com.flashhook.global.util.IpExtractor;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -24,7 +23,7 @@ public class RateLimitDevController {
 
     @DeleteMapping("/reset")
     public ResponseEntity<Void> resetRateLimit(HttpServletRequest request) {
-        String clientIp = IpExtractor.extract(request);
+        String clientIp = request.getRemoteAddr();
         if (!"127.0.0.1".equals(clientIp) 
                 && !"0:0:0:0:0:0:0:1".equals(clientIp) 
                 && !"::1".equals(clientIp)) {

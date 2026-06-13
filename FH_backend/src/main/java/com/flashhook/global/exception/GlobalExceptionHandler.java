@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.MediaType;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 import java.time.Instant;
 
@@ -74,6 +75,16 @@ public class GlobalExceptionHandler {
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
                         .build());
+    }
+
+    /**
+     * SSE 연결 끊김 등 비동기 요청에서 발생하는 클라이언트 접속 종료 예외 (Broken Pipe 등) 처리
+     */
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public ResponseEntity<?> handleAsyncRequestNotUsableException(AsyncRequestNotUsableException e, HttpServletRequest request) {
+        // 이 예외는 클라이언트가 브라우저 탭을 닫거나 새로고침했을 때 자연스럽게 발생하므로 DEBUG 레벨로만 남김
+        log.debug("Client disconnected during async/SSE request: {}", e.getMessage());
+        return ResponseEntity.noContent().build();
     }
 
     /**

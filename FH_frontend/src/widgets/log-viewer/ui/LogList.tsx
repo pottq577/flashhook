@@ -4,6 +4,9 @@ import { useState, useMemo } from 'react';
 import { useDeleteAllLogsMutation } from '@/entities/log/api/log.queries';
 import LogItem from './LogItem';
 import styles from './LogList.module.css';
+import ConfirmModal from '@/shared/ui/ConfirmModal';
+
+import { CustomDropdown } from '@/shared/ui/custom-dropdown/CustomDropdown';
 
 interface LogListProps {
   logs: WebhookLog[];
@@ -15,6 +18,7 @@ interface LogListProps {
 function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
   const [search, setSearch] = useState('');
   const [method, setMethod] = useState('ALL');
+  const [isMethodDropdownOpen, setIsMethodDropdownOpen] = useState(false);
   const deleteMutation = useDeleteAllLogsMutation(endpointId || '');
 
   const filteredLogs = useMemo(() => {
@@ -27,11 +31,25 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
     });
   }, [logs, search, method]);
 
-  const handleClear = () => {
-    if (window.confirm('모든 로그를 삭제할까요? 이 작업은 되돌릴 수 없어요.')) {
-      deleteMutation.mutate();
-    }
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+
+  const handleClearClick = () => {
+    setIsClearModalOpen(true);
   };
+
+  const handleConfirmClear = () => {
+    setIsClearModalOpen(false);
+    deleteMutation.mutate();
+  };
+
+  const methodOptions = [
+    { value: 'ALL', label: 'All Methods' },
+    { value: 'GET', label: 'GET' },
+    { value: 'POST', label: 'POST' },
+    { value: 'PUT', label: 'PUT' },
+    { value: 'PATCH', label: 'PATCH' },
+    { value: 'DELETE', label: 'DELETE' },
+  ];
 
   return (
     <div className={styles.container}>
@@ -44,26 +62,40 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
             onChange={(e) => setSearch(e.target.value)}
             className={styles.searchInput}
           />
-          <select value={method} onChange={(e) => setMethod(e.target.value)} className={styles.filterSelect}>
-            <option value="ALL">All Methods</option>
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="PATCH">PATCH</option>
-            <option value="DELETE">DELETE</option>
-          </select>
-        </div>
-        {endpointId && (
-          <div className={styles.headerRow} style={{ justifyContent: 'flex-end' }}>
+          <div className={styles.dropdownWrapper}>
+            <CustomDropdown
+              value={method}
+              options={methodOptions}
+              onSelect={(val) => {
+                setMethod(String(val));
+                setIsMethodDropdownOpen(false);
+              }}
+              placeholder="Method"
+              isOpen={isMethodDropdownOpen}
+              onToggle={() => setIsMethodDropdownOpen(!isMethodDropdownOpen)}
+              displayValue={(val, opt) => val === 'ALL' ? 'Methods' : String(opt?.label || val)}
+              alignRight
+            />
+          </div>
+          {endpointId && (
             <button 
               className={styles.clearBtn} 
-              onClick={handleClear} 
+              onClick={handleClearClick} 
               disabled={deleteMutation.isPending || logs.length === 0}
+              aria-label="Clear Logs"
+              title="Clear Logs"
             >
-              {deleteMutation.isPending ? 'Clearing...' : 'Clear Logs'}
+              {deleteMutation.isPending ? (
+                <svg className={styles.spinner} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              )}
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {filteredLogs.length === 0 ? (
@@ -87,6 +119,14 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
           )}
         />
       )}
+
+      <ConfirmModal
+        isOpen={isClearModalOpen}
+        title="모든 로그 삭제"
+        message="정말로 모든 웹훅 로그를 삭제하시겠어요? 이 작업은 되돌릴 수 없어요."
+        onConfirm={handleConfirmClear}
+        onCancel={() => setIsClearModalOpen(false)}
+      />
     </div>
   );
 }

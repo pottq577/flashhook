@@ -5,7 +5,6 @@ import com.flashhook.domain.webhook.service.MockResponseScheduler;
 import com.flashhook.domain.webhook.service.WebhookService;
 import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
-import com.flashhook.global.util.IpExtractor;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +56,7 @@ public class WebhookReceiveController {
         String url = request.getRequestURL().toString()
                 + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
         String contentType = request.getContentType();
-        String clientIp = IpExtractor.extract(request);
+        String clientIp = request.getRemoteAddr();
 
         Map<String, String> headers = new HashMap<>();
         Enumeration<String> headerNames = request.getHeaderNames();
