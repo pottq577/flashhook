@@ -9,9 +9,12 @@ import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.time.Instant;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 전역 예외 처리기
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -58,6 +61,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e, HttpServletRequest request) {
+        log.error("Unhandled Exception", e);
         if (isSseRequest(request)) {
             return ResponseEntity.status(ErrorCode.INTERNAL_ERROR.getStatus()).build();
         }

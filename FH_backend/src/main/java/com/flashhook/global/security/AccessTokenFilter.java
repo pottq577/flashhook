@@ -32,51 +32,57 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         
-        String path = request.getRequestURI();
-        String method = request.getMethod();
+        String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        org.slf4j.MDC.put("traceId", traceId);
+        try {
+            String path = request.getRequestURI();
+            String method = request.getMethod();
 
-        if ("OPTIONS".equalsIgnoreCase(method)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // /api/endpoints/{id} 또는 /api/endpoints/{id}/... 형태인지 확인
-        // (단, POST /api/endpoints는 제외)
-        if (path.startsWith("/api/endpoints/") && path.length() > "/api/endpoints/".length()) {
-            if (PATH_MATCHER.match("/api/endpoints/*/stream", path) && "GET".equalsIgnoreCase(method)) {
+            if ("OPTIONS".equalsIgnoreCase(method)) {
                 filterChain.doFilter(request, response);
                 return;
             }
-            
-            String[] parts = path.split("/");
-            if (parts.length >= 4) { // ["", "api", "endpoints", "{id}", ...]
-                String endpointId = parts[3];
+
+            // /api/endpoints/{id} 또는 /api/endpoints/{id}/... 형태인지 확인
+            // (단, POST /api/endpoints는 제외)
+            if (path.startsWith("/api/endpoints/") && path.length() > "/api/endpoints/".length()) {
+                if (PATH_MATCHER.match("/api/endpoints/*/stream", path) && "GET".equalsIgnoreCase(method)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
                 
-                String token = request.getHeader("X-Access-Token");
-                if (token == null || token.isEmpty()) {
-                    token = request.getParameter("token");
-                }
+                String[] parts = path.split("/");
+                if (parts.length >= 4) { // ["", "api", "endpoints", "{id}", ...]
+                    String endpointId = parts[3];
+                    
+                    String token = request.getHeader("X-Access-Token");
+                    if (token == null || token.isEmpty()) {
+                        token = request.getParameter("token");
+                    }
 
-                if (token == null || token.isEmpty()) {
-                    sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
-                    return;
-                }
+                    if (token == null || token.isEmpty()) {
+                        sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
+                        return;
+                    }
 
-                Optional<Endpoint> endpointOpt = endpointRepository.findByEndpointId(endpointId);
-                if (endpointOpt.isEmpty()) {
-                    sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
-                    return;
-                }
+                    Optional<Endpoint> endpointOpt = endpointRepository.findByEndpointId(endpointId);
+                    if (endpointOpt.isEmpty()) {
+                        sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
+                        return;
+                    }
 
-                Endpoint endpoint = endpointOpt.get();
-                if (!AccessTokenUtil.verifyToken(token, endpoint.getAccessTokenHash())) {
-                    sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
-                    return;
+                    Endpoint endpoint = endpointOpt.get();
+                    if (!AccessTokenUtil.verifyToken(token, endpoint.getAccessTokenHash())) {
+                        sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
+                        return;
+                    }
                 }
             }
-        }
 
-        filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
+        } finally {
+            org.slf4j.MDC.remove("traceId");
+        }
     }
 
     private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
