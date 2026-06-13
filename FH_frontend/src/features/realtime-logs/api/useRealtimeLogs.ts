@@ -10,7 +10,7 @@ export function useRealtimeLogs(endpointId: string | undefined) {
 
   const handleMessage = useCallback((log: WebhookLog) => {
     addLog(log);
-    addToast(`${log.method} 수신 완료`, 3000);
+    addToast(`${log.method} 요청을 받았어요`, 3000);
   }, [addLog, addToast]);
 
   const { status } = useSSE(endpointId, handleMessage);

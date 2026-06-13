@@ -28,7 +28,7 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
   }, [logs, search, method]);
 
   const handleClear = () => {
-    if (window.confirm('모든 로그를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+    if (window.confirm('모든 로그를 삭제할까요? 이 작업은 되돌릴 수 없어요.')) {
       deleteMutation.mutate();
     }
   };
@@ -68,7 +68,7 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
 
       {filteredLogs.length === 0 ? (
         <div role="status" className={styles.empty}>
-          <p>{logs.length === 0 ? '아직 들어온 웹훅이 없어요.' : '검색 결과가 없습니다.'}</p>
+          <p>{logs.length === 0 ? '아직 들어온 웹훅이 없어요.' : '검색 결과가 없어요.'}</p>
           {logs.length === 0 && <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>위의 웹훅 URL로 요청을 보내면 이곳에서 실시간으로 확인할 수 있어요.</p>}
         </div>
       ) : (

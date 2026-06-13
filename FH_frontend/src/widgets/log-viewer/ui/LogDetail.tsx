@@ -26,7 +26,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
         <div role="status" className={styles.emptyContainer}>
           <div className={styles.emptyText}>
             <div className={styles.emptyTitle}>&gt; WAITING_FOR_ENDPOINT…</div>
-            <p className={styles.emptyDesc}>엔드포인트를 먼저 만들거나 선택해주세요.</p>
+            <p className={styles.emptyDesc}>엔드포인트를 먼저 만들거나 선택해 주세요.</p>
           </div>
         </div>
       );
@@ -83,17 +83,17 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
 
   const handleReplay = () => {
     const defaultUrl = 'http://localhost:3000/webhook';
-    const destinationUrl = window.prompt('재전송할 로컬 또는 외부 서버의 전체 URL을 입력하세요.', defaultUrl);
+    const destinationUrl = window.prompt('재전송할 로컬 또는 외부 서버의 전체 URL을 입력해 주세요.', defaultUrl);
     
     if (destinationUrl && endpointId && logId) {
       replayMutation.mutate(
         { endpointId, logId, destinationUrl },
         {
           onSuccess: () => {
-            addToast(`[Replay] ${destinationUrl} 로 재전송을 요청했습니다.`, 3000);
+            addToast(`[Replay] ${destinationUrl} 로 재전송을 요청했어요.`, 3000);
           },
           onError: (err) => {
-            addToast(`[Replay 실패] ${err.message}`, 4000);
+            addToast(`[Replay] 재전송에 실패했어요: ${err.message}`, 4000);
           }
         }
       );
