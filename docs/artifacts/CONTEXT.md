@@ -8,6 +8,11 @@ FlashHook is a temporary webhook catcher service. It solves a specific problem: 
 
 - **Endpoint**: A unique URL created by a user without registration. Access to the dashboard is maintained via a temporary access token saved in the browser's `sessionStorage`. All endpoints automatically expire and are purged after 24 hours.
 - **WebhookLog**: The payload received by an Endpoint. Includes headers, query params, raw body, and method. Capped at 500 logs or 5MB per endpoint, automatically expiring along with its Endpoint.
+- **MockConfig**: A sub-document embedded in an Endpoint that controls how FlashHook responds when that endpoint is called. Fields: `statusCode`, `delayMs`, `headers`, `body`. A future `presetType` field (Phase 2) will identify dynamic preset handlers.
+- **Static Preset**: A named scenario (e.g., "토스페이먼츠 — ALREADY_PROCESSED_PAYMENT") that maps to a fixed `{ statusCode, delayMs, headers, body }` tuple. Defined as FE-side constants in `presets.ts`. Applying one issues a `PATCH /api/endpoints/{id}/mock` to overwrite all four MockConfig fields **and always includes `presetType: null`** to clear any previously set dynamic handler.
+- **Dynamic Preset — Type A (Dynamic Response Handler)**: A scenario where FlashHook must parse the incoming request and generate a response based on its content (e.g., Slack URL Verification: echo the `challenge` field). Implemented in Phase 2 via a `presetType` field in MockConfig that routes to a dedicated handler in `MockResponseScheduler`.
+- **Dynamic Preset — Type B (Webhook Sender)**: A scenario where FlashHook must actively *send* a signed webhook payload to the developer's server (e.g., GitHub `X-Hub-Signature-256`, PortOne `webhook-signature`). Requires a separate "Webhook Sender" feature that does not yet exist. Not part of the Mock API preset system.
+- **Preset Catalog**: The FE-side constant file (`presets.ts`) that enumerates all available presets grouped by service (Kakao, Toss Payments, PortOne V2, Solapi, GitHub, Slack). The single source of truth for preset content; changes require a frontend redeploy (accepted trade-off).
 
 ## 2. System Architecture
 
