@@ -24,7 +24,7 @@ MongoDB와 Redis 설정이 올바른지 확인합니다. 기본적으로 로컬�
 `FH_frontend` 폴더에 `.env.development` 파일을 생성하거나 복사하여 다음과 같이 백엔드 API URL을 지정합니다.
 
 ```env
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_BASE_URL=http://localhost:8080/api
 ```
 
 ## 3. 로컬 서버 실행 (Local Running)
@@ -68,11 +68,11 @@ FlashHook 프로젝트에는 백엔드/프론트엔드 연동과 SSE 실시간 �
 
 ### 4.1. Playwright 환경 준비
 
-E2E 테스트를 위해 Playwright 브라우저를 설치해야 합니다.
+E2E 테스트 스크립트 실행을 위해 루트 디렉토리에 필수 의존성(`playwright`, `mongodb`)을 설치해야 합니다.
 
 ```bash
-cd FH_frontend
-npm install -g playwright
+# 프로젝트 루트 디렉토리에서 실행
+npm install mongodb playwright
 npx playwright install chromium
 ```
 
