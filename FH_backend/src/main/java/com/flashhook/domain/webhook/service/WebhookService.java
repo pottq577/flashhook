@@ -117,41 +117,37 @@ public class WebhookService {
 
         while (currentCount > maxLogCount || currentSize > maxLogSizeBytes) {
             int fetchSize = (int) Math.max(currentCount - maxLogCount, 50);
-            if (fetchSize > 1000) fetchSize = 1000;
-            
+            if (fetchSize > 1000)
+                fetchSize = 1000;
+
             Query findOldestQuery = new Query(Criteria.where("endpointId").is(endpoint.getEndpointId()))
                     .with(Sort.by(Sort.Direction.ASC, "receivedAt"))
                     .limit(fetchSize);
             findOldestQuery.fields().include("_id").include("bodySize");
-            
+
             List<WebhookLog> oldLogs = mongoTemplate.find(findOldestQuery, WebhookLog.class);
-            
+
             if (oldLogs.isEmpty()) {
                 break;
             }
-            
-            long sizeToRemove = 0;
-            int countToRemove = 0;
+
             List<String> idsToRemove = new ArrayList<>();
-            
+
             for (WebhookLog log : oldLogs) {
                 if (currentCount <= maxLogCount && currentSize <= maxLogSizeBytes) {
                     break;
                 }
                 idsToRemove.add(log.getId());
-                sizeToRemove += log.getBodySize();
-                countToRemove++;
-                
+
                 currentCount--;
                 currentSize -= log.getBodySize();
                 currentSize = Math.max(0, currentSize);
             }
-            
+
             if (!idsToRemove.isEmpty()) {
                 Query removeQuery = new Query(new Criteria().andOperator(
                         Criteria.where("endpointId").is(endpoint.getEndpointId()),
-                        Criteria.where("_id").in(idsToRemove)
-                ));
+                        Criteria.where("_id").in(idsToRemove)));
 
                 List<WebhookLog> removedLogs = mongoTemplate.findAllAndRemove(removeQuery, WebhookLog.class);
                 if (removedLogs.isEmpty()) {
@@ -164,10 +160,6 @@ public class WebhookService {
                 Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
                 Update update = new Update().inc("logCount", -removedCount).inc("logSizeBytes", -removedSize);
                 mongoTemplate.updateFirst(query, update, Endpoint.class);
-            }
-            
-            if (countToRemove == 0) {
-                break;
             }
         }
     }
