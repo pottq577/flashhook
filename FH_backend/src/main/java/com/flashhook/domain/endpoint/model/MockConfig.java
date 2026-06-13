@@ -8,11 +8,14 @@ import lombok.NoArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.Serializable;
+
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class MockConfig {
+public class MockConfig implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Builder.Default
     private int statusCode = 200;
     
