@@ -84,6 +84,7 @@ sequenceDiagram
 - **Infra:** Docker, SSE (Server-Sent Events)
 
 자세한 시스템 구조는 [`docs/artifacts/CONTEXT.md`](docs/artifacts/CONTEXT.md)를 참고해 주세요.<br/>
+API 명세는 [`docs/artifacts/04_api_spec.md`](docs/artifacts/04_api_spec.md)를 참조해 주세요.<br/>
 특히 도메인 간(`WebhookService`와 `SseEmitterService`) 결합도를 낮추고 성능 향상을 위해 **Spring ApplicationEvent (@Async)** 기반의 비동기 이벤트 드리븐 패턴을 적용했습니다.
 
 ---
@@ -124,10 +125,23 @@ sequenceDiagram
 docker-compose up -d
 ```
 
-2. 서버 구동 후 Cloudflare Tunnel 등으로 로컬 포트 외부 노출
+2. 백엔드 및 프론트엔드 구동
+
+```bash
+# 백엔드 실행 (새 터미널 탭)
+cd FH_backend
+./gradlew bootRun
+
+# 프론트엔드 실행 (새 터미널 탭)
+cd FH_frontend
+npm install
+npm run dev
+```
+
+3. (선택) Cloudflare Tunnel 등으로 로컬 포트 외부 노출
 
 ```bash
 cloudflared tunnel --url http://localhost:8080
 ```
 
-3. 발급된 도메인으로 샌드박스 환경 구축 완료!
+4. `http://localhost:5173` 접속하여 로컬 샌드박스 환경 테스트 완료!
