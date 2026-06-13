@@ -2,6 +2,11 @@ spring:
   application:
     name: flashhook-api
 
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1h
+
   # 활성 프로필 (local / prod)
   profiles:
     active: local
