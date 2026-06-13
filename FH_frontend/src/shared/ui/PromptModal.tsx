@@ -57,6 +57,9 @@ function PromptModal({
       if (e.key === 'Escape') {
         onCancel();
       } else if (e.key === 'Enter') {
+        const target = e.target as HTMLElement | null;
+        const isButton = target?.tagName === 'BUTTON';
+        if (isButton) return;
         e.preventDefault();
         onConfirm(inputValue);
       }
@@ -93,6 +96,7 @@ function PromptModal({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={placeholder}
+                aria-label={title}
               />
             </div>
             <div className={styles.actions}>
