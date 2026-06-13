@@ -147,9 +147,21 @@ public class WebhookService {
             }
             
             if (!idsToRemove.isEmpty()) {
-                mongoTemplate.remove(new Query(Criteria.where("_id").in(idsToRemove)), WebhookLog.class);
+                Query removeQuery = new Query(new Criteria().andOperator(
+                        Criteria.where("endpointId").is(endpoint.getEndpointId()),
+                        Criteria.where("_id").in(idsToRemove)
+                ));
+
+                List<WebhookLog> removedLogs = mongoTemplate.findAllAndRemove(removeQuery, WebhookLog.class);
+                if (removedLogs.isEmpty()) {
+                    break;
+                }
+
+                long removedSize = removedLogs.stream().mapToLong(WebhookLog::getBodySize).sum();
+                int removedCount = removedLogs.size();
+
                 Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
-                Update update = new Update().inc("logCount", -countToRemove).inc("logSizeBytes", -sizeToRemove);
+                Update update = new Update().inc("logCount", -removedCount).inc("logSizeBytes", -removedSize);
                 mongoTemplate.updateFirst(query, update, Endpoint.class);
             }
             
