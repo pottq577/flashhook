@@ -39,5 +39,6 @@ out/
 ### 환경 변수 / 시크릿 ###
 .env
 .env.*
+!.env.example
 application-prod.yaml
 **/application-prod.yaml

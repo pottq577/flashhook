@@ -864,7 +864,7 @@ X-Slack-No-Retry: 1
 
 ---
 
-#### [동적 응답 핸들러: Phase 2 연동]
+#### [동적 응답 핸들러]
 
 Slack URL Verification 시나리오는 수신되는 `challenge` 값을 그대로 반환해야 하는 특수성이 있습니다.
 이를 해결하기 위해 FlashHook Backend/Frontend에 `presetType` 기반의 동적 핸들러가 구축되었습니다.
