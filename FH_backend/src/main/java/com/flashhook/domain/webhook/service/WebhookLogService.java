@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 /**
  * 웹훅 로그 조회/삭제 서비스
@@ -119,7 +120,11 @@ public class WebhookLogService {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        RestTemplate restTemplate = new RestTemplate();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(3000);
+        factory.setReadTimeout(5000);
+        RestTemplate restTemplate = new RestTemplate(factory);
+        
         HttpHeaders headers = new HttpHeaders();
         if (log.getHeaders() != null) {
             log.getHeaders().forEach(headers::add);
