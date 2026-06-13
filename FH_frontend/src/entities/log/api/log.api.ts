@@ -44,7 +44,7 @@ export async function replayLog(endpointId: string, logId: string, destinationUr
     `/endpoints/${endpointId}/logs/${logId}/replay`,
     {
       method: 'POST',
-      body: JSON.stringify({ destinationUrl }),
+      body: { destinationUrl },
     },
     endpointId,
   );
