@@ -2,6 +2,7 @@ package com.flashhook.global.infrastructure.redis;
 
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class RedisMessageSubscriber implements MessageListener {
 
     @Override
-    public void onMessage(Message message, byte[] pattern) {
+    public void onMessage(@NonNull Message message, byte[] pattern) {
         // 향후 스케일아웃 시 Redis Pub/Sub 로직 활성화
     }
 }
