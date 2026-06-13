@@ -21,7 +21,7 @@ function App() {
     <QueryProvider>
       <BrowserRouter>
         <main>
-          <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-secondary)' }}>로딩중...</div>}>
+          <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-secondary)' }}>로딩중…</div>}>
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/dashboard/:endpointId" element={<DashboardPage />} />

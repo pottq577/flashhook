@@ -109,7 +109,7 @@ function DashboardPage() {
                       <button className={styles.mockPanelCloseBtn} onClick={() => setIsMockPanelOpen(false)}>✕</button>
                     </div>
                     <div className={styles.mockPanelBody}>
-                      <Suspense fallback={<div>Loading...</div>}>
+                      <Suspense fallback={<div>Loading…</div>}>
                         <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
                       </Suspense>
                     </div>
@@ -163,7 +163,7 @@ function DashboardPage() {
                         <h3 className={styles.mockPanelTitle}>Mock Configuration</h3>
                         <button className={styles.btnAction} onClick={() => setIsMockPanelOpen(false)}>뒤로가기</button>
                       </div>
-                      <Suspense fallback={<div>Loading...</div>}>
+                      <Suspense fallback={<div>Loading…</div>}>
                         <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
                       </Suspense>
                     </>

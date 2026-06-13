@@ -81,6 +81,9 @@ export function CustomDropdown({
         {isEditable ? (
           <input
             type="text"
+            name="dropdown-search"
+            autoComplete="off"
+            spellCheck={false}
             className={styles.customSelectInput}
             value={inputValue}
             onChange={(e) => {
@@ -186,7 +189,7 @@ export function CustomDropdown({
                   onCustom();
                 }}
               >
-                <span className={styles.optionValue}>Custom...</span>
+                <span className={styles.optionValue}>Custom…</span>
               </div>
             )}
           </motion.div>
