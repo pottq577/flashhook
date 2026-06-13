@@ -22,6 +22,7 @@ const LogItem = memo(({ log, isSelected, onClick }: LogItemProps) => {
     <div 
       role="button"
       tabIndex={0}
+      data-testid="log-item"
       className={`${styles.container} ${isSelected ? styles.selected : ''}`}
       onClick={onClick}
       onKeyDown={(e) => {
