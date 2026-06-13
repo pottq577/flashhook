@@ -7,6 +7,7 @@ import {
   CUSTOM_SERVICE_ID,
   type PresetScenario,
 } from '@/entities/endpoint/model/presets';
+import { useToastStore } from '@/shared/lib/toast.store';
 import styles from './MockConfigPanel.module.css';
 
 interface MockConfigPanelProps {
@@ -294,6 +295,8 @@ function CustomDropdown({
 
 export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { mutate, isPending } = useUpdateMockConfigMutation(endpoint.endpointId);
+  const addToast = useToastStore((state) => state.addToast);
+  const [isSaved, setIsSaved] = useState(false);
 
   const [selectedServiceId, setSelectedServiceId] = useState<string>(() =>
     findInitialServiceId(endpoint.mockConfig),
@@ -445,6 +448,12 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
       body,
       headers,
       presetType: currentScenario?.presetType ?? null,
+    }, {
+      onSuccess: () => {
+        setIsSaved(true);
+        addToast('모의 설정이 저장되었습니다.', 3000);
+        setTimeout(() => setIsSaved(false), 2000);
+      }
     });
   };
 
@@ -705,9 +714,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
         <button
           onClick={handleApply}
           disabled={isPending || (selectedServiceId !== CUSTOM_SERVICE_ID && selectedScenarioId === null)}
-          className={styles.button}
+          className={`${styles.button} ${isSaved ? styles.buttonSaved : ''}`}
         >
-          {isPending ? 'SAVING_CONFIG...' : 'APPLY_CONFIG'}
+          {isSaved ? '✔ SAVED!' : isPending ? 'SAVING_CONFIG...' : 'APPLY_CONFIG'}
         </button>
       </div>
     </div>
