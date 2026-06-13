@@ -23,6 +23,8 @@ export type MockUpdateRequest = {
   delayMs?: number;
   headers?: Record<string, string>;
   body?: string;
+  /** Phase 2: 동적 프리셋 식별자. 정적 프리셋 적용 시 항상 null 전송 (동적 핸들러 해제 보장). */
+  presetType?: string | null;
 };
 
 export async function updateMockConfig(id: string, mockConfig: MockUpdateRequest): Promise<Endpoint> {
