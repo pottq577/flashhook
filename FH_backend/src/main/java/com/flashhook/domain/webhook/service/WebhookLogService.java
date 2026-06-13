@@ -37,6 +37,10 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 @RequiredArgsConstructor
 public class WebhookLogService {
 
+    static {
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+    }
+
     private final WebhookLogRepository webhookLogRepository;
     private final EndpointRepository endpointRepository;
     private final MongoTemplate mongoTemplate;
@@ -134,6 +138,32 @@ public class WebhookLogService {
                             return false;
                         }
                     });
+
+                    javax.net.ssl.SSLSocketFactory defaultFactory = httpsConnection.getSSLSocketFactory();
+                    httpsConnection.setSSLSocketFactory(new javax.net.ssl.SSLSocketFactory() {
+                        @Override
+                        public String[] getDefaultCipherSuites() { return defaultFactory.getDefaultCipherSuites(); }
+                        @Override
+                        public String[] getSupportedCipherSuites() { return defaultFactory.getSupportedCipherSuites(); }
+                        @Override
+                        public java.net.Socket createSocket(java.net.Socket s, String host, int port, boolean autoClose) throws java.io.IOException {
+                            java.net.Socket socket = defaultFactory.createSocket(s, host, port, autoClose);
+                            if (socket instanceof javax.net.ssl.SSLSocket sslSocket) {
+                                javax.net.ssl.SSLParameters params = sslSocket.getSSLParameters();
+                                params.setServerNames(java.util.Collections.singletonList(new javax.net.ssl.SNIHostName(originalHost)));
+                                sslSocket.setSSLParameters(params);
+                            }
+                            return socket;
+                        }
+                        @Override
+                        public java.net.Socket createSocket(String host, int port) throws java.io.IOException { return defaultFactory.createSocket(host, port); }
+                        @Override
+                        public java.net.Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws java.io.IOException { return defaultFactory.createSocket(host, port, localHost, localPort); }
+                        @Override
+                        public java.net.Socket createSocket(InetAddress host, int port) throws java.io.IOException { return defaultFactory.createSocket(host, port); }
+                        @Override
+                        public java.net.Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws java.io.IOException { return defaultFactory.createSocket(address, port, localAddress, localPort); }
+                    });
                 }
                 return connection;
             }
@@ -149,7 +179,13 @@ public class WebhookLogService {
         // 원래 Host 헤더는 충돌할 수 있으므로 제거 후 새로 주입
         headers.remove(HttpHeaders.HOST);
         try {
-            headers.add(HttpHeaders.HOST, new URI(destinationUrl).getHost());
+            URI destinationUri = new URI(destinationUrl);
+            String host = destinationUri.getHost();
+            int port = destinationUri.getPort();
+            boolean isDefaultPort = port == -1
+                    || ("http".equalsIgnoreCase(destinationUri.getScheme()) && port == 80)
+                    || ("https".equalsIgnoreCase(destinationUri.getScheme()) && port == 443);
+            headers.add(HttpHeaders.HOST, isDefaultPort ? host : host + ":" + port);
         } catch (URISyntaxException e) {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
@@ -177,11 +213,14 @@ public class WebhookLogService {
             }
             
             InetAddress inetAddress = InetAddress.getByName(uri.getHost());
+            byte[] address = inetAddress.getAddress();
+            boolean isIpv6Ula = address.length == 16 && (address[0] & (byte) 0xFE) == (byte) 0xFC;
             if (inetAddress.isAnyLocalAddress() || 
                 inetAddress.isLoopbackAddress() || 
                 inetAddress.isLinkLocalAddress() || 
                 inetAddress.isSiteLocalAddress() || 
-                inetAddress.isMulticastAddress()) {
+                inetAddress.isMulticastAddress() ||
+                isIpv6Ula) {
                 throw new CustomException(ErrorCode.FORBIDDEN);
             }
             return inetAddress;
