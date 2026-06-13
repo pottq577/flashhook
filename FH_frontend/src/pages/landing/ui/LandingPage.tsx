@@ -16,7 +16,7 @@ function LandingPage() {
   const [error, setError] = useState<string | null>(null);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-  const [terminalLines, setTerminalLines] = useState<string[]>(['$ flashhook --init', '> System ready. Waiting for command...']);
+  const [terminalLines, setTerminalLines] = useState<string[]>(['$ flashhook --init', '> System ready. Waiting for command…']);
   
   const { endpoints, clearExpired, removeEndpoint, addEndpoint } = useEndpointStore();
   const [now, setNow] = useState(() => Date.now());
@@ -52,10 +52,10 @@ function LandingPage() {
     setIsConsentOpen(false);
     setIsLoading(true);
     setError(null);
-    setTerminalLines(prev => [...prev, '$ flashhook create-endpoint', '> Generating secure URL...']);
+    setTerminalLines(prev => [...prev, '$ flashhook create-endpoint', '> Generating secure URL…']);
     try {
       const response = await createEndpoint(undefined);
-      setTerminalLines(prev => [...prev, `> Success! ID: ${response.endpointId}`, '> Redirecting to dashboard...']);
+      setTerminalLines(prev => [...prev, `> Success! ID: ${response.endpointId}`, '> Redirecting to dashboard…']);
       addEndpoint(response.endpointId, response.expiresAt);
       timerRef.current = setTimeout(() => {
         navigate(`/dashboard/${encodeURIComponent(response.endpointId)}`);

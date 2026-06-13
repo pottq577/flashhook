@@ -4,7 +4,7 @@ import { QueryProvider } from './providers/QueryProvider';
 import { ToastContainer } from '@/shared/ui/ToastContainer';
 import { CookieBanner } from '@/widgets/legal/CookieBanner';
 
-const LandingPage = lazy(() => import('@/pages/landing/ui/LandingPage'));
+import LandingPage from '@/pages/landing/ui/LandingPage';
 const DashboardPage = lazy(() => import('@/pages/dashboard/ui/DashboardPage'));
 const NotFoundPage = lazy(() => import('@/pages/not-found/ui/NotFoundPage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/legal/PrivacyPolicyPage').then(module => ({ default: module.PrivacyPolicyPage })));
@@ -21,7 +21,7 @@ function App() {
     <QueryProvider>
       <BrowserRouter>
         <main>
-          <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-secondary)' }}>로딩중...</div>}>
+          <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-secondary)' }}>로딩중…</div>}>
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/dashboard/:endpointId" element={<DashboardPage />} />

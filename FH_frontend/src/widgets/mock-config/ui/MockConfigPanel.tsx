@@ -56,12 +56,12 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               actions.setSelectedScenarioId(null);
               setOpenDropdownId(null);
             }}
-            placeholder="SELECT_SERVICE..."
+            placeholder="SELECT_SERVICE…"
             isOpen={openDropdownId === 'service'}
             onToggle={() =>
               setOpenDropdownId(openDropdownId === 'service' ? null : 'service')
             }
-            displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_SERVICE...')}
+            displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_SERVICE…')}
           />
         </div>
 
@@ -77,12 +77,12 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 if (scenario) actions.applyScenario(scenario);
                 setOpenDropdownId(null);
               }}
-              placeholder="SELECT_PRESET..."
+              placeholder="SELECT_PRESET…"
               isOpen={openDropdownId === 'scenario'}
               onToggle={() =>
                 setOpenDropdownId(openDropdownId === 'scenario' ? null : 'scenario')
               }
-              displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_PRESET...')}
+              displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_PRESET…')}
             />
             {state.isDynamic && (
               <p className={styles.warning} style={{ marginTop: '0.5rem', color: '#ffcc00' }}>
@@ -111,7 +111,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 setOpenDropdownId(null);
               }}
               customLabel="Custom"
-              placeholder="Select Status..."
+              placeholder="Select Status…"
               isOpen={openDropdownId === 'status'}
               onToggle={() =>
                 setOpenDropdownId(openDropdownId === 'status' ? null : 'status')
@@ -123,6 +123,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 type="number"
                 min="100"
                 max="599"
+                name="status-code"
+                autoComplete="off"
+                aria-label="Custom status code"
                 placeholder="e.g., 418"
                 value={state.statusCode}
                 onChange={(e) => {
@@ -300,7 +303,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           disabled={state.isPending || (state.selectedServiceId !== CUSTOM_SERVICE_ID && state.selectedScenarioId === null)}
           className={`${styles.button} ${state.isSaved ? styles.buttonSaved : ''}`}
         >
-          {state.isSaved ? '✔ SAVED!' : state.isPending ? 'SAVING_CONFIG...' : 'APPLY_CONFIG'}
+          {state.isSaved ? '✔ SAVED!' : state.isPending ? 'SAVING_CONFIG…' : 'APPLY_CONFIG'}
         </button>
       </div>
     </div>
