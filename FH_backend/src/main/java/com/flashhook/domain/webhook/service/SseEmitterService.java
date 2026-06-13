@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
 
 @Service
@@ -25,6 +27,11 @@ import com.flashhook.domain.webhook.dto.WebhookLogResponse;
 public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
+    private final Executor taskExecutor;
+
+    public SseEmitterService(@Qualifier("taskExecutor") Executor taskExecutor) {
+        this.taskExecutor = taskExecutor;
+    }
 
     /**
      * SSE 구독 생성
@@ -69,7 +76,7 @@ public class SseEmitterService {
                     } catch (Exception e) {
                         removeEmitter(endpointId, emitter);
                     }
-                });
+                }, taskExecutor);
             }
         }
     }
@@ -87,7 +94,7 @@ public class SseEmitterService {
                     } catch (Exception e) {
                         removeEmitter(endpointId, emitter);
                     }
-                });
+                }, taskExecutor);
             }
         });
     }
