@@ -81,9 +81,6 @@ export function CustomDropdown({
         {isEditable ? (
           <input
             type="text"
-            name="dropdown-search"
-            autoComplete="off"
-            spellCheck={false}
             className={styles.customSelectInput}
             value={inputValue}
             onChange={(e) => {
@@ -151,14 +148,12 @@ export function CustomDropdown({
                     onSelect(o.value);
                   }}
                 >
+                  {o.value !== o.label && (
+                    <span className={styles.optionValue}>{o.value}</span>
+                  )}
                   <div className={styles.optionTextContainer}>
-                    <div className={styles.optionPrimary}>
-                      <span className={styles.optionLabel}>{o.label}</span>
-                      {o.desc && <span className={styles.optionDesc}>{o.desc}</span>}
-                    </div>
-                    {o.value !== o.label && (
-                      <span className={styles.optionValue}>{String(o.value)}</span>
-                    )}
+                    <span className={styles.optionLabel}>{o.label}</span>
+                    {o.desc && <span className={styles.optionDesc}>{o.desc}</span>}
                   </div>
                 </div>
               ))
@@ -189,7 +184,7 @@ export function CustomDropdown({
                   onCustom();
                 }}
               >
-                <span className={styles.optionValue}>Custom…</span>
+                <span className={styles.optionValue}>Custom...</span>
               </div>
             )}
           </motion.div>

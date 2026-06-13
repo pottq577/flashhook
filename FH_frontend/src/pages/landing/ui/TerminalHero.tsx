@@ -55,7 +55,7 @@ export function TerminalHero({
             disabled={isLoading}
             aria-busy={isLoading}
           >
-            {isLoading ? '[ CREATING… ]' : '[ CREATE_NEW_ENDPOINT ]'}
+            {isLoading ? '[ CREATING... ]' : '[ CREATE_NEW_ENDPOINT ]'}
           </button>
           
           {error && <div className={styles.errorBox} role="alert">Error: {error}</div>}

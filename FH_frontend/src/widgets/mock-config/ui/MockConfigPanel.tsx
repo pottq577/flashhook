@@ -56,7 +56,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               actions.setSelectedScenarioId(null);
               setOpenDropdownId(null);
             }}
-            placeholder="SELECT_SERVICE…"
+            placeholder="SELECT_SERVICE..."
             isOpen={openDropdownId === 'service'}
             onToggle={() =>
               setOpenDropdownId(openDropdownId === 'service' ? null : 'service')
@@ -77,7 +77,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 if (scenario) actions.applyScenario(scenario);
                 setOpenDropdownId(null);
               }}
-              placeholder="SELECT_PRESET…"
+              placeholder="SELECT_PRESET..."
               isOpen={openDropdownId === 'scenario'}
               onToggle={() =>
                 setOpenDropdownId(openDropdownId === 'scenario' ? null : 'scenario')
@@ -111,7 +111,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 setOpenDropdownId(null);
               }}
               customLabel="Custom"
-              placeholder="Select Status…"
+              placeholder="Select Status..."
               isOpen={openDropdownId === 'status'}
               onToggle={() =>
                 setOpenDropdownId(openDropdownId === 'status' ? null : 'status')
@@ -123,8 +123,6 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 type="number"
                 min="100"
                 max="599"
-                name="status-code"
-                autoComplete="off"
                 placeholder="e.g., 418"
                 value={state.statusCode}
                 onChange={(e) => {
