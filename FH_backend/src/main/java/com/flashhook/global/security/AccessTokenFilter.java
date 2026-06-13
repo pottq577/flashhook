@@ -19,6 +19,9 @@ import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import com.flashhook.global.exception.ErrorCode;
 import java.util.Optional;
+import java.util.UUID;
+
+import org.slf4j.MDC;
 
 @Component
 @RequiredArgsConstructor
@@ -32,8 +35,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         
-        String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-        org.slf4j.MDC.put("traceId", traceId);
+        String traceId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        MDC.put("traceId", traceId);
         try {
             String path = request.getRequestURI();
             String method = request.getMethod();

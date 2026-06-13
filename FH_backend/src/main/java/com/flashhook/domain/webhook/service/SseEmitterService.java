@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CompletableFuture;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
 
 @Service
@@ -60,7 +61,7 @@ public class SseEmitterService {
             WebhookLogResponse response = WebhookLogResponse.from(event.getWebhookLog());
 
             for (SseEmitter emitter : endpointEmitters) {
-                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                CompletableFuture.runAsync(() -> {
                     try {
                         emitter.send(SseEmitter.event()
                                 .name("webhook")
@@ -80,7 +81,7 @@ public class SseEmitterService {
     public void sendHeartbeat() {
         emitters.forEach((endpointId, endpointEmitters) -> {
             for (SseEmitter emitter : endpointEmitters) {
-                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                CompletableFuture.runAsync(() -> {
                     try {
                         emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
                     } catch (Exception e) {

@@ -81,8 +81,6 @@ export async function apiRequest(
           await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
           continue;
         }
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         throw new Error('요청 시간이 초과되었어요. 네트워크 상태를 확인해주세요.', { cause: error });
       }
       throw error;

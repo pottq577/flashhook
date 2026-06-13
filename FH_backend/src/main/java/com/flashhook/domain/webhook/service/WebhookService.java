@@ -24,6 +24,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
 
 @Slf4j
 @Service
@@ -121,7 +123,7 @@ public class WebhookService {
                     .limit(fetchSize);
             findOldestQuery.fields().include("_id").include("bodySize");
             
-            java.util.List<WebhookLog> oldLogs = mongoTemplate.find(findOldestQuery, WebhookLog.class);
+            List<WebhookLog> oldLogs = mongoTemplate.find(findOldestQuery, WebhookLog.class);
             
             if (oldLogs.isEmpty()) {
                 break;
@@ -129,7 +131,7 @@ public class WebhookService {
             
             long sizeToRemove = 0;
             int countToRemove = 0;
-            java.util.List<String> idsToRemove = new java.util.ArrayList<>();
+            List<String> idsToRemove = new ArrayList<>();
             
             for (WebhookLog log : oldLogs) {
                 if (currentCount <= maxLogCount && currentSize <= maxLogSizeBytes) {
