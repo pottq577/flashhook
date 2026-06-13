@@ -126,7 +126,14 @@ public class WebhookLogService {
                 java.net.URL pinnedUrl = new java.net.URL(url.getProtocol(), resolvedIp.getHostAddress(), url.getPort(), url.getFile());
                 java.net.HttpURLConnection connection = super.openConnection(pinnedUrl, proxy);
                 if (connection instanceof javax.net.ssl.HttpsURLConnection httpsConnection) {
-                    httpsConnection.setHostnameVerifier((hostname, session) -> true);
+                    String originalHost = url.getHost();
+                    httpsConnection.setHostnameVerifier((hostname, session) -> {
+                        try {
+                            return javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier().verify(originalHost, session);
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    });
                 }
                 return connection;
             }
@@ -143,7 +150,9 @@ public class WebhookLogService {
         headers.remove(HttpHeaders.HOST);
         try {
             headers.add(HttpHeaders.HOST, new URI(destinationUrl).getHost());
-        } catch (URISyntaxException ignored) {}
+        } catch (URISyntaxException e) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
         
         HttpEntity<Object> entity = new HttpEntity<>(log.getBody(), headers);
         
