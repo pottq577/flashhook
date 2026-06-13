@@ -18,7 +18,6 @@ test.describe('FlashHook Core Journey', () => {
     
     const webhookUrl = (await urlLocator.textContent()) || '';
     expect(webhookUrl).toContain('http');
-    console.log('Parsed webhookUrl:', webhookUrl);
 
     // SSE 연결 완료 대기 (Race condition 방지)
     await expect(page.getByText('[ CONNECTED ]')).toBeVisible({ timeout: 10000 });
@@ -28,7 +27,6 @@ test.describe('FlashHook Core Journey', () => {
       headers: { 'Content-Type': 'application/json' },
       data: { message: 'Hello E2E' },
     });
-    console.log('Webhook POST response status:', response.status(), await response.text());
     expect(response.ok()).toBeTruthy();
 
     // 3. 로그 목록에 POST 항목 대기 (SSE 실시간 수신)
