@@ -72,15 +72,13 @@ export function useMockConfigForm(endpoint: Endpoint) {
     };
   }, []);
 
-  const [selectedServiceId, setSelectedServiceId] = useState<string>(() =>
-    findInitialServiceId(endpoint.mockConfig),
-  );
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(() =>
-    findInitialScenarioId(
-      endpoint.mockConfig,
-      findInitialServiceId(endpoint.mockConfig),
-    ),
-  );
+  const [selectedServiceId, setSelectedServiceId] = useState<string>(() => {
+    return findInitialServiceId(endpoint.mockConfig);
+  });
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(() => {
+    const serviceId = findInitialServiceId(endpoint.mockConfig);
+    return findInitialScenarioId(endpoint.mockConfig, serviceId);
+  });
 
   const [statusCode, setStatusCode] = useState<number | string>(
     endpoint.mockConfig?.statusCode || 200,
@@ -108,15 +106,13 @@ export function useMockConfigForm(endpoint: Endpoint) {
   const [headerWarning, setHeaderWarning] = useState<string | null>(null);
   const [prevConfig, setPrevConfig] = useState(endpoint.mockConfig);
 
+  // 참고: endpoint.mockConfig 객체 참조 비교(===)를 통해 부모로부터의 최신 데이터를 폼에 동기화합니다.
+  // 부모에서 동일한 값으로 매 렌더링마다 새 객체를 생성해 넘기지 않도록 주의해야 불필요한 상태 초기화를 막을 수 있습니다.
   if (endpoint.mockConfig !== prevConfig) {
     setPrevConfig(endpoint.mockConfig);
-    setSelectedServiceId(findInitialServiceId(endpoint.mockConfig));
-    setSelectedScenarioId(
-      findInitialScenarioId(
-        endpoint.mockConfig,
-        findInitialServiceId(endpoint.mockConfig),
-      ),
-    );
+    const serviceId = findInitialServiceId(endpoint.mockConfig);
+    setSelectedServiceId(serviceId);
+    setSelectedScenarioId(findInitialScenarioId(endpoint.mockConfig, serviceId));
     const code = endpoint.mockConfig?.statusCode || 200;
     setStatusCode(code);
     setIsCustomStatus(!COMMON_STATUS_CODES.some((c) => c.value === code));

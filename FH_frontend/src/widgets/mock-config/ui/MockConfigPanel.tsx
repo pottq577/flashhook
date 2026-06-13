@@ -178,8 +178,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     value={h.key}
                     options={COMMON_HEADER_KEYS}
                     onSelect={(val) => {
-                      const newHeaders = [...state.headerList];
-                      newHeaders[i].key = String(val);
+                      const newHeaders = state.headerList.map((h, idx) =>
+                        idx === i ? { ...h, key: String(val) } : h
+                      );
                       actions.setHeaderList(newHeaders);
                       actions.resetToCustom();
                       setOpenDropdownId(null);
@@ -195,8 +196,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     }
                     isEditable={true}
                     onEdit={(val) => {
-                      const newHeaders = [...state.headerList];
-                      newHeaders[i].key = val;
+                      const newHeaders = state.headerList.map((h, idx) =>
+                        idx === i ? { ...h, key: val } : h
+                      );
                       actions.setHeaderList(newHeaders);
                       actions.resetToCustom();
                     }}
@@ -218,8 +220,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     value={h.value}
                     options={COMMON_HEADER_VALUES}
                     onSelect={(val) => {
-                      const newHeaders = [...state.headerList];
-                      newHeaders[i].value = String(val);
+                      const newHeaders = state.headerList.map((h, idx) =>
+                        idx === i ? { ...h, value: String(val) } : h
+                      );
                       actions.setHeaderList(newHeaders);
                       actions.resetToCustom();
                       setOpenDropdownId(null);
@@ -236,8 +239,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     alignRight={true}
                     isEditable={true}
                     onEdit={(val) => {
-                      const newHeaders = [...state.headerList];
-                      newHeaders[i].value = val;
+                      const newHeaders = state.headerList.map((h, idx) =>
+                        idx === i ? { ...h, value: val } : h
+                      );
                       actions.setHeaderList(newHeaders);
                       actions.resetToCustom();
                     }}
