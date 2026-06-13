@@ -125,6 +125,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 max="599"
                 name="status-code"
                 autoComplete="off"
+                aria-label="Custom status code"
                 placeholder="e.g., 418"
                 value={state.statusCode}
                 onChange={(e) => {

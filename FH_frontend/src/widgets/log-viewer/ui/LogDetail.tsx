@@ -56,7 +56,12 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
                 <span className={styles.macDot} style={{ backgroundColor: '#27c93f' }} />
               </div>
               <span className={styles.curlLabel}>bash</span>
-              <button className={styles.copyButton} onClick={handleCopy} title="Copy to clipboard" aria-label="Copy to clipboard">
+              <button
+                className={styles.copyButton}
+                onClick={handleCopy}
+                title={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
+                aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
+              >
                 {copied ? 'COPIED!' : 'COPY'}
               </button>
             </div>

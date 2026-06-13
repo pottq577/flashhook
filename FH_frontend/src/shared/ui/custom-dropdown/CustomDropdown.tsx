@@ -84,6 +84,7 @@ export function CustomDropdown({
             name="dropdown-search"
             autoComplete="off"
             spellCheck={false}
+            aria-label={placeholder}
             className={styles.customSelectInput}
             value={inputValue}
             onChange={(e) => {
