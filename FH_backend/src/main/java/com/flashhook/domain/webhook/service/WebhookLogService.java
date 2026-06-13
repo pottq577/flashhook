@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
 
 /**
  * 웹훅 로그 조회/삭제 서비스
@@ -85,6 +86,7 @@ public class WebhookLogService {
     /**
      * 엔드포인트의 모든 로그 삭제
      */
+    @CacheEvict(value = "endpoints", key = "#endpointId")
     @Transactional
     public void deleteAll(String endpointId) {
         endpointRepository.findByEndpointId(endpointId)

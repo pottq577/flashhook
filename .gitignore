@@ -31,3 +31,4 @@ node_modules/
 .mcp-memory/
 FH_backend/src/main/resources/application-*.yaml
 
+docs/qa

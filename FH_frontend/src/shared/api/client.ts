@@ -59,7 +59,28 @@ export async function apiRequest(
 
         if (response.status >= 500) {
           throw new Error(`서버에 문제가 생겼어요 (${response.status}). 잠시 후 다시 시도해주세요.`);
-        } else if (response.status === 401) {
+        } 
+        
+        // 백엔드 커스텀 예외(code/message 포함)가 존재하는 경우
+        // HTTP 상태 기반 하드코딩 에러 메시지(401, 403, 404)보다 우선 노출
+        let errorData: unknown;
+        try { 
+          errorData = JSON.parse(errorBody); 
+        } catch {
+          // ignore parse error
+        }
+        if (
+          errorData &&
+          typeof errorData === 'object' &&
+          'code' in errorData &&
+          typeof (errorData as { code: unknown }).code === 'string'
+        ) {
+          const e = errorData as { code: string; message?: string };
+          const msg = e.message ? `[${e.code}] ${e.message}` : `[${e.code}]`;
+          throw new Error(msg);
+        }
+
+        if (response.status === 401) {
           throw new Error('인증이 필요해요. 다시 로그인해주세요.');
         } else if (response.status === 403) {
           throw new Error('이 페이지를 볼 수 있는 권한이 없어요.');

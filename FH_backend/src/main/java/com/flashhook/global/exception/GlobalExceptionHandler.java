@@ -38,6 +38,26 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 유효성 검사 예외 처리
+     */
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationException(org.springframework.web.bind.MethodArgumentNotValidException e, HttpServletRequest request) {
+        String message = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        if (isSseRequest(request)) {
+            return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus()).build();
+        }
+        return ResponseEntity
+                .status(ErrorCode.INVALID_REQUEST.getStatus())
+                .body(ErrorResponse.builder()
+                        .code(ErrorCode.INVALID_REQUEST.getCode())
+                        .message(message != null ? message : ErrorCode.INVALID_REQUEST.getMessage())
+                        .status(ErrorCode.INVALID_REQUEST.getStatus())
+                        .timestamp(Instant.now())
+                        .path(request.getRequestURI())
+                        .build());
+    }
+
+    /**
      * 낙관적 락 예외 처리
      */
     @ExceptionHandler(OptimisticLockingFailureException.class)

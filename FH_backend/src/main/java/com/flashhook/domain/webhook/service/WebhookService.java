@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.domain.Sort;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.UUID;
@@ -48,6 +49,7 @@ public class WebhookService {
     @Value("${flashhook.log.body-preview-length:300}")
     private int bodyPreviewLength;
 
+    @CacheEvict(value = "endpoints", key = "#endpointId")
     @Transactional
     public MockConfig receive(String endpointId, IncomingWebhookPayload payload) {
         // 1. 엔드포인트 확인
