@@ -60,13 +60,15 @@ public class SseEmitterService {
             WebhookLogResponse response = WebhookLogResponse.from(event.getWebhookLog());
 
             for (SseEmitter emitter : endpointEmitters) {
-                try {
-                    emitter.send(SseEmitter.event()
-                            .name("webhook")
-                            .data(response));
-                } catch (Exception e) {
-                    removeEmitter(endpointId, emitter);
-                }
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                    try {
+                        emitter.send(SseEmitter.event()
+                                .name("webhook")
+                                .data(response));
+                    } catch (Exception e) {
+                        removeEmitter(endpointId, emitter);
+                    }
+                });
             }
         }
     }
@@ -78,11 +80,13 @@ public class SseEmitterService {
     public void sendHeartbeat() {
         emitters.forEach((endpointId, endpointEmitters) -> {
             for (SseEmitter emitter : endpointEmitters) {
-                try {
-                    emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
-                } catch (Exception e) {
-                    removeEmitter(endpointId, emitter);
-                }
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                    try {
+                        emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
+                    } catch (Exception e) {
+                        removeEmitter(endpointId, emitter);
+                    }
+                });
             }
         });
     }
