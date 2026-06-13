@@ -92,7 +92,7 @@ function DashboardPage() {
 
   if (!endpointId) return <div className={styles.center}><p>엔드포인트 ID가 맞지 않아요</p><a href="/" className={styles.btnAction}>홈으로 돌아가기</a></div>;
   if (isLoading) return <div className={styles.center}><div className={styles.spinner}></div><p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>데이터를 불러오고 있어요…</p></div>;
-  if (error) return <div className={styles.center}><div className="errorBox">⚠️ 문제가 생겼어요.<br/><br/><span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{(error as Error).message}</span></div><button className={styles.btnAction} onClick={() => window.location.reload()}>재시도</button></div>;
+  if (error) return <div className={styles.center}><div className="errorBox">⚠️ 문제가 생겼어요.<br/><br/><span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{(error as Error).message}</span></div><button className={styles.btnAction} onClick={() => window.location.reload()}>다시 시도하기</button></div>;
   if (!endpoint) return <div className={styles.center}><p>엔드포인트를 찾을 수 없어요</p><a href="/" className={styles.btnAction}>홈으로 돌아가기</a></div>;
 
   return (

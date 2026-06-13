@@ -496,7 +496,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             />
             {isDynamic && (
               <p className={styles.warning} style={{ marginTop: '0.5rem', color: '#ffcc00' }}>
-                ⚡ 이 프리셋은 BE가 요청을 분석해서 응답합니다. 아래 설정은 무시됩니다.
+                ⚡ 서버가 요청을 직접 분석해서 응답해요. 아래에 설정한 내용은 적용되지 않아요.
               </p>
             )}
           </div>

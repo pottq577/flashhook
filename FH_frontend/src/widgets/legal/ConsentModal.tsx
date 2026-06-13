@@ -63,10 +63,10 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
             <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>개인정보처리방침</a> 동의 (필수)
           </li>
         </ul>
-        <div className={styles.todoBox}>
-          본 서비스는 24시간 안에 데이터가 자동 삭제되는 테스트 도구로, 
-          데이터 유실 및 제3자 정보 전송에 대한 면책 조항이 적용돼요.
-        </div>
+        <p className={styles.disclaimer}>
+          이 서비스는 24시간 안에 모든 데이터를 지우는 테스트 도구예요.<br />
+          데이터가 사라지거나 외부로 전송되는 것에 책임을 지지 않아요.
+        </p>
         
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
           <button 
