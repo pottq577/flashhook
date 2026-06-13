@@ -1,7 +1,9 @@
 package com.flashhook.domain.webhook.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.MockConfig;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,17 +16,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 public class MockResponseScheduler {
 
     private final ScheduledExecutorService scheduler;
+    private final ObjectMapper objectMapper;
 
     private static final Set<String> ALLOWED_HEADERS = Set.of(
             "content-type", "access-control-allow-origin", "cache-control", "x-mock-response"
     );
 
-    public MockResponseScheduler() {
+    public MockResponseScheduler(ObjectMapper objectMapper) {
         this.scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+        this.objectMapper = objectMapper;
     }
 
     @PreDestroy
@@ -116,19 +121,19 @@ public class MockResponseScheduler {
     private DeferredResult<ResponseEntity<?>> handleSlackUrlVerification(String rawBody) {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
         try {
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(rawBody);
+            com.fasterxml.jackson.databind.JsonNode root = objectMapper.readTree(rawBody);
             
             if (root.has("type") && "url_verification".equals(root.get("type").asText()) && root.has("challenge")) {
                 String challenge = root.get("challenge").asText();
                 java.util.Map<String, String> responseBody = java.util.Map.of("challenge", challenge);
                 deferredResult.setResult(ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(mapper.writeValueAsString(responseBody)));
+                        .body(objectMapper.writeValueAsString(responseBody)));
             } else {
                 deferredResult.setResult(ResponseEntity.ok().build());
             }
         } catch (Exception e) {
+            log.error("Failed to parse Slack URL Verification payload", e);
             deferredResult.setResult(ResponseEntity.ok().build());
         }
         return deferredResult;
