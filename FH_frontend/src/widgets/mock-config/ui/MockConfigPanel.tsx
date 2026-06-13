@@ -2,19 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUpdateMockConfigMutation } from '@/entities/endpoint/api/endpoint.queries';
 import type { Endpoint } from '@/entities/endpoint/model/endpoint.schema';
+import {
+  PRESET_CATALOG,
+  CUSTOM_SERVICE_ID,
+  type PresetScenario,
+} from '@/entities/endpoint/model/presets';
 import styles from './MockConfigPanel.module.css';
 
 interface MockConfigPanelProps {
   endpoint: Endpoint;
 }
-
-const PRESETS = [
-  { label: 'DEFAULT', desc: '(200 OK)', status: 200, body: 'ok' },
-  { label: 'TOSS_PAYMENTS', desc: '(400 ERROR)', status: 400, body: '{\n  "code": "INVALID_API_KEY",\n  "message": "잘못된 시크릿 키 연동입니다."\n}' },
-  { label: 'KAKAO_LOGIN', desc: '(401 ERROR)', status: 401, body: '{\n  "msg": "this access token does not exist",\n  "code": -401\n}' },
-  { label: 'PORTONE', desc: '(500 ERROR)', status: 500, body: '{\n  "code": -1,\n  "message": "Internal Server Error"\n}' },
-  { label: 'CUSTOM', desc: '(Manual Config)', status: null, body: null }
-];
 
 const COMMON_STATUS_CODES = [
   { value: 200, label: 'OK', desc: '(Success)' },
@@ -23,6 +20,7 @@ const COMMON_STATUS_CODES = [
   { value: 401, label: 'Unauthorized', desc: '(Invalid Token)' },
   { value: 403, label: 'Forbidden', desc: '' },
   { value: 404, label: 'Not Found', desc: '' },
+  { value: 409, label: 'Conflict', desc: '(Duplicate)' },
   { value: 429, label: 'Too Many Requests', desc: '' },
   { value: 500, label: 'Internal Server Error', desc: '' },
   { value: 502, label: 'Bad Gateway', desc: '' },
@@ -34,6 +32,7 @@ const COMMON_DELAY_PRESETS = [
   { value: 500, label: '500ms', desc: '(Typical)' },
   { value: 1000, label: '1000ms', desc: '(1s)' },
   { value: 3000, label: '3000ms', desc: '(3s)' },
+  { value: 3500, label: '3500ms', desc: '(Kakao timeout)' },
   { value: 5000, label: '5000ms', desc: '(5s)' },
 ];
 
@@ -43,7 +42,7 @@ const COMMON_HEADER_KEYS = [
   { value: 'Cache-Control', label: 'Cache-Control' },
   { value: 'Access-Control-Allow-Origin', label: 'Access-Control-Allow-Origin' },
   { value: 'X-Webhook-Signature', label: 'X-Webhook-Signature' },
-  { value: 'X-Custom-Header', label: 'X-Custom-Header' }
+  { value: 'X-Custom-Header', label: 'X-Custom-Header' },
 ];
 
 const COMMON_HEADER_VALUES = [
@@ -52,24 +51,75 @@ const COMMON_HEADER_VALUES = [
   { value: 'text/plain', label: 'text/plain' },
   { value: 'Bearer <token>', label: 'Bearer <token>' },
   { value: 'no-cache', label: 'no-cache' },
-  { value: '*', label: '*' }
+  { value: '*', label: '*' },
 ];
 
-function CustomDropdown({ 
-  value, 
-  options, 
-  onSelect, 
-  onCustom, 
-  customLabel, 
-  placeholder, 
-  isOpen, 
-  onToggle, 
+const SERVICE_OPTIONS = [
+  ...PRESET_CATALOG.map((s) => ({ value: s.id, label: s.label })),
+  { value: CUSTOM_SERVICE_ID, label: 'CUSTOM', desc: '(Manual Config)' },
+];
+
+function isHeadersEqual(presetHeaders: Record<string, string>, currentHeaders: Record<string, string> = {}): boolean {
+  const presetKeys = Object.keys(presetHeaders);
+  const currentKeys = Object.keys(currentHeaders);
+  if (presetKeys.length !== currentKeys.length) return false;
+  return presetKeys.every((key) => presetHeaders[key] === currentHeaders[key]);
+}
+
+const generateId = () => 
+  typeof crypto !== 'undefined' && crypto.randomUUID 
+    ? crypto.randomUUID() 
+    : Math.random().toString(36).substring(2, 11);
+
+function findInitialServiceId(cfg: Endpoint['mockConfig']): string {
+  if (!cfg) return CUSTOM_SERVICE_ID;
+  for (const service of PRESET_CATALOG) {
+    for (const scenario of service.scenarios) {
+      if (
+        scenario.statusCode === cfg.statusCode &&
+        scenario.delayMs === (cfg.delayMs ?? 0) &&
+        scenario.body === (cfg.body ?? 'ok') &&
+        isHeadersEqual(scenario.headers, cfg.headers)
+      ) {
+        return service.id;
+      }
+    }
+  }
+  return CUSTOM_SERVICE_ID;
+}
+
+function findInitialScenarioId(
+  cfg: Endpoint['mockConfig'],
+  serviceId: string,
+): string | null {
+  if (!cfg || serviceId === CUSTOM_SERVICE_ID) return null;
+  const service = PRESET_CATALOG.find((s) => s.id === serviceId);
+  if (!service) return null;
+  const match = service.scenarios.find(
+    (s) =>
+      s.statusCode === cfg.statusCode &&
+      s.delayMs === (cfg.delayMs ?? 0) &&
+      s.body === (cfg.body ?? 'ok') &&
+      isHeadersEqual(s.headers, cfg.headers)
+  );
+  return match?.id ?? null;
+}
+
+function CustomDropdown({
+  value,
+  options,
+  onSelect,
+  onCustom,
+  customLabel,
+  placeholder,
+  isOpen,
+  onToggle,
   isCustomStatus,
   displayValue,
   alignRight,
   isEditable,
   onEdit,
-  hideNoOptions
+  hideNoOptions,
 }: {
   value: string | number;
   options: { value: string | number; label: string; desc?: string }[];
@@ -80,59 +130,87 @@ function CustomDropdown({
   isOpen: boolean;
   onToggle: () => void;
   isCustomStatus?: boolean;
-  displayValue?: (val: string | number, opt?: { value: string | number; label: string; desc?: string }) => string;
+  displayValue?: (
+    val: string | number,
+    opt?: { value: string | number; label: string; desc?: string },
+  ) => string;
   alignRight?: boolean;
   isEditable?: boolean;
   onEdit?: (val: string) => void;
   hideNoOptions?: boolean;
 }) {
-  const selected = options.find(o => o.value === value);
+  const selected = options.find((o) => o.value === value);
   const isCustom = isCustomStatus ?? (!selected && value !== '');
 
-  const filteredOptions = isEditable && value !== '' 
-    ? options.filter(o => 
-        String(o.label).toLowerCase().includes(String(value).toLowerCase()) || 
-        String(o.value).toLowerCase().includes(String(value).toLowerCase())
-      )
-    : options;
+  const filteredOptions =
+    isEditable && value !== ''
+      ? options.filter(
+          (o) =>
+            String(o.label).toLowerCase().includes(String(value).toLowerCase()) ||
+            String(o.value).toLowerCase().includes(String(value).toLowerCase()),
+        )
+      : options;
 
   return (
     <div className={styles.statusInputWrapper}>
-      <div 
-        className={styles.customSelectTrigger} 
+      <div
+        className={styles.customSelectTrigger}
         onClick={!isEditable ? onToggle : undefined}
         role="combobox"
         aria-expanded={isOpen}
         tabIndex={!isEditable ? 0 : -1}
-        onKeyDown={!isEditable ? (e) => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); }
-        } : undefined}
+        onKeyDown={
+          !isEditable
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onToggle();
+                }
+              }
+            : undefined
+        }
       >
         {isEditable ? (
-          <input 
-            type="text" 
+          <input
+            type="text"
             className={styles.customSelectInput}
-            value={value} 
-            onChange={e => {
-               if (onEdit) onEdit(e.target.value);
-               if (!isOpen) onToggle();
+            value={value}
+            onChange={(e) => {
+              if (onEdit) onEdit(e.target.value);
+              if (!isOpen) onToggle();
             }}
-            onFocus={() => { if (!isOpen) onToggle(); }}
+            onFocus={() => {
+              if (!isOpen) onToggle();
+            }}
             placeholder={placeholder}
           />
         ) : (
           <span className={styles.customSelectText}>
             {isCustom
-              ? (customLabel ? `${customLabel}: ${value}` : (value || placeholder))
-              : (selected ? (displayValue ? displayValue(value, selected) : `${selected.value !== selected.label ? selected.value + ' ' : ''}${selected.label}`) : placeholder)}
+              ? customLabel
+                ? `${customLabel}: ${value}`
+                : value || placeholder
+              : selected
+                ? displayValue
+                  ? displayValue(value, selected)
+                  : `${selected.value !== selected.label ? selected.value + ' ' : ''}${selected.label}`
+                : placeholder}
           </span>
         )}
-        <span className={styles.customSelectIcon} onClick={(e) => { e.stopPropagation(); onToggle(); }}>▼</span>
+        <span
+          className={styles.customSelectIcon}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle();
+          }}
+        >
+          ▼
+        </span>
       </div>
-      
+
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             className={styles.customSelectDropdown}
             role="listbox"
             style={alignRight ? { right: 0, left: 'auto' } : undefined}
@@ -141,45 +219,61 @@ function CustomDropdown({
             exit={{ opacity: 0, y: -5 }}
             transition={{ duration: 0.15 }}
           >
-            {filteredOptions.length > 0 ? filteredOptions.map(o => (
-              <div 
-                key={String(o.value)} 
-                className={`${styles.customSelectOption} ${value === o.value && !isCustom ? styles.selected : ''}`}
-                role="option"
-                aria-selected={value === o.value && !isCustom}
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(o.value); }
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation(); 
-                  onSelect(o.value); 
-                }}
-              >
-                {o.value !== o.label && <span className={styles.optionValue}>{o.value}</span>}
-                <div className={styles.optionTextContainer}>
-                  <span className={styles.optionLabel}>{o.label}</span>
-                  {o.desc && <span className={styles.optionDesc}>{o.desc}</span>}
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((o) => (
+                <div
+                  key={String(o.value)}
+                  className={`${styles.customSelectOption} ${value === o.value && !isCustom ? styles.selected : ''}`}
+                  role="option"
+                  aria-selected={value === o.value && !isCustom}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onSelect(o.value);
+                    }
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onSelect(o.value);
+                  }}
+                >
+                  {o.value !== o.label && (
+                    <span className={styles.optionValue}>{o.value}</span>
+                  )}
+                  <div className={styles.optionTextContainer}>
+                    <span className={styles.optionLabel}>{o.label}</span>
+                    {o.desc && <span className={styles.optionDesc}>{o.desc}</span>}
+                  </div>
                 </div>
-              </div>
-            )) : (
+              ))
+            ) : (
               !hideNoOptions && (
-                <div className={styles.customSelectOption} style={{ opacity: 0.5 }}>
+                <div
+                  className={styles.customSelectOption}
+                  style={{ opacity: 0.5 }}
+                >
                   <span className={styles.optionLabel}>No matching options</span>
                 </div>
               )
             )}
             {onCustom && !isEditable && (
-              <div 
+              <div
                 className={`${styles.customSelectOption} ${isCustom ? styles.selected : ''}`}
                 role="option"
                 aria-selected={isCustom}
                 tabIndex={0}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onCustom(); }
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onCustom();
+                  }
                 }}
-                onClick={(e) => { e.stopPropagation(); onCustom(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCustom();
+                }}
               >
                 <span className={styles.optionValue}>Custom...</span>
               </div>
@@ -193,30 +287,40 @@ function CustomDropdown({
 
 export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { mutate, isPending } = useUpdateMockConfigMutation(endpoint.endpointId);
-  const [statusCode, setStatusCode] = useState<number | string>(endpoint.mockConfig?.statusCode || 200);
+
+  const [selectedServiceId, setSelectedServiceId] = useState<string>(() =>
+    findInitialServiceId(endpoint.mockConfig),
+  );
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(() =>
+    findInitialScenarioId(
+      endpoint.mockConfig,
+      findInitialServiceId(endpoint.mockConfig),
+    ),
+  );
+
+  const [statusCode, setStatusCode] = useState<number | string>(
+    endpoint.mockConfig?.statusCode || 200,
+  );
   const [isCustomStatus, setIsCustomStatus] = useState(() => {
     const code = endpoint.mockConfig?.statusCode || 200;
-    return !COMMON_STATUS_CODES.some(c => c.value === code);
+    return !COMMON_STATUS_CODES.some((c) => c.value === code);
   });
-  const [delayMs, setDelayMs] = useState<number | string>(endpoint.mockConfig?.delayMs || 0);
+  const [delayMs, setDelayMs] = useState<number | string>(
+    endpoint.mockConfig?.delayMs || 0,
+  );
   const [body, setBody] = useState(endpoint.mockConfig?.body || 'ok');
-  
-  const [presetIdx, setPresetIdx] = useState<number | string>(() => {
-    const code = endpoint.mockConfig?.statusCode || 200;
-    const b = endpoint.mockConfig?.body || 'ok';
-    const found = PRESETS.findIndex(p => p.status === code && p.body === b);
-    return found !== -1 ? found : 4; // 4 is CUSTOM
-  });
 
-  const [headerList, setHeaderList] = useState<{id: string, key: string, value: string}[]>(() => {
+  const [headerList, setHeaderList] = useState<
+    { id: string; key: string; value: string }[]
+  >(() => {
     const headers = endpoint.mockConfig?.headers || {};
-    return Object.entries(headers).map(([k, v]) => ({ 
-      id: crypto.randomUUID(), 
-      key: k, 
-      value: String(v)
+    return Object.entries(headers).map(([k, v]) => ({
+      id: generateId(),
+      key: k,
+      value: String(v),
     }));
   });
-  
+
   const [headerWarning, setHeaderWarning] = useState<string | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -224,7 +328,6 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      // Close dropdown if the click happens outside any CustomDropdown trigger/menu
       if (!target.closest(`.${styles.statusInputWrapper}`)) {
         setOpenDropdownId(null);
       }
@@ -235,13 +338,47 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openDropdownId]);
 
+  const currentService =
+    selectedServiceId !== CUSTOM_SERVICE_ID
+      ? (PRESET_CATALOG.find((s) => s.id === selectedServiceId) ?? null)
+      : null;
+
+  const scenarioOptions =
+    currentService?.scenarios.map((s) => ({
+      value: s.id,
+      label: s.label,
+      desc: s.desc,
+    })) ?? [];
+
+  /** 수동 편집 시 서비스/시나리오 선택을 CUSTOM으로 초기화 */
+  const resetToCustom = () => {
+    setSelectedServiceId(CUSTOM_SERVICE_ID);
+    setSelectedScenarioId(null);
+  };
+
+  /** 프리셋 시나리오 선택 → 4개 필드 전부 로드 */
+  const applyScenario = (scenario: PresetScenario) => {
+    setSelectedScenarioId(scenario.id);
+    setStatusCode(scenario.statusCode);
+    setIsCustomStatus(!COMMON_STATUS_CODES.some((c) => c.value === scenario.statusCode));
+    setDelayMs(scenario.delayMs);
+    setBody(scenario.body);
+    setHeaderList(
+      Object.entries(scenario.headers).map(([k, v]) => ({
+        id: generateId(),
+        key: k,
+        value: String(v),
+      })),
+    );
+  };
+
   const handleApply = () => {
     setHeaderWarning(null);
-    
-    const sCode = Number(statusCode) || 200;
+
+    const sCode = Number(statusCode);
     const dMs = Number(delayMs) || 0;
-    
-    if (sCode < 100 || sCode > 599) {
+
+    if (String(statusCode).trim() === '' || isNaN(sCode) || sCode < 100 || sCode > 599) {
       setHeaderWarning('ERROR: STATUS_CODE MUST BE 100-599');
       return;
     }
@@ -253,7 +390,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     const headers: Record<string, string> = {};
     let hasInvalidLines = false;
 
-    headerList.forEach(h => {
+    headerList.forEach((h) => {
       const k = h.key.trim();
       const v = h.value.trim();
       if (k) {
@@ -271,17 +408,10 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
       statusCode: sCode,
       delayMs: dMs,
       body,
-      headers
+      headers,
+      // 정적 프리셋: 항상 null → 동적 핸들러(Phase 2) 잔존 시 해제 보장
+      presetType: null,
     });
-  };
-
-  const applyPreset = (index: number) => {
-    setPresetIdx(index);
-    if (index === 4) return; // Custom
-    const preset = PRESETS[index];
-    setStatusCode(preset.status as number);
-    setIsCustomStatus(!COMMON_STATUS_CODES.some(c => c.value === preset.status));
-    setBody(preset.body as string);
   };
 
   return (
@@ -292,21 +422,47 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
       </div>
 
       <div className={styles.form}>
+        {/* Level 1: 서비스 선택 */}
         <div className={styles.formGroup}>
-          <label>TARGET_PRESET</label>
+          <label>TARGET_SERVICE</label>
           <CustomDropdown
-            value={presetIdx}
-            options={PRESETS.map((p, i) => ({ value: i, label: p.label, desc: p.desc }))}
+            value={selectedServiceId}
+            options={SERVICE_OPTIONS}
             onSelect={(val) => {
-              applyPreset(Number(val));
+              setSelectedServiceId(String(val));
+              setSelectedScenarioId(null);
               setOpenDropdownId(null);
             }}
-            placeholder="SELECT_PRESET..."
-            isOpen={openDropdownId === 'preset'}
-            onToggle={() => setOpenDropdownId(openDropdownId === 'preset' ? null : 'preset')}
-            displayValue={(_val, opt) => opt ? `${opt.label}` : 'SELECT_PRESET...'}
+            placeholder="SELECT_SERVICE..."
+            isOpen={openDropdownId === 'service'}
+            onToggle={() =>
+              setOpenDropdownId(openDropdownId === 'service' ? null : 'service')
+            }
+            displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_SERVICE...')}
           />
         </div>
+
+        {/* Level 2: 시나리오 선택 (CUSTOM 이 아닐 때만 표시) */}
+        {selectedServiceId !== CUSTOM_SERVICE_ID && (
+          <div className={styles.formGroup}>
+            <label>TARGET_PRESET</label>
+            <CustomDropdown
+              value={selectedScenarioId ?? ''}
+              options={scenarioOptions}
+              onSelect={(val) => {
+                const scenario = currentService?.scenarios.find((s) => s.id === val);
+                if (scenario) applyScenario(scenario);
+                setOpenDropdownId(null);
+              }}
+              placeholder="SELECT_PRESET..."
+              isOpen={openDropdownId === 'scenario'}
+              onToggle={() =>
+                setOpenDropdownId(openDropdownId === 'scenario' ? null : 'scenario')
+              }
+              displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_PRESET...')}
+            />
+          </div>
+        )}
 
         <div className={styles.row}>
           <div className={styles.formGroup}>
@@ -317,37 +473,40 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               onSelect={(val) => {
                 setStatusCode(val);
                 setIsCustomStatus(false);
-                setPresetIdx(4);
+                resetToCustom();
                 setOpenDropdownId(null);
               }}
               onCustom={() => {
                 setIsCustomStatus(true);
                 setStatusCode('');
-                setPresetIdx(4);
+                resetToCustom();
                 setOpenDropdownId(null);
               }}
               customLabel="Custom"
               placeholder="Select Status..."
               isOpen={openDropdownId === 'status'}
-              onToggle={() => setOpenDropdownId(openDropdownId === 'status' ? null : 'status')}
+              onToggle={() =>
+                setOpenDropdownId(openDropdownId === 'status' ? null : 'status')
+              }
               isCustomStatus={isCustomStatus}
             />
             {isCustomStatus && (
-              <input 
+              <input
                 type="number"
-                min="100" max="599"
+                min="100"
+                max="599"
                 placeholder="e.g., 418"
                 value={statusCode}
-                onChange={e => {
+                onChange={(e) => {
                   setStatusCode(Number(e.target.value));
-                  setPresetIdx(4);
+                  resetToCustom();
                 }}
                 className={styles.input}
                 style={{ marginTop: '0.5rem' }}
               />
             )}
           </div>
-          
+
           <div className={styles.formGroup}>
             <label>RESPONSE_DELAY (ms)</label>
             <CustomDropdown
@@ -355,16 +514,18 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               options={COMMON_DELAY_PRESETS}
               onSelect={(val) => {
                 setDelayMs(val);
-                setPresetIdx(4);
+                resetToCustom();
                 setOpenDropdownId(null);
               }}
               placeholder="e.g., 500"
               isOpen={openDropdownId === 'delay'}
-              onToggle={() => setOpenDropdownId(openDropdownId === 'delay' ? null : 'delay')}
+              onToggle={() =>
+                setOpenDropdownId(openDropdownId === 'delay' ? null : 'delay')
+              }
               isEditable={true}
               onEdit={(val) => {
                 setDelayMs(val.replace(/[^0-9]/g, ''));
-                setPresetIdx(4);
+                resetToCustom();
               }}
               hideNoOptions={true}
             />
@@ -376,7 +537,15 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           <div className={styles.headerList}>
             {headerList.map((h, i) => (
               <div key={h.id} className={styles.headerRow}>
-                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                  }}
+                >
                   <CustomDropdown
                     value={h.key}
                     options={COMMON_HEADER_KEYS}
@@ -384,25 +553,39 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                       const newHeaders = [...headerList];
                       newHeaders[i].key = String(val);
                       setHeaderList(newHeaders);
-                      setPresetIdx(4);
+                      resetToCustom();
                       setOpenDropdownId(null);
                     }}
                     placeholder="Key"
                     isOpen={openDropdownId === `header-key-${h.id}`}
-                    onToggle={() => setOpenDropdownId(openDropdownId === `header-key-${h.id}` ? null : `header-key-${h.id}`)}
+                    onToggle={() =>
+                      setOpenDropdownId(
+                        openDropdownId === `header-key-${h.id}`
+                          ? null
+                          : `header-key-${h.id}`,
+                      )
+                    }
                     isEditable={true}
                     onEdit={(val) => {
                       const newHeaders = [...headerList];
                       newHeaders[i].key = val;
                       setHeaderList(newHeaders);
-                      setPresetIdx(4);
+                      resetToCustom();
                     }}
                   />
                 </div>
-                
+
                 <span className={styles.headerColon}>:</span>
-                
-                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                  }}
+                >
                   <CustomDropdown
                     value={h.value}
                     options={COMMON_HEADER_VALUES}
@@ -410,40 +593,51 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                       const newHeaders = [...headerList];
                       newHeaders[i].value = String(val);
                       setHeaderList(newHeaders);
-                      setPresetIdx(4);
+                      resetToCustom();
                       setOpenDropdownId(null);
                     }}
                     placeholder="Value"
                     isOpen={openDropdownId === `header-value-${h.id}`}
-                    onToggle={() => setOpenDropdownId(openDropdownId === `header-value-${h.id}` ? null : `header-value-${h.id}`)}
+                    onToggle={() =>
+                      setOpenDropdownId(
+                        openDropdownId === `header-value-${h.id}`
+                          ? null
+                          : `header-value-${h.id}`,
+                      )
+                    }
                     alignRight={true}
                     isEditable={true}
                     onEdit={(val) => {
                       const newHeaders = [...headerList];
                       newHeaders[i].value = val;
                       setHeaderList(newHeaders);
-                      setPresetIdx(4);
+                      resetToCustom();
                     }}
                   />
                 </div>
-                
-                <button 
-                  type="button" 
-                  className={styles.removeBtn} 
+
+                <button
+                  type="button"
+                  className={styles.removeBtn}
                   onClick={() => {
-                    setHeaderList(headerList.filter(item => item.id !== h.id));
-                    setPresetIdx(4);
+                    setHeaderList(headerList.filter((item) => item.id !== h.id));
+                    resetToCustom();
                   }}
                   title="Remove Header"
-                >✕</button>
+                >
+                  ✕
+                </button>
               </div>
             ))}
-            <button 
-              type="button" 
-              className={styles.addHeaderBtn} 
+            <button
+              type="button"
+              className={styles.addHeaderBtn}
               onClick={() => {
-                setHeaderList([...headerList, { id: crypto.randomUUID(), key: '', value: '' }]);
-                setPresetIdx(4);
+                setHeaderList([
+                  ...headerList,
+                  { id: generateId(), key: '', value: '' },
+                ]);
+                resetToCustom();
               }}
             >
               + ADD HEADER
@@ -454,14 +648,14 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
         <div className={styles.formGroup}>
           <label htmlFor="input-body">RESPONSE_BODY</label>
-          <textarea 
+          <textarea
             id="input-body"
             name="body"
-            value={body} 
-            onChange={e => {
+            value={body}
+            onChange={(e) => {
               setBody(e.target.value);
-              setPresetIdx(4);
-            }} 
+              resetToCustom();
+            }}
             className={`${styles.textarea} ${styles.bodyArea}`}
             rows={8}
             spellCheck={false}
@@ -469,8 +663,8 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           />
         </div>
 
-        <button 
-          onClick={handleApply} 
+        <button
+          onClick={handleApply}
           disabled={isPending}
           className={styles.button}
         >
