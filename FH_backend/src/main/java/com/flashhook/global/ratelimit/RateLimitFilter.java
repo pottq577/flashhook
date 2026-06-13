@@ -75,6 +75,20 @@ public class RateLimitFilter extends OncePerRequestFilter {
             }
         }
 
+        // 3. Replay API (POST /api/endpoints/{endpointId}/logs/{logId}/replay)
+        if ("POST".equalsIgnoreCase(method) && path.startsWith("/api/endpoints/") && path.endsWith("/replay")) {
+            String[] parts = path.split("/");
+            if (parts.length >= 7) {
+                String endpointId = parts[3];
+                String key = "rl:replay:" + endpointId;
+                // 1분(60초) 기준 20회 제한
+                if (!rateLimitService.isAllowed(key, 20, 60)) {
+                    sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
+                    return;
+                }
+            }
+        }
+
         filterChain.doFilter(request, response);
     }
 
