@@ -12,8 +12,10 @@ import EndpointInfo from '@/widgets/endpoint-info/ui/EndpointInfo';
 import ConnectionStatus from '@/widgets/endpoint-info/ui/ConnectionStatus';
 import LogList from '@/widgets/log-viewer/ui/LogList';
 import LogDetail from '@/widgets/log-viewer/ui/LogDetail';
-import MockConfigPanel from '@/widgets/mock-config/ui/MockConfigPanel';
+import { lazy, Suspense } from 'react';
 import styles from './DashboardPage.module.css';
+
+const MockConfigPanel = lazy(() => import('@/widgets/mock-config/ui/MockConfigPanel'));
 
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
@@ -113,7 +115,7 @@ function DashboardPage() {
             logs={logs} 
             selectedLogId={selectedLog?.logId || null} 
             onSelect={(logId) => {
-              const log = logs.find(l => l.logId === logId);
+              const log = useLogStore.getState().logMap[logId];
               if (log) {
                 setSelectedLog({ ...log, url: '', headers: {}, queryParams: {}, body: {} }); 
               }
@@ -139,10 +141,11 @@ function DashboardPage() {
               {isMockPanelOpen && (
                 <motion.div 
                   className={styles.mockSidebarContainer}
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: sidebarWidth, opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
+                  initial={{ scaleX: 0, opacity: 0, originX: 1 }}
+                  animate={{ scaleX: 1, opacity: 1, originX: 1 }}
+                  exit={{ scaleX: 0, opacity: 0, originX: 1 }}
                   transition={isResizing ? { duration: 0 } : { type: "spring", bounce: 0, duration: 0.4 }}
+                  style={{ width: sidebarWidth }}
                 >
                   <div className={styles.resizeHandle} onPointerDown={startResizing} />
                   <div className={styles.mockSidebarInner} style={{ width: sidebarWidth }}>
@@ -151,7 +154,9 @@ function DashboardPage() {
                       <button className={styles.mockPanelCloseBtn} onClick={() => setIsMockPanelOpen(false)}>✕</button>
                     </div>
                     <div className={styles.mockPanelBody}>
-                      <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                      </Suspense>
                     </div>
                   </div>
                 </motion.div>
@@ -203,7 +208,9 @@ function DashboardPage() {
                         <h3 className={styles.mockPanelTitle}>Mock Configuration</h3>
                         <button className={styles.btnAction} onClick={() => setIsMockPanelOpen(false)}>뒤로가기</button>
                       </div>
-                      <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <MockConfigPanel endpoint={endpoint} key={endpoint.endpointId} />
+                      </Suspense>
                     </>
                   )}
                 </div>

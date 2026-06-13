@@ -1,6 +1,5 @@
 import type { WebhookLog } from '@/entities/log/model/log.schema';
-import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { Virtuoso } from 'react-virtuoso';
 import LogItem from './LogItem';
 import styles from './LogList.module.css';
 
@@ -11,22 +10,7 @@ interface LogListProps {
   endpointId?: string;
 }
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05 }
-  }
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, x: -20 },
-  show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-};
-
 function LogList({ logs, selectedLogId, onSelect }: LogListProps) {
-  const shouldReduceMotion = useReducedMotion();
-
   if (!logs || logs.length === 0) {
     return (
       <div role="status" className={styles.empty}>
@@ -37,29 +21,21 @@ function LogList({ logs, selectedLogId, onSelect }: LogListProps) {
   }
 
   return (
-    <motion.div 
-      className={styles.container}
-      variants={shouldReduceMotion ? undefined : containerVariants}
-      initial={shouldReduceMotion ? false : "hidden"}
-      animate={shouldReduceMotion ? undefined : "show"}
-    >
-      <AnimatePresence initial={false}>
-        {logs.map((log) => (
-          <motion.div 
-            key={log.logId} 
-            variants={shouldReduceMotion ? undefined : itemVariants}
-            layout
-            exit={shouldReduceMotion ? undefined : { opacity: 0, height: 0, overflow: 'hidden' }}
-          >
+    <div className={styles.container}>
+      <Virtuoso
+        style={{ height: '100%' }}
+        data={logs}
+        itemContent={(index, log) => (
+          <div style={{ paddingBottom: '0.5rem' }}>
             <LogItem 
               log={log} 
               isSelected={selectedLogId === log.logId} 
               onClick={() => onSelect(log.logId)} 
             />
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </motion.div>
+          </div>
+        )}
+      />
+    </div>
   );
 }
 
