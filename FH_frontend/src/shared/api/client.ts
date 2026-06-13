@@ -59,7 +59,19 @@ export async function apiRequest(
 
         if (response.status >= 500) {
           throw new Error(`서버에 문제가 생겼어요 (${response.status}). 잠시 후 다시 시도해주세요.`);
-        } else if (response.status === 401) {
+        } 
+        
+        let errorData;
+        try { 
+          errorData = JSON.parse(errorBody); 
+        } catch {
+          // ignore parse error
+        }
+        if (errorData && errorData.code) {
+          throw new Error(`[${errorData.code}] ${errorData.message || ''}`);
+        }
+
+        if (response.status === 401) {
           throw new Error('인증이 필요해요. 다시 로그인해주세요.');
         } else if (response.status === 403) {
           throw new Error('이 페이지를 볼 수 있는 권한이 없어요.');

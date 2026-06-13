@@ -10,7 +10,7 @@ export const queryClient = new QueryClient({
       if (msg.includes('INVALID_TOKEN') || msg.includes('ENDPOINT_NOT_FOUND')) {
         // 모든 엔드포인트 토큰 날리기 (단순화를 위해 전체 clear 또는 특정 처리가능)
         Object.keys(sessionStorage)
-          .filter((key) => key.startsWith('flashhook:'))
+          .filter((key) => key.startsWith('fh_token_'))
           .forEach((key) => sessionStorage.removeItem(key));
         window.location.href = '/';
         return;
