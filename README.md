@@ -78,7 +78,7 @@ sequenceDiagram
     FE->>FE: 6. Render Log in Dashboard
 ```
 
-- **Backend:** Java 21, Spring Boot 3.5.0
+- **Backend:** Java 21, Spring Boot 3.5.15
 - **Frontend:** React 19, TypeScript, Vite, Zustand, TanStack Query(v5), React Router DOM(v7), Framer Motion, Playwright + Axe, FSD 아키텍처
 - **Database:** MongoDB (TTL), Redis (Rate Limit)
 - **Infra:** Docker, SSE (Server-Sent Events)
