@@ -297,6 +297,15 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { mutate, isPending } = useUpdateMockConfigMutation(endpoint.endpointId);
   const addToast = useToastStore((state) => state.addToast);
   const [isSaved, setIsSaved] = useState(false);
+  const savedResetTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (savedResetTimerRef.current !== null) {
+        window.clearTimeout(savedResetTimerRef.current);
+      }
+    };
+  }, []);
 
   const [selectedServiceId, setSelectedServiceId] = useState<string>(() =>
     findInitialServiceId(endpoint.mockConfig),
@@ -452,7 +461,13 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
       onSuccess: () => {
         setIsSaved(true);
         addToast('모의 설정이 저장되었습니다.', 3000);
-        setTimeout(() => setIsSaved(false), 2000);
+        if (savedResetTimerRef.current !== null) {
+          window.clearTimeout(savedResetTimerRef.current);
+        }
+        savedResetTimerRef.current = window.setTimeout(() => {
+          setIsSaved(false);
+          savedResetTimerRef.current = null;
+        }, 2000);
       }
     });
   };
