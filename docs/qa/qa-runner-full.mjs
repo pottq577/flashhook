@@ -51,7 +51,10 @@ async function cleanDb() {
     execSync('docker exec flashhook-redis redis-cli FLUSHALL');
     console.log('Redis flushed');
   } catch(e) {
-    console.log('Could not flush Redis (maybe not installed locally?)');
+    if (process.env.QA_STRICT_CLEANUP === '1') {
+      throw new Error(`Redis cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
+    }
+    skip('PRE-REDIS', 'Redis flush 실패로 레이트리밋 관련 TC 신뢰도 저하 가능');
   }
   console.log('MongoDB cleaned for testing');
 }
@@ -228,14 +231,14 @@ async function run() {
     await page.reload();
     await page.waitForSelector('[data-testid="log-item"]');
     await page.waitForTimeout(1000); // Give it time to render multiple logs
-    const logsCount = await page.evaluate(async (id) => {
+    const logsCount = await page.evaluate(async ({ id, baseBe }) => {
       const token = sessionStorage.getItem(`fh_token_${id}`);
-      const res = await fetch(`http://localhost:8080/api/endpoints/${id}/logs?page=0&size=50`, {
+      const res = await fetch(`${baseBe}/api/endpoints/${id}/logs?page=0&size=50`, {
         headers: { 'X-Access-Token': token }
       });
       const data = await res.json();
       return data.content ? data.content.length : 0;
-    }, endpointId);
+    }, { id: endpointId, baseBe: BASE_BE });
     console.log('TC-20 logs fetched via FE:', logsCount);
     if (logsCount >= 20) pass('TC-20'); else reportBug('TC-20', 'High', 'API/FE', 'Log pagination failed', '>= 20 logs');
     
@@ -321,9 +324,12 @@ async function run() {
     if (isMobile) pass('TC-32 (Viewport switch verified)'); else reportBug('TC-32', 'Low', 'UI', 'Viewport switch failed', 'Mobile view');
 
     // TC-33
-    const copyBtn = await page.locator('button', { hasText: 'COPY' }).first();
-    if (copyBtn) pass('TC-33 (URL copy verified)'); else reportBug('TC-33', 'Low', 'UI', 'Copy button missing', 'Button exists');
-    pass('TC-34 (Countdown verified)');
+    const copyBtn = page.locator('button', { hasText: 'COPY' }).first();
+    if (await copyBtn.isVisible()) pass('TC-33 (URL copy verified)'); else reportBug('TC-33', 'Low', 'UI', 'Copy button missing', 'Button visible');
+    
+    // TC-34
+    const countdownText = await page.evaluate(() => document.body.textContent?.match(/\d{2}:\d{2}:\d{2}/));
+    if (countdownText) pass('TC-34 (Countdown verified)'); else reportBug('TC-34', 'Low', 'UI', 'Countdown missing', 'Countdown format HH:MM:SS');
 
     // Phase 8
     console.log('\n--- Phase 8: 엔드포인트 삭제 ---');
@@ -338,6 +344,7 @@ async function run() {
 
   } catch (err) {
     console.error(err);
+    process.exitCode = 1;
   } finally {
     const bugContent = bugs.map(b => `
 ## [${b.bugId}]
@@ -373,6 +380,9 @@ ${bugs.length > 0 ? bugContent : '없음'}
     fs.writeFileSync(path.join(__dirname, 'qa-report-full.md'), reportContent);
     console.log('\nFULL QA 완료. docs/qa/qa-report-full.md 와 docs/qa/bugs.md 가 생성되었습니다.');
 
+    if (failed > 0) {
+      process.exitCode = 1;
+    }
     await browser.close();
   }
 }
