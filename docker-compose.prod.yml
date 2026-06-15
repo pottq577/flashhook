@@ -1,0 +1,31 @@
+services:
+  redis:
+    image: redis:7.4.0-alpine
+    container_name: flashhook-redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./FH_backend
+      dockerfile: Dockerfile
+    container_name: flashhook-backend
+    ports:
+      - "127.0.0.1:8080:8080"
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MONGODB_URI=${DB_URI}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
