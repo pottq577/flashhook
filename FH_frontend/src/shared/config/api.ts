@@ -1,10 +1,9 @@
 export function resolveApiBaseUrl(): string {
-  // 1. 환경변수 확인
+  // 환경변수(VITE_API_BASE_URL)가 있으면 우선 사용, 없으면 상대경로(/api)로 통일
+  // 로컬: vite.config.ts proxy가 /api 를 http://localhost:8080 으로 포워딩
+  // 배포: Nginx가 /api 를 백엔드로 리버스 프록시
   const envUrl = import.meta.env.VITE_API_BASE_URL as string | undefined;
+  const rawUrl = envUrl ? envUrl : '/api';
   
-  // 2. 폴백 결정
-  const rawUrl = envUrl ? envUrl : (import.meta.env.PROD ? 'https://api.flashhook.site/api' : 'http://localhost:8080/api');
-  
-  // 3. 후행 슬래시 제거 후 반환
   return rawUrl.replace(/\/+$/, '');
 }
