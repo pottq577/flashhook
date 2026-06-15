@@ -15,6 +15,7 @@ import ConnectionStatus from '@/widgets/endpoint-info/ui/ConnectionStatus';
 import LogList from '@/widgets/log-viewer/ui/LogList';
 import LogDetail from '@/widgets/log-viewer/ui/LogDetail';
 import { lazy, Suspense } from 'react';
+import { AdBanner } from '@/shared/ui/AdBanner';
 import styles from './DashboardPage.module.css';
 
 const MockConfigPanel = lazy(() => import('@/widgets/mock-config/ui/MockConfigPanel'));
@@ -53,6 +54,9 @@ function DashboardPage() {
       <Header />
       <EndpointInfo endpoint={endpoint} />
       <ConnectionStatus status={status} />
+      <div style={{ padding: '0 1rem' }}>
+        <AdBanner />
+      </div>
       
       <main className={styles.main}>
         <section className={styles.sidebar}>

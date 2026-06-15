@@ -1,0 +1,17 @@
+.adContainer {
+  width: 100%;
+  min-height: 100px; /* 고정 최소 높이 설정으로 레이아웃 시프트(CLS) 방지 */
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-surface, #f5f5f5);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .adContainer {
+    background-color: var(--color-surface, #222);
+  }
+}
