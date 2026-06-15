@@ -1,3 +1,7 @@
+# 사용 전 .env 파일 생성 필요:
+# cp .env.example .env
+# 그리고 .env 파일의 값들을 실제 값으로 수정하세요.
+
 services:
   redis:
     image: redis:7.4.0-alpine
@@ -6,6 +10,8 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
     restart: always
+    volumes:
+      - redis-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
@@ -21,12 +27,21 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
       redis:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - MONGODB_URI=${DB_URI}
+      - MONGODB_URI=${MONGODB_URI}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+volumes:
+  redis-data:
