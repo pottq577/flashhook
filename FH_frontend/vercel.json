@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; connect-src 'self' https://api.flashhook.kr wss://api.flashhook.kr; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; script-src 'self'; img-src 'self' data: https://flashhook.kr;"
+          "value": "default-src 'self'; connect-src 'self' https://api.flashhook.site; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; script-src 'self'; img-src 'self' data: https://flashhook.site;"
         }
       ]
     }

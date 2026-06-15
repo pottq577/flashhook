@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://flashhook.kr/sitemap.xml
+Sitemap: https://flashhook.site/sitemap.xml

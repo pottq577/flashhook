@@ -8,7 +8,7 @@
 ### 1.1. Base URL
 
 ```text
-https://flashhook.kr/api
+https://api.flashhook.site/api
 ```
 
 ### 1.2. 인증 방식
@@ -34,19 +34,19 @@ SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=
 
 > **참고**: 전체 에러 코드 및 상세 조치 방안은 `05_error_dictionary.md` (통합 에러 코드 사전) 문서를 참조하세요.
 
-| HTTP Status | Code                        | 설명                      |
-| :---------: | --------------------------- | ------------------------- |
-|     400     | `INVALID_REQUEST`           | 잘못된 요청 파라미터/형식 |
-|     403     | `INVALID_TOKEN`             | 토큰 없음 또는 불일치     |
-|     403     | `FORBIDDEN`                 | 권한 없음                 |
-|     404     | `ENDPOINT_NOT_FOUND`        | 엔드포인트 없음 또는 만료 |
-|     404     | `LOG_NOT_FOUND`             | 요청한 로그가 없음        |
-|     408     | `REQUEST_TIMEOUT`           | 처리 시간 지연 타임아웃   |
-|     409     | `CONCURRENT_MODIFICATION`   | 동시성 충돌 발생          |
-|     413     | `PAYLOAD_TOO_LARGE`         | 요청 Body 1MB 초과        |
-|     429     | `RATE_LIMIT_EXCEEDED`       | Rate Limit 초과           |
-|     429     | `ENDPOINT_LIMIT_EXCEEDED`   | IP당 엔드포인트 수 초과   |
-|     500     | `INTERNAL_ERROR`            | 서버 내부 에러            |
+| HTTP Status | Code                      | 설명                      |
+| :---------: | ------------------------- | ------------------------- |
+|     400     | `INVALID_REQUEST`         | 잘못된 요청 파라미터/형식 |
+|     403     | `INVALID_TOKEN`           | 토큰 없음 또는 불일치     |
+|     403     | `FORBIDDEN`               | 권한 없음                 |
+|     404     | `ENDPOINT_NOT_FOUND`      | 엔드포인트 없음 또는 만료 |
+|     404     | `LOG_NOT_FOUND`           | 요청한 로그가 없음        |
+|     408     | `REQUEST_TIMEOUT`         | 처리 시간 지연 타임아웃   |
+|     409     | `CONCURRENT_MODIFICATION` | 동시성 충돌 발생          |
+|     413     | `PAYLOAD_TOO_LARGE`       | 요청 Body 1MB 초과        |
+|     429     | `RATE_LIMIT_EXCEEDED`     | Rate Limit 초과           |
+|     429     | `ENDPOINT_LIMIT_EXCEEDED` | IP당 엔드포인트 수 초과   |
+|     500     | `INTERNAL_ERROR`          | 서버 내부 에러            |
 
 ---
 
@@ -79,8 +79,8 @@ Content-Type: application/json (선택)
   "endpointId": "a1b2c3d4-5e6f-...",
   "accessToken": "xK9mQ2vL...",
   "label": "Toss 결제테스트",
-  "webhookUrl": "https://flashhook.kr/api/hooks/a1b2c3d4-5e6f-...",
-  "dashboardUrl": "https://flashhook.kr/dashboard/a1b2c3d4-5e6f-...",
+  "webhookUrl": "https://api.flashhook.site/api/hooks/a1b2c3d4-5e6f-...",
+  "dashboardUrl": "https://flashhook.site/dashboard/a1b2c3d4-5e6f-...",
   "expiresAt": "2026-06-08T22:35:00Z",
   "limits": {
     "maxLogs": 500,
@@ -118,8 +118,8 @@ GET /api/endpoints/{endpointId}
 {
   "endpointId": "a1b2c3d4-...",
   "label": "Toss 결제테스트",
-  "webhookUrl": "https://flashhook.kr/api/hooks/a1b2c3d4-...",
-  "dashboardUrl": "https://flashhook.kr/dashboard/a1b2c3d4-...",
+  "webhookUrl": "https://api.flashhook.site/api/hooks/a1b2c3d4-...",
+  "dashboardUrl": "https://flashhook.site/dashboard/a1b2c3d4-...",
   "createdAt": "2026-06-07T22:35:00Z",
   "expiresAt": "2026-06-08T22:35:00Z",
   "limits": {

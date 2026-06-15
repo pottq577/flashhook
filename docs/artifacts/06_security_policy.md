@@ -14,8 +14,8 @@
 | Dashboard URL    | 로그 열람          | **비공개** (토큰 필요) |
 
 ```text
-[수신 URL]    POST https://flashhook.kr/api/hooks/{endpointId}
-[대시보드 URL] GET  https://flashhook.kr/dashboard/{endpointId}?token={accessToken}
+[수신 URL]    POST https://api.flashhook.site/api/hooks/{endpointId}
+[대시보드 URL] GET  https://flashhook.site/dashboard/{endpointId}?token={accessToken}
 ```
 
 수신 URL이 노출되어도 → 대시보드 접근 불가 (토큰 분리).
@@ -77,10 +77,10 @@ Redis 기반 고정 Window (Fixed Window) Counter 구현.
 
 ### 4.1. 엔드포인트 제한
 
-| 항목                      | 제한값           | 상태 |
-| ------------------------- | ---------------- | :--: |
-| 엔드포인트 수명 (TTL)     | 24시간           | 완료 |
-| 수동 삭제                 | 가능 (토큰 인증) | 완료 |
+| 항목                  | 제한값           | 상태 |
+| --------------------- | ---------------- | :--: |
+| 엔드포인트 수명 (TTL) | 24시간           | 완료 |
+| 수동 삭제             | 가능 (토큰 인증) | 완료 |
 
 ### 4.2. 요청 제한
 

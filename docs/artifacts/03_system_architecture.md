@@ -12,15 +12,15 @@
 ### 1.1. MVP 아키텍처 (비용: 월 $0)
 
 ```text
-                    ┌─────────────┐
-                    │ Cloudflare  │
-                    │ flashhook.kr│
-                    │(DNS/CDN/SSL)│
-                    └──────┬──────┘
+                    ┌───────────────┐
+                    │   Cloudflare  │
+                    │ flashhook.site│
+                    │ (DNS/CDN/SSL) │
+                    └──────┬────────┘
                            │
               ┌────────────┴────────────┐
               │                         │
-     flashhook.kr/*          api.flashhook.kr/*
+     flashhook.site/*          api.flashhook.site/*
               │                         │
      ┌────────▼────────┐      ┌────────▼────────┐
      │     Vercel      │      │Oracle Cloud ARM │
@@ -58,8 +58,8 @@
 #### 1.1.2. 도메인 구조
 
 ```text
-flashhook.kr          → Vercel (React SPA)
-api.flashhook.kr      → Oracle Cloud ARM (Spring Boot API)
+flashhook.site          → Vercel (React SPA)
+api.flashhook.site      → Oracle Cloud ARM (Spring Boot API)
 ```
 
 #### 1.1.3. 월 예상 비용
@@ -69,7 +69,7 @@ Oracle Cloud ARM (24GB):      $0
 Vercel (FE 호스팅):             $0
 Cloudflare (DNS/SSL/CDN):     $0
 MongoDB Atlas M0:             $0
-도메인 (.kr / Cloudflare):    연 $10~12
+도메인 (.site / Cloudflare):  연 $10~12
 ─────────────────────────────────
 총합:                         $0/월 (도메인 유지비 제외)
 ```
@@ -313,7 +313,7 @@ FlashHook은 무한히 증가할 수 있는 웹훅 데이터로 인한 스토리
 void saveLog(WebhookLog log) {
     // 1. bodyPreview 생성 (앞 300자)
     log.setBodyPreview(truncate(log.getRawBody(), 300));
-    
+
     // 2. 로그 저장
     logRepository.save(log);
 
