@@ -69,7 +69,7 @@ Oracle Cloud ARM (24GB):      $0
 Vercel (FE 호스팅):             $0
 Cloudflare (DNS/SSL/CDN):     $0
 MongoDB Atlas M0:             $0
-도메인 (.kr / Cloudflare):    연 $10~12
+도메인 (.site / Cloudflare):  연 $10~12
 ─────────────────────────────────
 총합:                         $0/월 (도메인 유지비 제외)
 ```
