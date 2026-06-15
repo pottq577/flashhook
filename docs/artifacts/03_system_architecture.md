@@ -14,13 +14,13 @@
 ```text
                     ┌─────────────┐
                     │ Cloudflare  │
-                    │ flashhook.kr│
+                    │ flashhook.site│
                     │(DNS/CDN/SSL)│
                     └──────┬──────┘
                            │
               ┌────────────┴────────────┐
               │                         │
-     flashhook.kr/*          api.flashhook.kr/*
+     flashhook.site/*          api.flashhook.site/*
               │                         │
      ┌────────▼────────┐      ┌────────▼────────┐
      │     Vercel      │      │Oracle Cloud ARM │
@@ -58,8 +58,8 @@
 #### 1.1.2. 도메인 구조
 
 ```text
-flashhook.kr          → Vercel (React SPA)
-api.flashhook.kr      → Oracle Cloud ARM (Spring Boot API)
+flashhook.site          → Vercel (React SPA)
+api.flashhook.site      → Oracle Cloud ARM (Spring Boot API)
 ```
 
 #### 1.1.3. 월 예상 비용
@@ -313,7 +313,7 @@ FlashHook은 무한히 증가할 수 있는 웹훅 데이터로 인한 스토리
 void saveLog(WebhookLog log) {
     // 1. bodyPreview 생성 (앞 300자)
     log.setBodyPreview(truncate(log.getRawBody(), 300));
-    
+
     // 2. 로그 저장
     logRepository.save(log);
 

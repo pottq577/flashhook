@@ -1,19 +1,19 @@
 package com.flashhook.global.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.core.Ordered;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 웹 MVC 설정
@@ -28,7 +28,7 @@ public class WebConfig {
 
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
-        List<String> origins = new ArrayList<>(List.of("https://flashhook.kr"));
+        List<String> origins = new ArrayList<>(List.of("https://flashhook.site"));
 
         if (Arrays.asList(environment.getActiveProfiles()).contains("local")
                 || Arrays.asList(environment.getActiveProfiles()).contains("test")) {
