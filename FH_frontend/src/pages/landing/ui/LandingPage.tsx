@@ -7,6 +7,7 @@ import ConfirmModal from '@/shared/ui/ConfirmModal';
 import { useEndpointStore } from '@/entities/endpoint/model/endpoint.store';
 import { TerminalHero } from './TerminalHero';
 import { LandingFeatures } from './LandingFeatures';
+import { AdBanner } from '@/shared/ui/AdBanner';
 import styles from './LandingPage.module.css';
 
 function LandingPage() {
@@ -79,8 +80,10 @@ function LandingPage() {
         onDeleteClick={setDeleteTargetId}
       />
       <LandingFeatures />
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem' }}>
+        <AdBanner />
+      </div>
       <Footer />
-      
       <ConsentModal 
         isOpen={isConsentOpen} 
         onAccept={handleAcceptConsent} 
