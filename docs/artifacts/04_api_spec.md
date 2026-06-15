@@ -8,7 +8,7 @@
 ### 1.1. Base URL
 
 ```text
-https://flashhook.site/api
+https://api.flashhook.site/api
 ```
 
 ### 1.2. 인증 방식
@@ -79,7 +79,7 @@ Content-Type: application/json (선택)
   "endpointId": "a1b2c3d4-5e6f-...",
   "accessToken": "xK9mQ2vL...",
   "label": "Toss 결제테스트",
-  "webhookUrl": "https://flashhook.site/api/hooks/a1b2c3d4-5e6f-...",
+  "webhookUrl": "https://api.flashhook.site/api/hooks/a1b2c3d4-5e6f-...",
   "dashboardUrl": "https://flashhook.site/dashboard/a1b2c3d4-5e6f-...",
   "expiresAt": "2026-06-08T22:35:00Z",
   "limits": {
@@ -118,7 +118,7 @@ GET /api/endpoints/{endpointId}
 {
   "endpointId": "a1b2c3d4-...",
   "label": "Toss 결제테스트",
-  "webhookUrl": "https://flashhook.site/api/hooks/a1b2c3d4-...",
+  "webhookUrl": "https://api.flashhook.site/api/hooks/a1b2c3d4-...",
   "dashboardUrl": "https://flashhook.site/dashboard/a1b2c3d4-...",
   "createdAt": "2026-06-07T22:35:00Z",
   "expiresAt": "2026-06-08T22:35:00Z",

@@ -14,7 +14,7 @@
 | Dashboard URL    | 로그 열람          | **비공개** (토큰 필요) |
 
 ```text
-[수신 URL]    POST https://flashhook.site/api/hooks/{endpointId}
+[수신 URL]    POST https://api.flashhook.site/api/hooks/{endpointId}
 [대시보드 URL] GET  https://flashhook.site/dashboard/{endpointId}?token={accessToken}
 ```
 
