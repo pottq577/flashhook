@@ -247,10 +247,19 @@ public class WebhookLogService {
 
         HttpEntity<Object> entity = new HttpEntity<>(webhookLog.getBody(), headers);
 
+        if (destinationUrl == null || webhookLog.getMethod() == null) {
+            Query query = Query.query(Criteria.where("logId").is(logId));
+            Update update = new Update()
+                    .set("replayStatus", "FAILED")
+                    .set("replayError", "Invalid webhook log: missing destinationUrl or method");
+            mongoTemplate.updateFirst(query, update, WebhookLog.class);
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
         try {
             restTemplate.exchange(
-                    Objects.requireNonNull(destinationUrl),
-                    Objects.requireNonNull(HttpMethod.valueOf(webhookLog.getMethod())),
+                    destinationUrl,
+                    HttpMethod.valueOf(webhookLog.getMethod()),
                     entity,
                     String.class);
             log.info("Webhook replayed successfully: destinationUrl={}, endpointId={}, logId={}",
@@ -260,7 +269,7 @@ public class WebhookLogService {
             Update update = new Update().set("replayStatus", "SUCCESS").unset("replayError");
             mongoTemplate.updateFirst(query, update, WebhookLog.class);
 
-        } catch (org.springframework.web.client.RestClientException e) {
+        } catch (org.springframework.web.client.RestClientException | NullPointerException e) {
             log.warn("웹훅 재전송 실패: destinationUrl={}, logId={}", sanitizeUrlForLog(destinationUrl), logId, e);
             Query query = Query.query(Criteria.where("logId").is(logId));
             Update update = new Update().set("replayStatus", "FAILED").set("replayError", e.getMessage());
