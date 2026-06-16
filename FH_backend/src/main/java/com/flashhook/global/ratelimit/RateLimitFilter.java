@@ -1,25 +1,21 @@
 package com.flashhook.global.ratelimit;
 
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.flashhook.global.exception.ErrorCode;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.lang.NonNull;
-
-import java.io.IOException;
-
-/**
- * Rate Limit 필터
- * Redis 기반으로 요청 빈도 제한
- */
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Value;
-import com.flashhook.global.exception.ErrorCode;
-
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 
 @Component
 @RequiredArgsConstructor
@@ -38,9 +34,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
-        
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
+
         String path = request.getRequestURI();
         String method = request.getMethod();
 
@@ -105,9 +101,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String json = String.format(
-            "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
-            errorCode.getCode(), errorCode.getMessage(), errorCode.getStatus()
-        );
+                "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
+                errorCode.getCode(), errorCode.getMessage(), errorCode.getStatus());
         response.getWriter().write(json);
     }
 }

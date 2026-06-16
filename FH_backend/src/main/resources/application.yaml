@@ -35,7 +35,7 @@ server:
     mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
     min-response-size: 1024
   tomcat:
-    max-http-form-post-size: 1MB  # Payload 크기 제한
+    max-http-form-post-size: 1MB # Payload 크기 제한
     remoteip:
       remote-ip-header: CF-Connecting-IP
       internal-proxies: 127\.\d{1,3}\.\d{1,3}\.\d{1,3}|0:0:0:0:0:0:0:1|::1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.1[6-9]\.\d{1,3}\.\d{1,3}|172\.2[0-9]\.\d{1,3}\.\d{1,3}|172\.3[0-1]\.\d{1,3}\.\d{1,3}|173\.245\..*|103\.21\..*|103\.22\..*|103\.31\..*|141\.101\..*|108\.162\..*|190\.93\..*|188\.114\..*|197\.234\..*|198\.41\..*|162\.158\..*|104\.1[6-9]\..*|104\.2[0-7]\..*|172\.6[4-9]\..*|172\.7[0-1]\..*|131\.0\..*
@@ -45,15 +45,15 @@ flashhook:
   admin:
     secret-key: ${FLASHHOOK_ADMIN_SECRET_KEY:local_test_admin_secret_key_12345}
   sse:
-    timeout: 1800000              # SSE 최대 유지 30분 (ms)
-    heartbeat-interval: 30000     # Heartbeat 30초 (ms)
+    timeout: 1800000 # SSE 최대 유지 30분 (ms)
+    heartbeat-interval: 30000 # Heartbeat 30초 (ms)
   ratelimit:
-    endpoint-create: 5            # 5개/IP/10분
-    webhook-receive: 100          # 100건/EP/분
+    endpoint-create: 5 # 5개/IP/10분
+    webhook-receive: 100 # 100건/EP/분
   log:
-    max-count: 500                # 엔드포인트당 최대 로그
-    max-size-bytes: 5242880       # 5MB
-    body-preview-length: 300      # bodyPreview 절단 길이
+    max-count: 500 # 엔드포인트당 최대 로그
+    max-size-bytes: 5242880 # 5MB
+    body-preview-length: 300 # bodyPreview 절단 길이
 
 # Actuator (Healthcheck & Metrics)
 management:

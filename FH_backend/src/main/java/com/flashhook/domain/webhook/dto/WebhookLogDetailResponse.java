@@ -1,15 +1,16 @@
 package com.flashhook.domain.webhook.dto;
 
-import com.flashhook.domain.webhook.model.WebhookLog;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.flashhook.domain.webhook.model.WebhookLog;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * 웹훅 로그 상세 응답 DTO
@@ -35,24 +36,24 @@ public class WebhookLogDetailResponse {
     private Object body;
 
     private static final Set<String> SENSITIVE_KEYS = Set.of(
-        "authorization", "x-api-key", "cookie", "x-auth-token",
-        "token", "password", "secret", "access_token", "refresh_token"
-    );
+            "authorization", "x-api-key", "cookie", "x-auth-token",
+            "token", "password", "secret", "access_token", "refresh_token");
 
     private static Map<String, String> sanitizeMap(Map<String, String> input) {
-        if (input == null) return null;
+        if (input == null)
+            return null;
         return input.entrySet().stream()
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> SENSITIVE_KEYS.contains(e.getKey().toLowerCase()) ? "[REDACTED]" : e.getValue()
-            ));
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> SENSITIVE_KEYS.contains(e.getKey().toLowerCase()) ? "[REDACTED]" : e.getValue()));
     }
 
     /**
      * WebhookLog → WebhookLogDetailResponse 변환 팩토리 메소드
      */
     public static WebhookLogDetailResponse from(WebhookLog log) {
-        if (log == null) return null;
+        if (log == null)
+            return null;
         return WebhookLogDetailResponse.builder()
                 .logId(log.getLogId())
                 .method(log.getMethod())

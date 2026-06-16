@@ -1,22 +1,25 @@
 package com.flashhook.domain.webhook.controller;
 
-import com.flashhook.domain.webhook.service.SseEmitterService;
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-/**
- * SSE 스트림 컨트롤러
- * 실시간 웹훅 수신 알림을 클라이언트에 전달
- */
+import com.flashhook.domain.webhook.service.SseEmitterService;
 import com.flashhook.global.config.SseConfig;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import java.util.UUID;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/endpoints/{endpointId}")
@@ -45,18 +48,19 @@ public class WebhookStreamController {
      * SSE 스트림 구독
      */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> stream(@PathVariable String endpointId, @RequestParam(name = "streamToken", required = false) String streamToken) {
+    public ResponseEntity<SseEmitter> stream(@PathVariable String endpointId,
+            @RequestParam(name = "streamToken", required = false) String streamToken) {
         if (streamToken == null || streamToken.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
+
         String key = "stream_token:" + streamToken;
         String storedEndpointId = redisTemplate.opsForValue().getAndDelete(key);
-        
+
         if (storedEndpointId == null || !storedEndpointId.equals(endpointId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
+
         return ResponseEntity.ok(sseEmitterService.subscribe(endpointId, sseConfig.getTimeout()));
     }
 }

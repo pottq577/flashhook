@@ -48,9 +48,7 @@ public class AdminController {
 
     @DeleteMapping("/blacklist/{ip}")
     public ResponseEntity<Void> removeBlacklistIp(
-            @PathVariable
-            @Pattern(regexp = "^(?:\\d{1,3}\\.){3}\\d{1,3}$|^[0-9a-fA-F:]+$", message = "Invalid IP format")
-            String ip) {
+            @PathVariable @Pattern(regexp = "^(?:\\d{1,3}\\.){3}\\d{1,3}$|^[0-9a-fA-F:]+$", message = "Invalid IP format") String ip) {
         adminService.removeBlacklistIp(ip);
         return ResponseEntity.noContent().build();
     }

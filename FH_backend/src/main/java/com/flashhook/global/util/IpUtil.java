@@ -12,7 +12,8 @@ public final class IpUtil {
     private static final Pattern IPV4_PATTERN = Pattern.compile(IPV4_REGEX);
     private static final Pattern IPV6_PATTERN = Pattern.compile(IPV6_REGEX);
 
-    private IpUtil() {}
+    private IpUtil() {
+    }
 
     /**
      * IP 주소를 정규화합니다.
@@ -31,7 +32,7 @@ public final class IpUtil {
                 return trimmed;
             }
         }
-        
+
         if (IPV4_PATTERN.matcher(trimmed).matches()) {
             try {
                 return InetAddress.getByName(trimmed).getHostAddress();

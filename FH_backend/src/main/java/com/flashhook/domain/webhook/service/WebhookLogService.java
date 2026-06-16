@@ -150,7 +150,8 @@ public class WebhookLogService {
             protected HttpURLConnection openConnection(URL url, java.net.Proxy proxy) throws java.io.IOException {
                 URL pinnedUrl;
                 try {
-                    pinnedUrl = new URI(url.getProtocol(), url.getUserInfo(), resolvedIp.getHostAddress(), url.getPort(), url.getPath(), url.getQuery(), url.getRef()).toURL();
+                    pinnedUrl = new URI(url.getProtocol(), url.getUserInfo(), resolvedIp.getHostAddress(),
+                            url.getPort(), url.getPath(), url.getQuery(), url.getRef()).toURL();
                 } catch (URISyntaxException e) {
                     throw new java.io.IOException("Failed to construct URI for IP pinning", e);
                 }

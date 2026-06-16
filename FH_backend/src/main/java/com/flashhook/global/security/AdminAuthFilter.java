@@ -1,17 +1,19 @@
 package com.flashhook.global.security;
 
-import com.flashhook.global.exception.ErrorCode;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import com.flashhook.global.exception.ErrorCode;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -22,8 +24,8 @@ public class AdminAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
@@ -48,9 +50,8 @@ public class AdminAuthFilter extends OncePerRequestFilter {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String json = String.format(
-            "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
-            errorCode.getCode(), errorCode.getMessage(), errorCode.getStatus()
-        );
+                "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
+                errorCode.getCode(), errorCode.getMessage(), errorCode.getStatus());
         response.getWriter().write(json);
     }
 }

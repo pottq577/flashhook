@@ -19,7 +19,8 @@ public class ArchUnitTest {
             .layer("Event").definedBy("..event..")
             .layer("Global").definedBy("..global..")
             .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
-            // We use event layer to handle domain isolation, and global has config/exceptions
+            // We use event layer to handle domain isolation, and global has
+            // config/exceptions
             .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller", "Service", "Event", "Global")
             .whereLayer("Repository").mayOnlyBeAccessedByLayers("Service", "Event", "Global");
 

@@ -3,11 +3,12 @@ package com.flashhook.global.ratelimit;
 import java.util.Collections;
 import java.util.Objects;
 
-import com.flashhook.global.util.IpUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+
+import com.flashhook.global.util.IpUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

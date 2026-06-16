@@ -1,8 +1,9 @@
 package com.flashhook.domain.admin.dto;
 
+import java.util.regex.Pattern;
+
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import java.util.regex.Pattern;
 
 public class IpAddressValidator implements ConstraintValidator<IpAddress, String> {
 
@@ -16,15 +17,18 @@ public class IpAddressValidator implements ConstraintValidator<IpAddress, String
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null || value.isBlank()) return false;
+        if (value == null || value.isBlank())
+            return false;
         String normalized = value.trim();
 
         if (normalized.contains("::")) {
             String[] sides = normalized.split("::", -1);
-            if (sides.length != 2) return false;
+            if (sides.length != 2)
+                return false;
             int left = sides[0].isEmpty() ? 0 : sides[0].split(":").length;
             int right = sides[1].isEmpty() ? 0 : sides[1].split(":").length;
-            if (left + right >= 8) return false;
+            if (left + right >= 8)
+                return false;
         }
 
         return IPV4_PATTERN.matcher(normalized).matches()
