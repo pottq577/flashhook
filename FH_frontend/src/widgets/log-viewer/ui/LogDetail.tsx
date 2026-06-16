@@ -152,7 +152,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
               <span className={styles.value}>{String(value)}</span>
             </div>
           ))}
-          {(!log.headers || Object.keys(log.headers).length === 0) && <div role="status" className={styles.empty}>NO_HEADERS</div>}
+          {(!log.headers || Object.keys(log.headers).length === 0) ? <div role="status" className={styles.empty}>NO_HEADERS</div> : null}
         </div>
       </div>
 
@@ -165,7 +165,7 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
               <span className={styles.value}>{String(value)}</span>
             </div>
           ))}
-          {(!log.queryParams || Object.keys(log.queryParams).length === 0) && <div role="status" className={styles.empty}>NO_QUERY_PARAMS</div>}
+          {(!log.queryParams || Object.keys(log.queryParams).length === 0) ? <div role="status" className={styles.empty}>NO_QUERY_PARAMS</div> : null}
         </div>
       </div>
 

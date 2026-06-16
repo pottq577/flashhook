@@ -33,7 +33,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }: ConfirmMo
 
   return (
     <AnimatePresence onExitComplete={() => setIsActive(false)}>
-      {isOpen && (
+      {isOpen ? (
         <div className={styles.overlay} onClick={onCancel}>
           <motion.div 
             ref={modalRef}
@@ -58,7 +58,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }: ConfirmMo
             </div>
           </motion.div>
         </div>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 }

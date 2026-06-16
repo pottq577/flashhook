@@ -37,12 +37,12 @@ export function TerminalHero({
               {line}
             </div>
           ))}
-          {!isLoading && (
+          {!isLoading ? (
             <div className={styles.activeLine}>
               <span className={styles.prompt}>$</span>
               <span className={styles.cursor}></span>
             </div>
-          )}
+          ) : null}
         </div>
         
         <div className={styles.terminalActions}>
@@ -58,9 +58,9 @@ export function TerminalHero({
             {isLoading ? '[ CREATING… ]' : '[ CREATE_NEW_ENDPOINT ]'}
           </button>
           
-          {error && <div className={styles.errorBox} role="alert">Error: {error}</div>}
+          {error ? <div className={styles.errorBox} role="alert">Error: {error}</div> : null}
 
-          {endpoints.length > 0 && (
+          {endpoints.length > 0 ? (
             <div className={styles.recentEndpoints}>
               <div className={styles.recentTitle}>&gt; RECENT_SESSIONS</div>
               <div className={styles.recentList}>
@@ -89,7 +89,7 @@ export function TerminalHero({
                 })}
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </header>
