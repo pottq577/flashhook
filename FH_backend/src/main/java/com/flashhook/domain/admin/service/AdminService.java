@@ -53,10 +53,12 @@ public class AdminService {
 
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.group().sum("totalLogCount").as("totalWebhooks"));
+        @SuppressWarnings("rawtypes")
         AggregationResults<Map> results = mongoTemplate.aggregate(agg, "endpoints", Map.class);
         long totalWebhooks = 0;
-        if (results.getUniqueMappedResult() != null && results.getUniqueMappedResult().containsKey("totalWebhooks")) {
-            totalWebhooks = ((Number) results.getUniqueMappedResult().get("totalWebhooks")).longValue();
+        Map<?, ?> resultMap = results.getUniqueMappedResult();
+        if (resultMap != null && resultMap.containsKey("totalWebhooks")) {
+            totalWebhooks = ((Number) resultMap.get("totalWebhooks")).longValue();
         }
 
         return AdminMetricsResponse.builder()
