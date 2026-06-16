@@ -101,7 +101,7 @@ public class WebhookService {
 
         // 7. 엔드포인트 카운터 업데이트 (Atomic)
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
-        Update update = new Update().inc("logCount", 1).inc("logSizeBytes", payload.getBodySize());
+        Update update = new Update().inc("logCount", 1).inc("totalLogCount", 1).inc("logSizeBytes", payload.getBodySize());
         Endpoint updatedEndpoint = mongoTemplate.findAndModify(
                 query,
                 update,
