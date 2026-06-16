@@ -5,6 +5,7 @@ import com.flashhook.domain.admin.dto.SuspiciousEndpointDto;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.service.EndpointService;
 import com.flashhook.domain.webhook.service.SseEmitterService;
+import com.flashhook.global.util.IpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -96,7 +97,7 @@ public class AdminService {
         if (ip == null || ip.trim().isEmpty()) {
             throw new IllegalArgumentException("ip must not be blank");
         }
-        return ip.trim();
+        return IpUtil.normalize(ip);
     }
 
     public List<String> getBlacklistedIps() {

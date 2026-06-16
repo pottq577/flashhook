@@ -3,6 +3,7 @@ package com.flashhook.global.ratelimit;
 import java.util.Collections;
 import java.util.Objects;
 
+import com.flashhook.global.util.IpUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -70,7 +71,7 @@ public class RateLimitService {
         if (ip == null || ip.isBlank())
             return false;
         try {
-            String normalizedIp = ip.trim();
+            String normalizedIp = IpUtil.normalize(ip);
             return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:ip:" + normalizedIp));
         } catch (Exception e) {
             log.warn("Blacklist Redis check error. ip={}", ip, e);
