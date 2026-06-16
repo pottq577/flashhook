@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { useUpdateMockConfigMutation } from '@/entities/endpoint/api/endpoint.queries';
-import type { Endpoint } from '@/entities/endpoint/model/endpoint.schema';
+import { useUpdateMockConfigMutation } from "@/entities/endpoint";
+import type { Endpoint } from "@/entities/endpoint";
 import {
   PRESET_CATALOG,
   CUSTOM_SERVICE_ID,
   type PresetScenario,
-} from '@/entities/endpoint/model/presets';
-import { findInitialServiceId, findInitialScenarioId } from '@/entities/endpoint/model/preset.utils';
+} from "@/entities/endpoint";
+import { findInitialServiceId, findInitialScenarioId } from "@/entities/endpoint";
 import { useToastStore } from '@/shared/lib/toast.store';
 
 export const COMMON_STATUS_CODES = [

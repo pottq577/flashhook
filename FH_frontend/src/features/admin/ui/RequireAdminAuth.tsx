@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAdminStore } from "@/entities/admin/model/adminStore";
+import { useAdminStore } from "@/entities/admin";
 
 import type { ReactNode } from "react";
 

@@ -1,4 +1,4 @@
-import type { Endpoint } from "@/entities/endpoint/model/endpoint.schema";
+import type { Endpoint } from "@/entities/endpoint";
 import CopyButton from "@/shared/ui/CopyButton";
 import CountdownTimer from "./CountdownTimer";
 import styles from "./EndpointInfo.module.css";

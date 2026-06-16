@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { WebhookLog } from '@/entities/log/model/log.schema';
+import type { WebhookLog } from "../model/log.schema";
 import * as tokenStorage from '@/shared/lib/tokenStorage';
 import { logger } from '@/shared/lib/logger';
 import { resolveApiBaseUrl } from '@/shared/config/api';

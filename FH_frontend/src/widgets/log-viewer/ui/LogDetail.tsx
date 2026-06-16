@@ -2,7 +2,7 @@ import { useState, memo } from "react";
 import {
   useLogDetailQuery,
   useReplayLogMutation,
-} from "@/entities/log/api/log.queries";
+} from "@/entities/log";
 import MethodBadge from "@/shared/ui/MethodBadge";
 import PromptModal from "@/shared/ui/PromptModal";
 import { useToastStore } from "@/shared/lib/toast.store";

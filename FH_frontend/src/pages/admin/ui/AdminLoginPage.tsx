@@ -1,10 +1,10 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAdminStore } from "@/entities/admin/model/adminStore";
+import { useAdminStore } from "@/entities/admin";
 import { Shield, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { adminApi } from "@/shared/api/adminApi";
+import { adminApi } from "@/entities/admin";
 import styles from "./AdminLoginPage.module.css";
 
 export const AdminLoginPage = () => {

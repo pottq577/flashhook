@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from "react";
-import type { Endpoint } from "@/entities/endpoint/model/endpoint.schema";
-import { CUSTOM_SERVICE_ID } from "@/entities/endpoint/model/presets";
+import type { Endpoint } from "@/entities/endpoint";
+import { CUSTOM_SERVICE_ID } from "@/entities/endpoint";
 import { CustomDropdown } from "@/shared/ui/custom-dropdown/CustomDropdown";
 import {
   useMockConfigForm,
-  SERVICE_OPTIONS,
   COMMON_STATUS_CODES,
   COMMON_DELAY_PRESETS,
   COMMON_HEADER_KEYS,
   COMMON_HEADER_VALUES,
+  SERVICE_OPTIONS,
   generateId,
-} from "../model/useMockConfigForm";
+} from "@/features/mock-config";
 import styles from "./MockConfigPanel.module.css";
 
 interface MockConfigPanelProps {

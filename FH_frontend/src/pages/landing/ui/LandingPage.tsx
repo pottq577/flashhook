@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { logger } from "@/shared/lib/logger";
-import { useCreateEndpointMutation } from "@/entities/endpoint/api/endpoint.queries";
-import Footer from "@/widgets/footer/ui/Footer";
-import { ConsentModal } from "@/widgets/legal/ConsentModal";
+import { useCreateEndpointMutation } from "@/entities/endpoint";
+import { Footer } from "@/widgets/footer";
+import { ConsentModal } from "@/widgets/legal";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
-import { useEndpointStore } from "@/entities/endpoint/model/endpoint.store";
+import { useEndpointStore } from "@/entities/endpoint";
 import { TerminalHero } from "./TerminalHero";
 import { LandingFeatures } from "./LandingFeatures";
 import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
