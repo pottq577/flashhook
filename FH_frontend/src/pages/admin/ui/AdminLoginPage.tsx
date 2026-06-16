@@ -1,18 +1,18 @@
-import type { FormEvent } from 'react';
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAdminStore } from '@/entities/admin/model/adminStore';
-import { Shield, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { adminApi } from '@/shared/api/adminApi';
-import styles from './AdminLoginPage.module.css';
+import type { FormEvent } from "react";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAdminStore } from "@/entities/admin/model/adminStore";
+import { Shield, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { adminApi } from "@/shared/api/adminApi";
+import styles from "./AdminLoginPage.module.css";
 
 export const AdminLoginPage = () => {
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  
-  const setAdminToken = useAdminStore(state => state.setAdminToken);
+  const [error, setError] = useState("");
+
+  const setAdminToken = useAdminStore((state) => state.setAdminToken);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -21,20 +21,22 @@ export const AdminLoginPage = () => {
     if (!token.trim()) return;
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       setAdminToken(token.trim());
       await adminApi.getMetrics();
-      
-      const from = location.state?.from?.pathname || '/admin';
+
+      const from = location.state?.from?.pathname || "/admin";
       navigate(from, { replace: true });
     } catch (err) {
       setAdminToken(null);
-      if (err instanceof Error && err.message === 'Authentication failed') {
-        setError('인증에 실패했습니다. 올바른 관리자 토큰을 입력해주세요.');
+      if (err instanceof Error && err.message === "Authentication failed") {
+        setError("인증에 실패했습니다. 올바른 관리자 토큰을 입력해주세요.");
       } else {
-        setError('네트워크 또는 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        setError(
+          "네트워크 또는 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+        );
       }
     } finally {
       setIsLoading(false);
@@ -43,19 +45,19 @@ export const AdminLoginPage = () => {
 
   return (
     <div className={styles.container}>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className={styles.loginCard}
       >
         <div className={styles.topGradient} />
-        
+
         <div className={styles.iconWrapper}>
           <div className={styles.iconBox}>
             <Shield size={32} />
           </div>
         </div>
-        
+
         <h1 className={styles.title}>관리자 인증</h1>
         <p className={styles.subtitle}>
           백오피스 접근을 위해 관리자 토큰을 입력해주세요.
@@ -69,17 +71,17 @@ export const AdminLoginPage = () => {
             placeholder="X-Admin-Token"
             aria-label="관리자 토큰"
             aria-invalid={!!error}
-            aria-describedby={error ? 'admin-login-error' : undefined}
+            aria-describedby={error ? "admin-login-error" : undefined}
             className={styles.input}
           />
 
           {error && (
-            <motion.p 
+            <motion.p
               id="admin-login-error"
               role="alert"
               aria-live="polite"
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               className={styles.errorText}
             >
               {error}

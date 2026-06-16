@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 const listeners = new Set<(e: KeyboardEvent) => void>();
 let isListening = false;
 
 const handleGlobalKeyDown = (e: KeyboardEvent) => {
-  listeners.forEach(cb => cb(e));
+  listeners.forEach((cb) => cb(e));
 };
 
 export function useShortcut(key: string, callback: () => void, metaKey = true) {
@@ -17,26 +17,28 @@ export function useShortcut(key: string, callback: () => void, metaKey = true) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target?.closest('input, textarea, select, [contenteditable="true"]')) {
+      if (
+        target?.closest('input, textarea, select, [contenteditable="true"]')
+      ) {
         return;
       }
-      const isMetaPressed = metaKey ? (e.metaKey || e.ctrlKey) : true;
+      const isMetaPressed = metaKey ? e.metaKey || e.ctrlKey : true;
       if (isMetaPressed && e.key.toLowerCase() === key.toLowerCase()) {
         e.preventDefault();
         callbackRef.current();
       }
     };
-    
+
     listeners.add(handleKeyDown);
     if (!isListening) {
-      window.addEventListener('keydown', handleGlobalKeyDown);
+      window.addEventListener("keydown", handleGlobalKeyDown);
       isListening = true;
     }
-    
+
     return () => {
       listeners.delete(handleKeyDown);
       if (listeners.size === 0 && isListening) {
-        window.removeEventListener('keydown', handleGlobalKeyDown);
+        window.removeEventListener("keydown", handleGlobalKeyDown);
         isListening = false;
       }
     };

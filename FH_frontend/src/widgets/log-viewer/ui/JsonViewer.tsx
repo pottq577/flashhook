@@ -1,17 +1,17 @@
-import { useMemo } from 'react';
-import { logger } from '@/shared/lib/logger';
-import styles from './JsonViewer.module.css';
+import { useMemo } from "react";
+import { logger } from "@/shared/lib/logger";
+import styles from "./JsonViewer.module.css";
 
 function parseData(data: unknown): string {
-  if (data === undefined || data === null) return '';
-  if (typeof data === 'string') {
+  if (data === undefined || data === null) return "";
+  if (typeof data === "string") {
     try {
       const parsed = JSON.parse(data);
       return JSON.stringify(parsed, null, 2);
     } catch (e) {
-      logger.warn('Failed to parse string data as JSON in JsonViewer', { 
-        error: e, 
-        data: data.slice(0, 100) 
+      logger.warn("Failed to parse string data as JSON in JsonViewer", {
+        error: e,
+        data: data.slice(0, 100),
       });
       return data;
     }

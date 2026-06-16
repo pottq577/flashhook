@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface SavedEndpoint {
   id: string;
@@ -22,7 +22,10 @@ export const useEndpointStore = create<EndpointStore>()(
         set((state) => {
           const filtered = state.endpoints.filter((e) => e.id !== id);
           return {
-            endpoints: [{ id, createdAt: Date.now(), expiresAt }, ...filtered].slice(0, 5), // 최대 5개 유지
+            endpoints: [
+              { id, createdAt: Date.now(), expiresAt },
+              ...filtered,
+            ].slice(0, 5), // 최대 5개 유지
           };
         });
       },
@@ -34,12 +37,14 @@ export const useEndpointStore = create<EndpointStore>()(
       clearExpired: () => {
         const now = Date.now();
         set((state) => ({
-          endpoints: state.endpoints.filter((e) => new Date(e.expiresAt).getTime() > now),
+          endpoints: state.endpoints.filter(
+            (e) => new Date(e.expiresAt).getTime() > now,
+          ),
         }));
       },
     }),
     {
-      name: 'flashhook-endpoints', // localStorage key
-    }
-  )
+      name: "flashhook-endpoints", // localStorage key
+    },
+  ),
 );

@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import styles from './Header.module.css';
+import { Link } from "react-router-dom";
+import styles from "./Header.module.css";
 
 function Header() {
   return (
@@ -8,7 +8,12 @@ function Header() {
         ⚡ FlashHook
       </Link>
       <nav className={styles.nav}>
-        <a href="https://github.com/pottq577/flashhook" target="_blank" rel="noopener noreferrer" className={styles.link}>
+        <a
+          href="https://github.com/pottq577/flashhook"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.link}
+        >
           GitHub
         </a>
       </nav>

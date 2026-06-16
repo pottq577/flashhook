@@ -1,14 +1,17 @@
-import { useAdminSuspiciousEndpoints, useDeleteEndpointMutation } from '@/entities/admin/api/useAdminQueries';
-import { Trash2, AlertTriangle, ExternalLink } from 'lucide-react';
-import { motion } from 'framer-motion';
-import styles from './AdminWidgets.module.css';
+import {
+  useAdminSuspiciousEndpoints,
+  useDeleteEndpointMutation,
+} from "@/entities/admin/api/useAdminQueries";
+import { Trash2, AlertTriangle, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
+import styles from "./AdminWidgets.module.css";
 
 export const AdminAbuserTable = () => {
   const { data, isLoading, isError } = useAdminSuspiciousEndpoints();
   const deleteMutation = useDeleteEndpointMutation();
 
   const handleDelete = (endpointId: string) => {
-    if (confirm('이 엔드포인트를 즉시 삭제하시겠습니까?')) {
+    if (confirm("이 엔드포인트를 즉시 삭제하시겠습니까?")) {
       deleteMutation.mutate(endpointId);
     }
   };
@@ -21,7 +24,7 @@ export const AdminAbuserTable = () => {
           <span className={styles.badge}>Top 10</span>
         </div>
       </div>
-      
+
       <div className={styles.tableContainer}>
         <table className={styles.table}>
           <thead>
@@ -30,7 +33,7 @@ export const AdminAbuserTable = () => {
               <th>라벨</th>
               <th>로그 수</th>
               <th>생성 IP</th>
-              <th style={{ textAlign: 'right' }}>작업</th>
+              <th style={{ textAlign: "right" }}>작업</th>
             </tr>
           </thead>
           <tbody>
@@ -42,7 +45,11 @@ export const AdminAbuserTable = () => {
               </tr>
             ) : isError ? (
               <tr>
-                <td colSpan={5} className={styles.emptyState} style={{ color: 'var(--danger)' }}>
+                <td
+                  colSpan={5}
+                  className={styles.emptyState}
+                  style={{ color: "var(--danger)" }}
+                >
                   데이터를 불러오는데 실패했습니다.
                 </td>
               </tr>
@@ -54,7 +61,7 @@ export const AdminAbuserTable = () => {
               </tr>
             ) : (
               data.map((endpoint, i) => (
-                <motion.tr 
+                <motion.tr
                   key={endpoint.endpointId}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -63,23 +70,19 @@ export const AdminAbuserTable = () => {
                   <td className={styles.fontMono}>
                     {endpoint.endpointId.slice(0, 8)}...
                   </td>
-                  <td className={styles.textWhite}>
-                    {endpoint.label || '-'}
-                  </td>
+                  <td className={styles.textWhite}>{endpoint.label || "-"}</td>
                   <td>
                     <div className={styles.warningText}>
                       <AlertTriangle size={14} />
                       {endpoint.logCount.toLocaleString()}
                     </div>
                   </td>
-                  <td className={styles.fontMono}>
-                    {endpoint.creatorIp}
-                  </td>
+                  <td className={styles.fontMono}>{endpoint.creatorIp}</td>
                   <td>
                     <div className={styles.actions}>
-                      <a 
-                        href={`/dashboard/${endpoint.endpointId}`} 
-                        target="_blank" 
+                      <a
+                        href={`/dashboard/${endpoint.endpointId}`}
+                        target="_blank"
                         rel="noreferrer"
                         aria-label="새 탭에서 열기"
                         className={styles.actionBtn}

@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
-import type { Endpoint } from '@/entities/endpoint/model/endpoint.schema';
-import { CUSTOM_SERVICE_ID } from '@/entities/endpoint/model/presets';
-import { CustomDropdown } from '@/shared/ui/custom-dropdown/CustomDropdown';
-import { 
-  useMockConfigForm, 
-  SERVICE_OPTIONS, 
-  COMMON_STATUS_CODES, 
-  COMMON_DELAY_PRESETS, 
-  COMMON_HEADER_KEYS, 
-  COMMON_HEADER_VALUES, 
-  generateId 
-} from '../model/useMockConfigForm';
-import styles from './MockConfigPanel.module.css';
+import { useState, useEffect, useRef } from "react";
+import type { Endpoint } from "@/entities/endpoint/model/endpoint.schema";
+import { CUSTOM_SERVICE_ID } from "@/entities/endpoint/model/presets";
+import { CustomDropdown } from "@/shared/ui/custom-dropdown/CustomDropdown";
+import {
+  useMockConfigForm,
+  SERVICE_OPTIONS,
+  COMMON_STATUS_CODES,
+  COMMON_DELAY_PRESETS,
+  COMMON_HEADER_KEYS,
+  COMMON_HEADER_VALUES,
+  generateId,
+} from "../model/useMockConfigForm";
+import styles from "./MockConfigPanel.module.css";
 
 interface MockConfigPanelProps {
   endpoint: Endpoint;
@@ -32,9 +32,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
       }
     };
     if (openDropdownId) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdownId]);
 
   return (
@@ -57,11 +57,11 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               setOpenDropdownId(null);
             }}
             placeholder="SELECT_SERVICE…"
-            isOpen={openDropdownId === 'service'}
+            isOpen={openDropdownId === "service"}
             onToggle={() =>
-              setOpenDropdownId(openDropdownId === 'service' ? null : 'service')
+              setOpenDropdownId(openDropdownId === "service" ? null : "service")
             }
-            displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_SERVICE…')}
+            displayValue={(_val, opt) => (opt ? opt.label : "SELECT_SERVICE…")}
           />
         </div>
 
@@ -70,30 +70,44 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           <div className={styles.formGroup}>
             <label>TARGET_PRESET</label>
             <CustomDropdown
-              value={state.selectedScenarioId ?? ''}
+              value={state.selectedScenarioId ?? ""}
               options={state.scenarioOptions}
               onSelect={(val) => {
-                const scenario = state.currentService?.scenarios.find((s) => s.id === val);
+                const scenario = state.currentService?.scenarios.find(
+                  (s) => s.id === val,
+                );
                 if (scenario) actions.applyScenario(scenario);
                 setOpenDropdownId(null);
               }}
               placeholder="SELECT_PRESET…"
-              isOpen={openDropdownId === 'scenario'}
+              isOpen={openDropdownId === "scenario"}
               onToggle={() =>
-                setOpenDropdownId(openDropdownId === 'scenario' ? null : 'scenario')
+                setOpenDropdownId(
+                  openDropdownId === "scenario" ? null : "scenario",
+                )
               }
-              displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_PRESET…')}
+              displayValue={(_val, opt) => (opt ? opt.label : "SELECT_PRESET…")}
             />
             {state.isDynamic ? (
-              <p className={styles.warning} style={{ marginTop: '0.5rem', color: '#ffcc00' }}>
-                ⚡ 서버가 요청을 직접 분석해서 응답해요. 아래에 설정한 내용은 적용되지 않아요.
+              <p
+                className={styles.warning}
+                style={{ marginTop: "0.5rem", color: "#ffcc00" }}
+              >
+                ⚡ 서버가 요청을 직접 분석해서 응답해요. 아래에 설정한 내용은
+                적용되지 않아요.
               </p>
             ) : null}
           </div>
         ) : null}
 
         <div className={styles.row}>
-          <div className={styles.formGroup} style={{ opacity: state.isDynamic ? 0.5 : 1, pointerEvents: state.isDynamic ? 'none' : 'auto' }}>
+          <div
+            className={styles.formGroup}
+            style={{
+              opacity: state.isDynamic ? 0.5 : 1,
+              pointerEvents: state.isDynamic ? "none" : "auto",
+            }}
+          >
             <label>STATUS_CODE</label>
             <CustomDropdown
               value={state.statusCode}
@@ -106,15 +120,15 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               }}
               onCustom={() => {
                 actions.setIsCustomStatus(true);
-                actions.setStatusCode('');
+                actions.setStatusCode("");
                 actions.resetToCustom();
                 setOpenDropdownId(null);
               }}
               customLabel="Custom"
               placeholder="Select Status…"
-              isOpen={openDropdownId === 'status'}
+              isOpen={openDropdownId === "status"}
               onToggle={() =>
-                setOpenDropdownId(openDropdownId === 'status' ? null : 'status')
+                setOpenDropdownId(openDropdownId === "status" ? null : "status")
               }
               isCustomStatus={state.isCustomStatus}
             />
@@ -133,12 +147,18 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                   actions.resetToCustom();
                 }}
                 className={styles.input}
-                style={{ marginTop: '0.5rem' }}
+                style={{ marginTop: "0.5rem" }}
               />
             ) : null}
           </div>
 
-          <div className={styles.formGroup} style={{ opacity: state.isDynamic ? 0.5 : 1, pointerEvents: state.isDynamic ? 'none' : 'auto' }}>
+          <div
+            className={styles.formGroup}
+            style={{
+              opacity: state.isDynamic ? 0.5 : 1,
+              pointerEvents: state.isDynamic ? "none" : "auto",
+            }}
+          >
             <label>RESPONSE_DELAY (ms)</label>
             <CustomDropdown
               value={state.delayMs}
@@ -149,13 +169,13 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 setOpenDropdownId(null);
               }}
               placeholder="e.g., 500"
-              isOpen={openDropdownId === 'delay'}
+              isOpen={openDropdownId === "delay"}
               onToggle={() =>
-                setOpenDropdownId(openDropdownId === 'delay' ? null : 'delay')
+                setOpenDropdownId(openDropdownId === "delay" ? null : "delay")
               }
               isEditable={true}
               onEdit={(val) => {
-                actions.setDelayMs(val.replace(/[^0-9]/g, ''));
+                actions.setDelayMs(val.replace(/[^0-9]/g, ""));
                 actions.resetToCustom();
               }}
               hideNoOptions={true}
@@ -163,7 +183,13 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           </div>
         </div>
 
-        <div className={styles.formGroup} style={{ opacity: state.isDynamic ? 0.5 : 1, pointerEvents: state.isDynamic ? 'none' : 'auto' }}>
+        <div
+          className={styles.formGroup}
+          style={{
+            opacity: state.isDynamic ? 0.5 : 1,
+            pointerEvents: state.isDynamic ? "none" : "auto",
+          }}
+        >
           <label>RESPONSE_HEADERS</label>
           <div className={styles.headerList}>
             {state.headerList.map((h, i) => (
@@ -172,9 +198,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                   style={{
                     flex: 1,
                     minWidth: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem',
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
                   }}
                 >
                   <CustomDropdown
@@ -182,7 +208,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     options={COMMON_HEADER_KEYS}
                     onSelect={(val) => {
                       const newHeaders = state.headerList.map((h, idx) =>
-                        idx === i ? { ...h, key: String(val) } : h
+                        idx === i ? { ...h, key: String(val) } : h,
                       );
                       actions.setHeaderList(newHeaders);
                       actions.resetToCustom();
@@ -200,7 +226,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     isEditable={true}
                     onEdit={(val) => {
                       const newHeaders = state.headerList.map((h, idx) =>
-                        idx === i ? { ...h, key: val } : h
+                        idx === i ? { ...h, key: val } : h,
                       );
                       actions.setHeaderList(newHeaders);
                       actions.resetToCustom();
@@ -214,9 +240,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                   style={{
                     flex: 1,
                     minWidth: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem',
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
                   }}
                 >
                   <CustomDropdown
@@ -224,7 +250,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     options={COMMON_HEADER_VALUES}
                     onSelect={(val) => {
                       const newHeaders = state.headerList.map((h, idx) =>
-                        idx === i ? { ...h, value: String(val) } : h
+                        idx === i ? { ...h, value: String(val) } : h,
                       );
                       actions.setHeaderList(newHeaders);
                       actions.resetToCustom();
@@ -243,7 +269,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                     isEditable={true}
                     onEdit={(val) => {
                       const newHeaders = state.headerList.map((h, idx) =>
-                        idx === i ? { ...h, value: val } : h
+                        idx === i ? { ...h, value: val } : h,
                       );
                       actions.setHeaderList(newHeaders);
                       actions.resetToCustom();
@@ -255,7 +281,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                   type="button"
                   className={styles.removeBtn}
                   onClick={() => {
-                    actions.setHeaderList(state.headerList.filter((item) => item.id !== h.id));
+                    actions.setHeaderList(
+                      state.headerList.filter((item) => item.id !== h.id),
+                    );
                     actions.resetToCustom();
                   }}
                   title="Remove Header"
@@ -270,7 +298,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               onClick={() => {
                 actions.setHeaderList([
                   ...state.headerList,
-                  { id: generateId(), key: '', value: '' },
+                  { id: generateId(), key: "", value: "" },
                 ]);
                 actions.resetToCustom();
               }}
@@ -278,10 +306,18 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               + ADD HEADER
             </button>
           </div>
-          {state.headerWarning ? <p className={styles.warning}>{state.headerWarning}</p> : null}
+          {state.headerWarning ? (
+            <p className={styles.warning}>{state.headerWarning}</p>
+          ) : null}
         </div>
 
-        <div className={styles.formGroup} style={{ opacity: state.isDynamic ? 0.5 : 1, pointerEvents: state.isDynamic ? 'none' : 'auto' }}>
+        <div
+          className={styles.formGroup}
+          style={{
+            opacity: state.isDynamic ? 0.5 : 1,
+            pointerEvents: state.isDynamic ? "none" : "auto",
+          }}
+        >
           <label htmlFor="input-body">RESPONSE_BODY</label>
           <textarea
             id="input-body"
@@ -300,10 +336,18 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
 
         <button
           onClick={actions.handleApply}
-          disabled={state.isPending || (state.selectedServiceId !== CUSTOM_SERVICE_ID && state.selectedScenarioId === null)}
-          className={`${styles.button} ${state.isSaved ? styles.buttonSaved : ''}`}
+          disabled={
+            state.isPending ||
+            (state.selectedServiceId !== CUSTOM_SERVICE_ID &&
+              state.selectedScenarioId === null)
+          }
+          className={`${styles.button} ${state.isSaved ? styles.buttonSaved : ""}`}
         >
-          {state.isSaved ? '✔ SAVED!' : state.isPending ? 'SAVING_CONFIG…' : 'APPLY_CONFIG'}
+          {state.isSaved
+            ? "✔ SAVED!"
+            : state.isPending
+              ? "SAVING_CONFIG…"
+              : "APPLY_CONFIG"}
         </button>
       </div>
     </div>

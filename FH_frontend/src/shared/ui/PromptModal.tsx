@@ -1,7 +1,7 @@
-import styles from './PromptModal.module.css';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { useEffect, useId, useState, useRef } from 'react';
-import { useFocusTrap } from '../hooks/useFocusTrap';
+import styles from "./PromptModal.module.css";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useEffect, useId, useState, useRef } from "react";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 
 interface PromptModalProps {
   isOpen: boolean;
@@ -19,16 +19,16 @@ function PromptModal({
   isOpen,
   title,
   message,
-  defaultValue = '',
-  placeholder = '',
-  confirmText = '확인',
-  cancelText = '취소',
+  defaultValue = "",
+  placeholder = "",
+  confirmText = "확인",
+  cancelText = "취소",
   onConfirm,
-  onCancel
+  onCancel,
 }: PromptModalProps) {
   const modalId = useId();
   const shouldReduceMotion = useReducedMotion();
-  
+
   const [isActive, setIsActive] = useState(isOpen);
   const [inputValue, setInputValue] = useState(defaultValue);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,25 +54,25 @@ function PromptModal({
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onCancel();
-      } else if (e.key === 'Enter') {
+      } else if (e.key === "Enter") {
         const target = e.target as HTMLElement | null;
-        const isButton = target?.tagName === 'BUTTON';
+        const isButton = target?.tagName === "BUTTON";
         if (isButton) return;
         e.preventDefault();
         onConfirm(inputValue);
       }
     };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onCancel, onConfirm, inputValue]);
 
   return (
     <AnimatePresence onExitComplete={() => setIsActive(false)}>
       {isOpen ? (
         <div className={styles.overlay} onClick={onCancel}>
-          <motion.div 
+          <motion.div
             ref={modalRef}
             className={styles.modal}
             role="dialog"
@@ -80,8 +80,12 @@ function PromptModal({
             aria-labelledby={`prompt-modal-title-${modalId}`}
             initial={{ opacity: 0, scale: 0.95, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+            exit={
+              shouldReduceMotion
+                ? undefined
+                : { opacity: 0, scale: 0.95, y: 10 }
+            }
+            transition={{ type: "spring", duration: 0.3, bounce: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.header}>
@@ -100,8 +104,15 @@ function PromptModal({
               />
             </div>
             <div className={styles.actions}>
-              <button className={styles.btnCancel} onClick={onCancel}>{cancelText}</button>
-              <button className={styles.btnConfirm} onClick={() => onConfirm(inputValue)}>{confirmText}</button>
+              <button className={styles.btnCancel} onClick={onCancel}>
+                {cancelText}
+              </button>
+              <button
+                className={styles.btnConfirm}
+                onClick={() => onConfirm(inputValue)}
+              >
+                {confirmText}
+              </button>
             </div>
           </motion.div>
         </div>

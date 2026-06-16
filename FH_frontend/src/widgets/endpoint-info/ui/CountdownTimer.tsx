@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface CountdownTimerProps {
   expiresAt: string;
 }
 
 function CountdownTimer({ expiresAt }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState('');
+  const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
     const targetDate = new Date(expiresAt).getTime();
@@ -15,15 +15,19 @@ function CountdownTimer({ expiresAt }: CountdownTimerProps) {
       const distance = targetDate - now;
 
       if (distance < 0) {
-        setTimeLeft('만료됨');
+        setTimeLeft("만료됨");
         return;
       }
 
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const hours = Math.floor(
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      );
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      setTimeLeft(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      setTimeLeft(
+        `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+      );
     };
 
     updateTimer();
@@ -32,7 +36,17 @@ function CountdownTimer({ expiresAt }: CountdownTimerProps) {
     return () => clearInterval(intervalId);
   }, [expiresAt]);
 
-  return <span data-testid="countdown" style={{ fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}>{timeLeft}</span>;
+  return (
+    <span
+      data-testid="countdown"
+      style={{
+        fontFamily: "var(--font-mono)",
+        fontVariantNumeric: "tabular-nums",
+      }}
+    >
+      {timeLeft}
+    </span>
+  );
 }
 
 export default CountdownTimer;

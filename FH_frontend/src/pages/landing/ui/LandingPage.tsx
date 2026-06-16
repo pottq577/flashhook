@@ -1,15 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { logger } from '@/shared/lib/logger';
-import { useCreateEndpointMutation } from '@/entities/endpoint/api/endpoint.queries';
-import Footer from '@/widgets/footer/ui/Footer';
-import { ConsentModal } from '@/widgets/legal/ConsentModal';
-import ConfirmModal from '@/shared/ui/ConfirmModal';
-import { useEndpointStore } from '@/entities/endpoint/model/endpoint.store';
-import { TerminalHero } from './TerminalHero';
-import { LandingFeatures } from './LandingFeatures';
-import { AdBanner } from '@/shared/ui/AdBanner/AdBanner';
-import styles from './LandingPage.module.css';
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { logger } from "@/shared/lib/logger";
+import { useCreateEndpointMutation } from "@/entities/endpoint/api/endpoint.queries";
+import Footer from "@/widgets/footer/ui/Footer";
+import { ConsentModal } from "@/widgets/legal/ConsentModal";
+import ConfirmModal from "@/shared/ui/ConfirmModal";
+import { useEndpointStore } from "@/entities/endpoint/model/endpoint.store";
+import { TerminalHero } from "./TerminalHero";
+import { LandingFeatures } from "./LandingFeatures";
+import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
+import styles from "./LandingPage.module.css";
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -18,9 +18,13 @@ function LandingPage() {
   const [error, setError] = useState<string | null>(null);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-  const [terminalLines, setTerminalLines] = useState<string[]>(['$ flashhook --init', '> System ready. Waiting for command…']);
-  
-  const { endpoints, clearExpired, removeEndpoint, addEndpoint } = useEndpointStore();
+  const [terminalLines, setTerminalLines] = useState<string[]>([
+    "$ flashhook --init",
+    "> System ready. Waiting for command…",
+  ]);
+
+  const { endpoints, clearExpired, removeEndpoint, addEndpoint } =
+    useEndpointStore();
   const [now, setNow] = useState(() => Date.now());
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -37,7 +41,7 @@ function LandingPage() {
   }, [clearExpired]);
 
   const handleCreateClick = () => {
-    if (localStorage.getItem('flashhook-consent') === 'true') {
+    if (localStorage.getItem("flashhook-consent") === "true") {
       handleCreate();
     } else {
       setIsConsentOpen(true);
@@ -45,7 +49,7 @@ function LandingPage() {
   };
 
   const handleAcceptConsent = () => {
-    localStorage.setItem('flashhook-consent', 'true');
+    localStorage.setItem("flashhook-consent", "true");
     handleCreate();
   };
 
@@ -54,25 +58,38 @@ function LandingPage() {
     setIsConsentOpen(false);
     setIsLoading(true);
     setError(null);
-    setTerminalLines(prev => [...prev, '$ flashhook create-endpoint', '> Generating secure URL…']);
+    setTerminalLines((prev) => [
+      ...prev,
+      "$ flashhook create-endpoint",
+      "> Generating secure URL…",
+    ]);
     try {
       const response = await createEndpoint(undefined);
-      setTerminalLines(prev => [...prev, `> Success! ID: ${response.endpointId}`, '> Redirecting to dashboard…']);
+      setTerminalLines((prev) => [
+        ...prev,
+        `> Success! ID: ${response.endpointId}`,
+        "> Redirecting to dashboard…",
+      ]);
       addEndpoint(response.endpointId, response.expiresAt);
       timerRef.current = setTimeout(() => {
         navigate(`/dashboard/${encodeURIComponent(response.endpointId)}`);
       }, 500);
     } catch (err: unknown) {
-      logger.error('Failed to create endpoint', err);
-      setTerminalLines(prev => [...prev, '> Error: Failed to create endpoint']);
-      setError(err instanceof Error ? err.message : 'Failed to create endpoint');
+      logger.error("Failed to create endpoint", err);
+      setTerminalLines((prev) => [
+        ...prev,
+        "> Error: Failed to create endpoint",
+      ]);
+      setError(
+        err instanceof Error ? err.message : "Failed to create endpoint",
+      );
       setIsLoading(false);
     }
   };
 
   return (
     <div className={styles.container}>
-      <TerminalHero 
+      <TerminalHero
         terminalLines={terminalLines}
         isLoading={isLoading}
         error={error}
@@ -82,14 +99,14 @@ function LandingPage() {
         onDeleteClick={setDeleteTargetId}
       />
       <LandingFeatures />
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem' }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 2rem" }}>
         <AdBanner />
       </div>
       <Footer />
-      <ConsentModal 
-        isOpen={isConsentOpen} 
-        onAccept={handleAcceptConsent} 
-        onDecline={() => setIsConsentOpen(false)} 
+      <ConsentModal
+        isOpen={isConsentOpen}
+        onAccept={handleAcceptConsent}
+        onDecline={() => setIsConsentOpen(false)}
       />
       <ConfirmModal
         isOpen={deleteTargetId !== null}

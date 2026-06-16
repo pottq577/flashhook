@@ -1,28 +1,28 @@
 :root {
   /* Colors - Telemetry Dark Theme */
-  --bg-primary: #0A0A0C;
+  --bg-primary: #0a0a0c;
   --bg-secondary: #121214;
-  --bg-tertiary: #18181B;
-  --border: #27272A;
-  --border-focus: #3F3F46;
-  
-  --text-primary: #FAFAFA;
-  --text-secondary: #D4D4D8; /* Zinc 300 */
-  --text-muted: #A1A1AA; /* Zinc 400 (Contrast 4.5+) */
-  
-  --accent: #4ADE80; /* Muted Emerald */
-  --accent-hover: #22C55E;
-  --accent-secondary: #38BDF8; /* Sky Blue */
-  
-  --success: #4ADE80;
-  --warning: #FBBF24;
-  --danger: #FB7185;
-  
-  --method-get: #38BDF8;
-  --method-post: #4ADE80;
-  --method-put: #FBBF24;
-  --method-delete: #FB7185;
-  --method-patch: #C084FC;
+  --bg-tertiary: #18181b;
+  --border: #27272a;
+  --border-focus: #3f3f46;
+
+  --text-primary: #fafafa;
+  --text-secondary: #d4d4d8; /* Zinc 300 */
+  --text-muted: #a1a1aa; /* Zinc 400 (Contrast 4.5+) */
+
+  --accent: #4ade80; /* Muted Emerald */
+  --accent-hover: #22c55e;
+  --accent-secondary: #38bdf8; /* Sky Blue */
+
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #fb7185;
+
+  --method-get: #38bdf8;
+  --method-post: #4ade80;
+  --method-put: #fbbf24;
+  --method-delete: #fb7185;
+  --method-patch: #c084fc;
 
   /* Terminal specific */
   --terminal-shadow: 0 0 20px rgba(74, 222, 128, 0.05);
@@ -32,7 +32,7 @@
   --glass-bg: rgba(18, 18, 18, 0.6);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: blur(16px);
-  
+
   --shadow-sm: none;
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
@@ -43,8 +43,8 @@
   --scrollbar-track: rgba(0, 0, 0, 0.1);
 
   /* Typography */
-  --font-sans: 'Geist', 'Pretendard', 'Inter', -apple-system, sans-serif;
-  --font-mono: 'Geist Mono', 'JetBrains Mono', 'Fira Code', monospace;
+  --font-sans: "Geist", "Pretendard", "Inter", -apple-system, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "Fira Code", monospace;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -110,7 +110,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   text-wrap: balance;
 }
 
@@ -123,7 +125,8 @@ a {
   text-decoration: none;
 }
 
-code, pre {
+code,
+pre {
   font-family: var(--font-mono);
 }
 

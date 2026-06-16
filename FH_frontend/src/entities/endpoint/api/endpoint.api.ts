@@ -1,9 +1,16 @@
-import { apiRequest } from '@/shared/api/client';
-import { EndpointSchema, EndpointCreateResponseSchema, type Endpoint, type EndpointCreateResponse } from '@/entities/endpoint/model/endpoint.schema';
+import { apiRequest } from "@/shared/api/client";
+import {
+  EndpointSchema,
+  EndpointCreateResponseSchema,
+  type Endpoint,
+  type EndpointCreateResponse,
+} from "@/entities/endpoint/model/endpoint.schema";
 
-export async function createEndpoint(label?: string): Promise<EndpointCreateResponse> {
-  const data = await apiRequest('/endpoints', {
-    method: 'POST',
+export async function createEndpoint(
+  label?: string,
+): Promise<EndpointCreateResponse> {
+  const data = await apiRequest("/endpoints", {
+    method: "POST",
     body: label ? { label } : undefined,
   });
   return EndpointCreateResponseSchema.parse(data);
@@ -15,7 +22,7 @@ export async function getEndpoint(id: string): Promise<Endpoint> {
 }
 
 export async function deleteEndpoint(id: string): Promise<void> {
-  await apiRequest(`/endpoints/${id}`, { method: 'DELETE' }, id);
+  await apiRequest(`/endpoints/${id}`, { method: "DELETE" }, id);
 }
 
 export type MockUpdateRequest = {
@@ -27,10 +34,17 @@ export type MockUpdateRequest = {
   presetType?: string | null;
 };
 
-export async function updateMockConfig(id: string, mockConfig: MockUpdateRequest): Promise<Endpoint> {
-  const data = await apiRequest(`/endpoints/${id}/mock`, {
-    method: 'PATCH',
-    body: mockConfig,
-  }, id);
+export async function updateMockConfig(
+  id: string,
+  mockConfig: MockUpdateRequest,
+): Promise<Endpoint> {
+  const data = await apiRequest(
+    `/endpoints/${id}/mock`,
+    {
+      method: "PATCH",
+      body: mockConfig,
+    },
+    id,
+  );
   return EndpointSchema.parse(data);
 }
