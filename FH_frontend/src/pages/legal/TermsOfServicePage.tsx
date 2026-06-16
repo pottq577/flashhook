@@ -5,7 +5,7 @@ export const TermsOfServicePage = () => {
     <div className={styles.legalContainer}>
       <h1 className={styles.title}>서비스 이용약관</h1>
       <p className={styles.paragraph}>
-        FlashHook을 안전하게 이용하기 위해 필요한 약관이에요. 서비스 이용 전에 꼭 읽어주세요. 본 약관은 [TODO: 서비스 오픈일 확정 시 기재]부터 적용됩니다.
+        FlashHook을 안전하게 이용하기 위해 필요한 약관이에요. 서비스 이용 전에 꼭 읽어주세요. 본 약관은 2026년 6월 16일부터 적용됩니다.
       </p>
 
       <h2 className={styles.sectionTitle}>제1조 (목적)</h2>
