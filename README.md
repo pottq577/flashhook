@@ -104,7 +104,7 @@ API 명세는 [`docs/artifacts/04_api_spec.md`](docs/artifacts/04_api_spec.md)�
 #### 1. 무분별한 요청 폭주(DDoS) 방어 및 Proxy-Aware IP Spoofing 차단
 
 - **문제**: 가입 없이 누구나 URL을 생성할 수 있어 매크로 공격에 노출되기 쉬우며, 로컬 터널(Cloudflare)이나 리버스 프록시(Nginx)를 거칠 경우 모든 접속이 단일 프록시 IP로 식별되어 Rate Limit이 전역적으로 걸려버리는 오작동 문제가 있었습니다. 반대로 클라이언트가 `X-Forwarded-For` 헤더를 위조해 IP를 속일(Spoofing) 위험도 공존했습니다.
-- **해결**: Redis의 **고정 윈도우(Fixed Window) 카운터 알고리즘**을 도입하여 즉각적인 Rate Limit(IP당 생성 제한, 엔드포인트당 수신 제한)을 적용했습니다. 또한 Spring Boot의 **내장 프록시 신뢰 메커니즘(`forward-headers-strategy: framework`)**을 구성하여, 서버가 신뢰하는 내부 프록시(Internal Proxies)를 거친 요청에서만 안전하게 실제 클라이언트 IP를 추출하도록 아키텍처를 개선했습니다. 이를 통해 터널 환경에서도 정확한 개별 IP 카운팅이 가능하며, 동시에 악의적인 헤더 조작(IP Spoofing)을 프레임워크 단에서 완벽히 차단합니다.
+- **해결**: Redis의 **고정 윈도우(Fixed Window) 카운터 알고리즘**을 도입하여 즉각적인 Rate Limit(IP당 생성 제한, 엔드포인트당 수신 제한)을 적용했습니다. 또한 Spring Boot의 **내장 프록시 신뢰 메커니즘**(`forward-headers-strategy: framework`)을 구성하여, 서버가 신뢰하는 내부 프록시(Internal Proxies)를 거친 요청에서만 안전하게 실제 클라이언트 IP를 추출하도록 아키텍처를 개선했습니다. 이를 통해 터널 환경에서도 정확한 개별 IP 카운팅이 가능하며, 동시에 악의적인 헤더 조작(IP Spoofing)을 프레임워크 단에서 완벽히 차단합니다.
 
 #### 2. 비정형 가비지 데이터 무한 적재 방지 (DB 스토리지 보호)
 
