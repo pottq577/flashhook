@@ -138,7 +138,7 @@ public class MockResponseScheduler {
                 return deferredResult;
             }
             return null;
-        } catch (Exception e) {
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             log.error("Failed to parse Slack URL Verification payload", e);
             DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
             deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
