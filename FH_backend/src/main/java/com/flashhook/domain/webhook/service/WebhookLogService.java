@@ -28,9 +28,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Objects;
 
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
@@ -107,14 +111,14 @@ public class WebhookLogService {
      * 로그 상세 조회
      */
     public WebhookLogDetailResponse getLogDetail(String endpointId, String logId) {
-        WebhookLog log = webhookLogRepository.findByLogId(logId)
+        WebhookLog webhookLog = webhookLogRepository.findByLogId(logId)
                 .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
 
-        if (!log.getEndpointId().equals(endpointId)) {
+        if (!webhookLog.getEndpointId().equals(endpointId)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        return WebhookLogDetailResponse.from(log);
+        return WebhookLogDetailResponse.from(webhookLog);
     }
 
     /**
@@ -147,7 +151,8 @@ public class WebhookLogService {
 
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
             @Override
-            protected HttpURLConnection openConnection(URL url, java.net.Proxy proxy) throws java.io.IOException {
+            @NonNull
+            protected HttpURLConnection openConnection(@NonNull URL url, @Nullable java.net.Proxy proxy) throws java.io.IOException {
                 URL pinnedUrl;
                 try {
                     pinnedUrl = new URI(url.getProtocol(), url.getUserInfo(), resolvedIp.getHostAddress(),
@@ -155,7 +160,7 @@ public class WebhookLogService {
                 } catch (URISyntaxException e) {
                     throw new java.io.IOException("Failed to construct URI for IP pinning", e);
                 }
-                HttpURLConnection connection = super.openConnection(pinnedUrl, proxy);
+                HttpURLConnection connection = super.openConnection(Objects.requireNonNull(pinnedUrl), proxy);
                 if (connection instanceof HttpsURLConnection httpsConnection) {
                     String originalHost = url.getHost();
                     httpsConnection.setHostnameVerifier((hostname, session) -> {
@@ -242,6 +247,15 @@ public class WebhookLogService {
 
         HttpEntity<Object> entity = new HttpEntity<>(webhookLog.getBody(), headers);
 
+        if (destinationUrl == null || webhookLog.getMethod() == null) {
+            Query query = Query.query(Criteria.where("logId").is(logId));
+            Update update = new Update()
+                    .set("replayStatus", "FAILED")
+                    .set("replayError", "Invalid webhook log: missing destinationUrl or method");
+            mongoTemplate.updateFirst(query, update, WebhookLog.class);
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
         try {
             restTemplate.exchange(
                     destinationUrl,
@@ -255,7 +269,7 @@ public class WebhookLogService {
             Update update = new Update().set("replayStatus", "SUCCESS").unset("replayError");
             mongoTemplate.updateFirst(query, update, WebhookLog.class);
 
-        } catch (Exception e) {
+        } catch (org.springframework.web.client.RestClientException | NullPointerException e) {
             log.warn("웹훅 재전송 실패: destinationUrl={}, logId={}", sanitizeUrlForLog(destinationUrl), logId, e);
             Query query = Query.query(Criteria.where("logId").is(logId));
             Update update = new Update().set("replayStatus", "FAILED").set("replayError", e.getMessage());
@@ -284,7 +298,7 @@ public class WebhookLogService {
                 throw new CustomException(ErrorCode.FORBIDDEN);
             }
             return inetAddress;
-        } catch (URISyntaxException | UnknownHostException e) {
+        } catch (URISyntaxException | UnknownHostException | NullPointerException e) {
             log.error("Replay destination URL validation failed: {}", sanitizeUrlForLog(destinationUrl), e);
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
@@ -298,7 +312,7 @@ public class WebhookLogService {
             String port = uri.getPort() == -1 ? "" : ":" + uri.getPort();
             String path = uri.getPath() == null ? "" : uri.getPath();
             return scheme + host + port + path;
-        } catch (Exception e) {
+        } catch (URISyntaxException e) {
             return "invalid-url";
         }
     }

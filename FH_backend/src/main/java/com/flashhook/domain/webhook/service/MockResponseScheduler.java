@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.MockConfig;
@@ -125,6 +126,11 @@ public class MockResponseScheduler {
     }
 
     private DeferredResult<ResponseEntity<?>> handleSlackUrlVerification(String rawBody) {
+        if (rawBody == null || rawBody.isEmpty()) {
+            DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
+            deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+            return deferredResult;
+        }
         try {
             JsonNode root = objectMapper.readTree(rawBody);
 
@@ -138,7 +144,7 @@ public class MockResponseScheduler {
                 return deferredResult;
             }
             return null;
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             log.error("Failed to parse Slack URL Verification payload", e);
             DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
             deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());

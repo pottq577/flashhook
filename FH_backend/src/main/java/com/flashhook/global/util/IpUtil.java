@@ -28,7 +28,7 @@ public final class IpUtil {
         if (IPV6_PATTERN.matcher(trimmed).matches()) {
             try {
                 return InetAddress.getByName(trimmed).getHostAddress();
-            } catch (Exception e) {
+            } catch (java.net.UnknownHostException e) {
                 return trimmed;
             }
         }
@@ -36,7 +36,7 @@ public final class IpUtil {
         if (IPV4_PATTERN.matcher(trimmed).matches()) {
             try {
                 return InetAddress.getByName(trimmed).getHostAddress();
-            } catch (Exception e) {
+            } catch (java.net.UnknownHostException e) {
                 return trimmed;
             }
         }
