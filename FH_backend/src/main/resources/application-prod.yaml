@@ -14,3 +14,7 @@ spring:
 flashhook:
   base-url: https://api.flashhook.site
   fe-url: https://flashhook.site
+
+management:
+  server:
+    address: 0.0.0.0

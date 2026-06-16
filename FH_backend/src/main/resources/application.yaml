@@ -57,6 +57,7 @@ flashhook:
 management:
   server:
     port: 9090
+    address: 127.0.0.1
   endpoints:
     web:
       exposure:
@@ -64,4 +65,4 @@ management:
       base-path: /actuator
   endpoint:
     health:
-      show-details: when_authorized
+      show-details: always
