@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import styles from './AdminWidgets.module.css';
 
 export const AdminInfrastructureWidget = () => {
+  const grafanaUrl = import.meta.env.VITE_GRAFANA_URL || 'http://localhost:3000';
   return (
     <div className={styles.card}>
       <div className={styles.header}>
@@ -11,7 +12,7 @@ export const AdminInfrastructureWidget = () => {
       
       <div style={{ marginTop: 'var(--spacing-md)' }}>
         <motion.a
-          href="http://localhost:3000"
+          href={grafanaUrl}
           target="_blank"
           rel="noreferrer"
           whileHover={{ y: -2 }}
