@@ -5,6 +5,7 @@ import { AdminInfrastructureWidget } from '@/widgets/admin/ui/AdminInfrastructur
 import { useAdminStore } from '@/entities/admin/model/adminStore';
 import { LogOut, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import styles from './AdminDashboardPage.module.css';
 
 export const AdminDashboardPage = () => {
   const logout = useAdminStore(state => state.logout);
@@ -16,19 +17,19 @@ export const AdminDashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0C0F]">
-      <header className="sticky top-0 z-50 bg-[#0B0C0F]/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 bg-red-500/10 rounded-lg text-red-500">
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
+          <div className={styles.logoWrapper}>
+            <div className={styles.logoIcon}>
               <Shield size={20} />
             </div>
-            <h1 className="text-lg font-bold text-white tracking-tight">FlashHook Backoffice</h1>
+            <h1 className={styles.title}>FlashHook Backoffice</h1>
           </div>
           
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className={styles.logoutBtn}
           >
             <LogOut size={16} />
             로그아웃
@@ -36,16 +37,16 @@ export const AdminDashboardPage = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8 space-y-12">
+      <main className={styles.main}>
         <section>
           <AdminMetricsWidget />
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <section className="lg:col-span-2">
+        <div className={styles.grid}>
+          <section>
             <AdminAbuserTable />
           </section>
-          <section className="space-y-8">
+          <section className={styles.sidePanel}>
             <AdminBlacklistManager />
             <AdminInfrastructureWidget />
           </section>
