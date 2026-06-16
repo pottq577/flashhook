@@ -1,5 +1,5 @@
-import Header from "@/widgets/header";
-import Footer from "@/widgets/footer";
+import { Header } from "@/widgets/header";
+import { Footer } from "@/widgets/footer";
 import styles from "./about.module.css";
 
 function ContactPage() {
