@@ -28,7 +28,7 @@ export const queryClient = new QueryClient({
             return;
           }
         } catch (e) {
-          logger.warn('Failed to parse custom error message from string', { originalMsg: msg, error: e });
+          logger.warn('Failed to parse custom error message from string', { msgLength: msg.length, error: e });
         }
       }
       useToastStore.getState().addToast(msg);

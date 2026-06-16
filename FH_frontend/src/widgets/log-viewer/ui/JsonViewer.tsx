@@ -1,21 +1,26 @@
+import { useMemo } from 'react';
 import { logger } from '@/shared/lib/logger';
 import styles from './JsonViewer.module.css';
 
-function JsonViewer({ data }: { data: unknown }) {
-  let content = '';
-  if (data !== undefined && data !== null) {
-    if (typeof data === 'string') {
-      try {
-        const parsed = JSON.parse(data);
-        content = JSON.stringify(parsed, null, 2);
-      } catch (e) {
-        logger.warn('Failed to parse string data as JSON in JsonViewer', { error: e, data: (data as string).slice(0, 100) });
-        content = data;
-      }
-    } else {
-      content = JSON.stringify(data, null, 2);
+function parseData(data: unknown): string {
+  if (data === undefined || data === null) return '';
+  if (typeof data === 'string') {
+    try {
+      const parsed = JSON.parse(data);
+      return JSON.stringify(parsed, null, 2);
+    } catch (e) {
+      logger.warn('Failed to parse string data as JSON in JsonViewer', { 
+        error: e, 
+        data: data.slice(0, 100) 
+      });
+      return data;
     }
   }
+  return JSON.stringify(data, null, 2);
+}
+
+function JsonViewer({ data }: { data: unknown }) {
+  const content = useMemo(() => parseData(data), [data]);
 
   if (data === undefined || data === null) {
     return (

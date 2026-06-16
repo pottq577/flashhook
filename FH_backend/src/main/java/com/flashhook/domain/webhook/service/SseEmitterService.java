@@ -84,10 +84,17 @@ public class SseEmitterService {
                             .data(response));
                 } catch (Exception e) {
                     log.error("Failed to send webhook log via SSE to endpointId: {}", endpointId, e);
-                    Query query = Query.query(Criteria.where("logId").is(event.getWebhookLog().getLogId()));
-                    Update update = new Update().set("sseDeliveryStatus", "FAILED").set("sseError", e.getMessage());
-                    mongoTemplate.updateFirst(query, update, WebhookLog.class);
-                    removeEmitter(endpointId, emitter);
+                    try {
+                        Query query = Query.query(Criteria.where("logId").is(event.getWebhookLog().getLogId()));
+                        Update update = new Update()
+                                .set("sseDeliveryStatus", "FAILED")
+                                .set("sseError", e.getMessage());
+                        mongoTemplate.updateFirst(query, update, WebhookLog.class);
+                    } catch (Exception persistEx) {
+                        log.error("Failed to persist SSE failure status: logId={}", event.getWebhookLog().getLogId(), persistEx);
+                    } finally {
+                        removeEmitter(endpointId, emitter);
+                    }
                 }
             }
         }

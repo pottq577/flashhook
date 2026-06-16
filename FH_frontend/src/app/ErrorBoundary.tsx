@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', padding: '2rem', textAlign: 'center', color: 'var(--text-primary)' }}>
           <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>화면을 띄우다 문제가 생겼어요</h1>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-            {this.state.error?.message || '일시적인 문제가 생겼어요. 잠시 후 다시 시도해주세요.'}
+            {'일시적인 문제가 생겼어요. 잠시 후 다시 시도해주세요.'}
           </p>
           <button 
             onClick={() => window.location.reload()}

@@ -69,7 +69,7 @@ export async function apiRequest(
         try { 
           errorData = JSON.parse(errorBody); 
         } catch (e) {
-          logger.warn('Failed to parse backend custom error response', { error: e, errorBody: errorBody.slice(0, 200) });
+          logger.warn('Failed to parse backend custom error response', { error: e, bodyLength: errorBody.length });
         }
         if (
           errorData &&
