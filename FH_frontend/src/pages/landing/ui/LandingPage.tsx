@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { logger } from "@/shared/lib/logger";
 import { useCreateEndpointMutation } from "@/entities/endpoint";
-import Footer from "@/widgets/footer";
+import { Footer } from "@/widgets/footer";
 import { ConsentModal } from "@/widgets/legal";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
 import { useEndpointStore } from "@/entities/endpoint";
