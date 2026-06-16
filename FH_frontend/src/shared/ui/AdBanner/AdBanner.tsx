@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { logger } from "@/shared/lib/logger";
 import styles from "./AdBanner.module.css";
 
 declare global {
@@ -34,7 +35,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
         window.adsbygoogle.push({});
         isPushed.current = true;
       } catch (error) {
-        console.error("AdSense error:", error);
+        logger.error("AdSense error", error);
       }
     }
   }, []);

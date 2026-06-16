@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { logger } from '@/shared/lib/logger';
 import styles from './DevTools.module.css';
 
 export function DevTools() {
@@ -20,7 +21,7 @@ export function DevTools() {
         alert('❌ 제한을 풀지 못했어요. 잠시 후 다시 시도해주세요.');
       }
     } catch (err) {
-      console.error(err);
+      logger.error('DevTools rate limit reset failed', err);
       alert('❌ 서버와 연결할 수 없어요.');
     } finally {
       setIsLoading(false);

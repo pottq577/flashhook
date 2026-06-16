@@ -5,6 +5,7 @@ import com.flashhook.domain.endpoint.dto.EndpointResponse;
 import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import com.flashhook.domain.endpoint.model.Endpoint;
@@ -25,6 +26,7 @@ import org.springframework.cache.annotation.CacheEvict;
 /**
  * 엔드포인트 비즈니스 로직
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EndpointService {
@@ -67,6 +69,7 @@ public class EndpointService {
                 .build();
 
         endpointRepository.save(Objects.requireNonNull(endpoint));
+        log.info("Endpoint created successfully: endpointId={}, creatorIp={}", endpointId, ip);
 
         return EndpointResponse.builder()
                 .endpointId(endpointId)
@@ -108,6 +111,7 @@ public class EndpointService {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
         endpointRepository.delete(Objects.requireNonNull(endpoint));
+        log.info("Endpoint deleted: endpointId={}", endpointId);
         eventPublisher.publishEvent(new EndpointDeletedEvent(endpointId));
     }
 
@@ -140,6 +144,7 @@ public class EndpointService {
                 .build();
 
         endpointRepository.save(Objects.requireNonNull(updatedEndpoint));
+        log.info("Mock config updated: endpointId={}", endpointId);
 
         return EndpointResponse.builder()
                 .endpointId(updatedEndpoint.getEndpointId())

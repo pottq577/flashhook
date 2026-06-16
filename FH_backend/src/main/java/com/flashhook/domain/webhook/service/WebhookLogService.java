@@ -138,6 +138,7 @@ public class WebhookLogService {
                         try {
                             return javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier().verify(originalHost, session);
                         } catch (Exception e) {
+                            log.error("HTTPS hostname verification failed for originalHost: {}", originalHost, e);
                             return false;
                         }
                     });
@@ -190,6 +191,7 @@ public class WebhookLogService {
                     || ("https".equalsIgnoreCase(destinationUri.getScheme()) && port == 443);
             headers.add(HttpHeaders.HOST, isDefaultPort ? host : host + ":" + port);
         } catch (URISyntaxException e) {
+            log.error("Failed to parse destination URL for replay: {}", sanitizeUrlForLog(destinationUrl), e);
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
         
@@ -202,8 +204,17 @@ public class WebhookLogService {
                 entity,
                 String.class
             );
+            log.info("Webhook replayed successfully: destinationUrl={}, endpointId={}, logId={}", sanitizeUrlForLog(destinationUrl), endpointId, logId);
+            
+            Query query = Query.query(Criteria.where("logId").is(logId));
+            Update update = new Update().set("replayStatus", "SUCCESS");
+            mongoTemplate.updateFirst(query, update, WebhookLog.class);
+            
         } catch (Exception e) {
-            log.warn("웹훅 재전송 실패: destinationUrl={}, logId={}", destinationUrl, logId, e);
+            log.warn("웹훅 재전송 실패: destinationUrl={}, logId={}", sanitizeUrlForLog(destinationUrl), logId, e);
+            Query query = Query.query(Criteria.where("logId").is(logId));
+            Update update = new Update().set("replayStatus", "FAILED").set("replayError", e.getMessage());
+            mongoTemplate.updateFirst(query, update, WebhookLog.class);
             throw new CustomException(ErrorCode.INTERNAL_ERROR);
         }
     }
@@ -229,7 +240,21 @@ public class WebhookLogService {
             }
             return inetAddress;
         } catch (URISyntaxException | UnknownHostException e) {
+            log.error("Replay destination URL validation failed: {}", sanitizeUrlForLog(destinationUrl), e);
             throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+    }
+
+    private String sanitizeUrlForLog(String rawUrl) {
+        try {
+            URI uri = new URI(rawUrl);
+            String scheme = uri.getScheme() == null ? "" : uri.getScheme() + "://";
+            String host = uri.getHost() == null ? "unknown-host" : uri.getHost();
+            String port = uri.getPort() == -1 ? "" : ":" + uri.getPort();
+            String path = uri.getPath() == null ? "" : uri.getPath();
+            return scheme + host + port + path;
+        } catch (Exception e) {
+            return "invalid-url";
         }
     }
 }

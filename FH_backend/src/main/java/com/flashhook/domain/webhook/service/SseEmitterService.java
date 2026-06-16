@@ -18,18 +18,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import com.flashhook.domain.webhook.model.WebhookLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @EnableScheduling
 public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
     private final Executor taskExecutor;
+    private final MongoTemplate mongoTemplate;
 
-    public SseEmitterService(@Qualifier("taskExecutor") Executor taskExecutor) {
+    public SseEmitterService(@Qualifier("taskExecutor") Executor taskExecutor, MongoTemplate mongoTemplate) {
         this.taskExecutor = taskExecutor;
+        this.mongoTemplate = mongoTemplate;
     }
 
     /**
@@ -48,6 +58,7 @@ public class SseEmitterService {
         try {
             emitter.send(SseEmitter.event().name("connect").data("connected"));
         } catch (Exception e) {
+            log.error("SSE initial connect dummy data send failed for endpointId: {}", endpointId, e);
             removeEmitter(endpointId, emitter);
         }
 
@@ -72,7 +83,18 @@ public class SseEmitterService {
                             .name("webhook")
                             .data(response));
                 } catch (Exception e) {
-                    removeEmitter(endpointId, emitter);
+                    log.error("Failed to send webhook log via SSE to endpointId: {}", endpointId, e);
+                    try {
+                        Query query = Query.query(Criteria.where("logId").is(event.getWebhookLog().getLogId()));
+                        Update update = new Update()
+                                .set("sseDeliveryStatus", "FAILED")
+                                .set("sseError", e.getMessage());
+                        mongoTemplate.updateFirst(query, update, WebhookLog.class);
+                    } catch (Exception persistEx) {
+                        log.error("Failed to persist SSE failure status: logId={}", event.getWebhookLog().getLogId(), persistEx);
+                    } finally {
+                        removeEmitter(endpointId, emitter);
+                    }
                 }
             }
         }
@@ -89,6 +111,7 @@ public class SseEmitterService {
                     try {
                         emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
                     } catch (Exception e) {
+                        log.error("Failed to send heartbeat ping via SSE to endpointId: {}", endpointId, e);
                         removeEmitter(endpointId, emitter);
                     }
                 }, taskExecutor);

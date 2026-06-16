@@ -68,8 +68,8 @@ export async function apiRequest(
         let errorData: unknown;
         try { 
           errorData = JSON.parse(errorBody); 
-        } catch {
-          // ignore parse error
+        } catch (e) {
+          logger.warn('Failed to parse backend custom error response', { error: e, bodyLength: errorBody.length });
         }
         if (
           errorData &&
@@ -87,7 +87,7 @@ export async function apiRequest(
         } else if (response.status === 403) {
           throw new Error('이 페이지를 볼 수 있는 권한이 없어요.');
         } else if (response.status === 404) {
-          throw new Error('요청한 리소스를 찾을 수 없어요.');
+          throw new Error('요청한 페이지나 정보를 찾을 수 없어요.');
         }
         throw new Error(`정보를 불러오지 못했어요 (${response.status}).`);
       }
@@ -99,13 +99,14 @@ export async function apiRequest(
       return response.json();
     } catch (error) {
       clearTimeout(timeoutId);
+      logger.error(`API request failed: [${method}] ${path}`, error);
       if ((error as Error).name === 'AbortError') {
         if (attempt < maxRetries) {
           attempt++;
           await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
           continue;
         }
-        throw new Error('요청 시간이 초과되었어요. 네트워크 상태를 확인해주세요.', { cause: error });
+        throw new Error('응답 시간이 너무 길어요. 인터넷 연결을 확인해주세요.', { cause: error });
       }
       throw error;
     }

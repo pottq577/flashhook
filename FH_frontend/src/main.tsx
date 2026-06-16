@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import './index.css'
 import App from './app/App.tsx'
+import { ErrorBoundary } from './app/ErrorBoundary.tsx'
 
 if (typeof window !== 'undefined') {
   const loadAdSense = () => {
@@ -32,8 +33,10 @@ if (typeof window !== 'undefined') {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
-    <Analytics />
-    <SpeedInsights />
+    <ErrorBoundary>
+      <App />
+      <Analytics />
+      <SpeedInsights />
+    </ErrorBoundary>
   </StrictMode>,
 )

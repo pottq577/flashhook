@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '@/shared/lib/logger';
 import { useCreateEndpointMutation } from '@/entities/endpoint/api/endpoint.queries';
 import Footer from '@/widgets/footer/ui/Footer';
 import { ConsentModal } from '@/widgets/legal/ConsentModal';
@@ -62,6 +63,7 @@ function LandingPage() {
         navigate(`/dashboard/${encodeURIComponent(response.endpointId)}`);
       }, 500);
     } catch (err: unknown) {
+      logger.error('Failed to create endpoint', err);
       setTerminalLines(prev => [...prev, '> Error: Failed to create endpoint']);
       setError(err instanceof Error ? err.message : 'Failed to create endpoint');
       setIsLoading(false);

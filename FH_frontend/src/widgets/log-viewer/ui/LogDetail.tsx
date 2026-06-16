@@ -5,6 +5,7 @@ import PromptModal from '@/shared/ui/PromptModal';
 import { useToastStore } from '@/shared/lib/toast.store';
 import JsonViewer from './JsonViewer';
 import { resolveApiBaseUrl } from '@/shared/config/api';
+import { logger } from '@/shared/lib/logger';
 import styles from './LogDetail.module.css';
 
 interface LogDetailProps {
@@ -44,7 +45,8 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
         await navigator.clipboard.writeText(curlCommand);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-      } catch {
+      } catch (e) {
+        logger.warn('Failed to copy cURL command to clipboard', { error: e });
         setCopied(false);
       }
     };
@@ -97,10 +99,10 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
         { endpointId, logId, destinationUrl },
         {
           onSuccess: () => {
-            addToast(`[Replay] ${destinationUrl} 로 재전송을 요청했어요.`, 3000);
+            addToast(`[Replay] ${destinationUrl} 주소로 다시 보냈어요.`, 3000);
           },
           onError: (err) => {
-            addToast(`[Replay] 재전송에 실패했어요: ${err.message}`, 4000);
+            addToast(`[Replay] 다시 보내지 못했어요: ${err.message}`, 4000);
           }
         }
       );

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from '@/shared/lib/logger';
 import Toast from './Toast';
 import styles from './CopyButton.module.css';
 
@@ -19,7 +20,7 @@ function CopyButton({ text }: { text: string }) {
       setCopied(true);
       setShowToast(true);
     } catch (err) {
-      console.error('Failed to copy text:', err);
+      logger.error('Failed to copy text', err);
     }
   };
 

@@ -20,6 +20,7 @@ public enum ErrorCode {
     ENDPOINT_LIMIT_EXCEEDED(429, "ENDPOINT_LIMIT_EXCEEDED", "엔드포인트 생성 제한을 초과했습니다"),
     PAYLOAD_TOO_LARGE(413, "PAYLOAD_TOO_LARGE", "페이로드 크기가 제한을 초과했습니다"),
     CONCURRENT_MODIFICATION(409, "CONCURRENT_MODIFICATION", "리소스가 다른 사용자에 의해 수정되었습니다"),
+    NOT_FOUND(404, "NOT_FOUND", "요청한 리소스를 찾을 수 없습니다"),
     INTERNAL_ERROR(500, "INTERNAL_ERROR", "서버 내부 오류가 발생했습니다");
 
     private final int status;

@@ -75,7 +75,7 @@ async function run() {
   try {
     // Phase 0
     console.log('--- Phase 0: 사전 점검 ---');
-    let res = await fetch(`${BASE_BE}/api/actuator/health`);
+    let res = await fetch('http://localhost:9090/actuator/health');
     let data = await res.json();
     if (data.status === 'UP') pass('TC-01'); else reportBug('TC-01', 'Critical', 'BE', 'Health check failed', '{"status":"UP"}');
 

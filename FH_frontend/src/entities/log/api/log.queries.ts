@@ -31,7 +31,7 @@ export const useLogDetailQuery = (endpointId: string, logId: string | undefined)
         setSelectedLog(detail);
         return detail;
       } catch (error) {
-        logger.error('Failed to fetch log detail', error);
+        logger.error('Failed to fetch log detail', { endpointId, logId, error });
         throw error;
       }
     },
@@ -51,7 +51,7 @@ export const useDeleteAllLogsMutation = (endpointId: string) => {
       clearLogs();
     },
     onError: (error) => {
-      logger.error('Failed to delete all logs', error);
+      logger.error('Failed to delete all logs', { endpointId, error });
     }
   });
 };
@@ -60,8 +60,13 @@ export const useReplayLogMutation = () => {
   return useMutation({
     mutationFn: ({ endpointId, logId, destinationUrl }: { endpointId: string; logId: string; destinationUrl: string }) => 
       replayLog(endpointId, logId, destinationUrl),
-    onError: (error) => {
-      logger.error('Failed to replay log', error);
+    onError: (error, variables) => {
+      logger.error('Failed to replay log', { 
+        endpointId: variables.endpointId, 
+        logId: variables.logId, 
+        destinationUrl: variables.destinationUrl, 
+        error 
+      });
     }
   });
 };
