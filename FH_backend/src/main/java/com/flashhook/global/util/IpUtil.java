@@ -40,7 +40,7 @@ public final class IpUtil {
             }
         }
 
-        // 유효하지 않은 IP 형식일 경우 원래의 값(공백만 제거) 반환
-        return trimmed;
+        // 유효하지 않은 IP 형식일 경우 예외 발생
+        throw new IllegalArgumentException("Invalid IP format: " + trimmed);
     }
 }
