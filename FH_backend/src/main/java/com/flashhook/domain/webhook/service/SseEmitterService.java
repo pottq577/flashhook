@@ -21,6 +21,9 @@ import java.util.concurrent.Executor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @EnableScheduling
 public class SseEmitterService {
@@ -48,6 +51,7 @@ public class SseEmitterService {
         try {
             emitter.send(SseEmitter.event().name("connect").data("connected"));
         } catch (Exception e) {
+            log.error("SSE initial connect dummy data send failed for endpointId: {}", endpointId, e);
             removeEmitter(endpointId, emitter);
         }
 
@@ -72,6 +76,7 @@ public class SseEmitterService {
                             .name("webhook")
                             .data(response));
                 } catch (Exception e) {
+                    log.error("Failed to send webhook log via SSE to endpointId: {}", endpointId, e);
                     removeEmitter(endpointId, emitter);
                 }
             }
@@ -89,6 +94,7 @@ public class SseEmitterService {
                     try {
                         emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
                     } catch (Exception e) {
+                        log.error("Failed to send heartbeat ping via SSE to endpointId: {}", endpointId, e);
                         removeEmitter(endpointId, emitter);
                     }
                 }, taskExecutor);

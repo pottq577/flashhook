@@ -13,6 +13,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import lombok.extern.slf4j.Slf4j;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.Map;
  * 웹훅 수신 컨트롤러
  * 모든 HTTP 메소드를 수용하여 웹훅 페이로드를 캡처
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/hooks")
 public class WebhookReceiveController {
@@ -90,6 +92,7 @@ public class WebhookReceiveController {
                 }
             }
         } catch (IOException e) {
+            log.error("웹훅 페이로드 수신 중 IOException 발생", e);
             throw new CustomException(ErrorCode.INTERNAL_ERROR);
         }
 
@@ -114,6 +117,7 @@ public class WebhookReceiveController {
         try {
             return java.net.URLDecoder.decode(value, StandardCharsets.UTF_8);
         } catch (IllegalArgumentException e) {
+            log.error("웹훅 수신 중 쿼리 파라미터 URL 디코딩 실패 (value: {})", value, e);
             return value;
         }
     }

@@ -41,6 +41,7 @@ public class MockResponseScheduler {
                 scheduler.shutdownNow();
             }
         } catch (InterruptedException e) {
+            log.error("MockResponseScheduler shutdown interrupted", e);
             scheduler.shutdownNow();
             Thread.currentThread().interrupt();
         }
@@ -104,6 +105,7 @@ public class MockResponseScheduler {
                         .body(mockConfig.getBody());
                 deferredResult.setResult(response);
             } catch (Exception e) {
+                log.error("Internal Server Error processing mock response", e);
                 deferredResult.setErrorResult(
                         ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body("Internal Server Error processing mock response"));

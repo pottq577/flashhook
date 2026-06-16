@@ -138,6 +138,7 @@ public class WebhookLogService {
                         try {
                             return javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier().verify(originalHost, session);
                         } catch (Exception e) {
+                            log.error("HTTPS hostname verification failed for originalHost: {}", originalHost, e);
                             return false;
                         }
                     });
@@ -190,6 +191,7 @@ public class WebhookLogService {
                     || ("https".equalsIgnoreCase(destinationUri.getScheme()) && port == 443);
             headers.add(HttpHeaders.HOST, isDefaultPort ? host : host + ":" + port);
         } catch (URISyntaxException e) {
+            log.error("Failed to parse destination URL for replay: {}", destinationUrl, e);
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
         
@@ -229,6 +231,7 @@ public class WebhookLogService {
             }
             return inetAddress;
         } catch (URISyntaxException | UnknownHostException e) {
+            log.error("Replay destination URL validation failed: {}", destinationUrl, e);
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
     }
