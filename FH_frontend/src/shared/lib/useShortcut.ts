@@ -1,5 +1,12 @@
 import { useEffect, useRef } from 'react';
 
+const listeners = new Set<(e: KeyboardEvent) => void>();
+let isListening = false;
+
+const handleGlobalKeyDown = (e: KeyboardEvent) => {
+  listeners.forEach(cb => cb(e));
+};
+
 export function useShortcut(key: string, callback: () => void, metaKey = true) {
   const callbackRef = useRef(callback);
 
@@ -19,7 +26,19 @@ export function useShortcut(key: string, callback: () => void, metaKey = true) {
         callbackRef.current();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    
+    listeners.add(handleKeyDown);
+    if (!isListening) {
+      window.addEventListener('keydown', handleGlobalKeyDown);
+      isListening = true;
+    }
+    
+    return () => {
+      listeners.delete(handleKeyDown);
+      if (listeners.size === 0 && isListening) {
+        window.removeEventListener('keydown', handleGlobalKeyDown);
+        isListening = false;
+      }
+    };
   }, [key, metaKey]);
 }
