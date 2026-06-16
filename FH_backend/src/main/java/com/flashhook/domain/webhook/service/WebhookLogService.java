@@ -248,7 +248,7 @@ public class WebhookLogService {
                     sanitizeUrlForLog(destinationUrl), endpointId, logId);
 
             Query query = Query.query(Criteria.where("logId").is(logId));
-            Update update = new Update().set("replayStatus", "SUCCESS");
+            Update update = new Update().set("replayStatus", "SUCCESS").unset("replayError");
             mongoTemplate.updateFirst(query, update, WebhookLog.class);
 
         } catch (Exception e) {
