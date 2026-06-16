@@ -99,10 +99,10 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
         { endpointId, logId, destinationUrl },
         {
           onSuccess: () => {
-            addToast(`[Replay] ${destinationUrl} 로 재전송을 요청했어요.`, 3000);
+            addToast(`[Replay] ${destinationUrl} 주소로 다시 보냈어요.`, 3000);
           },
           onError: (err) => {
-            addToast(`[Replay] 재전송에 실패했어요: ${err.message}`, 4000);
+            addToast(`[Replay] 다시 보내지 못했어요: ${err.message}`, 4000);
           }
         }
       );
