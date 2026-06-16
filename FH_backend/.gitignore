@@ -43,3 +43,5 @@ out/
 .env
 .env.*
 !.env.example
+src/main/resources/application-*.yaml
+!src/main/resources/application-*.example.yaml

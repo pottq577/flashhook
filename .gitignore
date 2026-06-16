@@ -19,8 +19,7 @@ node_modules/
 .env
 .env.local
 .env.*.local
-FH_backend/src/main/resources/application-*.yaml
-!FH_backend/src/main/resources/application-*.example.yaml
+
 
 ### Docker ###
 docker-compose.override.yml
