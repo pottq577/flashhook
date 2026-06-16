@@ -15,16 +15,18 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * 웹 MVC 설정
  * CORS 허용 오리진: 로컬 개발환경 + 프로덕션 도메인
  */
+@RequiredArgsConstructor
 @Configuration
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class WebConfig {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
