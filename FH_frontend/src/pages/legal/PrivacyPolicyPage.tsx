@@ -5,7 +5,7 @@ export const PrivacyPolicyPage = () => {
     <div className={styles.legalContainer}>
       <h1 className={styles.title}>개인정보처리방침</h1>
       <p className={styles.paragraph}>
-        FlashHook(이하 "서비스")은 소중한 개인정보를 안전하게 보호하기 위해 관련 법령을 엄격히 준수하고 있어요. 아래 내용은 서비스 이용 시 어떤 데이터가 어떻게 처리되는지 설명하는 공식 방침입니다. 본 방침은 [TODO: 서비스 오픈일 확정 시 기재]부터 시행됩니다.
+        FlashHook(이하 "서비스")은 소중한 개인정보를 안전하게 보호하기 위해 관련 법령을 엄격히 준수하고 있어요. 아래 내용은 서비스 이용 시 어떤 데이터가 어떻게 처리되는지 설명하는 공식 방침입니다. 본 방침은 2026년 6월 16일부터 시행됩니다.
       </p>
 
       <h2 className={styles.sectionTitle}>1. 개인정보의 수집 항목 및 방법</h2>
@@ -41,7 +41,7 @@ export const PrivacyPolicyPage = () => {
         <li className={styles.listItem}>법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우</li>
       </ul>
 
-      <h2 className={styles.sectionTitle}>5. 개인정보 처리위탁 및 국외 이전</h2>
+      <h2 className={styles.sectionTitle}>5. 개인정보 처리위탁</h2>
       <p className={styles.paragraph}>안정적인 서비스 제공을 위해 아래와 같이 외부 클라우드 인프라에 개인정보 처리를 위탁하고 있습니다.</p>
       <ul className={styles.list}>
         <li className={styles.listItem}><strong>프론트엔드 호스팅:</strong> Vercel</li>
@@ -49,9 +49,9 @@ export const PrivacyPolicyPage = () => {
         <li className={styles.listItem}><strong>데이터베이스:</strong> MongoDB Atlas M0</li>
         <li className={styles.listItem}><strong>DNS 및 프록시:</strong> Cloudflare</li>
       </ul>
-      <div className={styles.todoBox}>
-        [TODO: 위탁 업체의 인프라 리전 확정 후 국외 이전 세부 항목(이전되는 국가, 일시, 연락처 등) 명시 필요. 기본적으로 국내 리전을 우선 사용하나, 글로벌 서비스 특성상 국외 법인 위탁 및 데이터 이전이 발생할 수 있습니다.]
-      </div>
+      <p className={styles.paragraph} style={{ marginTop: '1rem' }}>
+        <strong>※ 국외 이전 안내:</strong> 본 서비스는 모든 데이터를 대한민국(Seoul) 리전 내의 데이터베이스에서 안전하게 처리 및 보관하며, 이용자의 개인정보를 국외로 이전하지 않습니다.
+      </p>
 
       <h2 className={styles.sectionTitle}>6. 개인정보 보호책임자</h2>
       <p className={styles.paragraph}>개인정보와 관련된 문의사항은 아래의 연락처로 문의해 주시기 바랍니다.</p>
