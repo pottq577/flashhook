@@ -224,7 +224,8 @@
   background-color: var(--bg-primary);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 10px 16px;
+  padding: 0 16px;
+  height: 42px;
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
@@ -240,13 +241,16 @@
   color: white;
   border: none;
   border-radius: var(--radius-md);
-  padding: 10px 20px;
+  padding: 0 20px;
+  height: 42px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   transition: background-color 0.2s;
+  white-space: nowrap;
 }
 
 .submitBtn:hover:not(:disabled) {
