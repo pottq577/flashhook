@@ -51,7 +51,7 @@ export const adminApi = {
   },
 
   deleteEndpoint: async (endpointId: string): Promise<void> => {
-    const res = await fetch(`${API_BASE_URL}/admin/endpoints/${endpointId}`, {
+    const res = await fetch(`${API_BASE_URL}/admin/endpoints/${encodeURIComponent(endpointId)}`, {
       method: 'DELETE',
       headers: getHeaders(),
     });
