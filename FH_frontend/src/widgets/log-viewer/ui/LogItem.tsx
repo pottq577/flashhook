@@ -6,12 +6,12 @@ import { memo } from 'react';
 interface LogItemProps {
   log: WebhookLog & { _timeString?: string; _contentType?: string };
   isSelected: boolean;
-  onClick: () => void;
+  onSelect: (logId: string) => void;
 }
 
 const timeFormatter = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
-const LogItem = memo(({ log, isSelected, onClick }: LogItemProps) => {
+const LogItem = memo(({ log, isSelected, onSelect }: LogItemProps) => {
   const timeString = log._timeString ?? (() => {
     const d = new Date(log.receivedAt);
     return !isNaN(d.getTime()) ? timeFormatter.format(d) : 'Invalid time';
@@ -24,11 +24,11 @@ const LogItem = memo(({ log, isSelected, onClick }: LogItemProps) => {
       tabIndex={0}
       data-testid="log-item"
       className={`${styles.container} ${isSelected ? styles.selected : ''}`}
-      onClick={onClick}
+      onClick={() => onSelect(log.logId)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          onClick();
+          onSelect(log.logId);
         }
       }}
     >

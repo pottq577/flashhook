@@ -38,16 +38,33 @@ function DashboardPage() {
   const { status } = useRealtimeLogs(endpointId);
   const addEndpoint = useEndpointStore((state) => state.addEndpoint);
 
+  const handleSelectLog = useCallback((logId: string) => {
+    const log = useLogStore.getState().logMap[logId];
+    setSelectedLog({
+      logId,
+      method: log?.method ?? '',
+      contentType: log?.contentType ?? null,
+      clientIp: log?.clientIp ?? '',
+      bodyPreview: log?.bodyPreview ?? '',
+      bodySize: log?.bodySize ?? 0,
+      receivedAt: log?.receivedAt ?? '',
+      url: '',
+      headers: {},
+      queryParams: {},
+      body: null,
+    });
+  }, [setSelectedLog]);
+
   useEffect(() => {
     if (endpointId && endpoint?.expiresAt) {
       addEndpoint(endpointId, endpoint.expiresAt);
     }
   }, [endpointId, endpoint?.expiresAt, addEndpoint]);
 
-  if (!endpointId) return <div className={styles.center}><p>엔드포인트 ID가 맞지 않아요</p><a href="/" className={styles.btnAction}>홈으로 돌아가기</a></div>;
-  if (isLoading) return <div className={styles.center}><div className={styles.spinner}></div><p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>데이터를 불러오고 있어요…</p></div>;
-  if (error) return <div className={styles.center}><div className="errorBox">⚠️ 문제가 생겼어요.<br/><br/><span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{(error as Error).message}</span></div><button className={styles.btnAction} onClick={() => window.location.reload()}>다시 시도하기</button></div>;
-  if (!endpoint) return <div className={styles.center}><p>엔드포인트를 찾을 수 없어요</p><a href="/" className={styles.btnAction}>홈으로 돌아가기</a></div>;
+  if (!endpointId) return <div className={styles.container}><Header /><div className={styles.center}><p>엔드포인트 ID가 맞지 않아요</p><a href="/" className={styles.btnAction}>홈으로 돌아가기</a></div></div>;
+  if (isLoading) return <div className={styles.container}><Header /><div className={styles.center}><div className={styles.spinner}></div><p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>데이터를 불러오고 있어요…</p></div></div>;
+  if (error) return <div className={styles.container}><Header /><div className={styles.center}><div className="errorBox">⚠️ 문제가 생겼어요.<br/><br/><span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{(error as Error).message}</span></div><button className={styles.btnAction} onClick={() => window.location.reload()}>다시 시도하기</button></div></div>;
+  if (!endpoint) return <div className={styles.container}><Header /><div className={styles.center}><p>엔드포인트를 찾을 수 없어요</p><a href="/" className={styles.btnAction}>홈으로 돌아가기</a></div></div>;
 
   return (
     <div className={styles.container}>
@@ -63,22 +80,7 @@ function DashboardPage() {
           <LogList 
             logs={logs} 
             selectedLogId={selectedLog?.logId || null} 
-            onSelect={(logId) => {
-              const log = useLogStore.getState().logMap[logId];
-              setSelectedLog({
-                logId,
-                method: log?.method ?? '',
-                contentType: log?.contentType ?? null,
-                clientIp: log?.clientIp ?? '',
-                bodyPreview: log?.bodyPreview ?? '',
-                bodySize: log?.bodySize ?? 0,
-                receivedAt: log?.receivedAt ?? '',
-                url: '',
-                headers: {},
-                queryParams: {},
-                body: null,
-              });
-            }} 
+            onSelect={handleSelectLog} 
             endpointId={endpointId}
           />
         </section>

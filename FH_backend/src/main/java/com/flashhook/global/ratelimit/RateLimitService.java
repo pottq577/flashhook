@@ -20,6 +20,9 @@ public class RateLimitService {
     @Value("${flashhook.ratelimit.fail-open:true}")
     private boolean failOpen;
 
+    @Value("${flashhook.ratelimit.blacklist-fail-open:false}")
+    private boolean blacklistFailOpen;
+
     private final RedisTemplate<String, String> redisTemplate;
 
     private static final String LUA_SCRIPT = 
@@ -56,6 +59,19 @@ public class RateLimitService {
         } catch (Exception e) {
             log.warn("Rate limit Redis error. key={}", key, e);
             return failOpen;
+        }
+    }
+
+    /**
+     * IP 블랙리스트 여부 확인
+     */
+    public boolean isBlacklisted(String ip) {
+        if (ip == null || ip.isBlank()) return false;
+        try {
+            return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:ip:" + ip));
+        } catch (Exception e) {
+            log.warn("Blacklist Redis check error. ip={}", ip, e);
+            return !blacklistFailOpen;
         }
     }
 }

@@ -49,12 +49,19 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
+        String clientIp = request.getRemoteAddr();
+
+        // 0. 블랙리스트 체크 (가장 먼저)
+        if (rateLimitService.isBlacklisted(clientIp)) {
+            sendErrorResponse(response, ErrorCode.FORBIDDEN);
+            return;
+        }
+
         // 1. 웹훅 수신 API (ANY /api/hooks/{endpointId})
         if (path.startsWith("/api/hooks/")) {
             String[] parts = path.split("/");
             if (parts.length >= 4) {
                 String endpointId = parts[3];
-                String clientIp = request.getRemoteAddr();
                 String key = "rl:hook:" + endpointId + ":" + clientIp;
                 // 1분(60초) 기준
                 if (!rateLimitService.isAllowed(key, webhookReceiveLimit, 60)) {
@@ -66,7 +73,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         // 2. 엔드포인트 생성 API (POST /api/endpoints)
         if ("POST".equalsIgnoreCase(method) && "/api/endpoints".equals(path)) {
-            String clientIp = request.getRemoteAddr();
             String key = CREATE_LIMIT_PREFIX + clientIp;
             // 10분(600초) 기준
             if (!rateLimitService.isAllowed(key, endpointCreateLimit, 10 * 60)) {

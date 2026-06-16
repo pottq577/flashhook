@@ -42,6 +42,8 @@ public class Endpoint implements Serializable {
 
     private int logCount;
 
+    private int totalLogCount;
+
     private long logSizeBytes;
 
     @Indexed(expireAfter = "PT24H")
@@ -54,6 +56,7 @@ public class Endpoint implements Serializable {
 
     public void incrementLogStats(long sizeBytes) {
         this.logCount += 1;
+        this.totalLogCount += 1;
         this.logSizeBytes += sizeBytes;
     }
 

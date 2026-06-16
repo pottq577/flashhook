@@ -3,18 +3,39 @@
 ### OS ###
 .DS_Store
 Thumbs.db
+*.sw?
 
-### IDE ###
+### IDE: Global ###
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 *.iml
 *.iws
 *.ipr
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+### Dependencies & Caches ###
+node_modules/
+.mcp-memory/
+
+### Logs ###
+ci.log
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 ### 환경 변수 / 시크릿 ###
 .env
-.env.local
-.env.*.local
+.env.*
+*.local
+!.env.example
 
 ### Docker ###
 docker-compose.override.yml
@@ -23,15 +44,6 @@ docker-compose.override.yml
 toyproject.md
 docs/review/*
 
-### Memory MCP ###
-ci.log
-
-### 추가 보호 대상 (보안 점검 리포트 후속 조치) ###
-node_modules/
-.mcp-memory/
-FH_backend/src/main/resources/application-*.yaml
-!FH_backend/src/main/resources/application-*.example.yaml
-
-### QA Reports ###
-docs/qa/qa-report-full.md
-docs/qa/bugs.md
+### QA Reports & Scripts ###
+docs/qa/*
+!docs/qa/qa-runner-full.mjs

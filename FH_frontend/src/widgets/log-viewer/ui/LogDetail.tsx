@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useLogDetailQuery, useReplayLogMutation } from '@/entities/log/api/log.queries';
 import MethodBadge from '@/shared/ui/MethodBadge';
 import PromptModal from '@/shared/ui/PromptModal';
@@ -13,7 +13,7 @@ interface LogDetailProps {
   endpointId?: string;
 }
 
-function LogDetail({ logId, endpointId }: LogDetailProps) {
+const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps) {
   const { data: log, isLoading } = useLogDetailQuery(endpointId || '', logId);
   const replayMutation = useReplayLogMutation();
   const addToast = useToastStore((state) => state.addToast);
@@ -188,6 +188,6 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
       />
     </div>
   );
-}
+});
 
 export default LogDetail;

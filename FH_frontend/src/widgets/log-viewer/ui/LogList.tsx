@@ -1,6 +1,6 @@
 import type { WebhookLog } from '@/entities/log/model/log.schema';
 import { Virtuoso } from 'react-virtuoso';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { useDeleteAllLogsMutation } from '@/entities/log/api/log.queries';
 import LogItem from './LogItem';
 import styles from './LogList.module.css';
@@ -15,7 +15,7 @@ interface LogListProps {
   endpointId?: string;
 }
 
-function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
+const LogList = memo(function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
   const [search, setSearch] = useState('');
   const [method, setMethod] = useState('ALL');
   const [isMethodDropdownOpen, setIsMethodDropdownOpen] = useState(false);
@@ -64,6 +64,7 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
             placeholder="Search payload..." 
             value={search} 
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="로그 페이로드 검색"
             className={styles.searchInput}
           />
           <div className={styles.dropdownWrapper}>
@@ -117,7 +118,7 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
               <LogItem 
                 log={log} 
                 isSelected={selectedLogId === log.logId} 
-                onClick={() => onSelect(log.logId)} 
+                onSelect={onSelect} 
               />
             </div>
           )}
@@ -133,6 +134,6 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
       />
     </div>
   );
-}
+});
 
 export default LogList;

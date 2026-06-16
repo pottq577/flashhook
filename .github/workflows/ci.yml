@@ -28,12 +28,16 @@ jobs:
 
     - name: Build Backend (Run Unit Tests)
       working-directory: ./FH_backend
+      env:
+        FLASHHOOK_ADMIN_SECRET_KEY: test_secret_key
       run: |
         chmod +x gradlew
         ./gradlew build
 
     - name: Start Backend Server
       working-directory: ./FH_backend
+      env:
+        FLASHHOOK_ADMIN_SECRET_KEY: test_secret_key
       run: |
         nohup java -jar $(find build/libs -name "*.jar" ! -name "*-plain.jar" | head -n 1) > backend.log 2>&1 &
         BACKEND_PID=$!
