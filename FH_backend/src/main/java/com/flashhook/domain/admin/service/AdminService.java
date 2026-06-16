@@ -43,9 +43,8 @@ public class AdminService {
         countQuery.addCriteria(Criteria.where("createdAt").gte(startOfDay));
         long endpointsToday = mongoTemplate.count(countQuery, Endpoint.class);
 
-        // 누적 웹훅 수
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.group().sum("logCount").as("totalWebhooks")
+                Aggregation.group().sum("totalLogCount").as("totalWebhooks")
         );
         AggregationResults<Map> results = mongoTemplate.aggregate(agg, "endpoints", Map.class);
         long totalWebhooks = 0;
@@ -80,16 +79,30 @@ public class AdminService {
     }
 
     public void blacklistIp(String ip) {
-        redisTemplate.opsForValue().set(BLACKLIST_PREFIX + ip, "BLOCKED");
+        String normalizedIp = normalizeIp(ip);
+        redisTemplate.opsForValue().set(BLACKLIST_PREFIX + normalizedIp, "BLOCKED");
     }
 
     public void removeBlacklistIp(String ip) {
-        redisTemplate.delete(BLACKLIST_PREFIX + ip);
+        String normalizedIp = normalizeIp(ip);
+        redisTemplate.delete(BLACKLIST_PREFIX + normalizedIp);
+    }
+
+    private String normalizeIp(String ip) {
+        if (ip == null || ip.trim().isEmpty()) {
+            throw new IllegalArgumentException("ip must not be blank");
+        }
+        return ip.trim();
     }
 
     public List<String> getBlacklistedIps() {
-        Set<String> keys = redisTemplate.keys(BLACKLIST_PREFIX + "*");
-        if (keys == null || keys.isEmpty()) return List.of();
+        Set<String> keys = new java.util.HashSet<>();
+        try (org.springframework.data.redis.core.Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().keyCommands().scan(org.springframework.data.redis.core.ScanOptions.scanOptions().match(BLACKLIST_PREFIX + "*").build())) {
+            while (cursor.hasNext()) {
+                keys.add(new String(cursor.next()));
+            }
+        }
+        if (keys.isEmpty()) return List.of();
         return keys.stream()
                 .map(k -> k.replace(BLACKLIST_PREFIX, ""))
                 .collect(Collectors.toList());
