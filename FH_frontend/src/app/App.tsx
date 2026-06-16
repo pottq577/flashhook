@@ -3,7 +3,7 @@ import { lazy, Suspense } from "react";
 import { logger } from "@/shared/lib/logger";
 import { QueryProvider } from "./providers/QueryProvider";
 import { ToastContainer } from "@/shared/ui/ToastContainer";
-import { CookieBanner } from "@/widgets/legal/CookieBanner";
+import { CookieBanner } from "@/widgets/legal";
 
 import LandingPage from "@/pages/landing/ui/LandingPage";
 

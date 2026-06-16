@@ -1,12 +1,12 @@
-import { AdminMetricsWidget } from "@/widgets/admin/ui/AdminMetricsWidget";
-import { AdminAbuserTable } from "@/widgets/admin/ui/AdminAbuserTable";
-import { AdminBlacklistManager } from "@/widgets/admin/ui/AdminBlacklistManager";
-import { AdminInfrastructureWidget } from "@/widgets/admin/ui/AdminInfrastructureWidget";
-import { useAdminStore } from "@/entities/admin/model/adminStore";
+import { AdminMetricsWidget } from "@/widgets/admin";
+import { AdminAbuserTable } from "@/widgets/admin";
+import { AdminBlacklistManager } from "@/widgets/admin";
+import { AdminInfrastructureWidget } from "@/widgets/admin";
+import { useAdminStore } from "@/entities/admin";
 import { LogOut, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { adminKeys } from "@/entities/admin/api/useAdminQueries";
+import { adminKeys } from "@/entities/admin";
 import styles from "./AdminDashboardPage.module.css";
 
 export const AdminDashboardPage = () => {

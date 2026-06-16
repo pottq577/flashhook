@@ -1,7 +1,7 @@
-import type { WebhookLog } from "@/entities/log/model/log.schema";
+import type { WebhookLog } from "@/entities/log";
 import { Virtuoso } from "react-virtuoso";
 import { useState, useMemo, memo } from "react";
-import { useDeleteAllLogsMutation } from "@/entities/log/api/log.queries";
+import { useDeleteAllLogsMutation } from "@/entities/log";
 import LogItem from "./LogItem";
 import styles from "./LogList.module.css";
 import ConfirmModal from "@/shared/ui/ConfirmModal";

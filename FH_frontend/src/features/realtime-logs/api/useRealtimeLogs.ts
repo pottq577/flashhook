@@ -1,8 +1,8 @@
-import { useSSE } from "@/entities/log/api/useSSE";
-import { useLogStore } from "@/entities/log/model/log.store";
+import { useSSE } from "@/entities/log";
+import { useLogStore } from "@/entities/log";
 import { useToastStore } from "@/shared/lib/toast.store";
 import { useCallback } from "react";
-import type { WebhookLog } from "@/entities/log/model/log.schema";
+import type { WebhookLog } from "@/entities/log";
 
 export function useRealtimeLogs(endpointId: string | undefined) {
   const addLog = useLogStore((state) => state.addLog);

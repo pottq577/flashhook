@@ -1,4 +1,4 @@
-import { useAdminMetrics } from "@/entities/admin/api/useAdminQueries";
+import { useAdminMetrics } from "@/entities/admin";
 import { motion } from "framer-motion";
 import { RefreshCw, Users, Server, Activity } from "lucide-react";
 import { useEffect, useState } from "react";

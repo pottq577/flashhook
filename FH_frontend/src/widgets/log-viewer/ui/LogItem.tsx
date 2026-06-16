@@ -1,4 +1,4 @@
-import type { WebhookLog } from "@/entities/log/model/log.schema";
+import type { WebhookLog } from "@/entities/log";
 import MethodBadge from "@/shared/ui/MethodBadge";
 import styles from "./LogItem.module.css";
 import { memo } from "react";

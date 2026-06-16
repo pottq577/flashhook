@@ -4,7 +4,7 @@ import {
   useAdminBlacklist,
   useAddBlacklistMutation,
   useRemoveBlacklistMutation,
-} from "@/entities/admin/api/useAdminQueries";
+} from "@/entities/admin";
 import { ShieldAlert, Trash2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import styles from "./AdminWidgets.module.css";

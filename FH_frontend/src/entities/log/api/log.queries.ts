@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { getLogs, getLogDetail, deleteAllLogs, replayLog } from './log.api';
-import { useLogStore } from '@/entities/log/model/log.store';
+import { useLogStore } from "@/entities/log";
 import { logger } from '@/shared/lib/logger';
 import { queryClient } from '@/shared/lib/queryClient';
 

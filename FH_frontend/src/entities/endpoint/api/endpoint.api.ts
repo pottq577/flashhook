@@ -4,7 +4,7 @@ import {
   EndpointCreateResponseSchema,
   type Endpoint,
   type EndpointCreateResponse,
-} from "@/entities/endpoint/model/endpoint.schema";
+} from "@/entities/endpoint";
 
 export async function createEndpoint(
   label?: string,
