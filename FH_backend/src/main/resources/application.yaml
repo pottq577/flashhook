@@ -55,11 +55,13 @@ flashhook:
 
 # Actuator (Healthcheck & Metrics)
 management:
+  server:
+    port: 9090
   endpoints:
     web:
       exposure:
         include: health, prometheus
-      base-path: /api/actuator
+      base-path: /actuator
   endpoint:
     health:
-      show-details: when_authorized
+      show-details: always
