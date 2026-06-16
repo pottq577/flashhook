@@ -5,14 +5,18 @@ import { AdminInfrastructureWidget } from '@/widgets/admin/ui/AdminInfrastructur
 import { useAdminStore } from '@/entities/admin/model/adminStore';
 import { LogOut, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { adminKeys } from '@/entities/admin/api/useAdminQueries';
 import styles from './AdminDashboardPage.module.css';
 
 export const AdminDashboardPage = () => {
   const logout = useAdminStore(state => state.logout);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleLogout = () => {
     logout();
+    queryClient.removeQueries({ queryKey: adminKeys.all });
     navigate('/');
   };
 

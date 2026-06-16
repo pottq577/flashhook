@@ -6,15 +6,17 @@ const POLLING_INTERVAL = 30000;
 
 export const adminKeys = {
   all: ['admin'] as const,
-  metrics: () => [...adminKeys.all, 'metrics'] as const,
-  suspicious: () => [...adminKeys.all, 'suspicious'] as const,
-  blacklist: () => [...adminKeys.all, 'blacklist'] as const,
+  metrics: (token: string | null) => [...adminKeys.all, 'metrics', token] as const,
+  suspicious: (token: string | null) => [...adminKeys.all, 'suspicious', token] as const,
+  blacklist: (token: string | null) => [...adminKeys.all, 'blacklist', token] as const,
+  suspiciousAll: () => [...adminKeys.all, 'suspicious'] as const,
+  blacklistAll: () => [...adminKeys.all, 'blacklist'] as const,
 };
 
 export const useAdminMetrics = () => {
   const token = useAdminStore((state) => state.adminToken);
   return useQuery({
-    queryKey: adminKeys.metrics(),
+    queryKey: adminKeys.metrics(token),
     queryFn: adminApi.getMetrics,
     refetchInterval: POLLING_INTERVAL,
     enabled: !!token,
@@ -24,7 +26,7 @@ export const useAdminMetrics = () => {
 export const useAdminSuspiciousEndpoints = () => {
   const token = useAdminStore((state) => state.adminToken);
   return useQuery({
-    queryKey: adminKeys.suspicious(),
+    queryKey: adminKeys.suspicious(token),
     queryFn: adminApi.getSuspiciousEndpoints,
     refetchInterval: POLLING_INTERVAL,
     enabled: !!token,
@@ -34,7 +36,7 @@ export const useAdminSuspiciousEndpoints = () => {
 export const useAdminBlacklist = () => {
   const token = useAdminStore((state) => state.adminToken);
   return useQuery({
-    queryKey: adminKeys.blacklist(),
+    queryKey: adminKeys.blacklist(token),
     queryFn: adminApi.getBlacklistedIps,
     refetchInterval: POLLING_INTERVAL,
     enabled: !!token,
@@ -46,7 +48,7 @@ export const useDeleteEndpointMutation = () => {
   return useMutation({
     mutationFn: adminApi.deleteEndpoint,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.suspicious() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.suspiciousAll() });
     },
   });
 };
@@ -56,7 +58,7 @@ export const useAddBlacklistMutation = () => {
   return useMutation({
     mutationFn: adminApi.blacklistIp,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.blacklist() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.blacklistAll() });
     },
   });
 };
@@ -66,7 +68,7 @@ export const useRemoveBlacklistMutation = () => {
   return useMutation({
     mutationFn: adminApi.removeBlacklistedIp,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.blacklist() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.blacklistAll() });
     },
   });
 };
