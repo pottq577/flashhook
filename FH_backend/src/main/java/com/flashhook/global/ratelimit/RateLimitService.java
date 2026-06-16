@@ -68,7 +68,8 @@ public class RateLimitService {
     public boolean isBlacklisted(String ip) {
         if (ip == null || ip.isBlank()) return false;
         try {
-            return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:ip:" + ip));
+            String normalizedIp = ip.trim();
+            return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:ip:" + normalizedIp));
         } catch (Exception e) {
             log.warn("Blacklist Redis check error. ip={}", ip, e);
             return !blacklistFailOpen;
