@@ -31,6 +31,10 @@
   outline: none;
   border-color: var(--primary, #3b82f6);
 }
+.searchInput:focus-visible {
+  outline: 2px solid var(--primary, #3b82f6);
+  outline-offset: 2px;
+}
 .dropdownWrapper {
   width: 110px;
   flex-shrink: 0;
