@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useEndpointQuery } from '@/entities/endpoint/api/endpoint.queries';
 import { useLogsQuery } from '@/entities/log/api/log.queries';
-import { useRealtimeLogs } from '@/features/realtime-logs';
+import { useRealtimeLogs } from '@/features/realtime-logs/api/useRealtimeLogs';
 import { useLogStore } from '@/entities/log/model/log.store';
 import { useEndpointStore } from '@/entities/endpoint/model/endpoint.store';
 import { useIsMobile } from '@/shared/lib/useIsMobile';
@@ -15,7 +15,7 @@ import ConnectionStatus from '@/widgets/endpoint-info/ui/ConnectionStatus';
 import LogList from '@/widgets/log-viewer/ui/LogList';
 import LogDetail from '@/widgets/log-viewer/ui/LogDetail';
 import { lazy, Suspense } from 'react';
-import { AdBanner } from '@/shared/ui/AdBanner';
+import { AdBanner } from '@/shared/ui/AdBanner/AdBanner';
 import styles from './DashboardPage.module.css';
 
 const MockConfigPanel = lazy(() => import('@/widgets/mock-config/ui/MockConfigPanel'));
@@ -84,7 +84,7 @@ function DashboardPage() {
         </section>
         
         {/* Desktop Detail View */}
-        {!isMobile && (
+        {!isMobile ? (
           <section className={styles.content}>
             <motion.div layout className={styles.logDetailWrapper} style={{ flex: 1, minWidth: 0 }}>
               <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
@@ -97,7 +97,7 @@ function DashboardPage() {
             </motion.div>
 
             <AnimatePresence initial={false}>
-              {isMockPanelOpen && (
+              {isMockPanelOpen ? (
                 <motion.div 
                   className={styles.mockSidebarContainer}
                   initial={{ scaleX: 0, opacity: 0, originX: 1 }}
@@ -119,14 +119,14 @@ function DashboardPage() {
                     </div>
                   </div>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           </section>
-        )}
+        ) : null}
 
         {/* Mobile Bottom Sheet Detail View */}
         <AnimatePresence initial={false}>
-          {isMobile && selectedLog && (
+          {isMobile && selectedLog ? (
             <>
               <motion.button
                 type="button"
@@ -175,7 +175,7 @@ function DashboardPage() {
                 </div>
               </motion.div>
             </>
-          )}
+          ) : null}
         </AnimatePresence>
       </main>
     </div>
