@@ -1,5 +1,5 @@
 import { apiRequest } from '@/shared/api/client';
-import { LogsResponseSchema, WebhookLogDetailSchema, type LogsResponse, type WebhookLogDetail } from "@/entities/log";
+import { LogsResponseSchema, WebhookLogDetailSchema, type LogsResponse, type WebhookLogDetail } from "../model/log.schema";
 
 export async function getLogs(
   endpointId: string,
