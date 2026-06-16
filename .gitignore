@@ -3,23 +3,39 @@
 ### OS ###
 .DS_Store
 Thumbs.db
+*.sw?
 
-### IDE ###
+### IDE: Global ###
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 *.iml
 *.iws
 *.ipr
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
 ### Dependencies & Caches ###
 node_modules/
 .mcp-memory/
 
+### Logs ###
+ci.log
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
 ### 환경 변수 / 시크릿 ###
 .env
-.env.local
-.env.*.local
-
+.env.*
+*.local
+!.env.example
 
 ### Docker ###
 docker-compose.override.yml
@@ -31,6 +47,3 @@ docs/review/*
 ### QA Reports & Scripts ###
 docs/qa/*
 !docs/qa/qa-runner-full.mjs
-
-### Logs ###
-ci.log

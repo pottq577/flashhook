@@ -21,10 +21,6 @@ bin/
 !**/src/test/**/bin/
 
 ### IDE: IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
@@ -36,12 +32,6 @@ out/
 /nbdist/
 /.nb-gradle/
 
-### IDE: VS Code ###
-.vscode/
-
 ### 환경 변수 / 시크릿 ###
-.env
-.env.*
-!.env.example
 src/main/resources/application-*.yaml
 !src/main/resources/application-*.example.yaml
