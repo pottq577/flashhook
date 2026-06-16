@@ -18,6 +18,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import com.flashhook.domain.webhook.model.WebhookLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
 
@@ -30,9 +35,11 @@ public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
     private final Executor taskExecutor;
+    private final MongoTemplate mongoTemplate;
 
-    public SseEmitterService(@Qualifier("taskExecutor") Executor taskExecutor) {
+    public SseEmitterService(@Qualifier("taskExecutor") Executor taskExecutor, MongoTemplate mongoTemplate) {
         this.taskExecutor = taskExecutor;
+        this.mongoTemplate = mongoTemplate;
     }
 
     /**
@@ -77,6 +84,9 @@ public class SseEmitterService {
                             .data(response));
                 } catch (Exception e) {
                     log.error("Failed to send webhook log via SSE to endpointId: {}", endpointId, e);
+                    Query query = Query.query(Criteria.where("logId").is(event.getWebhookLog().getLogId()));
+                    Update update = new Update().set("sseDeliveryStatus", "FAILED").set("sseError", e.getMessage());
+                    mongoTemplate.updateFirst(query, update, WebhookLog.class);
                     removeEmitter(endpointId, emitter);
                 }
             }

@@ -93,7 +93,7 @@ public class WebhookService {
                 .receivedAt(Instant.now())
                 .build();
         webhookLogRepository.save(java.util.Objects.requireNonNull(log));
-        log.info("Webhook received and saved: endpointId={}, logId={}, method={}, size={}", endpointId, log.getLogId(), payload.getMethod(), payload.getBodySize());
+        WebhookService.log.info("Webhook received and saved: endpointId={}, logId={}, method={}, size={}", endpointId, log.getLogId(), payload.getMethod(), payload.getBodySize());
 
         // 7. 엔드포인트 카운터 업데이트 (Atomic)
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));

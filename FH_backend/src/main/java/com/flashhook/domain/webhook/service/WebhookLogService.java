@@ -205,8 +205,16 @@ public class WebhookLogService {
                 String.class
             );
             log.info("Webhook replayed successfully: destinationUrl={}, endpointId={}, logId={}", destinationUrl, endpointId, logId);
+            
+            Query query = Query.query(Criteria.where("logId").is(logId));
+            Update update = new Update().set("replayStatus", "SUCCESS");
+            mongoTemplate.updateFirst(query, update, WebhookLog.class);
+            
         } catch (Exception e) {
             log.warn("웹훅 재전송 실패: destinationUrl={}, logId={}", destinationUrl, logId, e);
+            Query query = Query.query(Criteria.where("logId").is(logId));
+            Update update = new Update().set("replayStatus", "FAILED").set("replayError", e.getMessage());
+            mongoTemplate.updateFirst(query, update, WebhookLog.class);
             throw new CustomException(ErrorCode.INTERNAL_ERROR);
         }
     }
