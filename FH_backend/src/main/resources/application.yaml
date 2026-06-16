@@ -19,7 +19,7 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: local_redis_password
+      password: ${REDIS_PASSWORD:local_redis_password}
 
   # 업로드 사이즈 제한 (방어 로직)
   servlet:
