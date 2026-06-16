@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import styles from './AdminWidgets.module.css';
 
 export const AdminAbuserTable = () => {
-  const { data, isLoading } = useAdminSuspiciousEndpoints();
+  const { data, isLoading, isError } = useAdminSuspiciousEndpoints();
   const deleteMutation = useDeleteEndpointMutation();
 
   const handleDelete = (endpointId: string) => {
@@ -38,6 +38,12 @@ export const AdminAbuserTable = () => {
               <tr>
                 <td colSpan={5} className={styles.emptyState}>
                   데이터를 불러오는 중...
+                </td>
+              </tr>
+            ) : isError ? (
+              <tr>
+                <td colSpan={5} className={styles.emptyState} style={{ color: 'var(--danger)' }}>
+                  데이터를 불러오는데 실패했습니다.
                 </td>
               </tr>
             ) : !data || data.length === 0 ? (
