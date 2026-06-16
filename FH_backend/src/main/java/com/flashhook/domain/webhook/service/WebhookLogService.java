@@ -298,7 +298,7 @@ public class WebhookLogService {
                 throw new CustomException(ErrorCode.FORBIDDEN);
             }
             return inetAddress;
-        } catch (URISyntaxException | UnknownHostException e) {
+        } catch (URISyntaxException | UnknownHostException | NullPointerException e) {
             log.error("Replay destination URL validation failed: {}", sanitizeUrlForLog(destinationUrl), e);
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
