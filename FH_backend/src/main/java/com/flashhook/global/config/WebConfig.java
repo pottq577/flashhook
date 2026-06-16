@@ -29,7 +29,7 @@ public class WebConfig {
 
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
-        List<String> origins = new ArrayList<>(List.of("https://flashhook.site"));
+        List<String> origins = new ArrayList<>(List.of("https://flashhook.site", "https://www.flashhook.site"));
 
         if (Arrays.asList(environment.getActiveProfiles()).contains("local")
                 || Arrays.asList(environment.getActiveProfiles()).contains("test")) {
