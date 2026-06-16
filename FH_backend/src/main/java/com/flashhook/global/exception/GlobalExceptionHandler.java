@@ -97,14 +97,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException e, HttpServletRequest request) {
         if (isSseRequest(request)) {
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.status(ErrorCode.NOT_FOUND.getStatus()).build();
         }
         return ResponseEntity
-                .status(404)
+                .status(ErrorCode.NOT_FOUND.getStatus())
                 .body(ErrorResponse.builder()
-                        .code("NOT_FOUND")
-                        .message("요청한 리소스를 찾을 수 없습니다.")
-                        .status(404)
+                        .code(ErrorCode.NOT_FOUND.getCode())
+                        .message(ErrorCode.NOT_FOUND.getMessage())
+                        .status(ErrorCode.NOT_FOUND.getStatus())
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
                         .build());
