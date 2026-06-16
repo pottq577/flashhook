@@ -35,3 +35,5 @@ FH_backend/src/main/resources/application-*.yaml
 ### QA Reports ###
 docs/qa/qa-report-full.md
 docs/qa/bugs.md
+docs/qa/*.js
+docs/qa/*.mjs
