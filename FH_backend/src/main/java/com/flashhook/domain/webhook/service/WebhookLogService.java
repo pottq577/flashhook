@@ -107,14 +107,14 @@ public class WebhookLogService {
      * 로그 상세 조회
      */
     public WebhookLogDetailResponse getLogDetail(String endpointId, String logId) {
-        WebhookLog log = webhookLogRepository.findByLogId(logId)
+        WebhookLog webhookLog = webhookLogRepository.findByLogId(logId)
                 .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
 
-        if (!log.getEndpointId().equals(endpointId)) {
+        if (!webhookLog.getEndpointId().equals(endpointId)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        return WebhookLogDetailResponse.from(log);
+        return WebhookLogDetailResponse.from(webhookLog);
     }
 
     /**

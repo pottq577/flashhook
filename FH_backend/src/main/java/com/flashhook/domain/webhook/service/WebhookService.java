@@ -83,7 +83,7 @@ public class WebhookService {
         // 5. Capped Collection 로직은 DB 저장 후 처리 (원자적 카운트 이후)
 
         // 6. DB 저장
-        WebhookLog log = WebhookLog.builder()
+        WebhookLog webhookLog = WebhookLog.builder()
                 .logId(UUID.randomUUID().toString().replace("-", ""))
                 .endpointId(endpointId)
                 .method(payload.getMethod())
@@ -97,9 +97,9 @@ public class WebhookService {
                 .bodySize(payload.getBodySize())
                 .receivedAt(Instant.now())
                 .build();
-        webhookLogRepository.save(Objects.requireNonNull(log));
+        webhookLogRepository.save(Objects.requireNonNull(webhookLog));
         WebhookService.log.info("Webhook received and saved: endpointId={}, logId={}, method={}, size={}", endpointId,
-                log.getLogId(), payload.getMethod(), payload.getBodySize());
+                webhookLog.getLogId(), payload.getMethod(), payload.getBodySize());
 
         meterRegistry.counter("flashhook.webhook.received.total").increment();
 
@@ -118,7 +118,7 @@ public class WebhookService {
         }
 
         // 8. 이벤트 발행 (SSE 전파용)
-        eventPublisher.publishEvent(new WebhookReceivedEvent(log));
+        eventPublisher.publishEvent(new WebhookReceivedEvent(webhookLog));
 
         return endpoint.getMockConfig() != null ? endpoint.getMockConfig() : new MockConfig();
     }
@@ -145,14 +145,14 @@ public class WebhookService {
 
             List<String> idsToRemove = new ArrayList<>();
 
-            for (WebhookLog log : oldLogs) {
+            for (WebhookLog webhookLogItem : oldLogs) {
                 if (currentCount <= maxLogCount && currentSize <= maxLogSizeBytes) {
                     break;
                 }
-                idsToRemove.add(log.getId());
+                idsToRemove.add(webhookLogItem.getId());
 
                 currentCount--;
-                currentSize -= log.getBodySize();
+                currentSize -= webhookLogItem.getBodySize();
                 currentSize = Math.max(0, currentSize);
             }
 
