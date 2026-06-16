@@ -20,21 +20,28 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   dataAdFormat = "auto",
   dataFullWidthResponsive = true,
 }) => {
-  const adRef = useRef<HTMLModElement>(null);
+  const adRef = useRef<HTMLInsElement>(null);
   const isPushed = useRef(false);
 
   useEffect(() => {
+    // 애드센스 심사 중이거나 환경변수가 켜져있지 않으면 스크립트 초기화 건너뜀
+    if (import.meta.env.VITE_ENABLE_ADS !== 'true') return;
+
     // Only push if not already pushed and adsbygoogle is available
     if (adRef.current && !isPushed.current) {
       try {
         window.adsbygoogle = window.adsbygoogle || [];
         window.adsbygoogle.push({});
         isPushed.current = true;
-      } catch (err) {
-        console.error("AdSense push error:", err);
+      } catch (error) {
+        console.error("AdSense error:", error);
       }
     }
   }, []);
+
+  if (import.meta.env.VITE_ENABLE_ADS !== 'true') {
+    return null;
+  }
 
   return (
     <div className={styles.adContainer}>

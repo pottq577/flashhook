@@ -43,5 +43,16 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:?set REDIS_PASSWORD}
 
+  frontend:
+    build:
+      context: ./FH_frontend
+      dockerfile: Dockerfile
+    container_name: flashhook-frontend
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - backend
+
 volumes:
   redis-data:
