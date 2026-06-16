@@ -17,7 +17,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AdminAuthFilter extends OncePerRequestFilter {
 
-    @Value("${flashhook.admin.secret-key:local_admin_secret}")
+    @Value("${flashhook.admin.secret-key}")
     private String adminSecretKey;
 
     @Override
