@@ -1,3 +1,6 @@
+# FH_backend .gitignore
+
+### Build & Gradle ###
 HELP.md
 .gradle
 build/
@@ -5,7 +8,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### STS ###
+### IDE: STS ###
 .apt_generated
 .classpath
 .factorypath
@@ -17,7 +20,7 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### IntelliJ IDEA ###
+### IDE: IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
@@ -26,14 +29,14 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### NetBeans ###
+### IDE: NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+### IDE: VS Code ###
 .vscode/
 
 ### 환경 변수 / 시크릿 ###

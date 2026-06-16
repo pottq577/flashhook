@@ -1,4 +1,12 @@
-# Logs
+# FH_frontend .gitignore
+
+### Dependencies & Build Outputs ###
+node_modules
+dist
+dist-ssr
+*.local
+
+### Logs ###
 logs
 *.log
 npm-debug.log*
@@ -7,16 +15,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# 환경 변수 (.env.example만 추적하고 나머지는 모두 무시)
+### 환경 변수 / 시크릿 ###
 .env*
 !.env.example
 
-# Editor directories and files
+### IDE & OS ###
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -27,7 +30,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Playwright E2E 테스트
+### Playwright E2E 테스트 ###
 playwright-report/
 test-results/
 e2e/playwright-report/

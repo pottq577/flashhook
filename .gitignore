@@ -11,10 +11,16 @@ Thumbs.db
 *.iws
 *.ipr
 
+### Dependencies & Caches ###
+node_modules/
+.mcp-memory/
+
 ### 환경 변수 / 시크릿 ###
 .env
 .env.local
 .env.*.local
+FH_backend/src/main/resources/application-*.yaml
+!FH_backend/src/main/resources/application-*.example.yaml
 
 ### Docker ###
 docker-compose.override.yml
@@ -23,15 +29,9 @@ docker-compose.override.yml
 toyproject.md
 docs/review/*
 
-### Memory MCP ###
-ci.log
-
-### 추가 보호 대상 (보안 점검 리포트 후속 조치) ###
-node_modules/
-.mcp-memory/
-FH_backend/src/main/resources/application-*.yaml
-!FH_backend/src/main/resources/application-*.example.yaml
-
 ### QA Reports & Scripts ###
 docs/qa/*
 !docs/qa/qa-runner-full.mjs
+
+### Logs ###
+ci.log
