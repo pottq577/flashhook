@@ -47,7 +47,7 @@ export const adminApi = {
   
   getSuspiciousEndpoints: async (): Promise<SuspiciousEndpoint[]> => {
     const res = await fetch(`${API_BASE_URL}/admin/endpoints/suspicious`, { headers: getHeaders() });
-    return handleResponse<AdminMetrics>(res);
+    return handleResponse<SuspiciousEndpoint[]>(res);
   },
 
   deleteEndpoint: async (endpointId: string): Promise<void> => {
@@ -55,12 +55,12 @@ export const adminApi = {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    return handleResponse<AdminMetrics>(res);
+    return handleResponse<void>(res);
   },
 
   getBlacklistedIps: async (): Promise<string[]> => {
     const res = await fetch(`${API_BASE_URL}/admin/blacklist`, { headers: getHeaders() });
-    return handleResponse<AdminMetrics>(res);
+    return handleResponse<string[]>(res);
   },
 
   blacklistIp: async (ip: string): Promise<void> => {
@@ -69,7 +69,7 @@ export const adminApi = {
       headers: getHeaders(),
       body: JSON.stringify({ ip }),
     });
-    return handleResponse<AdminMetrics>(res);
+    return handleResponse<void>(res);
   },
 
   removeBlacklistedIp: async (ip: string): Promise<void> => {
