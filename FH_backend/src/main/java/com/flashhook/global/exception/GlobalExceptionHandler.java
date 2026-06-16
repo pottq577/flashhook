@@ -1,15 +1,17 @@
 package com.flashhook.global.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.http.MediaType;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
-
 import java.time.Instant;
 
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -41,8 +43,8 @@ public class GlobalExceptionHandler {
     /**
      * 유효성 검사 예외 처리
      */
-    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidationException(org.springframework.web.bind.MethodArgumentNotValidException e, HttpServletRequest request) {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException e, HttpServletRequest request) {
         String message = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         if (isSseRequest(request)) {
             return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus()).build();
@@ -62,7 +64,8 @@ public class GlobalExceptionHandler {
      * 낙관적 락 예외 처리
      */
     @ExceptionHandler(OptimisticLockingFailureException.class)
-    public ResponseEntity<?> handleOptimisticLockingFailureException(OptimisticLockingFailureException e, HttpServletRequest request) {
+    public ResponseEntity<?> handleOptimisticLockingFailureException(OptimisticLockingFailureException e,
+            HttpServletRequest request) {
         if (isSseRequest(request)) {
             return ResponseEntity.status(ErrorCode.CONCURRENT_MODIFICATION.getStatus()).build();
         }
@@ -81,10 +84,30 @@ public class GlobalExceptionHandler {
      * SSE 연결 끊김 등 비동기 요청에서 발생하는 클라이언트 접속 종료 예외 (Broken Pipe 등) 처리
      */
     @ExceptionHandler(AsyncRequestNotUsableException.class)
-    public ResponseEntity<?> handleAsyncRequestNotUsableException(AsyncRequestNotUsableException e, HttpServletRequest request) {
+    public ResponseEntity<?> handleAsyncRequestNotUsableException(AsyncRequestNotUsableException e,
+            HttpServletRequest request) {
         // 이 예외는 클라이언트가 브라우저 탭을 닫거나 새로고침했을 때 자연스럽게 발생하므로 DEBUG 레벨로만 남김
         log.debug("Client disconnected during async/SSE request: {}", e.getMessage());
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 404 Not Found 예외 처리
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException e, HttpServletRequest request) {
+        if (isSseRequest(request)) {
+            return ResponseEntity.status(404).build();
+        }
+        return ResponseEntity
+                .status(404)
+                .body(ErrorResponse.builder()
+                        .code("NOT_FOUND")
+                        .message("요청한 리소스를 찾을 수 없습니다.")
+                        .status(404)
+                        .timestamp(Instant.now())
+                        .path(request.getRequestURI())
+                        .build());
     }
 
     /**
