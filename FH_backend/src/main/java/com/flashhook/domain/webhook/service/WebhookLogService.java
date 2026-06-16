@@ -204,6 +204,7 @@ public class WebhookLogService {
                 entity,
                 String.class
             );
+            log.info("Webhook replayed successfully: destinationUrl={}, endpointId={}, logId={}", destinationUrl, endpointId, logId);
         } catch (Exception e) {
             log.warn("웹훅 재전송 실패: destinationUrl={}, logId={}", destinationUrl, logId, e);
             throw new CustomException(ErrorCode.INTERNAL_ERROR);
