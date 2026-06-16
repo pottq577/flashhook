@@ -43,6 +43,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:?set REDIS_PASSWORD}
+      - FLASHHOOK_ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY:-local_admin_secret}
 
   prometheus:
     image: prom/prometheus:v2.53.1
