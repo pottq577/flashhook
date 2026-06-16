@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Slf4j
 @Service
@@ -38,6 +39,7 @@ public class WebhookService {
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final MongoTemplate mongoTemplate;
+    private final MeterRegistry meterRegistry;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${flashhook.log.max-count:500}")
@@ -94,6 +96,8 @@ public class WebhookService {
                 .build();
         webhookLogRepository.save(java.util.Objects.requireNonNull(log));
         WebhookService.log.info("Webhook received and saved: endpointId={}, logId={}, method={}, size={}", endpointId, log.getLogId(), payload.getMethod(), payload.getBodySize());
+        
+        meterRegistry.counter("flashhook.webhook.received.total").increment();
 
         // 7. 엔드포인트 카운터 업데이트 (Atomic)
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));

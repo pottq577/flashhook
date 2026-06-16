@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.flashhook.global.event.EndpointDeletedEvent;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
+import io.micrometer.core.instrument.MeterRegistry;
 
 /**
  * 엔드포인트 비즈니스 로직
@@ -33,6 +34,7 @@ public class EndpointService {
 
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MeterRegistry meterRegistry;
 
     @Value("${flashhook.log.max-count:500}")
     private int maxLogCount;
@@ -70,6 +72,8 @@ public class EndpointService {
 
         endpointRepository.save(Objects.requireNonNull(endpoint));
         log.info("Endpoint created successfully: endpointId={}, creatorIp={}", endpointId, ip);
+        
+        meterRegistry.counter("flashhook.endpoint.created.total").increment();
 
         return EndpointResponse.builder()
                 .endpointId(endpointId)
