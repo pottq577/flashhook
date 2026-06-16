@@ -33,7 +33,11 @@ public final class IpUtil {
         }
         
         if (IPV4_PATTERN.matcher(trimmed).matches()) {
-            return trimmed;
+            try {
+                return InetAddress.getByName(trimmed).getHostAddress();
+            } catch (Exception e) {
+                return trimmed;
+            }
         }
 
         // 유효하지 않은 IP 형식일 경우 원래의 값(공백만 제거) 반환
