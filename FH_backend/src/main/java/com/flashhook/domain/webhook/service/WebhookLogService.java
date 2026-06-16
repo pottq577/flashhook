@@ -145,7 +145,12 @@ public class WebhookLogService {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
             @Override
             protected HttpURLConnection openConnection(URL url, java.net.Proxy proxy) throws java.io.IOException {
-                URL pinnedUrl = new URL(url.getProtocol(), resolvedIp.getHostAddress(), url.getPort(), url.getFile());
+                URL pinnedUrl;
+                try {
+                    pinnedUrl = new URI(url.getProtocol(), url.getUserInfo(), resolvedIp.getHostAddress(), url.getPort(), url.getPath(), url.getQuery(), url.getRef()).toURL();
+                } catch (URISyntaxException e) {
+                    throw new java.io.IOException("Failed to construct URI for IP pinning", e);
+                }
                 HttpURLConnection connection = super.openConnection(pinnedUrl, proxy);
                 if (connection instanceof HttpsURLConnection httpsConnection) {
                     String originalHost = url.getHost();
