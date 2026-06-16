@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const BASE_FE = 'http://localhost:5173';
 const BASE_BE = 'http://localhost:8080';
+const BASE_MGMT = process.env.BASE_MGMT ?? 'http://localhost:9090';
 const MONGO_URL = 'mongodb://localhost:27017';
 
 let bugs = [];
@@ -75,7 +76,7 @@ async function run() {
   try {
     // Phase 0
     console.log('--- Phase 0: 사전 점검 ---');
-    let res = await fetch('http://localhost:9090/actuator/health');
+    let res = await fetch(`${BASE_MGMT}/actuator/health`);
     let data = await res.json();
     if (data.status === 'UP') pass('TC-01'); else reportBug('TC-01', 'Critical', 'BE', 'Health check failed', '{"status":"UP"}');
 
