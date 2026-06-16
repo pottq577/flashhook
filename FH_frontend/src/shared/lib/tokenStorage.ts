@@ -16,7 +16,9 @@ export function set(endpointId: string, token: string): void {
   const historyRaw = localStorage.getItem("fh_history") || "[]";
   try {
     const parsed = JSON.parse(historyRaw);
-    const history = Array.isArray(parsed) ? parsed : [];
+    const history: string[] = Array.isArray(parsed)
+      ? parsed.filter((id): id is string => typeof id === "string")
+      : [];
     if (!history.includes(endpointId)) {
       history.push(endpointId);
       localStorage.setItem("fh_history", JSON.stringify(history));
@@ -36,7 +38,9 @@ export function remove(endpointId: string): void {
   const historyRaw = localStorage.getItem("fh_history") || "[]";
   try {
     const parsed = JSON.parse(historyRaw);
-    const history = Array.isArray(parsed) ? parsed : [];
+    const history: string[] = Array.isArray(parsed)
+      ? parsed.filter((id): id is string => typeof id === "string")
+      : [];
     const newHistory = history.filter((id: string) => id !== endpointId);
     localStorage.setItem("fh_history", JSON.stringify(newHistory));
   } catch (e) {
