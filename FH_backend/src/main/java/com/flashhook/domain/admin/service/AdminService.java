@@ -96,13 +96,20 @@ public class AdminService {
     }
 
     public List<String> getBlacklistedIps() {
-        Set<String> keys = new java.util.HashSet<>();
-        try (org.springframework.data.redis.core.Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().keyCommands().scan(org.springframework.data.redis.core.ScanOptions.scanOptions().match(BLACKLIST_PREFIX + "*").build())) {
-            while (cursor.hasNext()) {
-                keys.add(new String(cursor.next()));
+        Set<String> keys = redisTemplate.execute(connection -> {
+            Set<String> scanned = new java.util.HashSet<>();
+            try (org.springframework.data.redis.core.Cursor<byte[]> cursor =
+                         connection.keyCommands().scan(
+                                 org.springframework.data.redis.core.ScanOptions.scanOptions()
+                                         .match(BLACKLIST_PREFIX + "*")
+                                         .build())) {
+                while (cursor.hasNext()) {
+                    scanned.add(new String(cursor.next(), java.nio.charset.StandardCharsets.UTF_8));
+                }
             }
-        }
-        if (keys.isEmpty()) return List.of();
+            return scanned;
+        });
+        if (keys == null || keys.isEmpty()) return List.of();
         return keys.stream()
                 .map(k -> k.replace(BLACKLIST_PREFIX, ""))
                 .collect(Collectors.toList());
