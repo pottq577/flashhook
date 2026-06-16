@@ -58,4 +58,17 @@ public class RateLimitService {
             return failOpen;
         }
     }
+
+    /**
+     * IP 블랙리스트 여부 확인
+     */
+    public boolean isBlacklisted(String ip) {
+        if (ip == null || ip.isBlank()) return false;
+        try {
+            return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:ip:" + ip));
+        } catch (Exception e) {
+            log.warn("Blacklist Redis check error. ip={}", ip, e);
+            return false;
+        }
+    }
 }

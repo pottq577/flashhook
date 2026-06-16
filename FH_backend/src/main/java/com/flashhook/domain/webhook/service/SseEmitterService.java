@@ -125,4 +125,13 @@ public class SseEmitterService {
             return endpointEmitters.isEmpty() ? null : endpointEmitters;
         });
     }
+
+    /**
+     * 현재 활성화된 SSE 연결 총 개수 반환
+     */
+    public int getActiveConnectionCount() {
+        return emitters.values().stream()
+                .mapToInt(List::size)
+                .sum();
+    }
 }
