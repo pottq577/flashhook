@@ -22,11 +22,15 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
   const deleteMutation = useDeleteAllLogsMutation(endpointId || '');
 
   const filteredLogs = useMemo(() => {
+    const isAllMethods = method === 'ALL';
+    const trimmedSearch = search.trim().toLowerCase();
+    const isSearchEmpty = trimmedSearch === '';
+
     return logs.filter((log) => {
-      const matchMethod = method === 'ALL' || log.method.toUpperCase() === method;
-      const matchSearch = search.trim() === '' || 
-        log.method.toLowerCase().includes(search.toLowerCase()) ||
-        (log.bodyPreview && log.bodyPreview.toLowerCase().includes(search.toLowerCase()));
+      const matchMethod = isAllMethods || log.method.toUpperCase() === method;
+      const matchSearch = isSearchEmpty || 
+        log.method.toLowerCase().includes(trimmedSearch) ||
+        (log.bodyPreview && log.bodyPreview.toLowerCase().includes(trimmedSearch));
       return matchMethod && matchSearch;
     });
   }, [logs, search, method]);
@@ -77,7 +81,7 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
               alignRight
             />
           </div>
-          {endpointId && (
+          {endpointId ? (
             <button 
               className={styles.clearBtn} 
               onClick={handleClearClick} 
@@ -94,14 +98,14 @@ function LogList({ logs, selectedLogId, onSelect, endpointId }: LogListProps) {
                 </svg>
               )}
             </button>
-          )}
+          ) : null}
         </div>
       </div>
 
       {filteredLogs.length === 0 ? (
         <div role="status" className={styles.empty}>
           <p>{logs.length === 0 ? '아직 들어온 웹훅이 없어요.' : '검색 결과가 없어요.'}</p>
-          {logs.length === 0 && <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>위의 웹훅 URL로 요청을 보내면 이곳에서 실시간으로 확인할 수 있어요.</p>}
+          {logs.length === 0 ? <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>위의 웹훅 URL로 요청을 보내면 이곳에서 실시간으로 확인할 수 있어요.</p> : null}
         </div>
       ) : (
         <Virtuoso

@@ -70,7 +70,7 @@ function PromptModal({
 
   return (
     <AnimatePresence onExitComplete={() => setIsActive(false)}>
-      {isOpen && (
+      {isOpen ? (
         <div className={styles.overlay} onClick={onCancel}>
           <motion.div 
             ref={modalRef}
@@ -105,7 +105,7 @@ function PromptModal({
             </div>
           </motion.div>
         </div>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 }

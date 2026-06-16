@@ -7,7 +7,7 @@ import ConfirmModal from '@/shared/ui/ConfirmModal';
 import { useEndpointStore } from '@/entities/endpoint/model/endpoint.store';
 import { TerminalHero } from './TerminalHero';
 import { LandingFeatures } from './LandingFeatures';
-import { AdBanner } from '@/shared/ui/AdBanner';
+import { AdBanner } from '@/shared/ui/AdBanner/AdBanner';
 import styles from './LandingPage.module.css';
 
 function LandingPage() {

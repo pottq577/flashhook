@@ -37,7 +37,7 @@ const LogItem = memo(({ log, isSelected, onClick }: LogItemProps) => {
         <span className={styles.time}>{timeString}</span>
       </div>
       <div className={styles.preview}>
-        {contentType && <span className={styles.contentType}>{contentType}</span>}
+        {contentType ? <span className={styles.contentType}>{contentType}</span> : null}
         <span className={styles.size}>{Math.max(0, log.bodySize / 1024).toFixed(2)} KB</span>
       </div>
     </div>

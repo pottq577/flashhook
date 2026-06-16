@@ -43,12 +43,12 @@ function CopyButton({ text }: { text: string }) {
         )}
       </button>
       
-      {showToast && (
+      {showToast ? (
         <Toast 
           message="Copied to clipboard!" 
           onClose={() => setShowToast(false)} 
         />
-      )}
+      ) : null}
     </>
   );
 }

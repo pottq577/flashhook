@@ -35,7 +35,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
 
   return (
     <AnimatePresence onExitComplete={() => setIsActive(false)}>
-      {isOpen && (
+      {isOpen ? (
         <div className={styles.modalOverlay} onClick={onDecline}>
           <motion.div 
             ref={modalRef as React.RefObject<HTMLDivElement>}
@@ -82,7 +82,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onAccept, on
         </div>
           </motion.div>
         </div>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 };

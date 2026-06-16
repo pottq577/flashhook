@@ -122,7 +122,7 @@ export function CustomDropdown({
       </div>
 
       <AnimatePresence>
-        {isOpen && (
+        {isOpen ? (
           <motion.div
             className={styles.customSelectDropdown}
             role="listbox"
@@ -155,25 +155,25 @@ export function CustomDropdown({
                   <div className={styles.optionTextContainer}>
                     <div className={styles.optionPrimary}>
                       <span className={styles.optionLabel}>{o.label}</span>
-                      {o.desc && <span className={styles.optionDesc}>{o.desc}</span>}
+                      {o.desc ? <span className={styles.optionDesc}>{o.desc}</span> : null}
                     </div>
-                    {o.value !== o.label && (
+                    {o.value !== o.label ? (
                       <span className={styles.optionValue}>{String(o.value)}</span>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               ))
             ) : (
-              !hideNoOptions && (
+              !hideNoOptions ? (
                 <div
                   className={styles.customSelectOption}
                   style={{ opacity: 0.5 }}
                 >
                   <span className={styles.optionLabel}>No matching options</span>
                 </div>
-              )
+              ) : null
             )}
-            {onCustom && !isEditable && (
+            {onCustom && !isEditable ? (
               <div
                 className={`${styles.customSelectOption} ${isCustom ? styles.selected : ''}`}
                 role="option"
@@ -192,9 +192,9 @@ export function CustomDropdown({
               >
                 <span className={styles.optionValue}>Custom…</span>
               </div>
-            )}
+            ) : null}
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

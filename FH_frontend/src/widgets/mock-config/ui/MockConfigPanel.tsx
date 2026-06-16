@@ -66,7 +66,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
         </div>
 
         {/* Level 2: 시나리오 선택 (CUSTOM 이 아닐 때만 표시) */}
-        {state.selectedServiceId !== CUSTOM_SERVICE_ID && (
+        {state.selectedServiceId !== CUSTOM_SERVICE_ID ? (
           <div className={styles.formGroup}>
             <label>TARGET_PRESET</label>
             <CustomDropdown
@@ -84,13 +84,13 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               }
               displayValue={(_val, opt) => (opt ? opt.label : 'SELECT_PRESET…')}
             />
-            {state.isDynamic && (
+            {state.isDynamic ? (
               <p className={styles.warning} style={{ marginTop: '0.5rem', color: '#ffcc00' }}>
                 ⚡ 서버가 요청을 직접 분석해서 응답해요. 아래에 설정한 내용은 적용되지 않아요.
               </p>
-            )}
+            ) : null}
           </div>
-        )}
+        ) : null}
 
         <div className={styles.row}>
           <div className={styles.formGroup} style={{ opacity: state.isDynamic ? 0.5 : 1, pointerEvents: state.isDynamic ? 'none' : 'auto' }}>
@@ -118,7 +118,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               }
               isCustomStatus={state.isCustomStatus}
             />
-            {state.isCustomStatus && (
+            {state.isCustomStatus ? (
               <input
                 type="number"
                 min="100"
@@ -135,7 +135,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                 className={styles.input}
                 style={{ marginTop: '0.5rem' }}
               />
-            )}
+            ) : null}
           </div>
 
           <div className={styles.formGroup} style={{ opacity: state.isDynamic ? 0.5 : 1, pointerEvents: state.isDynamic ? 'none' : 'auto' }}>
@@ -278,7 +278,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               + ADD HEADER
             </button>
           </div>
-          {state.headerWarning && <p className={styles.warning}>{state.headerWarning}</p>}
+          {state.headerWarning ? <p className={styles.warning}>{state.headerWarning}</p> : null}
         </div>
 
         <div className={styles.formGroup} style={{ opacity: state.isDynamic ? 0.5 : 1, pointerEvents: state.isDynamic ? 'none' : 'auto' }}>
