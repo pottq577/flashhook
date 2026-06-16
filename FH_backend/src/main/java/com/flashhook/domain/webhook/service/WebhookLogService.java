@@ -83,6 +83,9 @@ public class WebhookLogService {
 
             WebhookLog lastLog = webhookLogRepository.findByLogId(lastSeenId).orElse(null);
             if (lastLog != null) {
+                if (!lastLog.getEndpointId().equals(endpointId)) {
+                    throw new CustomException(ErrorCode.INVALID_REQUEST);
+                }
                 if (direction == Direction.ASC) {
                     logPage = webhookLogRepository.findNextPage(
                             endpointId, lastLog.getReceivedAt(), lastLog.getLogId(), pageRequest);
