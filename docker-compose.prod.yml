@@ -43,5 +43,6 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:?set REDIS_PASSWORD}
 
+
 volumes:
   redis-data:
