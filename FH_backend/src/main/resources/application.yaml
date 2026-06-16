@@ -42,6 +42,8 @@ server:
 
 # 커스텀 설정
 flashhook:
+  admin:
+    secret-key: ${FLASHHOOK_ADMIN_SECRET_KEY:local_test_admin_secret_key_12345}
   sse:
     timeout: 1800000              # SSE 최대 유지 30분 (ms)
     heartbeat-interval: 30000     # Heartbeat 30초 (ms)

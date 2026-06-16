@@ -1,34 +1,37 @@
 package com.flashhook.domain.webhook.service;
 
-import com.flashhook.domain.webhook.repository.WebhookLogRepository;
-import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import com.flashhook.domain.endpoint.model.Endpoint;
-import com.flashhook.domain.endpoint.repository.EndpointRepository;
-import com.flashhook.domain.endpoint.model.MockConfig;
-import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
-import com.flashhook.domain.webhook.model.WebhookLog;
-import com.flashhook.global.exception.CustomException;
-import com.flashhook.global.exception.ErrorCode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.domain.Sort;
-
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Instant;
-import java.util.UUID;
-import java.util.List;
-import java.util.ArrayList;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flashhook.domain.endpoint.model.Endpoint;
+import com.flashhook.domain.endpoint.model.MockConfig;
+import com.flashhook.domain.endpoint.repository.EndpointRepository;
+import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
+import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
+import com.flashhook.domain.webhook.model.WebhookLog;
+import com.flashhook.domain.webhook.repository.WebhookLogRepository;
+import com.flashhook.global.exception.CustomException;
+import com.flashhook.global.exception.ErrorCode;
+
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -94,14 +97,16 @@ public class WebhookService {
                 .bodySize(payload.getBodySize())
                 .receivedAt(Instant.now())
                 .build();
-        webhookLogRepository.save(java.util.Objects.requireNonNull(log));
-        WebhookService.log.info("Webhook received and saved: endpointId={}, logId={}, method={}, size={}", endpointId, log.getLogId(), payload.getMethod(), payload.getBodySize());
-        
+        webhookLogRepository.save(Objects.requireNonNull(log));
+        WebhookService.log.info("Webhook received and saved: endpointId={}, logId={}, method={}, size={}", endpointId,
+                log.getLogId(), payload.getMethod(), payload.getBodySize());
+
         meterRegistry.counter("flashhook.webhook.received.total").increment();
 
         // 7. 엔드포인트 카운터 업데이트 (Atomic)
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
-        Update update = new Update().inc("logCount", 1).inc("logSizeBytes", payload.getBodySize());
+        Update update = new Update().inc("logCount", 1).inc("totalLogCount", 1).inc("logSizeBytes",
+                payload.getBodySize());
         Endpoint updatedEndpoint = mongoTemplate.findAndModify(
                 query,
                 update,
@@ -167,7 +172,8 @@ public class WebhookService {
                 Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));
                 Update update = new Update().inc("logCount", -removedCount).inc("logSizeBytes", -removedSize);
                 mongoTemplate.updateFirst(query, update, Endpoint.class);
-                log.info("Enforced log cap for endpointId={}, removedCount={}, removedSize={}", endpoint.getEndpointId(), removedCount, removedSize);
+                log.info("Enforced log cap for endpointId={}, removedCount={}, removedSize={}",
+                        endpoint.getEndpointId(), removedCount, removedSize);
             }
         }
     }

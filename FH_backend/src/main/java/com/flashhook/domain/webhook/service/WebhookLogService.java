@@ -1,34 +1,47 @@
 package com.flashhook.domain.webhook.service;
 
-import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
-import com.flashhook.domain.webhook.dto.WebhookLogResponse;
-import com.flashhook.domain.webhook.repository.WebhookLogRepository;
-import lombok.RequiredArgsConstructor;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Collections;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-import com.flashhook.domain.endpoint.repository.EndpointRepository;
-import com.flashhook.global.exception.CustomException;
-import com.flashhook.global.exception.ErrorCode;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.PageRequest;
-import com.flashhook.domain.webhook.model.WebhookLog;
-import com.flashhook.domain.endpoint.model.Endpoint;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
+import com.flashhook.domain.endpoint.model.Endpoint;
+import com.flashhook.domain.endpoint.repository.EndpointRepository;
+import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
+import com.flashhook.domain.webhook.dto.WebhookLogResponse;
+import com.flashhook.domain.webhook.model.WebhookLog;
+import com.flashhook.domain.webhook.repository.WebhookLogRepository;
+import com.flashhook.global.exception.CustomException;
+import com.flashhook.global.exception.ErrorCode;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -67,13 +80,18 @@ public class WebhookLogService {
         if (lastSeenId != null && !lastSeenId.isEmpty()) {
             // 커서 기반 조회 시 페이지는 0으로 고정
             pageRequest = PageRequest.of(0, size, Sort.by(direction, "receivedAt").and(Sort.by(direction, "logId")));
-            
+
             WebhookLog lastLog = webhookLogRepository.findByLogId(lastSeenId).orElse(null);
             if (lastLog != null) {
+                if (!lastLog.getEndpointId().equals(endpointId)) {
+                    throw new CustomException(ErrorCode.INVALID_REQUEST);
+                }
                 if (direction == Direction.ASC) {
-                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtGreaterThanOrderByReceivedAtAscLogIdAsc(endpointId, lastLog.getReceivedAt(), pageRequest);
+                    logPage = webhookLogRepository.findNextPage(
+                            endpointId, lastLog.getReceivedAt(), lastLog.getLogId(), pageRequest);
                 } else {
-                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDescLogIdDesc(endpointId, lastLog.getReceivedAt(), pageRequest);
+                    logPage = webhookLogRepository.findPreviousPage(
+                            endpointId, lastLog.getReceivedAt(), lastLog.getLogId(), pageRequest);
                 }
             } else {
                 logPage = webhookLogRepository.findByEndpointId(endpointId, pageRequest);
@@ -81,7 +99,7 @@ public class WebhookLogService {
         } else {
             logPage = webhookLogRepository.findByEndpointId(endpointId, pageRequest);
         }
-        
+
         return logPage.map(WebhookLogResponse::from);
     }
 
@@ -129,44 +147,70 @@ public class WebhookLogService {
 
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
             @Override
-            protected java.net.HttpURLConnection openConnection(java.net.URL url, java.net.Proxy proxy) throws java.io.IOException {
-                java.net.URL pinnedUrl = new java.net.URL(url.getProtocol(), resolvedIp.getHostAddress(), url.getPort(), url.getFile());
-                java.net.HttpURLConnection connection = super.openConnection(pinnedUrl, proxy);
-                if (connection instanceof javax.net.ssl.HttpsURLConnection httpsConnection) {
+            protected HttpURLConnection openConnection(URL url, java.net.Proxy proxy) throws java.io.IOException {
+                URL pinnedUrl;
+                try {
+                    pinnedUrl = new URI(url.getProtocol(), url.getUserInfo(), resolvedIp.getHostAddress(), url.getPort(), url.getPath(), url.getQuery(), url.getRef()).toURL();
+                } catch (URISyntaxException e) {
+                    throw new java.io.IOException("Failed to construct URI for IP pinning", e);
+                }
+                HttpURLConnection connection = super.openConnection(pinnedUrl, proxy);
+                if (connection instanceof HttpsURLConnection httpsConnection) {
                     String originalHost = url.getHost();
                     httpsConnection.setHostnameVerifier((hostname, session) -> {
                         try {
-                            return javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier().verify(originalHost, session);
+                            return HttpsURLConnection.getDefaultHostnameVerifier().verify(originalHost, session);
                         } catch (Exception e) {
                             log.error("HTTPS hostname verification failed for originalHost: {}", originalHost, e);
                             return false;
                         }
                     });
 
-                    javax.net.ssl.SSLSocketFactory defaultFactory = httpsConnection.getSSLSocketFactory();
-                    httpsConnection.setSSLSocketFactory(new javax.net.ssl.SSLSocketFactory() {
+                    SSLSocketFactory defaultFactory = httpsConnection.getSSLSocketFactory();
+                    httpsConnection.setSSLSocketFactory(new SSLSocketFactory() {
                         @Override
-                        public String[] getDefaultCipherSuites() { return defaultFactory.getDefaultCipherSuites(); }
+                        public String[] getDefaultCipherSuites() {
+                            return defaultFactory.getDefaultCipherSuites();
+                        }
+
                         @Override
-                        public String[] getSupportedCipherSuites() { return defaultFactory.getSupportedCipherSuites(); }
+                        public String[] getSupportedCipherSuites() {
+                            return defaultFactory.getSupportedCipherSuites();
+                        }
+
                         @Override
-                        public java.net.Socket createSocket(java.net.Socket s, String host, int port, boolean autoClose) throws java.io.IOException {
-                            java.net.Socket socket = defaultFactory.createSocket(s, host, port, autoClose);
-                            if (socket instanceof javax.net.ssl.SSLSocket sslSocket) {
-                                javax.net.ssl.SSLParameters params = sslSocket.getSSLParameters();
-                                params.setServerNames(java.util.Collections.singletonList(new javax.net.ssl.SNIHostName(originalHost)));
+                        public Socket createSocket(Socket s, String host, int port, boolean autoClose)
+                                throws java.io.IOException {
+                            Socket socket = defaultFactory.createSocket(s, host, port, autoClose);
+                            if (socket instanceof SSLSocket sslSocket) {
+                                SSLParameters params = sslSocket.getSSLParameters();
+                                params.setServerNames(Collections.singletonList(new SNIHostName(originalHost)));
                                 sslSocket.setSSLParameters(params);
                             }
                             return socket;
                         }
+
                         @Override
-                        public java.net.Socket createSocket(String host, int port) throws java.io.IOException { return defaultFactory.createSocket(host, port); }
+                        public Socket createSocket(String host, int port) throws java.io.IOException {
+                            return defaultFactory.createSocket(host, port);
+                        }
+
                         @Override
-                        public java.net.Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws java.io.IOException { return defaultFactory.createSocket(host, port, localHost, localPort); }
+                        public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
+                                throws java.io.IOException {
+                            return defaultFactory.createSocket(host, port, localHost, localPort);
+                        }
+
                         @Override
-                        public java.net.Socket createSocket(InetAddress host, int port) throws java.io.IOException { return defaultFactory.createSocket(host, port); }
+                        public Socket createSocket(InetAddress host, int port) throws java.io.IOException {
+                            return defaultFactory.createSocket(host, port);
+                        }
+
                         @Override
-                        public java.net.Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws java.io.IOException { return defaultFactory.createSocket(address, port, localAddress, localPort); }
+                        public Socket createSocket(InetAddress address, int port, InetAddress localAddress,
+                                int localPort) throws java.io.IOException {
+                            return defaultFactory.createSocket(address, port, localAddress, localPort);
+                        }
                     });
                 }
                 return connection;
@@ -175,7 +219,7 @@ public class WebhookLogService {
         factory.setConnectTimeout(3000);
         factory.setReadTimeout(5000);
         RestTemplate restTemplate = new RestTemplate(factory);
-        
+
         HttpHeaders headers = new HttpHeaders();
         if (webhookLog.getHeaders() != null) {
             webhookLog.getHeaders().forEach(headers::add);
@@ -194,22 +238,22 @@ public class WebhookLogService {
             log.error("Failed to parse destination URL for replay: {}", sanitizeUrlForLog(destinationUrl), e);
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
-        
+
         HttpEntity<Object> entity = new HttpEntity<>(webhookLog.getBody(), headers);
-        
+
         try {
             restTemplate.exchange(
-                destinationUrl,
-                HttpMethod.valueOf(webhookLog.getMethod()),
-                entity,
-                String.class
-            );
-            log.info("Webhook replayed successfully: destinationUrl={}, endpointId={}, logId={}", sanitizeUrlForLog(destinationUrl), endpointId, logId);
-            
+                    destinationUrl,
+                    HttpMethod.valueOf(webhookLog.getMethod()),
+                    entity,
+                    String.class);
+            log.info("Webhook replayed successfully: destinationUrl={}, endpointId={}, logId={}",
+                    sanitizeUrlForLog(destinationUrl), endpointId, logId);
+
             Query query = Query.query(Criteria.where("logId").is(logId));
-            Update update = new Update().set("replayStatus", "SUCCESS");
+            Update update = new Update().set("replayStatus", "SUCCESS").unset("replayError");
             mongoTemplate.updateFirst(query, update, WebhookLog.class);
-            
+
         } catch (Exception e) {
             log.warn("웹훅 재전송 실패: destinationUrl={}, logId={}", sanitizeUrlForLog(destinationUrl), logId, e);
             Query query = Query.query(Criteria.where("logId").is(logId));
@@ -226,16 +270,16 @@ public class WebhookLogService {
             if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
                 throw new CustomException(ErrorCode.INVALID_REQUEST);
             }
-            
+
             InetAddress inetAddress = InetAddress.getByName(uri.getHost());
             byte[] address = inetAddress.getAddress();
             boolean isIpv6Ula = address.length == 16 && (address[0] & (byte) 0xFE) == (byte) 0xFC;
-            if (inetAddress.isAnyLocalAddress() || 
-                inetAddress.isLoopbackAddress() || 
-                inetAddress.isLinkLocalAddress() || 
-                inetAddress.isSiteLocalAddress() || 
-                inetAddress.isMulticastAddress() ||
-                isIpv6Ula) {
+            if (inetAddress.isAnyLocalAddress() ||
+                    inetAddress.isLoopbackAddress() ||
+                    inetAddress.isLinkLocalAddress() ||
+                    inetAddress.isSiteLocalAddress() ||
+                    inetAddress.isMulticastAddress() ||
+                    isIpv6Ula) {
                 throw new CustomException(ErrorCode.FORBIDDEN);
             }
             return inetAddress;
