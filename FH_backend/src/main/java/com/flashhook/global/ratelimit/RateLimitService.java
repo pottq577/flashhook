@@ -1,12 +1,15 @@
 package com.flashhook.global.ratelimit;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Collections;
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
-import java.util.Collections;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Rate Limit 서비스
@@ -25,8 +28,7 @@ public class RateLimitService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    private static final String LUA_SCRIPT = 
-            "local current = redis.call('INCR', KEYS[1]) " +
+    private static final String LUA_SCRIPT = "local current = redis.call('INCR', KEYS[1]) " +
             "if current == 1 then " +
             "    redis.call('EXPIRE', KEYS[1], ARGV[1]) " +
             "end " +
@@ -51,10 +53,9 @@ public class RateLimitService {
             redisScript.setResultType(Long.class);
 
             Long count = redisTemplate.execute(
-                    java.util.Objects.requireNonNull(redisScript),
-                    java.util.Objects.requireNonNull(Collections.singletonList(key)),
-                    java.util.Objects.requireNonNull(String.valueOf(windowSeconds))
-            );
+                    Objects.requireNonNull(redisScript),
+                    Objects.requireNonNull(Collections.singletonList(key)),
+                    Objects.requireNonNull(String.valueOf(windowSeconds)));
             return count != null && count <= limit;
         } catch (Exception e) {
             log.warn("Rate limit Redis error. key={}", key, e);
@@ -66,7 +67,8 @@ public class RateLimitService {
      * IP 블랙리스트 여부 확인
      */
     public boolean isBlacklisted(String ip) {
-        if (ip == null || ip.isBlank()) return false;
+        if (ip == null || ip.isBlank())
+            return false;
         try {
             String normalizedIp = ip.trim();
             return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:ip:" + normalizedIp));

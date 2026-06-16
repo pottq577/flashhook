@@ -1,30 +1,27 @@
 package com.flashhook.domain.webhook.service;
 
-import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-
-/**
- * SSE(Server-Sent Events) 관리 서비스
- * 클라이언트 구독 및 웹훅 이벤트 전파 담당
- */
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import com.flashhook.domain.webhook.model.WebhookLog;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
+import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
+import com.flashhook.domain.webhook.model.WebhookLog;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -91,7 +88,8 @@ public class SseEmitterService {
                                 .set("sseError", e.getMessage());
                         mongoTemplate.updateFirst(query, update, WebhookLog.class);
                     } catch (Exception persistEx) {
-                        log.error("Failed to persist SSE failure status: logId={}", event.getWebhookLog().getLogId(), persistEx);
+                        log.error("Failed to persist SSE failure status: logId={}", event.getWebhookLog().getLogId(),
+                                persistEx);
                     } finally {
                         removeEmitter(endpointId, emitter);
                     }

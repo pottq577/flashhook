@@ -1,22 +1,25 @@
 package com.flashhook.domain.webhook.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flashhook.domain.endpoint.model.MockConfig;
-import jakarta.annotation.PreDestroy;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
-import com.fasterxml.jackson.databind.JsonNode;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flashhook.domain.endpoint.model.MockConfig;
+
+import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -130,8 +133,8 @@ public class MockResponseScheduler {
                 Map<String, String> responseBody = Map.of("challenge", challenge);
                 DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
                 deferredResult.setResult(ResponseEntity.ok()
-                        .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON))
-                        .body(java.util.Objects.requireNonNull(objectMapper.writeValueAsString(responseBody))));
+                        .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                        .body(Objects.requireNonNull(objectMapper.writeValueAsString(responseBody))));
                 return deferredResult;
             }
             return null;

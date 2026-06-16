@@ -1,12 +1,14 @@
 package com.flashhook.domain.webhook.repository;
 
-import com.flashhook.domain.webhook.model.WebhookLog;
+import java.time.Instant;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Optional;
+import com.flashhook.domain.webhook.model.WebhookLog;
 
 /**
  * 웹훅 로그 리포지토리
@@ -15,9 +17,11 @@ public interface WebhookLogRepository extends MongoRepository<WebhookLog, String
 
     Page<WebhookLog> findByEndpointId(String endpointId, Pageable pageable);
 
-    Page<WebhookLog> findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDescLogIdDesc(String endpointId, java.time.Instant receivedAt, Pageable pageable);
+    Page<WebhookLog> findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDescLogIdDesc(String endpointId,
+            Instant receivedAt, Pageable pageable);
 
-    Page<WebhookLog> findByEndpointIdAndReceivedAtGreaterThanOrderByReceivedAtAscLogIdAsc(String endpointId, java.time.Instant receivedAt, Pageable pageable);
+    Page<WebhookLog> findByEndpointIdAndReceivedAtGreaterThanOrderByReceivedAtAscLogIdAsc(String endpointId,
+            Instant receivedAt, Pageable pageable);
 
     Optional<WebhookLog> findByLogId(String logId);
 
