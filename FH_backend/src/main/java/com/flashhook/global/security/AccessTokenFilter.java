@@ -1,28 +1,24 @@
 package com.flashhook.global.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.lang.NonNull;
-
 import java.io.IOException;
-
-/**
- * 액세스 토큰 검증 필터
- * /api/endpoints/{id}/** 경로에 대해 X-Access-Token 헤더 또는 ?token= 쿼리 파라미터 검증
- */
-import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
-import com.flashhook.domain.endpoint.model.Endpoint;
-import com.flashhook.domain.endpoint.repository.EndpointRepository;
-import com.flashhook.global.exception.ErrorCode;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.MDC;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.flashhook.domain.endpoint.model.Endpoint;
+import com.flashhook.domain.endpoint.repository.EndpointRepository;
+import com.flashhook.global.exception.ErrorCode;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -33,9 +29,9 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
-        
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
+
         String traceId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         MDC.put("traceId", traceId);
         try {
@@ -54,11 +50,11 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                     filterChain.doFilter(request, response);
                     return;
                 }
-                
+
                 String[] parts = path.split("/");
                 if (parts.length >= 4) { // ["", "api", "endpoints", "{id}", ...]
                     String endpointId = parts[3];
-                    
+
                     String token = request.getHeader("X-Access-Token");
                     if (token == null || token.isEmpty()) {
                         token = request.getParameter("token");
@@ -94,9 +90,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String json = String.format(
-            "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
-            errorCode.getCode(), errorCode.getMessage(), errorCode.getStatus()
-        );
+                "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
+                errorCode.getCode(), errorCode.getMessage(), errorCode.getStatus());
         response.getWriter().write(json);
     }
 }

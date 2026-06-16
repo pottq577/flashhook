@@ -1,13 +1,14 @@
 package com.flashhook.domain.endpoint.dto;
 
+import java.time.Instant;
+import java.util.Map;
+
+import com.flashhook.domain.endpoint.model.MockConfig;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.flashhook.domain.endpoint.model.MockConfig;
-
-import java.time.Instant;
-import java.util.Map;
 
 /**
  * 엔드포인트 응답 DTO

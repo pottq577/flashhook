@@ -1,9 +1,9 @@
 package com.flashhook.domain.webhook.dto;
 
+import java.util.Map;
+
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.Map;
 
 @Getter
 @Builder

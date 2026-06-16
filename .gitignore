@@ -43,6 +43,7 @@ docker-compose.override.yml
 ### Docs ###
 toyproject.md
 docs/review/*
+docs/infrastructure/*
 
 ### QA Reports & Scripts ###
 docs/qa/*

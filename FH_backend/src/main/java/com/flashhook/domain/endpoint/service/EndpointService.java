@@ -1,28 +1,30 @@
 package com.flashhook.domain.endpoint.service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.flashhook.domain.endpoint.dto.EndpointCreateRequest;
 import com.flashhook.domain.endpoint.dto.EndpointResponse;
 import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
-import com.flashhook.domain.endpoint.repository.EndpointRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.model.MockConfig;
+import com.flashhook.domain.endpoint.repository.EndpointRepository;
+import com.flashhook.global.event.EndpointDeletedEvent;
 import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
-import java.time.Instant;
-import java.time.Duration;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.Map;
 
-import org.springframework.context.ApplicationEventPublisher;
-import com.flashhook.global.event.EndpointDeletedEvent;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.cache.annotation.CacheEvict;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 엔드포인트 비즈니스 로직
@@ -72,7 +74,7 @@ public class EndpointService {
 
         endpointRepository.save(Objects.requireNonNull(endpoint));
         log.info("Endpoint created successfully: endpointId={}, creatorIp={}", endpointId, ip);
-        
+
         meterRegistry.counter("flashhook.endpoint.created.total").increment();
 
         return EndpointResponse.builder()
@@ -128,14 +130,19 @@ public class EndpointService {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
 
-        MockConfig.MockConfigBuilder mockBuilder = 
-            endpoint.getMockConfig() != null ? endpoint.getMockConfig().toBuilder() : MockConfig.builder();
+        MockConfig.MockConfigBuilder mockBuilder = endpoint.getMockConfig() != null
+                ? endpoint.getMockConfig().toBuilder()
+                : MockConfig.builder();
 
-        if (request.getStatusCode() != null) mockBuilder.statusCode(request.getStatusCode());
-        if (request.getDelayMs() != null) mockBuilder.delayMs(request.getDelayMs());
-        if (request.getHeaders() != null) mockBuilder.headers(request.getHeaders());
-        if (request.getBody() != null) mockBuilder.body(request.getBody());
-        
+        if (request.getStatusCode() != null)
+            mockBuilder.statusCode(request.getStatusCode());
+        if (request.getDelayMs() != null)
+            mockBuilder.delayMs(request.getDelayMs());
+        if (request.getHeaders() != null)
+            mockBuilder.headers(request.getHeaders());
+        if (request.getBody() != null)
+            mockBuilder.body(request.getBody());
+
         String presetType = request.getPresetType();
         if (presetType == null || presetType.isBlank()) {
             mockBuilder.presetType(null);

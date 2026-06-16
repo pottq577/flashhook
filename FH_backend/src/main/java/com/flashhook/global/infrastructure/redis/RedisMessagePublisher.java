@@ -1,8 +1,9 @@
 package com.flashhook.global.infrastructure.redis;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Redis Pub/Sub 메시지 발행

@@ -1,21 +1,17 @@
 package com.flashhook.domain.endpoint.model;
 
+import java.io.Serializable;
+import java.time.Instant;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.Instant;
-import org.springframework.data.annotation.Version;
-
-/**
- * 엔드포인트 도큐먼트 (MongoDB)
- * TTL: createdAt 기준 24시간 후 자동 삭제
- */
-import java.io.Serializable;
 
 @Document(collection = "endpoints")
 @Getter

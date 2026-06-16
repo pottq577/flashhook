@@ -1,11 +1,11 @@
 package com.flashhook.domain.admin.dto;
 
+import java.time.Instant;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
 
 @Getter
 @Builder
