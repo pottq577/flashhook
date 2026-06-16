@@ -236,6 +236,11 @@
   border-color: rgba(251, 113, 133, 0.5);
 }
 
+.input:focus-visible {
+  outline: 2px solid rgba(251, 113, 133, 0.8);
+  outline-offset: 2px;
+}
+
 .submitBtn {
   background-color: var(--danger);
   color: white;

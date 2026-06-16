@@ -34,6 +34,7 @@ export const AdminBlacklistManager = () => {
           value={ipInput}
           onChange={(e) => setIpInput(e.target.value)}
           placeholder="차단할 IP 주소를 입력하세요"
+          aria-label="IP 주소 입력"
           className={styles.input}
         />
         <button
@@ -68,6 +69,7 @@ export const AdminBlacklistManager = () => {
                 <button
                   onClick={() => removeMutation.mutate(ip)}
                   disabled={removeMutation.isPending}
+                  aria-label="삭제"
                   className={styles.ipDeleteBtn}
                 >
                   <Trash2 size={16} />

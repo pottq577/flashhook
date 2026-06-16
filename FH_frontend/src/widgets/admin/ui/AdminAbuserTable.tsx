@@ -75,6 +75,7 @@ export const AdminAbuserTable = () => {
                         href={`/dashboard/${endpoint.endpointId}`} 
                         target="_blank" 
                         rel="noreferrer"
+                        aria-label="새 탭에서 열기"
                         className={styles.actionBtn}
                       >
                         <ExternalLink size={16} />
@@ -82,6 +83,7 @@ export const AdminAbuserTable = () => {
                       <button
                         onClick={() => handleDelete(endpoint.endpointId)}
                         disabled={deleteMutation.isPending}
+                        aria-label="삭제"
                         className={`${styles.actionBtn} ${styles.danger}`}
                       >
                         <Trash2 size={16} />

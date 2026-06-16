@@ -44,6 +44,7 @@ export const AdminMetricsWidget = () => {
         <button
           onClick={() => refetch()}
           disabled={isFetching}
+          aria-label="지표 새로고침"
           className={styles.refreshBtn}
         >
           <RefreshCw size={18} className={isFetching ? styles.spin : ''} />

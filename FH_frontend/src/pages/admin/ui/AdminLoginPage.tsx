@@ -28,9 +28,13 @@ export const AdminLoginPage = () => {
       
       const from = location.state?.from?.pathname || '/admin';
       navigate(from, { replace: true });
-    } catch {
+    } catch (err) {
       setAdminToken(null);
-      setError('인증에 실패했습니다. 올바른 관리자 토큰을 입력해주세요.');
+      if (err instanceof Error && err.message === 'Authentication failed') {
+        setError('인증에 실패했습니다. 올바른 관리자 토큰을 입력해주세요.');
+      } else {
+        setError('네트워크 또는 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -62,11 +66,17 @@ export const AdminLoginPage = () => {
             value={token}
             onChange={(e) => setToken(e.target.value)}
             placeholder="X-Admin-Token"
+            aria-label="관리자 토큰"
+            aria-invalid={!!error}
+            aria-describedby={error ? 'admin-login-error' : undefined}
             className={styles.input}
           />
 
           {error && (
             <motion.p 
+              id="admin-login-error"
+              role="alert"
+              aria-live="polite"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               className={styles.errorText}
