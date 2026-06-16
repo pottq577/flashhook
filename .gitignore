@@ -32,8 +32,6 @@ node_modules/
 FH_backend/src/main/resources/application-*.yaml
 !FH_backend/src/main/resources/application-*.example.yaml
 
-### QA Reports ###
-docs/qa/qa-report-full.md
-docs/qa/bugs.md
-docs/qa/*.js
-docs/qa/*.mjs
+### QA Reports & Scripts ###
+docs/qa/*
+!docs/qa/qa-runner-full.mjs
