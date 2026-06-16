@@ -17,6 +17,17 @@ public class IpAddressValidator implements ConstraintValidator<IpAddress, String
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null || value.isBlank()) return false;
-        return IPV4_PATTERN.matcher(value).matches() || IPV6_PATTERN.matcher(value).matches();
+        String normalized = value.trim();
+
+        if (normalized.contains("::")) {
+            String[] sides = normalized.split("::", -1);
+            if (sides.length != 2) return false;
+            int left = sides[0].isEmpty() ? 0 : sides[0].split(":").length;
+            int right = sides[1].isEmpty() ? 0 : sides[1].split(":").length;
+            if (left + right >= 8) return false;
+        }
+
+        return IPV4_PATTERN.matcher(normalized).matches()
+                || IPV6_PATTERN.matcher(normalized).matches();
     }
 }
