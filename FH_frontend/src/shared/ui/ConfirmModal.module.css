@@ -44,12 +44,17 @@
   margin-top: 0.5rem;
 }
 
-.btnCancel, .btnConfirm {
+.btnCancel,
+.btnConfirm {
   padding: 0.5rem 1rem;
   border-radius: var(--radius-md);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
   min-height: 40px;
   min-width: 80px;
 }
@@ -75,6 +80,7 @@
   background-color: #dc2626; /* darker red */
 }
 
-.btnCancel:active, .btnConfirm:active {
+.btnCancel:active,
+.btnConfirm:active {
   transform: scale(0.96);
 }

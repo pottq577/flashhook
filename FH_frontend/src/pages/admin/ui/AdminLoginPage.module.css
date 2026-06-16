@@ -25,7 +25,12 @@
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, var(--danger), var(--warning), var(--danger));
+  background: linear-gradient(
+    90deg,
+    var(--danger),
+    var(--warning),
+    var(--danger)
+  );
 }
 
 .iconWrapper {
@@ -131,5 +136,7 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }

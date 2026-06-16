@@ -45,9 +45,15 @@
   border-radius: 50%;
 }
 
-.close { background-color: #FF5F56; }
-.minimize { background-color: #FFBD2E; }
-.maximize { background-color: #27C93F; }
+.close {
+  background-color: #ff5f56;
+}
+.minimize {
+  background-color: #ffbd2e;
+}
+.maximize {
+  background-color: #27c93f;
+}
 
 .terminalTitle {
   flex: 1;
@@ -92,8 +98,13 @@
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .terminalActions {
@@ -128,7 +139,13 @@
   width: 100%;
   max-width: 350px;
   white-space: nowrap;
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, text-shadow 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    text-shadow 0.2s ease;
   text-shadow: var(--terminal-glow);
   box-shadow: 0 0 10px rgba(0, 255, 102, 0.1) inset;
 }
@@ -206,7 +223,9 @@
 .recentId {
   color: var(--accent-secondary);
   font-weight: 500;
-  transition: color 0.2s, text-shadow 0.2s;
+  transition:
+    color 0.2s,
+    text-shadow 0.2s;
 }
 
 .recentTime {
@@ -227,7 +246,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s, transform 0.2s;
+  transition:
+    color 0.2s,
+    transform 0.2s;
   opacity: 0.5;
 }
 
@@ -240,7 +261,7 @@
 }
 
 .recentRemove:hover {
-  color: #FF5F56;
+  color: #ff5f56;
 }
 
 .section {
@@ -294,20 +315,30 @@
 }
 
 /* Syntax Highlighting */
-.keyword { color: var(--method-patch); }
-.variable { color: var(--method-put); }
-.string { color: var(--success); }
-.comment { color: var(--text-muted); }
-.key { color: var(--method-get); }
+.keyword {
+  color: var(--method-patch);
+}
+.variable {
+  color: var(--method-put);
+}
+.string {
+  color: var(--success);
+}
+.comment {
+  color: var(--text-muted);
+}
+.key {
+  color: var(--method-get);
+}
 
 @media (max-width: 768px) {
-  .splitContent, .splitContent:nth-child(even) {
+  .splitContent,
+  .splitContent:nth-child(even) {
     flex-direction: column;
     gap: 2rem;
   }
-  
+
   .codeBlock {
     width: 100%;
   }
 }
-

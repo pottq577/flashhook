@@ -6,9 +6,9 @@
 }
 
 .button {
-  background-color: var(--bg-primary, #0D0D12);
-  color: var(--accent, #00FF66);
-  border: 1px solid var(--accent, #00FF66);
+  background-color: var(--bg-primary, #0d0d12);
+  color: var(--accent, #00ff66);
+  border: 1px solid var(--accent, #00ff66);
   padding: 8px 12px;
   border-radius: 4px;
   font-family: var(--font-mono);
@@ -16,7 +16,12 @@
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
-  transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  transition:
+    color 0.2s,
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
   backdrop-filter: blur(4px);
 }
 
