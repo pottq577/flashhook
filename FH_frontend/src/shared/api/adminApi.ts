@@ -27,7 +27,7 @@ const getHeaders = () => {
   };
 };
 
-const handleResponse = async (res: Response) => {
+const handleResponse = async <T>(res: Response): Promise<T> => {
   if (res.status === 401 || res.status === 403) {
     useAdminStore.getState().logout();
     throw new Error('Authentication failed');
@@ -35,19 +35,19 @@ const handleResponse = async (res: Response) => {
   if (!res.ok) {
     throw new Error('API Request failed');
   }
-  if (res.status === 204) return null;
-  return res.json();
+  if (res.status === 204) return undefined as T;
+  return (await res.json()) as T;
 };
 
 export const adminApi = {
   getMetrics: async (): Promise<AdminMetrics> => {
     const res = await fetch(`${API_BASE_URL}/admin/metrics`, { headers: getHeaders() });
-    return handleResponse(res);
+    return handleResponse<AdminMetrics>(res);
   },
   
   getSuspiciousEndpoints: async (): Promise<SuspiciousEndpoint[]> => {
     const res = await fetch(`${API_BASE_URL}/admin/endpoints/suspicious`, { headers: getHeaders() });
-    return handleResponse(res);
+    return handleResponse<AdminMetrics>(res);
   },
 
   deleteEndpoint: async (endpointId: string): Promise<void> => {
@@ -55,12 +55,12 @@ export const adminApi = {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    return handleResponse(res);
+    return handleResponse<AdminMetrics>(res);
   },
 
   getBlacklistedIps: async (): Promise<string[]> => {
     const res = await fetch(`${API_BASE_URL}/admin/blacklist`, { headers: getHeaders() });
-    return handleResponse(res);
+    return handleResponse<AdminMetrics>(res);
   },
 
   blacklistIp: async (ip: string): Promise<void> => {
@@ -69,7 +69,7 @@ export const adminApi = {
       headers: getHeaders(),
       body: JSON.stringify({ ip }),
     });
-    return handleResponse(res);
+    return handleResponse<AdminMetrics>(res);
   },
 
   removeBlacklistedIp: async (ip: string): Promise<void> => {
@@ -77,6 +77,6 @@ export const adminApi = {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    return handleResponse(res);
+    await handleResponse<void>(res);
   }
 };
