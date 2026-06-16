@@ -1,16 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminApi } from '@/shared/api/adminApi';
-import { useAdminStore } from '@/entities/admin/model/adminStore';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { adminApi } from "@/shared/api/adminApi";
+import { useAdminStore } from "@/entities/admin/model/adminStore";
 
 const POLLING_INTERVAL = 30000;
 
 export const adminKeys = {
-  all: ['admin'] as const,
-  metrics: (token: string | null) => [...adminKeys.all, 'metrics', token] as const,
-  suspicious: (token: string | null) => [...adminKeys.all, 'suspicious', token] as const,
-  blacklist: (token: string | null) => [...adminKeys.all, 'blacklist', token] as const,
-  suspiciousAll: () => [...adminKeys.all, 'suspicious'] as const,
-  blacklistAll: () => [...adminKeys.all, 'blacklist'] as const,
+  all: ["admin"] as const,
+  metrics: (token: string | null) =>
+    [...adminKeys.all, "metrics", token] as const,
+  suspicious: (token: string | null) =>
+    [...adminKeys.all, "suspicious", token] as const,
+  blacklist: (token: string | null) =>
+    [...adminKeys.all, "blacklist", token] as const,
+  suspiciousAll: () => [...adminKeys.all, "suspicious"] as const,
+  blacklistAll: () => [...adminKeys.all, "blacklist"] as const,
 };
 
 export const useAdminMetrics = () => {

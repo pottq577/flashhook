@@ -1,7 +1,7 @@
-import type { WebhookLog } from '@/entities/log/model/log.schema';
-import MethodBadge from '@/shared/ui/MethodBadge';
-import styles from './LogItem.module.css';
-import { memo } from 'react';
+import type { WebhookLog } from "@/entities/log/model/log.schema";
+import MethodBadge from "@/shared/ui/MethodBadge";
+import styles from "./LogItem.module.css";
+import { memo } from "react";
 
 interface LogItemProps {
   log: WebhookLog & { _timeString?: string; _contentType?: string };
@@ -9,24 +9,32 @@ interface LogItemProps {
   onSelect: (logId: string) => void;
 }
 
-const timeFormatter = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+const timeFormatter = new Intl.DateTimeFormat("en-US", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
 
 const LogItem = memo(({ log, isSelected, onSelect }: LogItemProps) => {
-  const timeString = log._timeString ?? (() => {
-    const d = new Date(log.receivedAt);
-    return !isNaN(d.getTime()) ? timeFormatter.format(d) : 'Invalid time';
-  })();
-  const contentType = log._contentType ?? (log.contentType ? log.contentType.split(';')[0] : '');
+  const timeString =
+    log._timeString ??
+    (() => {
+      const d = new Date(log.receivedAt);
+      return !isNaN(d.getTime()) ? timeFormatter.format(d) : "Invalid time";
+    })();
+  const contentType =
+    log._contentType ?? (log.contentType ? log.contentType.split(";")[0] : "");
 
   return (
-    <div 
+    <div
       role="button"
       tabIndex={0}
       data-testid="log-item"
-      className={`${styles.container} ${isSelected ? styles.selected : ''}`}
+      className={`${styles.container} ${isSelected ? styles.selected : ""}`}
       onClick={() => onSelect(log.logId)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onSelect(log.logId);
         }
@@ -37,8 +45,12 @@ const LogItem = memo(({ log, isSelected, onSelect }: LogItemProps) => {
         <span className={styles.time}>{timeString}</span>
       </div>
       <div className={styles.preview}>
-        {contentType ? <span className={styles.contentType}>{contentType}</span> : null}
-        <span className={styles.size}>{Math.max(0, log.bodySize / 1024).toFixed(2)} KB</span>
+        {contentType ? (
+          <span className={styles.contentType}>{contentType}</span>
+        ) : null}
+        <span className={styles.size}>
+          {Math.max(0, log.bodySize / 1024).toFixed(2)} KB
+        </span>
       </div>
     </div>
   );

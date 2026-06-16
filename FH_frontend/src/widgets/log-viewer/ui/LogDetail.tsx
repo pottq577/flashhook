@@ -1,27 +1,37 @@
-import { useState, memo } from 'react';
-import { useLogDetailQuery, useReplayLogMutation } from '@/entities/log/api/log.queries';
-import MethodBadge from '@/shared/ui/MethodBadge';
-import PromptModal from '@/shared/ui/PromptModal';
-import { useToastStore } from '@/shared/lib/toast.store';
-import JsonViewer from './JsonViewer';
-import { resolveApiBaseUrl } from '@/shared/config/api';
-import { logger } from '@/shared/lib/logger';
-import styles from './LogDetail.module.css';
+import { useState, memo } from "react";
+import {
+  useLogDetailQuery,
+  useReplayLogMutation,
+} from "@/entities/log/api/log.queries";
+import MethodBadge from "@/shared/ui/MethodBadge";
+import PromptModal from "@/shared/ui/PromptModal";
+import { useToastStore } from "@/shared/lib/toast.store";
+import JsonViewer from "./JsonViewer";
+import { resolveApiBaseUrl } from "@/shared/config/api";
+import { logger } from "@/shared/lib/logger";
+import styles from "./LogDetail.module.css";
 
 interface LogDetailProps {
   logId?: string;
   endpointId?: string;
 }
 
-const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps) {
-  const { data: log, isLoading } = useLogDetailQuery(endpointId || '', logId);
+const LogDetail = memo(function LogDetail({
+  logId,
+  endpointId,
+}: LogDetailProps) {
+  const { data: log, isLoading } = useLogDetailQuery(endpointId || "", logId);
   const replayMutation = useReplayLogMutation();
   const addToast = useToastStore((state) => state.addToast);
   const [copied, setCopied] = useState(false);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
 
   if (isLoading) {
-    return <div role="status" className={styles.emptyContainer}>&gt; LOADING_PAYLOAD…</div>;
+    return (
+      <div role="status" className={styles.emptyContainer}>
+        &gt; LOADING_PAYLOAD…
+      </div>
+    );
   }
 
   if (!log) {
@@ -30,7 +40,9 @@ const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps)
         <div role="status" className={styles.emptyContainer}>
           <div className={styles.emptyText}>
             <div className={styles.emptyTitle}>&gt; WAITING_FOR_ENDPOINT…</div>
-            <p className={styles.emptyDesc}>엔드포인트를 먼저 만들거나 선택해 주세요.</p>
+            <p className={styles.emptyDesc}>
+              엔드포인트를 먼저 만들거나 선택해 주세요.
+            </p>
           </div>
         </div>
       );
@@ -46,7 +58,7 @@ const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps)
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (e) {
-        logger.warn('Failed to copy cURL command to clipboard', { error: e });
+        logger.warn("Failed to copy cURL command to clipboard", { error: e });
         setCopied(false);
       }
     };
@@ -55,22 +67,35 @@ const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps)
       <div role="status" className={styles.emptyContainer}>
         <div className={styles.emptyText}>
           <div className={styles.emptyTitle}>&gt; WAITING_FOR_REQUEST…</div>
-          <p className={styles.emptyDesc}>아직 들어온 요청이 없어요. 아래 명령어로 테스트 웹훅을 보내보세요.</p>
+          <p className={styles.emptyDesc}>
+            아직 들어온 요청이 없어요. 아래 명령어로 테스트 웹훅을 보내보세요.
+          </p>
           <div className={styles.curlBlock}>
             <div className={styles.curlHeader}>
               <div className={styles.macControls} aria-hidden="true">
-                <span className={styles.macDot} style={{ backgroundColor: '#ff5f56' }} />
-                <span className={styles.macDot} style={{ backgroundColor: '#ffbd2e' }} />
-                <span className={styles.macDot} style={{ backgroundColor: '#27c93f' }} />
+                <span
+                  className={styles.macDot}
+                  style={{ backgroundColor: "#ff5f56" }}
+                />
+                <span
+                  className={styles.macDot}
+                  style={{ backgroundColor: "#ffbd2e" }}
+                />
+                <span
+                  className={styles.macDot}
+                  style={{ backgroundColor: "#27c93f" }}
+                />
               </div>
               <span className={styles.curlLabel}>bash</span>
               <button
                 className={styles.copyButton}
                 onClick={handleCopy}
-                title={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
-                aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
+                title={copied ? "Copied to clipboard" : "Copy to clipboard"}
+                aria-label={
+                  copied ? "Copied to clipboard" : "Copy to clipboard"
+                }
               >
-                {copied ? 'COPIED!' : 'COPY'}
+                {copied ? "COPIED!" : "COPY"}
               </button>
             </div>
             <div className={styles.curlCodeWrapper}>
@@ -84,7 +109,7 @@ const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps)
 
   const date = new Date(log.receivedAt);
   const isValidDate = !isNaN(date.getTime());
-  const dateString = isValidDate ? date.toLocaleString() : 'INVALID_DATE';
+  const dateString = isValidDate ? date.toLocaleString() : "INVALID_DATE";
 
   const handleReplayClick = () => {
     setIsPromptOpen(true);
@@ -103,8 +128,8 @@ const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps)
           },
           onError: (err) => {
             addToast(`[Replay] 다시 보내지 못했어요: ${err.message}`, 4000);
-          }
-        }
+          },
+        },
       );
     }
   };
@@ -112,17 +137,21 @@ const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps)
   return (
     <div className={styles.container} data-testid="log-detail">
       <div className={styles.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <MethodBadge method={log.method} />
           <span className={styles.url}>{log.url}</span>
         </div>
-        <button 
-          className={styles.copyButton} 
-          style={{ padding: '0.25rem 0.75rem', borderRadius: '4px', borderColor: 'var(--primary-color)' }}
+        <button
+          className={styles.copyButton}
+          style={{
+            padding: "0.25rem 0.75rem",
+            borderRadius: "4px",
+            borderColor: "var(--primary-color)",
+          }}
           onClick={handleReplayClick}
           disabled={replayMutation.isPending}
         >
-          {replayMutation.isPending ? 'REPLAYING...' : 'REPLAY'}
+          {replayMutation.isPending ? "REPLAYING..." : "REPLAY"}
         </button>
       </div>
 
@@ -137,7 +166,7 @@ const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps)
         </div>
         <div className={styles.metaItem}>
           <span className={styles.metaLabel}>CONTENT_TYPE</span>
-          <span>{log.contentType || 'NONE'}</span>
+          <span>{log.contentType || "NONE"}</span>
         </div>
         <div className={styles.metaItem}>
           <span className={styles.metaLabel}>PAYLOAD_SIZE</span>
@@ -154,7 +183,11 @@ const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps)
               <span className={styles.value}>{String(value)}</span>
             </div>
           ))}
-          {(!log.headers || Object.keys(log.headers).length === 0) ? <div role="status" className={styles.empty}>NO_HEADERS</div> : null}
+          {!log.headers || Object.keys(log.headers).length === 0 ? (
+            <div role="status" className={styles.empty}>
+              NO_HEADERS
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -167,7 +200,11 @@ const LogDetail = memo(function LogDetail({ logId, endpointId }: LogDetailProps)
               <span className={styles.value}>{String(value)}</span>
             </div>
           ))}
-          {(!log.queryParams || Object.keys(log.queryParams).length === 0) ? <div role="status" className={styles.empty}>NO_QUERY_PARAMS</div> : null}
+          {!log.queryParams || Object.keys(log.queryParams).length === 0 ? (
+            <div role="status" className={styles.empty}>
+              NO_QUERY_PARAMS
+            </div>
+          ) : null}
         </div>
       </div>
 

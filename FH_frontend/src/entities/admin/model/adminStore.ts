@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface AdminState {
   adminToken: string | null;
@@ -15,8 +15,8 @@ export const useAdminStore = create<AdminState>()(
       logout: () => set({ adminToken: null }),
     }),
     {
-      name: 'admin-storage',
+      name: "admin-storage",
       storage: createJSONStorage(() => sessionStorage),
-    }
-  )
+    },
+  ),
 );

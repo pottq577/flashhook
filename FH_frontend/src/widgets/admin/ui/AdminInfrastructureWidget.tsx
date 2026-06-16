@@ -1,16 +1,17 @@
-import { Activity, ExternalLink } from 'lucide-react';
-import { motion } from 'framer-motion';
-import styles from './AdminWidgets.module.css';
+import { Activity, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
+import styles from "./AdminWidgets.module.css";
 
 export const AdminInfrastructureWidget = () => {
-  const grafanaUrl = import.meta.env.VITE_GRAFANA_URL || 'http://localhost:3000';
+  const grafanaUrl =
+    import.meta.env.VITE_GRAFANA_URL || "http://localhost:3000";
   return (
     <div className={styles.card}>
       <div className={styles.header}>
         <h2 className={styles.title}>시스템 인프라 관리</h2>
       </div>
-      
-      <div style={{ marginTop: 'var(--spacing-md)' }}>
+
+      <div style={{ marginTop: "var(--spacing-md)" }}>
         <motion.a
           href={grafanaUrl}
           target="_blank"
@@ -28,7 +29,8 @@ export const AdminInfrastructureWidget = () => {
             <ExternalLink size={18} className={styles.infraLinkIcon} />
           </div>
           <p className={styles.infraDesc}>
-            Prometheus에서 수집한 시스템 메트릭(CPU, 메모리, 트래픽 등)을 상세하게 관제합니다.
+            Prometheus에서 수집한 시스템 메트릭(CPU, 메모리, 트래픽 등)을
+            상세하게 관제합니다.
           </p>
           <div className={styles.infraStatus}>
             <span className={styles.statusDot}>

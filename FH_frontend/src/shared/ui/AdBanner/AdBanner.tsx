@@ -26,7 +26,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
 
   useEffect(() => {
     // 애드센스 심사 중이거나 환경변수가 켜져있지 않으면 스크립트 초기화 건너뜀
-    if (import.meta.env.VITE_ENABLE_ADS !== 'true') return;
+    if (import.meta.env.VITE_ENABLE_ADS !== "true") return;
 
     // Only push if not already pushed and adsbygoogle is available
     if (adRef.current && !isPushed.current) {
@@ -40,7 +40,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
     }
   }, []);
 
-  if (import.meta.env.VITE_ENABLE_ADS !== 'true') {
+  if (import.meta.env.VITE_ENABLE_ADS !== "true") {
     return null;
   }
 

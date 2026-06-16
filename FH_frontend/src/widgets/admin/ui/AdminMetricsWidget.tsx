@@ -1,8 +1,8 @@
-import { useAdminMetrics } from '@/entities/admin/api/useAdminQueries';
-import { motion } from 'framer-motion';
-import { RefreshCw, Users, Server, Activity } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import styles from './AdminWidgets.module.css';
+import { useAdminMetrics } from "@/entities/admin/api/useAdminQueries";
+import { motion } from "framer-motion";
+import { RefreshCw, Users, Server, Activity } from "lucide-react";
+import { useEffect, useState } from "react";
+import styles from "./AdminWidgets.module.css";
 
 const AnimatedCounter = ({ value }: { value: number }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -47,26 +47,26 @@ export const AdminMetricsWidget = () => {
           aria-label="지표 새로고침"
           className={styles.refreshBtn}
         >
-          <RefreshCw size={18} className={isFetching ? styles.spin : ''} />
+          <RefreshCw size={18} className={isFetching ? styles.spin : ""} />
         </button>
       </div>
 
       <div className={styles.metricsGrid}>
         {[
           {
-            label: '오늘 생성된 엔드포인트',
+            label: "오늘 생성된 엔드포인트",
             value: data?.endpointsCreatedToday || 0,
             icon: <Server size={24} />,
             iconClass: styles.metricIconBlue,
           },
           {
-            label: '현재 활성 연결 (SSE)',
+            label: "현재 활성 연결 (SSE)",
             value: data?.activeSseConnections || 0,
             icon: <Users size={24} />,
             iconClass: styles.metricIconGreen,
           },
           {
-            label: '누적 웹훅 수신량',
+            label: "누적 웹훅 수신량",
             value: data?.totalWebhooksReceived || 0,
             icon: <Activity size={24} />,
             iconClass: styles.metricIconPurple,

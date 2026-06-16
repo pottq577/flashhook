@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import styles from './CustomDropdown.module.css';
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import styles from "./CustomDropdown.module.css";
 
 interface CustomDropdownProps {
   value: string | number;
@@ -39,18 +39,18 @@ export function CustomDropdown({
   hideNoOptions,
 }: CustomDropdownProps) {
   const selected = options.find((o) => o.value === value);
-  const isCustom = isCustomStatus ?? (!selected && value !== '');
+  const isCustom = isCustomStatus ?? (!selected && value !== "");
 
   const [inputValue, setInputValue] = useState(String(value));
   const [prevValue, setPrevValue] = useState(String(value));
-  
+
   if (String(value) !== prevValue) {
     setPrevValue(String(value));
     setInputValue(String(value));
   }
 
   const filteredOptions = useMemo(() => {
-    if (!isEditable || inputValue === '') return options;
+    if (!isEditable || inputValue === "") return options;
     const lowerInput = inputValue.toLowerCase();
     return options.filter(
       (o) =>
@@ -70,7 +70,7 @@ export function CustomDropdown({
         onKeyDown={
           !isEditable
             ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   onToggle();
                 }
@@ -106,7 +106,7 @@ export function CustomDropdown({
               : selected
                 ? displayValue
                   ? displayValue(value, selected)
-                  : `${selected.value !== selected.label ? selected.value + ' ' : ''}${selected.label}`
+                  : `${selected.value !== selected.label ? selected.value + " " : ""}${selected.label}`
                 : placeholder}
           </span>
         )}
@@ -126,7 +126,7 @@ export function CustomDropdown({
           <motion.div
             className={styles.customSelectDropdown}
             role="listbox"
-            style={alignRight ? { right: 0, left: 'auto' } : undefined}
+            style={alignRight ? { right: 0, left: "auto" } : undefined}
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
@@ -136,12 +136,12 @@ export function CustomDropdown({
               filteredOptions.map((o) => (
                 <div
                   key={String(o.value)}
-                  className={`${styles.customSelectOption} ${value === o.value && !isCustom ? styles.selected : ''}`}
+                  className={`${styles.customSelectOption} ${value === o.value && !isCustom ? styles.selected : ""}`}
                   role="option"
                   aria-selected={value === o.value && !isCustom}
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       onSelect(o.value);
                     }
@@ -155,32 +155,34 @@ export function CustomDropdown({
                   <div className={styles.optionTextContainer}>
                     <div className={styles.optionPrimary}>
                       <span className={styles.optionLabel}>{o.label}</span>
-                      {o.desc ? <span className={styles.optionDesc}>{o.desc}</span> : null}
+                      {o.desc ? (
+                        <span className={styles.optionDesc}>{o.desc}</span>
+                      ) : null}
                     </div>
                     {o.value !== o.label ? (
-                      <span className={styles.optionValue}>{String(o.value)}</span>
+                      <span className={styles.optionValue}>
+                        {String(o.value)}
+                      </span>
                     ) : null}
                   </div>
                 </div>
               ))
-            ) : (
-              !hideNoOptions ? (
-                <div
-                  className={styles.customSelectOption}
-                  style={{ opacity: 0.5 }}
-                >
-                  <span className={styles.optionLabel}>No matching options</span>
-                </div>
-              ) : null
-            )}
+            ) : !hideNoOptions ? (
+              <div
+                className={styles.customSelectOption}
+                style={{ opacity: 0.5 }}
+              >
+                <span className={styles.optionLabel}>No matching options</span>
+              </div>
+            ) : null}
             {onCustom && !isEditable ? (
               <div
-                className={`${styles.customSelectOption} ${isCustom ? styles.selected : ''}`}
+                className={`${styles.customSelectOption} ${isCustom ? styles.selected : ""}`}
                 role="option"
                 aria-selected={isCustom}
                 tabIndex={0}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     onCustom();
                   }

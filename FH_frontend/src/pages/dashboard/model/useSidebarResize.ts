@@ -1,11 +1,18 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from "react";
 
-export function useSidebarResize(initialWidth = 440, minWidth = 440, maxWidth = 800) {
+export function useSidebarResize(
+  initialWidth = 440,
+  minWidth = 440,
+  maxWidth = 800,
+) {
   const [sidebarWidth, setSidebarWidth] = useState(initialWidth);
   const [isResizing, setIsResizing] = useState(false);
   const isDragging = useRef(false);
   const rafRef = useRef<number | null>(null);
-  const originalStylesRef = useRef<{ cursor: string; userSelect: string } | null>(null);
+  const originalStylesRef = useRef<{
+    cursor: string;
+    userSelect: string;
+  } | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
 
   const restoreStyles = useCallback(() => {
@@ -16,16 +23,19 @@ export function useSidebarResize(initialWidth = 440, minWidth = 440, maxWidth = 
     }
   }, []);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging.current) return;
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      const newWidth = window.innerWidth - e.clientX;
-      if (newWidth >= minWidth && newWidth < maxWidth) {
-        setSidebarWidth(newWidth);
-      }
-    });
-  }, [minWidth, maxWidth]);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        const newWidth = window.innerWidth - e.clientX;
+        if (newWidth >= minWidth && newWidth < maxWidth) {
+          setSidebarWidth(newWidth);
+        }
+      });
+    },
+    [minWidth, maxWidth],
+  );
 
   const handleMouseUp = useCallback(() => {
     if (isDragging.current) {
@@ -47,14 +57,14 @@ export function useSidebarResize(initialWidth = 440, minWidth = 440, maxWidth = 
       cursor: document.body.style.cursor,
       userSelect: document.body.style.userSelect,
     };
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
     cleanupRef.current = () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [handleMouseMove, handleMouseUp]);
 

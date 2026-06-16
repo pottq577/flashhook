@@ -1,22 +1,26 @@
-import type { FormEvent } from 'react';
-import { useState } from 'react';
-import { useAdminBlacklist, useAddBlacklistMutation, useRemoveBlacklistMutation } from '@/entities/admin/api/useAdminQueries';
-import { ShieldAlert, Trash2, Plus } from 'lucide-react';
-import { motion } from 'framer-motion';
-import styles from './AdminWidgets.module.css';
+import type { FormEvent } from "react";
+import { useState } from "react";
+import {
+  useAdminBlacklist,
+  useAddBlacklistMutation,
+  useRemoveBlacklistMutation,
+} from "@/entities/admin/api/useAdminQueries";
+import { ShieldAlert, Trash2, Plus } from "lucide-react";
+import { motion } from "framer-motion";
+import styles from "./AdminWidgets.module.css";
 
 export const AdminBlacklistManager = () => {
   const { data: ips, isLoading, isError } = useAdminBlacklist();
   const addMutation = useAddBlacklistMutation();
   const removeMutation = useRemoveBlacklistMutation();
-  
-  const [ipInput, setIpInput] = useState('');
+
+  const [ipInput, setIpInput] = useState("");
 
   const handleAdd = (e: FormEvent) => {
     e.preventDefault();
     if (!ipInput.trim()) return;
     addMutation.mutate(ipInput.trim(), {
-      onSuccess: () => setIpInput(''),
+      onSuccess: () => setIpInput(""),
     });
   };
 
@@ -52,9 +56,17 @@ export const AdminBlacklistManager = () => {
         {isLoading ? (
           <div className={styles.emptyState}>목록을 불러오는 중...</div>
         ) : isError ? (
-          <div className={styles.emptyState} style={{ color: 'var(--danger)' }}>데이터를 불러오는데 실패했습니다.</div>
+          <div className={styles.emptyState} style={{ color: "var(--danger)" }}>
+            데이터를 불러오는데 실패했습니다.
+          </div>
         ) : !ips || ips.length === 0 ? (
-          <div className={styles.emptyState} style={{ border: '1px dashed var(--border)', borderRadius: 'var(--radius-md)' }}>
+          <div
+            className={styles.emptyState}
+            style={{
+              border: "1px dashed var(--border)",
+              borderRadius: "var(--radius-md)",
+            }}
+          >
             현재 차단된 IP가 없습니다.
           </div>
         ) : (
