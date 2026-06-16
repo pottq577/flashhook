@@ -1,3 +1,5 @@
+import { logger } from '@/shared/lib/logger';
+
 const KEY_PREFIX = 'fh_token_';
 
 function buildKey(endpointId: string): string {
@@ -19,7 +21,8 @@ export function set(endpointId: string, token: string): void {
        history.push(endpointId);
        localStorage.setItem('fh_history', JSON.stringify(history));
     }
-  } catch {
+  } catch (e) {
+    logger.warn('Failed to parse fh_history from localStorage, resetting data', e);
     localStorage.setItem('fh_history', JSON.stringify([endpointId]));
   }
 }
@@ -33,7 +36,8 @@ export function remove(endpointId: string): void {
     const history = Array.isArray(parsed) ? parsed : [];
     const newHistory = history.filter((id: string) => id !== endpointId);
     localStorage.setItem('fh_history', JSON.stringify(newHistory));
-  } catch {
+  } catch (e) {
+    logger.warn('Failed to parse fh_history from localStorage, clearing data', e);
     localStorage.setItem('fh_history', '[]');
   }
 }

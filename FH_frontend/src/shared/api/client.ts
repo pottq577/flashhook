@@ -68,8 +68,8 @@ export async function apiRequest(
         let errorData: unknown;
         try { 
           errorData = JSON.parse(errorBody); 
-        } catch {
-          // ignore parse error
+        } catch (e) {
+          logger.warn('Failed to parse backend custom error response', { error: e, errorBody: errorBody.slice(0, 200) });
         }
         if (
           errorData &&
@@ -99,6 +99,7 @@ export async function apiRequest(
       return response.json();
     } catch (error) {
       clearTimeout(timeoutId);
+      logger.error(`API request failed: [${method}] ${path}`, error);
       if ((error as Error).name === 'AbortError') {
         if (attempt < maxRetries) {
           attempt++;

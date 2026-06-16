@@ -1,9 +1,11 @@
 import { QueryClient, QueryCache } from '@tanstack/react-query';
 import { useToastStore } from '@/shared/lib/toast.store';
+import { logger } from '@/shared/lib/logger';
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error: Error) => {
+      logger.error('Query global error handler caught an error', error);
       const msg = error.message || '';
       
       // 1. 만료 또는 권한 없음 (강제 홈 이동)
@@ -25,8 +27,8 @@ export const queryClient = new QueryClient({
             useToastStore.getState().addToast(parsed.message);
             return;
           }
-        } catch {
-          // ignore
+        } catch (e) {
+          logger.warn('Failed to parse custom error message from string', { originalMsg: msg, error: e });
         }
       }
       useToastStore.getState().addToast(msg);

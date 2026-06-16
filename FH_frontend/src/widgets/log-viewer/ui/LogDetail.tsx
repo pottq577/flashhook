@@ -5,6 +5,7 @@ import PromptModal from '@/shared/ui/PromptModal';
 import { useToastStore } from '@/shared/lib/toast.store';
 import JsonViewer from './JsonViewer';
 import { resolveApiBaseUrl } from '@/shared/config/api';
+import { logger } from '@/shared/lib/logger';
 import styles from './LogDetail.module.css';
 
 interface LogDetailProps {
@@ -44,7 +45,8 @@ function LogDetail({ logId, endpointId }: LogDetailProps) {
         await navigator.clipboard.writeText(curlCommand);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-      } catch {
+      } catch (e) {
+        logger.warn('Failed to copy cURL command to clipboard', { error: e });
         setCopied(false);
       }
     };
