@@ -53,13 +53,13 @@ flashhook:
     max-size-bytes: 5242880       # 5MB
     body-preview-length: 300      # bodyPreview 절단 길이
 
-# Actuator (Healthcheck)
+# Actuator (Healthcheck & Metrics)
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health, prometheus
       base-path: /api/actuator
   endpoint:
     health:
-      show-details: never
+      show-details: always
