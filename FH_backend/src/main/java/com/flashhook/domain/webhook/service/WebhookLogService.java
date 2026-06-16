@@ -84,11 +84,11 @@ public class WebhookLogService {
             WebhookLog lastLog = webhookLogRepository.findByLogId(lastSeenId).orElse(null);
             if (lastLog != null) {
                 if (direction == Direction.ASC) {
-                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtGreaterThanOrderByReceivedAtAscLogIdAsc(
-                            endpointId, lastLog.getReceivedAt(), pageRequest);
+                    logPage = webhookLogRepository.findNextPage(
+                            endpointId, lastLog.getReceivedAt(), lastLog.getLogId(), pageRequest);
                 } else {
-                    logPage = webhookLogRepository.findByEndpointIdAndReceivedAtLessThanOrderByReceivedAtDescLogIdDesc(
-                            endpointId, lastLog.getReceivedAt(), pageRequest);
+                    logPage = webhookLogRepository.findPreviousPage(
+                            endpointId, lastLog.getReceivedAt(), lastLog.getLogId(), pageRequest);
                 }
             } else {
                 logPage = webhookLogRepository.findByEndpointId(endpointId, pageRequest);
