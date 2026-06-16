@@ -20,7 +20,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   dataAdFormat = "auto",
   dataFullWidthResponsive = true,
 }) => {
-  const adRef = useRef<HTMLInsElement>(null);
+  const adRef = useRef<HTMLModElement>(null);
   const isPushed = useRef(false);
 
   useEffect(() => {
