@@ -684,6 +684,10 @@ Content-Type: application/json
 X-GitHub-Event: push
 X-GitHub-Delivery: a1b2c3d4-e5f6-7890-abcd-ef1234567890
 X-Hub-Signature-256: sha256=dummyhmacsha256signaturevalue1234567890abcdef
+X-GitHub-Hook-ID: 12345678
+X-GitHub-Hook-Installation-Target-Type: repository
+X-GitHub-Hook-Installation-Target-ID: 987654321
+User-Agent: GitHub-Hookshot/abc1234
 ```
 
 ```json
@@ -731,6 +735,10 @@ Content-Type: application/json
 X-GitHub-Event: pull_request
 X-GitHub-Delivery: b2c3d4e5-f6a7-8901-bcde-f12345678901
 X-Hub-Signature-256: sha256=dummyhmacsha256signaturevalue_pr_opened
+X-GitHub-Hook-ID: 12345678
+X-GitHub-Hook-Installation-Target-Type: repository
+X-GitHub-Hook-Installation-Target-ID: 987654321
+User-Agent: GitHub-Hookshot/abc1234
 ```
 
 ```json
@@ -766,6 +774,10 @@ Content-Type: application/json
 X-GitHub-Event: release
 X-GitHub-Delivery: c3d4e5f6-a7b8-9012-cdef-123456789012
 X-Hub-Signature-256: sha256=dummyhmacsha256signaturevalue_release
+X-GitHub-Hook-ID: 12345678
+X-GitHub-Hook-Installation-Target-Type: repository
+X-GitHub-Hook-Installation-Target-ID: 987654321
+User-Agent: GitHub-Hookshot/abc1234
 ```
 
 ```json
@@ -787,6 +799,54 @@ X-Hub-Signature-256: sha256=dummyhmacsha256signaturevalue_release
     "full_name": "flashhook-user/my-awesome-app"
   },
   "sender": { "login": "flashhook-user" }
+}
+```
+
+**[수신] Push Event (시크릿 미설정)**
+
+```
+Method: POST  (GitHub → FlashHook)
+Content-Type: application/json
+X-GitHub-Event: push
+X-GitHub-Delivery: d4e5f6a7-b8c9-0123-def0-123456789012
+X-GitHub-Hook-ID: 12345678
+X-GitHub-Hook-Installation-Target-Type: repository
+X-GitHub-Hook-Installation-Target-ID: 987654321
+User-Agent: GitHub-Hookshot/abc1234
+```
+
+```json
+{
+  "ref": "refs/heads/main",
+  "before": "abc123def456abc123def456abc123def456abc12",
+  "after": "789xyz012789xyz012789xyz012789xyz012789xy",
+  "repository": {
+    "id": 987654321,
+    "name": "my-awesome-app",
+    "full_name": "flashhook-user/my-awesome-app",
+    "private": false,
+    "html_url": "https://github.com/flashhook-user/my-awesome-app"
+  },
+  "pusher": {
+    "name": "flashhook-user",
+    "email": "dev@flashhook.io"
+  },
+  "commits": [
+    {
+      "id": "789xyz012789xyz012789xyz012789xyz012789xy",
+      "message": "feat: webhook 연동 테스트 추가",
+      "timestamp": "2024-01-15T14:30:00+09:00",
+      "author": { "name": "FlashHook Dev", "email": "dev@flashhook.io" },
+      "added": ["src/webhook/handler.ts"],
+      "modified": [],
+      "removed": []
+    }
+  ],
+  "head_commit": {
+    "id": "789xyz012789xyz012789xyz012789xyz012789xy",
+    "message": "feat: webhook 연동 테스트 추가",
+    "timestamp": "2024-01-15T14:30:00+09:00"
+  }
 }
 ```
 
