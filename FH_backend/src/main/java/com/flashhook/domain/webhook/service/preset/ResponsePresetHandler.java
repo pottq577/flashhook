@@ -7,5 +7,6 @@ import com.flashhook.domain.endpoint.model.MockConfig;
 
 public interface ResponsePresetHandler {
     String getPresetType();
+
     DeferredResult<ResponseEntity<?>> handleResponse(String rawBody, MockConfig mockConfig);
 }

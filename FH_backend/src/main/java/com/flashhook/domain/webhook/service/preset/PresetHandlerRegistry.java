@@ -23,12 +23,14 @@ public class PresetHandlerRegistry {
     }
 
     public Optional<ResponsePresetHandler> getResponseHandler(String presetType) {
-        if (presetType == null) return Optional.empty();
+        if (presetType == null)
+            return Optional.empty();
         return Optional.ofNullable(responseHandlers.get(presetType));
     }
 
     public Optional<RequestSigningPresetHandler> getRequestSigningHandler(String presetType) {
-        if (presetType == null) return Optional.empty();
+        if (presetType == null)
+            return Optional.empty();
         return Optional.ofNullable(requestSigningHandlers.get(presetType));
     }
 }

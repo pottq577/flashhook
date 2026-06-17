@@ -1,16 +1,24 @@
 package com.flashhook.domain.admin.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.flashhook.domain.admin.dto.AdminMetricsResponse;
 import com.flashhook.domain.admin.dto.BlacklistRequest;
 import com.flashhook.domain.admin.dto.SuspiciousEndpointDto;
 import com.flashhook.domain.admin.service.AdminService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin")

@@ -1,18 +1,20 @@
 package com.flashhook.domain.webhook.service.preset;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 
-import org.springframework.stereotype.Component;
 import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
 
 import com.flashhook.domain.webhook.dto.WebhookPayload;
 import com.flashhook.global.util.EncryptionUtil;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +46,7 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
 
         String secret = secretKey.startsWith("whsec_") ? secretKey.substring(6) : secretKey;
         byte[] keyBytes = Base64.getDecoder().decode(secret);
-        
+
         byte[] digestBytes = hmacSha256(keyBytes, signedContent);
         String signature = "v1," + Base64.getEncoder().encodeToString(digestBytes);
 
