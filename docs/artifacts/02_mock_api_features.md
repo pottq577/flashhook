@@ -856,12 +856,13 @@ X-Slack-Retry-Reason: http_timeout
 }
 ```
 
-_재시도 중단 응답:_
+_재시도 중단 응답 (Slack 공식 가이드: non-200 응답에 동봉):_
 
 ```
-Status: 200 OK
+Status: 500 Internal Server Error
 X-Slack-No-Retry: 1
 ```
+* Note: 200 OK 응답 시에는 어차피 재시도가 발생하지 않으므로 `X-Slack-No-Retry` 헤더는 의미가 없습니다. 이 헤더는 비정상 응답(4xx/5xx)을 명시적으로 반환할 때 Slack에 재시도 중단을 알리는 용도입니다.
 
 ---
 

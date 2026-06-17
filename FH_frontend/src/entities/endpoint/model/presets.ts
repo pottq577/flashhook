@@ -636,12 +636,10 @@ const slackPresets: PresetService = {
     {
       id: 'slack_retry',
       label: 'retry 이벤트 (재전송 방어)',
-      desc: '(200 X-Slack-Retry-Num: 1)',
-      statusCode: 200,
+      desc: '(500 X-Slack-No-Retry: 1)',
+      statusCode: 500,
       delayMs: 0,
-      headers: CT_JSON,
-      // Note: X-Slack-Retry-Num은 BE ALLOWED_HEADERS 미지원으로 응답 헤더에 포함 불가.
-      // body만으로 재전송 방어 로직 테스트 가능.
+      headers: { ...CT_JSON, 'X-Slack-No-Retry': '1' },
       body: JSON.stringify(
         {
           type: 'event_callback',
