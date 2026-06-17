@@ -33,4 +33,6 @@ public class MockUpdateRequest {
 
     @Size(max = 50)
     private String presetType;
+
+    private Map<String, Object> presetOptions;
 }

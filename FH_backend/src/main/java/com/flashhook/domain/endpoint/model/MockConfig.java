@@ -28,10 +28,19 @@ public class MockConfig implements Serializable {
 
     private String presetType;
 
+    private Map<String, Object> presetOptions;
+
     public Map<String, String> getHeaders() {
         if (headers == null) {
             return new HashMap<>();
         }
         return headers;
+    }
+
+    public Map<String, Object> getPresetOptions() {
+        if (presetOptions == null) {
+            return new HashMap<>();
+        }
+        return presetOptions;
     }
 }
