@@ -83,7 +83,7 @@ Route 53, S3, CloudFront를 AWS로 구성하는 절충안도 있지만, Vercel�
 
 ### 1.3. 프로덕션 스케일업 아키텍처 (AWS 전환 시나리오)
 
-서비스 성공 및 트래픽 폭증 시, AWS 기반의 프로덕션 아키텍처로 전환합니다.
+서비스가 성장하고 트래픽이 크게 늘면 AWS 기반 프로덕션 아키텍처로 전환해요.
 
 ```text
                     ┌─────────────┐
@@ -275,27 +275,25 @@ db.logs.createIndex(
 db.logs.createIndex({ logId: 1 }, { unique: true });
 ```
 
-### 2.3. Redis Key 설계
+### 2.3. Redis 사용 영역
 
 ```text
-# Rate Limiting — Fixed Window Counter
-rl:create:{ip}                      → INCR + EXPIRE 86400s (5개/IP/24시간)
-rl:hook:{endpointId}:{ip}           → INCR + EXPIRE 60s  (100건/EP/IP/분)
+# Rate Limiting
+엔드포인트 생성, 웹훅 수신, Replay 요청에 요청 빈도 제한을 적용해요.
 
 # SSE 연결 관리
-stream_token:{token}                → SET + EXPIRE 30s (SSE 연결용 일회용 토큰)
-sse:connections:{ip}                → SET (동시 SSE 수 추적, 최대 5) (예정)
+SSE 연결용 일회용 토큰과 연결 상태를 관리해요.
 
-# IP당 활성 엔드포인트 수 (빠른 조회용 캐시)
-endpoint:count:{ip}                 → INCR/DECR + TTL 없음 (MongoDB와 동기화)
+# 임시 캐시
+서비스 남용 방지와 빠른 조회를 위한 휘발성 캐시를 사용해요.
 ```
 
 ### 2.4. 데이터 보존 및 생명주기 정책 (Data Lifecycle)
 
-FlashHook은 무한히 증가할 수 있는 웹훅 데이터로 인한 스토리지 비용 폭증을 막고, 휘발성 테스트 목적에 맞게 단기 데이터 보존 원칙을 따릅니다.
+FlashHook은 끝없이 늘어날 수 있는 웹훅 데이터 때문에 스토리지 비용이 커지지 않도록, 휘발성 테스트 목적에 맞게 데이터를 짧게 보관해요.
 
-1. **보존 기간 (TTL) 및 자동 폐기**: 모든 엔드포인트와 해당 엔드포인트로 수신된 로그는 **생성 시점으로부터 24시간 후 자동 폐기**됩니다. (MongoDB TTL Index, Redis 자동 EXPIRE 연동)
-2. **앱 레벨 스토리지 캡 (Storage Cap)**: 단일 엔드포인트가 비정상적으로 많은 웹훅을 수신하여 몽고DB 스토리지를 독점하는 것을 방지하기 위해 캡(Cap)을 적용합니다.
+1. **보존 기간 (TTL) 및 자동 폐기**: 모든 엔드포인트와 해당 엔드포인트로 수신된 로그는 **생성 시점으로부터 24시간 후 자동으로 지워져요**. (MongoDB TTL Index, Redis 자동 EXPIRE 연동)
+2. **앱 레벨 스토리지 캡 (Storage Cap)**: 단일 엔드포인트가 비정상적으로 많은 웹훅을 받아 MongoDB 스토리지를 독점하지 않도록 캡(Cap)을 적용해요.
    - 개수 제한: 엔드포인트당 최대 500건 유지 (초과 시 순환 덮어쓰기)
    - 용량 제한: 누적 로그 크기 최대 5MB 유지
 
@@ -331,15 +329,22 @@ void saveLog(WebhookLog log) {
 
     // 4. 캡(Cap) 초과 검사 및 삭제
     // *동시성 주의: delete와 update의 원자성을 보장하기 위해 MongoDB @Transactional 반경 내에서 묶어 처리하거나 단일 오퍼레이션으로 구현합니다.
-    if (meta.getLogCount() > maxLogCount || meta.getLogSizeBytes() > maxLogSizeBytes) {
+    while (meta.getLogCount() > maxLogCount || meta.getLogSizeBytes() > maxLogSizeBytes) {
         WebhookLog oldest = logRepository.findOldestByEndpointId(log.getEndpointId());
-        if (oldest != null) {
-            logRepository.delete(oldest);
-            mongoTemplate.updateFirst(
-                query(where("endpointId").is(log.getEndpointId())),
-                new Update().inc("logCount", -1).inc("logSizeBytes", -oldest.getBodySize()),
-                EndpointMeta.class
-            );
+        if (oldest == null) {
+            break;
+        }
+
+        logRepository.delete(oldest);
+        meta = mongoTemplate.findAndModify(
+            query(where("endpointId").is(log.getEndpointId())),
+            new Update().inc("logCount", -1).inc("logSizeBytes", -oldest.getBodySize()),
+            options().returnNew(true),
+            EndpointMeta.class
+        );
+
+        if (meta == null) {
+            break;
         }
     }
 }
@@ -466,12 +471,12 @@ src/
 
 ### 4.3. 핵심 상태 관리 및 캐시 무효화 전략
 
-- **서버 상태 동기화 (TanStack Query)**: REST API 통신은 React Query로 캐싱되며, `lastSeenId` 커서 기반 페이징을 통해 스크롤 시 효율적 데이터를 불러옵니다.
-- **전역 상태 관리 (Zustand)**: `useLogStore`를 통해 SSE를 수신하면 React 컴포넌트가 즉시 렌더링되게 관리합니다.
+- **서버 상태 동기화 (TanStack Query)**: REST API 통신은 React Query로 캐싱하고, `lastSeenId` 커서 기반 페이징으로 스크롤 시 데이터를 효율적으로 불러와요.
+- **전역 상태 관리 (Zustand)**: `useLogStore`로 SSE 이벤트를 받으면 React 컴포넌트가 즉시 렌더링되도록 관리해요.
 - **Cache Invalidation 전략**:
-  - SSE 웹훅 이벤트 수신 시 전체 데이터를 다시 불러오지 않고 Zustand 배열의 **맨 앞(Unshift)**에 직접 주입(Optimistic Update)하여 즉각 반영합니다.
-  - 사용자가 로그를 전체 삭제하면 `invalidateQueries`를 호출하여 캐시를 무효화하고 동기화합니다.
-  - 만료(TTL) 404, 403 에러 발생 시 글로벌 에러 핸들러가 이를 낚아채 로컬 상태를 지우고 라우팅을 리다이렉트합니다.
+  - SSE 웹훅 이벤트를 받으면 전체 데이터를 다시 불러오지 않고 Zustand 배열의 **맨 앞(Unshift)**에 직접 주입(Optimistic Update)해 바로 반영해요.
+  - 사용자가 로그를 전체 삭제하면 `invalidateQueries`를 호출해 캐시를 무효화하고 동기화해요.
+  - 만료(TTL) 404, 403 에러가 나면 글로벌 에러 핸들러가 로컬 상태를 지우고 라우팅을 리다이렉트해요.
 
 ### 4.4. 데이터 흐름 (DashboardPage 기준)
 
@@ -497,5 +502,5 @@ src/
 
 ### 4.5. 기타 사항
 
-- **API 클라이언트**: `shared/api/client.ts` 페치 래퍼를 통해 런타임에 sessionStorage 토큰을 API 호출마다 자동 주입합니다.
-- **접근성(A11y) 검증**: Playwright와 Axe를 연동하여 CI 빌드 시 WCAG 2.1 AA 기준 통과 여부를 검증해 회귀 오류를 방어합니다.
+- **API 클라이언트**: `shared/api/client.ts` 페치 래퍼가 런타임에 sessionStorage 토큰을 API 호출마다 자동 주입해요.
+- **접근성(A11y) 검증**: Playwright와 Axe를 연동해 CI 빌드에서 WCAG 2.1 AA 기준 통과 여부를 검증하고 회귀 오류를 막아요.

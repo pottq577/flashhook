@@ -1,7 +1,7 @@
 # MVP API 명세서
 
 > **기술 스택**: Java 21, Spring Boot 3.5.15
-> **Rate Limit**: Redis를 이용한 고정 윈도우(Fixed Window Counter) 알고리즘 기반으로 적용됩니다.
+> **Rate Limit**: Redis 기반 요청 빈도 제한을 적용해요.
 
 ## 1. 공통 사항
 
@@ -100,7 +100,7 @@ Content-Type: application/json (선택)
 
 **에러**:
 
-- `429 ENDPOINT_LIMIT_EXCEEDED`: 5개/IP/10분 초과 (고정 윈도우)
+- `429 ENDPOINT_LIMIT_EXCEEDED`: 단기간 내 과도한 생성 요청은 제한돼요.
 - `403 FORBIDDEN`: 악성 IP 블랙리스트에 등재된 경우
 
 ---
@@ -179,8 +179,8 @@ PATCH /api/endpoints/{endpointId}/mock
 }
 ```
 
-> `presetType`: 동적 응답 핸들러를 지정합니다. `null`일 경우 `statusCode`, `headers`, `body` 필드 값으로 고정 응답을 반환합니다. `"SLACK_URL_VERIFICATION"`, `"GITHUB"`, `"PORTONE_V2"` 같은 동적 프리셋 지정 시, 수신 파이프라인(Slack) 또는 발송 파이프라인(GitHub, PortOne)에 따라 적절히 인터셉트됩니다.
-> `presetOptions`: `presetType`이 시그니처 생성을 요구할 때 필요한 부가 설정값입니다. `secretKey`는 서버 DB 저장 시 AES-256으로 암호화되어 보관됩니다.
+> `presetType`: 동적 응답 핸들러를 지정해요. `null`이면 `statusCode`, `headers`, `body` 필드 값으로 고정 응답을 돌려줘요. `"SLACK_URL_VERIFICATION"`, `"GITHUB"`, `"PORTONE_V2"` 같은 동적 프리셋을 지정하면 수신 파이프라인(Slack) 또는 발송 파이프라인(GitHub, PortOne)에 맞게 인터셉트해요.
+> `presetOptions`: `presetType`이 시그니처 생성을 요구할 때 필요한 부가 설정값이에요. `secretKey`는 서버 DB에 저장할 때 AES-256으로 암호화해요.
 
 **Response**: `200 OK` (업데이트된 엔드포인트 정보 반환)
 
@@ -210,7 +210,7 @@ ANY /api/hooks/{endpointId}
 
 **Response**: 동적 응답 (모의 설정 기반)
 
-엔드포인트의 `mockConfig` 설정에 따라 HTTP 상태 코드, 헤더, 지연(Delay), 본문(Body)이 반환됩니다.
+엔드포인트의 `mockConfig` 설정에 따라 HTTP 상태 코드, 헤더, 지연(Delay), 본문(Body)을 돌려줘요.
 기본 설정(수정하지 않았을 경우) 응답:
 `200 OK`
 
@@ -222,7 +222,7 @@ ok
 
 - `404 ENDPOINT_NOT_FOUND`: 존재하지 않거나 만료된 엔드포인트
 - `413 PAYLOAD_TOO_LARGE`: Body 1MB 초과
-- `429 RATE_LIMIT_EXCEEDED`: 100건/EP/1분 초과 (고정 윈도우)
+- `429 RATE_LIMIT_EXCEEDED`: 엔드포인트당 수신 요청 빈도가 제한돼요.
 - `408 REQUEST_TIMEOUT`: 지연 시간이 너무 길어 타임아웃 발생 시 (서버 하드 타임아웃 15초, Mock 설정은 최대 10초까지 허용)
 
 ---
@@ -310,7 +310,7 @@ GET /api/endpoints/{endpointId}/logs/{logId}
 }
 ```
 
-> **보안 참고**: `authorization`, `x-api-key`, `password` 등 민감한 정보가 포함된 헤더나 쿼리 파라미터는 `[REDACTED]`로 마스킹 처리되어 반환됩니다.
+> **보안 참고**: Authorization, API Key, 비밀번호 등 민감 정보로 추정되는 헤더나 쿼리 파라미터는 `[REDACTED]`로 마스킹해서 돌려줘요.
 
 ---
 
@@ -344,7 +344,7 @@ POST /api/endpoints/{endpointId}/logs/{logId}/replay
 **Response**: `200 OK`
 
 **에러**:
-- `429 RATE_LIMIT_EXCEEDED`: Replay 20회/1분 초과
+- `429 RATE_LIMIT_EXCEEDED`: Replay 요청 빈도가 제한돼요.
 - `403 FORBIDDEN` / `400 INVALID_REQUEST`: 타겟 URL이 사설 IP, 루프백, 링크 로컬 등 SSRF 공격으로 의심될 경우
 
 ---
@@ -353,7 +353,7 @@ POST /api/endpoints/{endpointId}/logs/{logId}/replay
 
 ### 5.1. SSE 연결
 
-실시간 스트림은 보안을 위해 `streamToken`을 먼저 발급받은 후 `EventSource`를 연결하는 2-Step 방식으로 동작합니다.
+실시간 스트림은 보안을 위해 `streamToken`을 먼저 발급받은 후 `EventSource`를 연결하는 2-Step 방식으로 동작해요.
 
 #### 1) Stream Token 발급
 
