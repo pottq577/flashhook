@@ -30,6 +30,7 @@ jobs:
       working-directory: ./FH_backend
       env:
         FLASHHOOK_ADMIN_SECRET_KEY: test_secret_key
+        FLASHHOOK_SECRET_KEY: ci_test_secret_key_for_flashhook
       run: |
         chmod +x gradlew
         ./gradlew build
@@ -38,6 +39,7 @@ jobs:
       working-directory: ./FH_backend
       env:
         FLASHHOOK_ADMIN_SECRET_KEY: test_secret_key
+        FLASHHOOK_SECRET_KEY: ci_test_secret_key_for_flashhook
       run: |
         nohup java -jar $(find build/libs -name "*.jar" ! -name "*-plain.jar" | head -n 1) > backend.log 2>&1 &
         BACKEND_PID=$!
