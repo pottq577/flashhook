@@ -18,9 +18,9 @@ FlashHook is a temporary webhook catcher service. It solves a specific problem: 
 - **Static Preset (`presets.ts`)**:
   - Named scenarios (e.g., "카카오 — ALREADY_PROCESSED_PAYMENT") that map to a fixed `MockConfig` tuple.
   - Applying a preset issues a `PATCH /api/endpoints/{id}/mock` with `presetType: null` to clear any dynamic handlers.
-- **Dynamic Preset (Phase 2 & Future)**:
-  - **Type A (Response Handler)**: Requires parsing the request to echo values (e.g., Slack URL Verification). Routes to `MockResponseScheduler` via `presetType`.
-  - **Type B (Webhook Sender)**: Active sending of signed webhook payloads (e.g., GitHub `X-Hub-Signature-256`).
+- **Dynamic Preset**:
+  - **Type A (Response Handler)**: Requires parsing the request to echo values (e.g., Slack URL Verification). Routes to `MockResponseScheduler` using `ResponsePresetHandler`.
+  - **Type B (Request Generation)**: Active signing of webhook payloads before replay dispatch (e.g., GitHub `X-Hub-Signature-256`, PortOne `webhook-signature`). Handled via `RequestSigningPresetHandler`. `presetOptions.secretKey` is securely encrypted at rest via AES-256.
 
 ## 2. System Architecture & Data Flow
 

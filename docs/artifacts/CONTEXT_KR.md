@@ -18,9 +18,9 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스입니다. 개발자가 단 
 - **정적 프리셋 (Static Preset) (`presets.ts`)**:
   - 고정된 `MockConfig` 튜플에 매핑되는 명명된 시나리오(예: "카카오 — ALREADY_PROCESSED_PAYMENT")입니다.
   - 프리셋을 적용하면 `PATCH /api/endpoints/{id}/mock` 요청이 전송되며, `presetType: null`을 통해 동적 핸들러를 초기화합니다.
-- **동적 프리셋 (Dynamic Preset) (Phase 2 & 향후 계획)**:
-  - **Type A (응답 핸들러)**: 수신된 요청을 파싱하여 특정 값(예: Slack URL Verification의 `challenge` 파라미터)을 응답에 포함해야 하는 경우. `presetType`을 통해 `MockResponseScheduler`로 라우팅됩니다.
-  - **Type B (웹훅 발송자)**: 서명된 웹훅 페이로드를 능동적으로 발송하는 기능(예: GitHub `X-Hub-Signature-256`).
+- **Dynamic Preset (동적 프리셋)**:
+  - **Type A (응답 핸들러)**: 수신된 요청을 파싱하여 특정 값(예: Slack URL Verification의 `challenge` 파라미터)을 즉시 응답에 포함해야 하는 경우. `ResponsePresetHandler`를 통해 처리됩니다.
+  - **Type B (발송 파이프라인 핸들러)**: 웹훅 Replay 재전송 시 실시간으로 서명을 생성하여 헤더에 덧붙여야 하는 경우 (예: GitHub `X-Hub-Signature-256`, PortOne V2 `webhook-signature`). `RequestSigningPresetHandler`를 통해 처리되며, `presetOptions.secretKey`는 AES-256으로 안전하게 암호화되어 DB에 저장됩니다.
 
 ## 2. 시스템 아키텍처 및 데이터 흐름
 

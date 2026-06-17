@@ -172,11 +172,15 @@ PATCH /api/endpoints/{endpointId}/mock
     "X-Custom-Header": "FlashHook"
   },
   "body": "{\"error\": \"Bad Request\"}",
-  "presetType": "SLACK_URL_VERIFICATION"
+  "presetType": "PORTONE_V2",
+  "presetOptions": {
+    "secretKey": "whsec_abcd1234..."
+  }
 }
 ```
 
-> `presetType`: 동적 응답 핸들러를 지정합니다. `null`일 경우 `statusCode`, `headers`, `body` 필드 값으로 고정 응답을 반환합니다. `"SLACK_URL_VERIFICATION"` 같은 동적 프리셋 지정 시, **기존 `statusCode`, `headers`, `body` 값은 무시**되고 핸들러가 동적으로 생성한 응답이 강제 적용되나, **`delayMs`는 여전히 유효**하여 지연 응답 테스트가 가능합니다.
+> `presetType`: 동적 응답 핸들러를 지정합니다. `null`일 경우 `statusCode`, `headers`, `body` 필드 값으로 고정 응답을 반환합니다. `"SLACK_URL_VERIFICATION"`, `"GITHUB"`, `"PORTONE_V2"` 같은 동적 프리셋 지정 시, 수신 파이프라인(Slack) 또는 발송 파이프라인(GitHub, PortOne)에 따라 적절히 인터셉트됩니다.
+> `presetOptions`: `presetType`이 시그니처 생성을 요구할 때 필요한 부가 설정값입니다. `secretKey`는 서버 DB 저장 시 AES-256으로 암호화되어 보관됩니다.
 
 **Response**: `200 OK` (업데이트된 엔드포인트 정보 반환)
 

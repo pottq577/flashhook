@@ -20,9 +20,10 @@
 
 "Webhook Catcher" 기능과 "Mock API" 기능이 개발자들에게 실질적인 테스트 가치를 제공할 수 있도록, 6개 주요 서비스(카카오, 토스페이먼츠, 포트원V2, 솔라피, 깃허브, 슬랙)의 **공식 문서를 기반으로 한 기술적 제약사항**과 **개발자 테스트 시나리오**를 종합하여 구성한 프리셋 목록입니다.
 
-> ⚠️ **현재 구현 상태 안내 (Phase 1 vs Phase 2)**: 
-> 현재 백엔드 코드상 동적 프리셋(요청값을 읽고 즉각적인 동적 응답을 주는 기능)은 **Slack URL Verification**만 우선 구현되어 있습니다. 
-> 깃허브(GitHub)와 포트원 V2(PortOne) 웹훅 시그니처 자동 생성과 같은 기능은 **Phase 2 (07_mock_dynamic_presets_phase2.md)** 로 분리되어 향후 지원 예정입니다.
+> ⚠️ **현재 구현 상태 안내**: 
+> 현재 백엔드 코드상 외부 연동을 돕는 **동적 프리셋 기능**이 완비되어 있습니다.
+> - **수신 파이프라인(Response)**: Slack URL Verification (요청의 `challenge`를 읽고 즉각 응답)
+> - **발송 파이프라인(Request Generation)**: GitHub (`X-Hub-Signature-256`), PortOne V2 (`webhook-signature`)의 시그니처 자동 생성 후 Replay 발송 지원.
 
 ---
 
@@ -476,8 +477,8 @@ Content-Type: application/json
 - **개발자가 테스트하는 것**: 위변조 방지(시그니처 검증) 및 상태 머신 검증
 - **공식 기술 제약 (검증)**: Standard Webhooks 스펙을 따르는 **웹훅 시그니처 검증**이 필수입니다. 잘못된 시그니처를 전송하는 프리셋을 통해 서버의 위변조 방지 로직을 테스트할 수 있으며, 실패 시 총 5회 재전송을 시도합니다. _(재전송 횟수 5회는 공식 문서 기준이나, 변경 가능성 있음)_
 
-> ⚠️ **동적 응답 필요**: 포트원 V2 웹훅의 시그니처는 **`webhook-id`, `webhook-timestamp`, 페이로드 body를 조합한 HMAC-SHA256** 값입니다. 고정 mockConfig만으로는 요청마다 달라지는 타임스탬프 기반 시그니처를 올바르게 생성할 수 없습니다.\
-> **필요 로직**: 요청 전송 시 `webhook-timestamp` = 현재 Unix 시간(초), `webhook-id` = UUID 생성 → `"${webhook-id}.${webhook-timestamp}.${body}"` 문자열을 시크릿 키로 HMAC-SHA256 서명 → `webhook-signature` 헤더에 `v1,<base64>` 형식으로 삽입.
+> ⚠️ **동적 시그니처 생성 (구현 완료)**: 포트원 V2 웹훅의 시그니처는 **`webhook-id`, `webhook-timestamp`, 페이로드 body를 조합한 HMAC-SHA256** 값입니다.
+> **발송 처리 로직**: 웹훅 로그 Replay 발송 시 `webhook-timestamp` = 현재 Unix 시간(초), `webhook-id` = UUID 생성 → `"{webhook-id}.{webhook-timestamp}.{body}"` 문자열을 AES-256으로 복호화한 시크릿 키로 HMAC-SHA256 서명 → `webhook-signature` 헤더에 `v1,<base64>` 형식으로 삽입되어 안전하게 발송됩니다.
 
 ##### 응답 명세
 
@@ -626,8 +627,8 @@ _FlashHook 응답: `200 OK` (5초 이내)_
   - GitHub는 실패한 웹훅에 대해 **자동 재전송(Retry)을 지원하지 않으며 완전히 드롭**합니다. (동일 이벤트 재현을 위해서는 수동 재전송 또는 API 호출이 필요함)
   - `X-Hub-Signature-256` 헤더를 통해 무결성을 검증합니다. Mock API 프리셋으로 이런 페이로드를 반복 재현하면 로컬 개발 생산성을 크게 높일 수 있습니다.
 
-> ⚠️ **동적 응답 필요**: GitHub 웹훅의 `X-Hub-Signature-256`은 `sha256=<HMAC-SHA256(secret, rawBody)>` 형식으로, **요청 body와 등록된 시크릿을 기반으로 매 요청마다 새로 계산**됩니다. 고정 mockConfig로는 올바른 시그니처를 포함한 헤더를 미리 설정할 수 없습니다.\
-> **필요 로직**: body를 직렬화한 후 webhook secret으로 HMAC-SHA256 계산 → `sha256=` 접두사를 붙여 `X-Hub-Signature-256` 헤더에 삽입. 서버는 반드시 raw body 기준으로 검증해야 합니다 (JSON 파싱 후 재직렬화 시 포맷 차이로 검증 실패 가능).
+> ⚠️ **동적 시그니처 생성 (구현 완료)**: GitHub 웹훅의 `X-Hub-Signature-256`은 `sha256=<HMAC-SHA256(secret, rawBody)>` 형식으로, **요청 body와 등록된 시크릿을 기반으로 매 요청마다 새로 계산**됩니다.
+> **발송 처리 로직**: Replay 발송 전 raw body를 직렬화한 후 AES-256으로 복호화된 webhook secret으로 HMAC-SHA256 계산 → `sha256=` 접두사를 붙여 `X-Hub-Signature-256` 헤더에 삽입하여 무결성 검증을 통과하도록 발송됩니다.
 
 ##### 응답 명세
 
@@ -868,10 +869,9 @@ X-Slack-No-Retry: 1
 
 ---
 
-#### [동적 응답 핸들러]
+#### [동적 응답 및 시그니처 핸들러 파이프라인]
 
-Slack URL Verification 시나리오는 수신되는 `challenge` 값을 그대로 반환해야 하는 특수성이 있습니다.
-이를 해결하기 위해 FlashHook Backend/Frontend에 `presetType` 기반의 동적 핸들러가 구축되었습니다.
+Slack URL Verification과 같이 특정 값을 파싱해서 즉시 응답해야 하거나, GitHub/PortOne처럼 발송 시점에 서명을 덧붙여야 하는 특수성을 해결하기 위해 **전략 패턴(Strategy Pattern)** 기반의 핸들러 파이프라인이 구축되어 있습니다.
 
-- **Frontend (`presets.ts`)**: Slack URL Verification (Challenge Echo) 시나리오 선택 시 `isDynamic: true` 속성을 사용해 상태 코드/바디 편집 UI를 비활성화하고 `presetType: 'SLACK_URL_VERIFICATION'`을 Backend로 전달합니다.
-- **Backend (`MockResponseScheduler.java`)**: `presetType`이 일치하면 `handleSlackUrlVerification(rawBody)`로 라우팅하여 JSON 페이로드 내 `"type": "url_verification"` 여부를 확인하고 `"challenge"` 값을 동적으로 추출하여 반환합니다.
+- **수신 파이프라인 (ResponsePresetHandler)**: Slack 전용. `presetType: 'SLACK_URL_VERIFICATION'` 수신 시, 페이로드에서 `challenge`를 파싱해 200 OK와 함께 즉시 동적 응답합니다.
+- **발송 파이프라인 (RequestSigningPresetHandler)**: GitHub, PortOne V2 전용. Webhook Replay 시점에 등록된 `secretKey`를 AES-256 메모리 복호화 후, 실시간 타임스탬프 기반으로 HMAC-SHA256 서명을 생성하고 올바른 형식의 헤더를 삽입하여 재전송합니다.

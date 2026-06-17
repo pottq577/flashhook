@@ -42,6 +42,12 @@ SSE 스트림 → 1단계: POST `/api/endpoints/{id}/stream-token` (헤더 인�
 
 > **보안 참고:** 클라이언트에서 토큰을 `sessionStorage`에 저장 후, 브라우저 History API(`replaceState`)를 사용하여 URL에서 토큰을 즉시 제거하여 유출을 방지합니다.
 
+### 1.5. 외부 연동 시크릿 관리 (Dynamic Presets)
+
+GitHub, PortOne V2 등 동적 시그니처 생성을 위해 사용자가 입력한 웹훅 시크릿 키(`presetOptions.secretKey`)는 절대 평문으로 저장되지 않습니다.
+- **저장 시**: 서버의 마스터 키(`flashhook.security.secret-key`)를 사용하여 AES-256 알고리즘으로 암호화 후 MongoDB에 저장.
+- **사용 시**: Replay 발송 직전 런타임 메모리에서 복호화하여 서명 생성에만 사용 후 즉시 휘발.
+
 ---
 
 ## 2. 접근 제어 매트릭스
