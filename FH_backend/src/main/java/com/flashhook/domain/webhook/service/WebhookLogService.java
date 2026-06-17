@@ -40,10 +40,14 @@ import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
+import com.flashhook.domain.webhook.dto.WebhookPayload;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.domain.webhook.repository.WebhookLogRepository;
+import com.flashhook.domain.webhook.service.preset.PresetHandlerRegistry;
+import com.flashhook.domain.webhook.service.preset.RequestSigningPresetHandler;
 import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +68,8 @@ public class WebhookLogService {
     private final WebhookLogRepository webhookLogRepository;
     private final EndpointRepository endpointRepository;
     private final MongoTemplate mongoTemplate;
+    private final PresetHandlerRegistry presetHandlerRegistry;
+    private final ObjectMapper objectMapper;
 
     /**
      * 로그 목록 조회 (페이징)
@@ -144,6 +150,9 @@ public class WebhookLogService {
 
         WebhookLog webhookLog = webhookLogRepository.findByLogId(logId)
                 .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
+
+        Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
 
         if (!webhookLog.getEndpointId().equals(endpointId)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
@@ -245,7 +254,31 @@ public class WebhookLogService {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
 
-        HttpEntity<Object> entity = new HttpEntity<>(webhookLog.getBody(), headers);
+        String rawBody;
+        if (webhookLog.getBody() instanceof String) {
+            rawBody = (String) webhookLog.getBody();
+        } else {
+            try {
+                rawBody = objectMapper.writeValueAsString(webhookLog.getBody());
+            } catch (Exception e) {
+                rawBody = "";
+            }
+        }
+
+        WebhookPayload payload = WebhookPayload.builder()
+                .method(webhookLog.getMethod())
+                .headers(headers)
+                .body(rawBody)
+                .build();
+
+        if (endpoint.getMockConfig() != null && endpoint.getMockConfig().getPresetType() != null) {
+            java.util.Optional<RequestSigningPresetHandler> handlerOpt = presetHandlerRegistry.getRequestSigningHandler(endpoint.getMockConfig().getPresetType());
+            if (handlerOpt.isPresent()) {
+                payload = handlerOpt.get().handleRequestGeneration(payload, endpoint.getMockConfig().getPresetOptions());
+            }
+        }
+
+        HttpEntity<String> entity = new HttpEntity<>(payload.getBody(), payload.getHeaders());
 
         if (destinationUrl == null || webhookLog.getMethod() == null) {
             Query query = Query.query(Criteria.where("logId").is(logId));
