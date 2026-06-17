@@ -2,7 +2,7 @@
 
 ## 1. Domain Overview & Core Entities
 
-FlashHook is a temporary webhook catcher service. It solves a specific problem: providing developers a zero-friction, 1-second process to generate a temporary endpoint URL to receive, inspect, and debug external webhooks (like payments or third-party integrations).
+FlashHook is a temporary webhook catcher service. It solves a specific problem: providing developers a zero-friction, 1-second process to generate a temporary endpoint URL to receive, inspect, and debug external webhooks (like payments or third-party integrations). It also provides a **Replay API** to resend captured webhook payloads to developers' local servers for seamless debugging.
 
 **Core Entities:**
 
@@ -35,6 +35,12 @@ The system uses a Vite/React frontend, a Spring Boot backend, MongoDB (persisten
 5. **Distribution**: The webhook event is published as a **Spring ApplicationEvent (`WebhookReceivedEvent`)** and asynchronously broadcasted to connected SSE clients via `@Async @EventListener`.
 6. **Render**: Frontend `log.store.ts` (Zustand) catches the SSE event and animates it in the UI.
 
+**Data Flow (Dashboard to Local Server - Replay API):**
+
+1. **Trigger Replay**: User clicks "Replay" in the Dashboard and provides their local server URL (e.g., ngrok).
+2. **SSRF Validation**: Backend validates the target URL. If it resolves to a Private IP, Loopback, or Link-local address (like AWS IMDS `169.254.169.254`), the request is blocked to prevent Server-Side Request Forgery.
+3. **Dispatch**: Backend constructs an identical HTTP request from the saved `WebhookLog` and sends it to the target URL.
+
 ## 3. Frontend Architecture (React/Vite)
 
 The frontend strictly enforces **Feature-Sliced Design (FSD)**.
@@ -60,6 +66,7 @@ The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.
 - **`global/`**: Cross-cutting concerns (`config`, `exception`, `ratelimit`).
 - **SSE Logic (`SseEmitterService`)**: Manages active connections in a `ConcurrentHashMap`. Sends 30-second heartbeats (`ping`).
 - **Mock Responses (`MockResponseScheduler`)**: Evaluates `MockConfig` to delay or customize responses to external callers.
+- **Security (`Replay Service`)**: Uses a custom `SimpleClientHttpRequestFactory` with IP Pinning to block DNS Rebinding and SSRF attacks when dispatching webhooks to user-provided URLs.
 
 ## 5. Infrastructure & Local Development
 
