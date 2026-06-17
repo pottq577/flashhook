@@ -3,6 +3,7 @@ package com.flashhook.domain.webhook.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -83,7 +84,7 @@ public class WebhookPayloadParser {
 
     private String decodeQueryComponent(String value) {
         try {
-            return java.net.URLDecoder.decode(value, StandardCharsets.UTF_8);
+            return URLDecoder.decode(value, StandardCharsets.UTF_8);
         } catch (IllegalArgumentException e) {
             log.error("웹훅 수신 중 쿼리 파라미터 URL 디코딩 실패 (value: {})", value, e);
             return value;
