@@ -20,8 +20,9 @@
 
 "Webhook Catcher" 기능과 "Mock API" 기능이 개발자들에게 실질적인 테스트 가치를 제공할 수 있도록, 6개 주요 서비스(카카오, 토스페이먼츠, 포트원V2, 솔라피, 깃허브, 슬랙)의 **공식 문서를 기반으로 한 기술적 제약사항**과 **개발자 테스트 시나리오**를 종합하여 구성한 프리셋 목록입니다.
 
-> ⚠️ **현재 구현 상태 안내**: 
+> ⚠️ **현재 구현 상태 안내**:
 > 현재 백엔드 코드상 외부 연동을 돕는 **동적 프리셋 기능**이 완비되어 있습니다.
+>
 > - **수신 파이프라인(Response)**: Slack URL Verification (요청의 `challenge`를 읽고 즉각 응답)
 > - **발송 파이프라인(Request Generation)**: GitHub (`X-Hub-Signature-256`), PortOne V2 (`webhook-signature`)의 시그니처 자동 생성 후 Replay 발송 지원.
 
@@ -91,7 +92,8 @@ Content-Type: application/json;charset=UTF-8
   "error_code": "KOE320"
 }
 ```
-* Note: `authorization code not found for code=${AUTHORIZATION_CODE}` 형식이 카카오 공식 패턴입니다.
+
+- Note: `authorization code not found for code=${AUTHORIZATION_CODE}` 형식이 카카오 공식 패턴입니다.
 
 ---
 
@@ -148,7 +150,8 @@ Content-Type: application/json
   "group_user_token": "Yzg5MDQ4MDM4...(optional)"
 }
 ```
-* Note: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FROM_ADMIN | UNLINK_FROM_APPS | INCOMPLETE_SIGN_UP` 중 하나의 값을 가집니다.
+
+- Note: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FROM_ADMIN | UNLINK_FROM_APPS | INCOMPLETE_SIGN_UP` 중 하나의 값을 가집니다.
 
 _FlashHook 응답: `202 Accepted` (Body 불필요 — 카카오는 상태 코드만 확인)_
 
@@ -193,12 +196,12 @@ _FlashHook 응답: `200 OK` (Body 불필요 — 카카오는 상태 코드만 �
 
 ##### 카카오 웹훅 시스템 차이 비교
 
-| 구분 | 카카오 로그인 SSF/SET 웹훅 | 카카오톡 채널 콜백 웹훅 |
-|---|---|---|
-| **제공 기관** | developers.kakao.com | kakaobusiness.gitbook.io / 채널 관리자센터 |
-| **성공 응답** | `HTTP 202 Accepted` | `HTTP 200 OK` |
-| **페이로드 포맷** | SET (Security Event Token - JWT 기반) | JSON (event, user_id 등 플랫 구조) |
-| **주요 이벤트** | OAUTH, RISC, CAEP 카테고리 | 채널 추가 (`add_channel`), 채널 차단 (`block_channel`) |
+| 구분              | 카카오 로그인 SSF/SET 웹훅            | 카카오톡 채널 콜백 웹훅                                |
+| ----------------- | ------------------------------------- | ------------------------------------------------------ |
+| **제공 기관**     | developers.kakao.com                  | kakaobusiness.gitbook.io / 채널 관리자센터             |
+| **성공 응답**     | `HTTP 202 Accepted`                   | `HTTP 200 OK`                                          |
+| **페이로드 포맷** | SET (Security Event Token - JWT 기반) | JSON (event, user_id 등 플랫 구조)                     |
+| **주요 이벤트**   | OAUTH, RISC, CAEP 카테고리            | 채널 추가 (`add_channel`), 채널 차단 (`block_channel`) |
 
 ---
 
@@ -381,11 +384,11 @@ _FlashHook 응답: `200 OK`_
 
 ##### 결제 웹훅 시스템 비교 (포트원 V2 vs 토스페이먼츠)
 
-| 구분 | 포트원 V2 결제 웹훅 | 토스페이먼츠 결제 웹훅 |
-|---|---|---|
-| **이벤트 타입** | Standard Webhooks (`Transaction.Paid` 등) | 토스페이먼츠 고유 구조 (`PAYMENT.STATUS_CHANGED` 등) |
-| **인증/서명** | `webhook-signature` 헤더 (HMAC-SHA256) | 서명 헤더 미제공 (가상계좌 입금 통보 등 일반 웹훅 기준) |
-| **재시도 제한 시간** | 각 시도 실패 시 exponential backoff 적용 (5회) | 각 시도 실패 시 지수 백오프 적용 (7회) |
+| 구분                 | 포트원 V2 결제 웹훅                            | 토스페이먼츠 결제 웹훅                                  |
+| -------------------- | ---------------------------------------------- | ------------------------------------------------------- |
+| **이벤트 타입**      | Standard Webhooks (`Transaction.Paid` 등)      | 토스페이먼츠 고유 구조 (`PAYMENT.STATUS_CHANGED` 등)    |
+| **인증/서명**        | `webhook-signature` 헤더 (HMAC-SHA256)         | 서명 헤더 미제공 (가상계좌 입금 통보 등 일반 웹훅 기준) |
+| **재시도 제한 시간** | 각 시도 실패 시 exponential backoff 적용 (5회) | 각 시도 실패 시 지수 백오프 적용 (7회)                  |
 
 ---
 
@@ -997,7 +1000,8 @@ _재시도 중단 응답 (Slack 공식 가이드: non-200 응답에 동봉):_
 Status: 500 Internal Server Error
 X-Slack-No-Retry: 1
 ```
-* Note: 200 OK 응답 시에는 어차피 재시도가 발생하지 않으므로 `X-Slack-No-Retry` 헤더는 의미가 없습니다. 이 헤더는 비정상 응답(4xx/5xx)을 명시적으로 반환할 때 Slack에 재시도 중단을 알리는 용도입니다.
+
+- Note: 200 OK 응답 시에는 어차피 재시도가 발생하지 않으므로 `X-Slack-No-Retry` 헤더는 의미가 없습니다. 이 헤더는 비정상 응답(4xx/5xx)을 명시적으로 반환할 때 Slack에 재시도 중단을 알리는 용도입니다.
 
 ---
 
