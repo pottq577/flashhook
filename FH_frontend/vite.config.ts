@@ -8,6 +8,9 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   server: {
+    fs: {
+      allow: [".."],
+    },
     proxy: {
       "/api": {
         target: "http://localhost:8080",

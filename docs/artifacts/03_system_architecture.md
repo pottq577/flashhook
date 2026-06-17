@@ -329,15 +329,22 @@ void saveLog(WebhookLog log) {
 
     // 4. 캡(Cap) 초과 검사 및 삭제
     // *동시성 주의: delete와 update의 원자성을 보장하기 위해 MongoDB @Transactional 반경 내에서 묶어 처리하거나 단일 오퍼레이션으로 구현합니다.
-    if (meta.getLogCount() > maxLogCount || meta.getLogSizeBytes() > maxLogSizeBytes) {
+    while (meta.getLogCount() > maxLogCount || meta.getLogSizeBytes() > maxLogSizeBytes) {
         WebhookLog oldest = logRepository.findOldestByEndpointId(log.getEndpointId());
-        if (oldest != null) {
-            logRepository.delete(oldest);
-            mongoTemplate.updateFirst(
-                query(where("endpointId").is(log.getEndpointId())),
-                new Update().inc("logCount", -1).inc("logSizeBytes", -oldest.getBodySize()),
-                EndpointMeta.class
-            );
+        if (oldest == null) {
+            break;
+        }
+
+        logRepository.delete(oldest);
+        meta = mongoTemplate.findAndModify(
+            query(where("endpointId").is(log.getEndpointId())),
+            new Update().inc("logCount", -1).inc("logSizeBytes", -oldest.getBodySize()),
+            options().returnNew(true),
+            EndpointMeta.class
+        );
+
+        if (meta == null) {
+            break;
         }
     }
 }
