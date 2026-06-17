@@ -42,7 +42,7 @@
 
 **[성공] 토큰 발급 성공**
 
-```
+```http
 Status: 200 OK
 Content-Type: application/json;charset=UTF-8
 ```
@@ -62,7 +62,7 @@ Content-Type: application/json;charset=UTF-8
 
 **[실패] `invalid_client` — REST API 키 오류 (KOE101)**
 
-```
+```http
 Status: 400 Bad Request
 Content-Type: application/json;charset=UTF-8
 ```
@@ -79,7 +79,7 @@ Content-Type: application/json;charset=UTF-8
 
 **[실패] `invalid_grant` — 인가 코드 만료 (KOE320)**
 
-```
+```http
 Status: 400 Bad Request
 Content-Type: application/json;charset=UTF-8
 ```
@@ -97,7 +97,7 @@ Content-Type: application/json;charset=UTF-8
 
 **[실패] `misconfigured` — 등록되지 않은 플랫폼 (KOE009)**
 
-```
+```http
 Status: 400 Bad Request
 Content-Type: application/json;charset=utf-8
 ```
@@ -114,7 +114,7 @@ Content-Type: application/json;charset=utf-8
 
 **[지연] 웹훅 타임아웃 테스트 (3.5초)**
 
-```
+```http
 Status: 200 OK  (delayMs: 3500)
 Content-Type: application/json
 ```
@@ -135,7 +135,7 @@ _Body는 `ok` 문자열 또는 성공 응답. Delay 프리셋은 mockConfig의 `
 
 **[수신] 앱 연결 해제 알림**
 
-```
+```http
 Method: POST  (카카오 → FlashHook)
 Content-Type: application/json
 ```
@@ -172,7 +172,7 @@ _mockConfig `delayMs: 3500` 설정으로 카카오의 3초 제한을 초과하�
 
 **[수신] 카카오톡 채널 추가 알림**
 
-```
+```http
 Method: POST  (카카오 비즈니스 → FlashHook)
 Content-Type: application/json
 ```
@@ -222,7 +222,7 @@ _FlashHook 응답: `200 OK` (Body 불필요 — 카카오는 상태 코드만 �
 
 **[성공] 결제 승인 성공**
 
-```
+```http
 Status: 200 OK
 Content-Type: application/json
 ```
@@ -263,7 +263,7 @@ Content-Type: application/json
 
 **[실패] `ALREADY_PROCESSED_PAYMENT` — 중복 승인 시도**
 
-```
+```http
 Status: 400 Bad Request
 Content-Type: application/json
 ```
@@ -279,7 +279,7 @@ Content-Type: application/json
 
 **[실패] `FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING` — 일시적 뱅킹망 장애**
 
-```
+```http
 Status: 500 Internal Server Error
 Content-Type: application/json
 ```
@@ -295,7 +295,7 @@ Content-Type: application/json
 
 **[실패] `ALREADY_CANCELED_PAYMENT` — 이미 취소된 결제**
 
-```
+```http
 Status: 400 Bad Request
 Content-Type: application/json
 ```
@@ -311,7 +311,7 @@ Content-Type: application/json
 
 **[실패] `INVALID_REJECT_CARD` — 카드사 거절**
 
-```
+```http
 Status: 400 Bad Request
 Content-Type: application/json
 ```
@@ -337,7 +337,7 @@ Content-Type: application/json
 
 **[수신] 가상계좌 입금 완료 웹훅**
 
-```
+```http
 Method: POST  (토스페이먼츠 → FlashHook)
 Content-Type: application/json
 ```
@@ -358,7 +358,7 @@ _FlashHook 응답: `200 OK`_
 
 **[수신] 결제 상태 변경 웹훅**
 
-```
+```http
 Method: POST  (토스페이먼츠 → FlashHook)
 Content-Type: application/json
 ```
@@ -391,7 +391,7 @@ _FlashHook 응답: `200 OK`_
 
 **[재전송 테스트] 500 에러 반환**
 
-```
+```http
 Status: 500 Internal Server Error
 Content-Type: application/json
 ```
@@ -426,7 +426,7 @@ Content-Type: application/json
 
 **[성공] 결제 조회 성공 (status: 2000)**
 
-```
+```http
 Status: 200 OK
 Content-Type: application/json
 ```
@@ -468,7 +468,7 @@ Content-Type: application/json
 
 **[실패] 존재하지 않는 결제 조회**
 
-```
+```http
 Status: 404 Not Found
 Content-Type: application/json
 ```
@@ -484,7 +484,7 @@ Content-Type: application/json
 
 **[실패] 미승인 상태 (PENDING)**
 
-```
+```http
 Status: 200 OK
 Content-Type: application/json
 ```
@@ -507,7 +507,7 @@ Content-Type: application/json
 
 **[실패] 카드사 거절 (6000번대)**
 
-```
+```http
 Status: 200 OK
 Content-Type: application/json
 ```
@@ -534,7 +534,7 @@ Content-Type: application/json
 
 **[실패] 중복 요청 감지 (Idempotency-Key 충돌)**
 
-```
+```http
 Status: 409 Conflict
 Content-Type: application/json
 ```
@@ -561,7 +561,7 @@ Content-Type: application/json
 
 **[수신] 결제 승인 완료 웹훅 (Standard Webhooks 형식)**
 
-```
+```http
 Method: POST  (포트원 → FlashHook)
 Content-Type: application/json
 webhook-id: wh_dummy_id_20240115_001
@@ -583,7 +583,7 @@ webhook-signature: v1,dummyBase64Signature==
 
 **[검증 실패] 잘못된 시그니처 전송 테스트**
 
-```
+```http
 Method: POST  (포트원 → FlashHook)
 webhook-signature: v1,invalidSignatureForTesting==
 ```
@@ -612,7 +612,7 @@ _서버는 시그니처 불일치 감지 시 `400 Bad Request`를 반환해야 �
 
 **[성공] 문자 발송 성공 (statusCode: 2000)**
 
-```
+```http
 Status: 200 OK
 Content-Type: application/json
 ```
@@ -633,7 +633,7 @@ Content-Type: application/json
 
 **[실패] 잔액 부족 (statusCode: 1030)**
 
-```
+```http
 Status: 400 Bad Request
 Content-Type: application/json
 ```
@@ -649,7 +649,7 @@ Content-Type: application/json
 
 **[실패] 도용차단 가입 번호 (statusCode: 3059)**
 
-```
+```http
 Status: 400 Bad Request
 Content-Type: application/json
 ```
@@ -665,7 +665,7 @@ Content-Type: application/json
 
 **[수신] 발송 결과 웹훅 알림 (대량 발송 리포트)**
 
-```
+```http
 Method: POST  (솔라피 → FlashHook)
 Content-Type: application/json
 ```
@@ -711,7 +711,7 @@ _FlashHook 응답: `200 OK` (5초 이내, Body 내용은 무시되고 HTTP 200�
 
 **[수신] Push Event**
 
-```
+```http
 Method: POST  (GitHub → FlashHook)
 Content-Type: application/json
 X-GitHub-Event: push
@@ -762,7 +762,7 @@ User-Agent: GitHub-Hookshot/abc1234
 
 **[수신] Pull Request Opened**
 
-```
+```http
 Method: POST  (GitHub → FlashHook)
 Content-Type: application/json
 X-GitHub-Event: pull_request
@@ -801,7 +801,7 @@ User-Agent: GitHub-Hookshot/abc1234
 
 **[수신] Release Published**
 
-```
+```http
 Method: POST  (GitHub → FlashHook)
 Content-Type: application/json
 X-GitHub-Event: release
@@ -837,7 +837,7 @@ User-Agent: GitHub-Hookshot/abc1234
 
 **[수신] Push Event (시크릿 미설정)**
 
-```
+```http
 Method: POST  (GitHub → FlashHook)
 Content-Type: application/json
 X-GitHub-Event: push
@@ -909,7 +909,7 @@ User-Agent: GitHub-Hookshot/abc1234
 
 **[수신] URL Verification (Challenge Handshake)**
 
-```
+```http
 Method: POST  (Slack → FlashHook)
 Content-Type: application/json
 ```
@@ -924,7 +924,7 @@ Content-Type: application/json
 
 _FlashHook 응답 (⚠️ 동적 응답 필요):_
 
-```
+```http
 Status: 200 OK
 Content-Type: application/json
 ```
@@ -939,7 +939,7 @@ Content-Type: application/json
 
 **[수신] `app_mention` 이벤트**
 
-```
+```http
 Method: POST  (Slack → FlashHook)
 Content-Type: application/json
 X-Slack-Signature: v0=dummyslacksignaturehash1234567890abcdef
@@ -971,7 +971,7 @@ _FlashHook 응답: `200 OK` (3초 이내, body 없음 또는 빈 JSON `{}`)_
 
 **[수신] `retry` 이벤트 (재전송 방어 테스트)**
 
-```
+```http
 Method: POST  (Slack → FlashHook)
 Content-Type: application/json
 X-Slack-Retry-Num: 1
@@ -993,7 +993,7 @@ X-Slack-Retry-Reason: http_timeout
 
 _재시도 중단 응답 (Slack 공식 가이드: non-200 응답에 동봉):_
 
-```
+```http
 Status: 500 Internal Server Error
 X-Slack-No-Retry: 1
 ```

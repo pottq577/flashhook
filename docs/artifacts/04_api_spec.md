@@ -337,7 +337,7 @@ POST /api/endpoints/{endpointId}/logs/{logId}/replay
 **Request**:
 ```json
 {
-  "targetUrl": "https://my-ngrok.com/webhook"
+  "destinationUrl": "https://my-ngrok.com/webhook"
 }
 ```
 

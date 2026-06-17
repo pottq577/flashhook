@@ -66,7 +66,7 @@ The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.
 - **`global/`**: Cross-cutting concerns (`config`, `exception`, `ratelimit`).
 - **SSE Logic (`SseEmitterService`)**: Manages active connections in a `ConcurrentHashMap`. Sends 30-second heartbeats (`ping`).
 - **Mock Responses (`MockResponseScheduler`)**: Evaluates `MockConfig` to delay or customize responses to external callers.
-- **Security (`Replay Service`)**: Uses a custom `SimpleClientHttpRequestFactory` with IP Pinning to block DNS Rebinding and SSRF attacks when dispatching webhooks to user-provided URLs.
+- **Security (`Replay Service`)**: In `WebhookLogService.replayLog`, uses a custom `SimpleClientHttpRequestFactory` with IP Pinning to block DNS Rebinding and SSRF attacks when dispatching webhooks to user-provided URLs.
 
 ## 5. Infrastructure & Local Development
 

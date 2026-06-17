@@ -66,7 +66,7 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스입니다. 개발자가 단 
 - **`global/`**: 횡단 관심사 (`config`, `exception`, `ratelimit` 등).
 - **SSE 로직 (`SseEmitterService`)**: `ConcurrentHashMap`을 사용해 활성화된 연결을 관리하며, 30초마다 하트비트(`ping`)를 전송합니다.
 - **Mock 응답 (`MockResponseScheduler`)**: `MockConfig`를 평가하여 외부 호출자에게 지연된 응답이나 커스텀 응답을 반환합니다.
-- **보안 (`Replay Service`)**: 사용자가 입력한 URL로 웹훅을 발송할 때, IP 핀닝(IP Pinning)이 적용된 커스텀 `SimpleClientHttpRequestFactory`를 사용하여 DNS Rebinding 및 SSRF 공격을 차단합니다.
+- **보안 (`Replay Service`)**: `WebhookLogService.replayLog` 메서드 내에서 사용자가 입력한 URL로 웹훅을 발송할 때, IP 핀닝(IP Pinning)이 적용된 커스텀 `SimpleClientHttpRequestFactory`를 사용하여 DNS Rebinding 및 SSRF 공격을 차단합니다.
 
 ## 5. 인프라 및 로컬 개발 환경
 
