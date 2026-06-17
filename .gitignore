@@ -43,6 +43,7 @@ docker-compose.override.yml
 ### Docs ###
 toyproject.md
 docs/review/*
+!docs/review/kapi_preset_implementation_status.md
 docs/infrastructure/*
 
 ### QA Reports & Scripts ###

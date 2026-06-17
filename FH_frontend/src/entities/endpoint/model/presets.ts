@@ -118,6 +118,51 @@ const kakaoPresets: PresetService = {
       headers: CT_JSON,
       body: 'ok',
     },
+    {
+      id: 'kakao_webhook_unlink',
+      label: '앱 연결 해제 알림 (Unlink)',
+      desc: '(202 Accepted)',
+      statusCode: 202,
+      delayMs: 0,
+      headers: CT_JSON,
+      presetType: 'KAKAO_UNLINK_WEBHOOK',
+      body: JSON.stringify(
+        {
+          app_id: '123456',
+          user_id: '3891047281',
+          referrer_type: 'UNLINK_FROM_APPS',
+        },
+        null,
+        2,
+      ),
+    },
+    {
+      id: 'kakao_webhook_status_change',
+      label: '계정 상태 변경 알림 (SSF/SET)',
+      desc: '(202 Accepted)',
+      statusCode: 202,
+      delayMs: 0,
+      headers: CT_JSON,
+      presetType: 'KAKAO_ACCOUNT_STATUS_CHANGE',
+      body: JSON.stringify(
+        {
+          iss: 'https://kapi.kakao.com',
+          aud: '123456',
+          iat: 1718251890,
+          jti: 'some-unique-jwt-id',
+          events: {
+            'http://schemas.openid.net/secevent/oauth/event-type/user-unlinked': {
+              subject: {
+                subject_type: 'oauth_helper',
+                user_id: '3891047281',
+              },
+            },
+          },
+        },
+        null,
+        2,
+      ),
+    },
   ],
 };
 
