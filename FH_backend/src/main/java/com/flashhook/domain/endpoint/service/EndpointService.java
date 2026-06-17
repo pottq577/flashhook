@@ -156,12 +156,14 @@ public class EndpointService {
         if (request.getPresetOptions() != null) {
             Map<String, Object> options = new HashMap<>(request.getPresetOptions());
             if (options.containsKey("secretKey")) {
-                String plainSecret = (String) options.get("secretKey");
-                options.put("secretKey", encryptionUtil.encrypt(plainSecret));
+                Object secretObj = options.get("secretKey");
+                if (secretObj instanceof String plainSecret && !plainSecret.isBlank()) {
+                    options.put("secretKey", encryptionUtil.encrypt(plainSecret));
+                } else {
+                    options.remove("secretKey");
+                }
             }
             mockBuilder.presetOptions(options);
-        } else {
-            mockBuilder.presetOptions(null);
         }
 
         Endpoint updatedEndpoint = endpoint.toBuilder()

@@ -36,8 +36,15 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
             return payload;
         }
 
-        String encryptedSecret = (String) presetOptions.get("secretKey");
+        Object encryptedSecretValue = presetOptions.get("secretKey");
+        if (!(encryptedSecretValue instanceof String encryptedSecret) || encryptedSecret.isBlank()) {
+            return payload;
+        }
+
         String secretKey = encryptionUtil.decrypt(encryptedSecret);
+        if (secretKey == null || secretKey.isBlank()) {
+            return payload;
+        }
 
         String webhookId = UUID.randomUUID().toString();
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
@@ -45,7 +52,13 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
         String signedContent = webhookId + "." + timestamp + "." + body;
 
         String secret = secretKey.startsWith("whsec_") ? secretKey.substring(6) : secretKey;
-        byte[] keyBytes = Base64.getDecoder().decode(secret);
+        byte[] keyBytes;
+        try {
+            keyBytes = Base64.getDecoder().decode(secret);
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid PortOne webhook secret format", e);
+            return payload;
+        }
 
         byte[] digestBytes = hmacSha256(keyBytes, signedContent);
         String signature = "v1," + Base64.getEncoder().encodeToString(digestBytes);

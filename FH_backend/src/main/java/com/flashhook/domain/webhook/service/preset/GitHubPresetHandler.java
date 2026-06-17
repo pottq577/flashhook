@@ -33,8 +33,15 @@ public class GitHubPresetHandler implements RequestSigningPresetHandler {
             return payload;
         }
 
-        String encryptedSecret = (String) presetOptions.get("secretKey");
+        Object encryptedSecretValue = presetOptions.get("secretKey");
+        if (!(encryptedSecretValue instanceof String encryptedSecret) || encryptedSecret.isBlank()) {
+            return payload;
+        }
+
         String secretKey = encryptionUtil.decrypt(encryptedSecret);
+        if (secretKey == null || secretKey.isBlank()) {
+            return payload;
+        }
 
         String rawBody = payload.getBody() == null ? "" : payload.getBody();
         String digest = "sha256=" + encodeHex(hmacSha256(secretKey.getBytes(StandardCharsets.UTF_8), rawBody));
