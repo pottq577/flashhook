@@ -63,6 +63,16 @@ FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공
   3. 내 서버에서 요청을 보내면 FlashHook이 지정된 시간 뒤에 에러 응답을 반환해요. 내 서버가 에러를 잘 다루는지 확인해요.
   4. Slack URL Verification처럼 수신된 파라미터(`challenge`)를 파싱하여 동적으로 응답을 반환하는 고급 프리셋도 지원해요.
 
+### 3. 웹훅 재전송 (Replay API)
+
+> **"로컬 서버가 꺼져있을 때 들어온 웹훅을 나중에 다시 테스트해 볼 순 없을까?"**
+
+- **활용 예시**: 결제 모듈 연동 중 터널링이 끊겨 웹훅을 놓쳤을 때, 동일한 페이로드를 로컬 서버로 다시 쏴서 디버깅하고 싶을 때.
+- **워크플로우**:
+  1. 대시보드에 기록된 과거의 웹훅 로그를 엽니다.
+  2. "REPLAY" 버튼을 누르고 재전송받을 내 서버의 URL(예: `https://my-ngrok-url.com/webhook`)을 입력합니다.
+  3. FlashHook 서버가 내 서버로 완벽히 동일한 헤더와 본문을 가진 HTTP 요청을 다시 쏴줍니다.
+
 ---
 
 ## 🏛 아키텍처 및 시스템 설계
@@ -116,10 +126,15 @@ API 명세는 [`docs/artifacts/04_api_spec.md`](docs/artifacts/04_api_spec.md)�
 - **문제**: 수많은 클라이언트에게 실시간으로 SSE를 전송(Push)하는 작업이 지연될 경우, 웹훅을 수신하는 메인 스레드까지 블로킹될 위험이 있었습니다.
 - **해결**: Spring `ApplicationEvent`와 `@Async`를 결합한 **비동기 이벤트 드리븐(Event-Driven)** 방식으로 아키텍처를 재설계했습니다. 이를 통해 웹훅 수신(1ms 이내 반환) 로직과 SSE 푸시 로직을 완벽히 분리하여 서버 처리량을 극대화했습니다.
 
-#### 4. 서드파티 동적 응답(Mock) 지원 및 SSRF 공격 방어
+#### 4. 서드파티 동적 응답(Mock) 지원
 
-- **문제**: Slack 이벤트 구독처럼 요청 본문을 파싱해 특정 값(`challenge`)을 즉각 반환해야 하는 동적 웹훅 대응이 필요했으며, 악의적인 URL 등록으로 내부망을 공격(SSRF/DNS Rebinding)할 위험이 있었습니다.
-- **해결**: `presetType` 기반 팩토리 패턴을 도입해 요청을 동적으로 파싱하고 조립하는 핸들러를 구현했습니다. 또한 외부망 접근 시 커스텀 `SimpleClientHttpRequestFactory`를 적용해 **사설 IP 대역(Private IP)으로의 접근을 원천 차단**하여 보안을 확보했습니다.
+- **문제**: Slack 이벤트 구독처럼 요청 본문을 파싱해 특정 값(`challenge`)을 즉각 반환해야 하는 동적 웹훅 대응이 필요했습니다.
+- **해결**: `presetType` 기반 팩토리/전략 패턴을 도입해 요청을 동적으로 파싱하고 조립하는 핸들러를 구현했습니다.
+
+#### 5. 웹훅 재전송(Replay) 기능과 SSRF 공격 방어
+
+- **문제**: 개발자가 과거 웹훅을 본인 서버로 다시 쏠 수 있도록 Replay 기능을 만들었으나, 이로 인해 악의적인 사용자가 내부망 서버(DB 등)나 메타데이터 API(`169.254.169.254`)를 공격하는 **SSRF(Server-Side Request Forgery)** 위험이 발생했습니다.
+- **해결**: 외부 발송 시 커스텀 `SimpleClientHttpRequestFactory`를 적용해 DNS Resolve 후 타겟 IP가 사설 IP 대역(Private IP), 루프백(Loopback), 링크 로컬(Link-local) 주소인 경우 원천 차단하여 SSRF 공격을 완벽히 방어했습니다. 동시에 IP 핀닝(IP Pinning)을 적용해 DNS Rebinding 공격도 차단했습니다.
 
 ### 🎨 Frontend (React / Vite)
 

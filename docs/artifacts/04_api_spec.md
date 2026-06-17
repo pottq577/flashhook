@@ -100,7 +100,8 @@ Content-Type: application/json (선택)
 
 **에러**:
 
-- `429 ENDPOINT_LIMIT_EXCEEDED`: 5개/IP/24시간 초과 (고정 윈도우)
+- `429 ENDPOINT_LIMIT_EXCEEDED`: 5개/IP/10분 초과 (고정 윈도우)
+- `403 FORBIDDEN`: 악성 IP 블랙리스트에 등재된 경우
 
 ---
 
@@ -321,6 +322,29 @@ DELETE /api/endpoints/{endpointId}/logs
 
 ---
 
+### 4.4. 웹훅 재전송 (Replay)
+
+```text
+POST /api/endpoints/{endpointId}/logs/{logId}/replay
+```
+
+**인증**: `X-Access-Token` 헤더
+
+**Request**:
+```json
+{
+  "targetUrl": "https://my-ngrok.com/webhook"
+}
+```
+
+**Response**: `200 OK`
+
+**에러**:
+- `429 RATE_LIMIT_EXCEEDED`: Replay 20회/1분 초과
+- `403 FORBIDDEN` / `400 INVALID_REQUEST`: 타겟 URL이 사설 IP, 루프백, 링크 로컬 등 SSRF 공격으로 의심될 경우
+
+---
+
 ## 5. 실시간 스트림
 
 ### 5.1. SSE 연결
@@ -362,6 +386,9 @@ Connection: keep-alive
 **이벤트 형식**:
 
 ```text
+event: connect
+data: connected
+
 event: ping
 data:
 
@@ -409,8 +436,9 @@ GET /api/actuator/health
 | `GET`    | `/api/endpoints/{id}/logs`         | 토큰 | 로그 목록          |
 | `GET`    | `/api/endpoints/{id}/logs/{logId}` | 토큰 | 로그 상세          |
 | `DELETE` | `/api/endpoints/{id}/logs`         | 토큰 | 로그 전체 삭제     |
+| `POST`   | `/api/endpoints/{id}/logs/{logId}/replay` | 토큰 | 수신 웹훅 재전송 |
 | `POST`   | `/api/endpoints/{id}/stream-token` | 토큰 | 스트림 토큰 발급   |
 | `GET`    | `/api/endpoints/{id}/stream`       | 토큰 | SSE 실시간 스트림  |
 | `GET`    | `/api/actuator/health`             |  -   | 헬스체크           |
 
-총 11개 엔드포인트 (MVP)
+총 12개 엔드포인트 (MVP)
