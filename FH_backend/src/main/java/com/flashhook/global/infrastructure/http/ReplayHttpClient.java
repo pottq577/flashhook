@@ -150,7 +150,7 @@ public class ReplayHttpClient {
             log.info("Webhook replayed successfully via ReplayHttpClient: destinationUrl={}",
                     sanitizeUrlForLog(destinationUrl));
 
-        } catch (RestClientException | NullPointerException e) {
+        } catch (RestClientException e) {
             log.warn("웹훅 재전송 실패 via ReplayHttpClient: destinationUrl={}", sanitizeUrlForLog(destinationUrl), e);
             throw e; 
         }

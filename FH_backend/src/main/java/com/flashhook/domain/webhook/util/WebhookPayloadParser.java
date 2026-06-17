@@ -22,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class WebhookPayloadParser {
 
+    private static final long MAX_PAYLOAD_SIZE = 1024 * 1024; // 1MB
+
     public IncomingWebhookPayload parse(HttpServletRequest request) {
         String method = request.getMethod();
         String url = request.getRequestURL().toString()
@@ -47,7 +49,7 @@ public class WebhookPayloadParser {
             }
         }
 
-        long MAX_SIZE = 1024 * 1024;
+        long MAX_SIZE = MAX_PAYLOAD_SIZE;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         byte[] data = new byte[8192];
         int nRead;
