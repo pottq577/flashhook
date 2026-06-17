@@ -45,7 +45,7 @@ flashhook:
   admin:
     secret-key: ${FLASHHOOK_ADMIN_SECRET_KEY:local_test_admin_secret_key_12345}
   security:
-    secret-key: ${FLASHHOOK_SECRET_KEY:0123456789abcdef0123456789abcdef}
+    secret-key: ${FLASHHOOK_SECRET_KEY}
   sse:
     timeout: 1800000 # SSE 최대 유지 30분 (ms)
     heartbeat-interval: 30000 # Heartbeat 30초 (ms)
