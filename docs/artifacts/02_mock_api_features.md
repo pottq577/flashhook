@@ -172,7 +172,7 @@ _mockConfig `delayMs: 3500` 설정으로 카카오의 3초 제한을 초과하�
 - **프리셋 시나리오**: 승인 성공/실패, 결제 취소/부분 취소, 이미 취소된 결제, 잔액 부족
 - **개발자가 테스트하는 것**: 결제 예외 처리, 결제 실패 시 주문 롤백 처리, 재시도 정책
 - **공식 기술 제약 (검증)**:
-  - 승인 API: `ALREADY_PROCESSED_PAYMENT` (중복 승인), `PROVIDER_ERROR` (일시적 뱅킹망 장애), `INVALID_REJECT_CARD` (카드사 거절) 등의 400 에러를 명확하게 핸들링해야 합니다.
+  - 승인 API: `ALREADY_PROCESSED_PAYMENT` (중복 승인), `INVALID_REJECT_CARD` (카드사 거절) 등의 400 에러 및 `FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING` (일시적 뱅킹망 장애) 등의 500 에러를 명확하게 핸들링해야 합니다.
   - 취소 API: `ALREADY_CANCELED_PAYMENT` (이미 취소됨) 처리 및 멱등성 보장이 필수적입니다.
 
 ##### 응답 명세
@@ -234,17 +234,17 @@ Content-Type: application/json
 
 ---
 
-**[실패] `PROVIDER_ERROR` — 일시적 뱅킹망 장애**
+**[실패] `FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING` — 일시적 뱅킹망 장애**
 
 ```
-Status: 400 Bad Request
+Status: 500 Internal Server Error
 Content-Type: application/json
 ```
 
 ```json
 {
-  "code": "PROVIDER_ERROR",
-  "message": "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+  "code": "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING",
+  "message": "결제 기관에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
 }
 ```
 

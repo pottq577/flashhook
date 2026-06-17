@@ -218,16 +218,16 @@ const tossPresets: PresetService = {
       ),
     },
     {
-      id: 'toss_provider_error',
-      label: 'PROVIDER_ERROR',
-      desc: '(400 뱅킹망 장애)',
-      statusCode: 400,
+      id: 'toss_failed_payment_internal_system_processing',
+      label: 'FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING',
+      desc: '(500 뱅킹망 장애)',
+      statusCode: 500,
       delayMs: 0,
       headers: CT_JSON,
       body: JSON.stringify(
         {
-          code: 'PROVIDER_ERROR',
-          message: '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+          code: 'FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING',
+          message: '결제 기관에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
         },
         null,
         2,
