@@ -1,8 +1,8 @@
 # K-API Preset Implementation Status (Living Document)
 
 ## Progress Summary
-- **Current Progress**: 66%
-- **Tickets Completed**: 6 / 9
+- **Current Progress**: 77%
+- **Tickets Completed**: 7 / 9
 
 | Ticket ID | Description | Priority | Status |
 |---|---|---|---|
@@ -12,7 +12,7 @@
 | FH-PRESET-004 | 포트원 V2 웹훅 재전송 옵트인 서술 제거 | P1 | [x] Completed |
 | FH-PRESET-005 | 카카오 KOE 에러 메시지 정확성 보강 | P1 | [x] Completed |
 | FH-PRESET-006 | Slack X-Slack-No-Retry 사용 조건 명확화 | P2 | [x] Completed |
-| FH-PRESET-007 | 카카오 채널 추가/차단 이벤트 프리셋 별도 분리 | P2 | [ ] Planned |
+| FH-PRESET-007 | 카카오 채널 추가/차단 이벤트 프리셋 별도 분리 | P2 | [x] Completed |
 | FH-PRESET-008 | GitHub Webhook 추가 헤더 및 시크릿-없음 케이스 프리셋 추가 | P2 | [ ] Planned |
 | FH-PRESET-009 | 토스페이먼츠 PAYMENT_STATUS_CHANGED 웹훅 프리셋 추가 | P2 | [ ] Planned |
 
@@ -47,3 +47,7 @@
 ### 2026-06-17T04:35:00Z
 - **Event**: FH-PRESET-006 [P2] Completed.
 - **Details**: Added "x-slack-no-retry" to backend ALLOWED_HEADERS in MockResponseScheduler.java. Updated spec document and presets.ts to use status code 500 and include the "X-Slack-No-Retry: 1" header to align with Slack's non-200 OK retry cancellation policy.
+
+### 2026-06-17T04:36:00Z
+- **Event**: FH-PRESET-007 [P2] Completed.
+- **Details**: Separated Kakao channel callback from Kakao Login SSF/SET callback in both the specification document and presets.ts. Added a comparison table to explain differences in hosting domains, success status codes, payload formats, and events.

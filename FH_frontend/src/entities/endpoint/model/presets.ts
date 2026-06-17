@@ -163,6 +163,46 @@ const kakaoPresets: PresetService = {
         2,
       ),
     },
+    {
+      id: 'kakao_channel_add',
+      label: '카카오톡 채널 추가 알림',
+      desc: '(200 OK)',
+      statusCode: 200,
+      delayMs: 0,
+      headers: CT_JSON,
+      presetType: 'KAKAO_CHANNEL_CALLBACK',
+      body: JSON.stringify(
+        {
+          event: 'add_channel',
+          id: '123456',
+          user_id: '3891047281',
+          channel_uuid: 'ch_123456',
+          updated_at: '2024-01-15T18:30:00Z',
+        },
+        null,
+        2,
+      ),
+    },
+    {
+      id: 'kakao_channel_block',
+      label: '카카오톡 채널 차단 알림',
+      desc: '(200 OK)',
+      statusCode: 200,
+      delayMs: 0,
+      headers: CT_JSON,
+      presetType: 'KAKAO_CHANNEL_CALLBACK',
+      body: JSON.stringify(
+        {
+          event: 'block_channel',
+          id: '123456',
+          user_id: '3891047281',
+          channel_uuid: 'ch_123456',
+          updated_at: '2024-01-15T18:30:00Z',
+        },
+        null,
+        2,
+      ),
+    },
   ],
 };
 
