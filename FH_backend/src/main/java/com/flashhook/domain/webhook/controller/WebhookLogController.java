@@ -15,6 +15,7 @@ import com.flashhook.domain.webhook.dto.ReplayRequest;
 import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
 import com.flashhook.domain.webhook.service.WebhookLogService;
+import com.flashhook.domain.webhook.service.WebhookReplayService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class WebhookLogController {
 
     private final WebhookLogService webhookLogService;
+    private final WebhookReplayService webhookReplayService;
 
     /**
      * 로그 목록 조회 (페이징)
@@ -71,7 +73,7 @@ public class WebhookLogController {
             @PathVariable String endpointId,
             @PathVariable String logId,
             @Valid @RequestBody ReplayRequest request) {
-        webhookLogService.replayLog(endpointId, logId, request.getDestinationUrl());
+        webhookReplayService.replayLog(endpointId, logId, request.getDestinationUrl());
         return ResponseEntity.ok().build();
     }
 }
