@@ -66,7 +66,7 @@ const kakaoPresets: PresetService = {
       body: JSON.stringify(
         {
           error: 'invalid_client',
-          error_description: 'not exist client id or secret',
+          error_description: 'Not exist client_id flashhook-dummy-rest-api-key',
           error_code: 'KOE101',
         },
         null,

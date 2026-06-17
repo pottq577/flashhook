@@ -70,7 +70,7 @@ Content-Type: application/json;charset=UTF-8
 ```json
 {
   "error": "invalid_client",
-  "error_description": "not exist client id or secret",
+  "error_description": "Not exist client_id flashhook-dummy-rest-api-key",
   "error_code": "KOE101"
 }
 ```
@@ -91,6 +91,7 @@ Content-Type: application/json;charset=UTF-8
   "error_code": "KOE320"
 }
 ```
+* Note: `authorization code not found for code=${AUTHORIZATION_CODE}` 형식이 카카오 공식 패턴입니다.
 
 ---
 

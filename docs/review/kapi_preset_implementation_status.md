@@ -1,8 +1,8 @@
 # K-API Preset Implementation Status (Living Document)
 
 ## Progress Summary
-- **Current Progress**: 44%
-- **Tickets Completed**: 4 / 9
+- **Current Progress**: 55%
+- **Tickets Completed**: 5 / 9
 
 | Ticket ID | Description | Priority | Status |
 |---|---|---|---|
@@ -10,7 +10,7 @@
 | FH-PRESET-002 | 토스페이먼츠 PROVIDER_ERROR -> FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING 교체 | P0 | [x] Completed |
 | FH-PRESET-003 | 솔라피 statusCode 3059 의미 수정 및 5초 타임아웃 명시 | P0 | [x] Completed |
 | FH-PRESET-004 | 포트원 V2 웹훅 재전송 옵트인 서술 제거 | P1 | [x] Completed |
-| FH-PRESET-005 | 카카오 KOE 에러 메시지 정확성 보강 | P1 | [ ] Planned |
+| FH-PRESET-005 | 카카오 KOE 에러 메시지 정확성 보강 | P1 | [x] Completed |
 | FH-PRESET-006 | Slack X-Slack-No-Retry 사용 조건 명확화 | P2 | [ ] Planned |
 | FH-PRESET-007 | 카카오 채널 추가/차단 이벤트 프리셋 별도 분리 | P2 | [ ] Planned |
 | FH-PRESET-008 | GitHub Webhook 추가 헤더 및 시크릿-없음 케이스 프리셋 추가 | P2 | [ ] Planned |
@@ -39,3 +39,7 @@
 ### 2026-06-17T04:33:00Z
 - **Event**: FH-PRESET-004 [P1] Completed.
 - **Details**: Removed the incorrect opt-in retry description for PortOne V2 from the spec document (since PortOne V2 retries 5 times by default).
+
+### 2026-06-17T04:34:00Z
+- **Event**: FH-PRESET-005 [P1] Completed.
+- **Details**: Updated Kakao KOE101 error_description to "Not exist client_id flashhook-dummy-rest-api-key" in spec and presets.ts, and added note about official pattern format for KOE320.
