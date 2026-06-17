@@ -19,63 +19,60 @@ FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공
 
 ---
 
-## 📸 Demo
+## 지금 바로 사용하기
 
-> **[TODO] 대시보드 실시간 수신 화면이나 Mock 세팅 화면 GIF**
+**Live Service:** [https://flashhook.site](https://flashhook.site)
 
----
+로컬 설치 없이 웹훅 수신 URL을 생성하고, 대시보드에서 요청 로그를 바로 확인할 수 있어요.
 
-## 🤔 기획 배경
+## 기획 배경
 
 ### Problem
 
 토스페이먼츠나 카카오 로그인 같은 외부 API를 연동할 때, 한 번쯤 이런 불편함을 겪어보셨을 거예요.
 
 1. 상대방이 보내는 웹훅 데이터 형식을 보려면 매번 `ngrok`으로 로컬 포트를 열거나 테스트 서버를 배포해야 해요.
-2. 타사 API가 점검 중이거나(`500 Error`) 타임아웃이 났을 때 내 서버가 잘 버티는지 테스트하고 싶은데, 진짜 서버를 고의로 망가뜨릴 방법이 없어요.
+2. 타사 API가 점검 중이거나 타임아웃이 났을 때 내 서버가 잘 버티는지 테스트하고 싶은데, 진짜 서버를 고의로 망가뜨릴 방법이 없어요.
 
 ### Solution
 
-그래서 누구나 **클릭 한 번으로 임시 URL을 발급받아 데이터를 실시간으로 확인**하고, **"이 URL은 10초 뒤에 500 에러를 뱉어줘"라고 조작할 수 있는 가짜 서버**를 만들었어요.
+그래서 누구나 **클릭 한 번으로 임시 URL을 발급받아 데이터를 실시간으로 확인**하고, **"이 URL은 잠시 뒤에 에러를 뱉어줘"라고 조작할 수 있는 가짜 서버**를 만들었어요.
 
----
+## 핵심 기능 3종
 
-## 🚀 주요 기능 및 워크플로우
-
-### 1. Webhook Catcher (요청 수신 및 로깅)
+### 1. Webhook Catcher
 
 > **"상대방이 나한테 정확히 어떤 데이터를 보내고 있는 걸까?"**
 
-- **활용 예시**: 토스페이먼츠 결제 성공 시 날아오는 JSON 구조를 정확히 파악해서 파싱 코드를 작성하고 싶을 때.
-- **워크플로우**:
-  1. 임시 웹훅 URL을 발급받아요.
-  2. 토스 개발자 센터에 웹훅 수신지로 등록해요.
-  3. 대시보드에 실시간으로 찍히는 JSON 페이로드와 헤더를 확인하고 복사해요.
+- **활용 예시**: 결제 성공 시 날아오는 JSON 구조를 정확히 파악해서 파싱 코드를 작성하고 싶을 때.
+- **워크플로우**: 임시 웹훅 URL 생성 → 외부 서비스에 수신지 등록 → 대시보드에서 Payload, Headers, Query를 실시간 확인.
 
-### 2. K-API 프리셋 Mock API (응답 제어 및 조작)
+### 2. K-API Mock
 
 > **"상대방 서버에 문제가 생기면 내 서버는 안 터지고 잘 버틸 수 있을까?"**
 
-- **활용 예시**: 카카오 로그인 서버가 10초 이상 지연될 때, 우리 서버가 타임아웃 처리를 정상적으로 하는지 검증하고 싶을 때.
-- **워크플로우**:
-  1. 대시보드에서 **[카카오 로그인 - 500 서버 장애]** 프리셋을 선택해요 (수동 설정도 가능해요).
-  2. 내 로컬 코드의 API 호출 URL을 FlashHook 주소로 잠깐 바꿔요.
-  3. 내 서버에서 요청을 보내면 FlashHook이 지정된 시간 뒤에 에러 응답을 반환해요. 내 서버가 에러를 잘 다루는지 확인해요.
-  4. Slack URL Verification처럼 수신된 파라미터(`challenge`)를 파싱하여 동적으로 응답을 반환하는 고급 프리셋도 지원해요.
+- **활용 예시**: 카카오 로그인 서버가 지연되거나 실패할 때, 내 서버의 타임아웃/에러 처리를 검증하고 싶을 때.
+- **워크플로우**: 프리셋 또는 수동 Mock 설정 → 호출 URL을 FlashHook 주소로 변경 → 원하는 상태 코드, 지연, 본문으로 응답 확인.
+- Slack URL Verification처럼 요청 값을 읽어 동적으로 응답하는 프리셋도 지원해요.
 
-### 3. 웹훅 재전송 (Replay API)
+### 3. Replay API
 
 > **"로컬 서버가 꺼져있을 때 들어온 웹훅을 나중에 다시 테스트해 볼 순 없을까?"**
 
-- **활용 예시**: 결제 모듈 연동 중 터널링이 끊겨 웹훅을 놓쳤을 때, 동일한 페이로드를 로컬 서버로 다시 쏴서 디버깅하고 싶을 때.
-- **워크플로우**:
-  1. 대시보드에 기록된 과거의 웹훅 로그를 엽니다.
-  2. "REPLAY" 버튼을 누르고 재전송받을 내 서버의 URL(예: `https://my-ngrok-url.com/webhook`)을 입력합니다.
-  3. FlashHook 서버가 내 서버로 완벽히 동일한 헤더와 본문을 가진 HTTP 요청을 다시 쏴줍니다.
+- **활용 예시**: 터널링이 끊겨 웹훅을 놓쳤을 때, 동일한 페이로드를 로컬 서버로 다시 보내 디버깅하고 싶을 때.
+- **워크플로우**: 과거 로그 선택 → 재전송 대상 URL 입력 → FlashHook이 저장된 요청을 다시 발송.
 
----
+## 데이터 보존 및 개인정보 안내
 
-## 🏛 아키텍처 및 시스템 설계
+FlashHook은 장기 보관 서비스가 아니라 임시 디버깅 도구예요.
+
+- 엔드포인트와 로그는 24시간 후 MongoDB TTL로 자동 파기됩니다.
+- 대시보드에서 엔드포인트와 로그를 직접 삭제할 수 있습니다.
+- 웹훅 Payload에 포함된 제3자 개인정보는 사용자가 연결한 외부 시스템에서 유입될 수 있으므로 테스트 데이터 사용을 권장합니다.
+
+자세한 기준은 [개인정보처리방침](docs/legal/PRIVACY_POLICY.md)과 [서비스 이용약관](docs/legal/TERMS_OF_SERVICE.md)을 참고해 주세요.
+
+## 아키텍처
 
 ```mermaid
 sequenceDiagram
@@ -95,96 +92,79 @@ sequenceDiagram
 ```
 
 - **Backend:** Java 21, Spring Boot 3.5.15
-- **Frontend:** React 19, TypeScript, Vite, Zustand, TanStack Query(v5), React Router DOM(v7), Framer Motion, Playwright + Axe, FSD 아키텍처
-- **Database:** MongoDB (TTL), Redis (Rate Limit)
-- **Infra:** Docker, SSE (Server-Sent Events)
+- **Frontend:** React 19, TypeScript, Vite, Zustand, TanStack Query, React Router, Framer Motion, Playwright + Axe, FSD 아키텍처
+- **Database:** MongoDB TTL, Redis
+- **Infra:** Docker, SSE
 
-자세한 시스템 구조는 [`docs/artifacts/CONTEXT.md`](docs/artifacts/CONTEXT.md) 또는 [`docs/artifacts/CONTEXT_KR.md`](docs/artifacts/CONTEXT_KR.md)를 참고해 주세요.<br/>
-API 명세는 [`docs/artifacts/04_api_spec.md`](docs/artifacts/04_api_spec.md)를 참고해 주세요.<br/>
-특히 도메인 간(`WebhookService`와 `SseEmitterService`) 결합도를 낮추고 성능 향상을 위해 **Spring ApplicationEvent (@Async)** 기반의 비동기 이벤트 드리븐 패턴을 적용했습니다.
+자세한 구조는 [System Context](docs/artifacts/CONTEXT.md)와 [System Architecture](docs/artifacts/03_system_architecture.md)를 참고해 주세요.
 
----
+## 기술적 챌린지
 
-## 💡 기술적 챌린지와 해결 과정
+### Backend
 
-안정적인 트래픽 방어와 실시간 렌더링 성능을 확보하기 위해 프론트엔드와 백엔드 전반에 걸쳐 다음과 같은 아키텍처를 설계하고 적용했습니다.
+- **트래픽 남용 방지**: 회원가입 없이 URL을 생성할 수 있어 요청 빈도 제한과 프록시 환경의 클라이언트 IP 해석을 함께 설계했습니다.
+- **스토리지 보호**: 비정형 웹훅 로그가 무한히 쌓이지 않도록 TTL과 앱 레벨 저장량 제한을 적용했습니다.
+- **수신/브로드캐스트 분리**: 웹훅 수신 경로와 SSE 전송 경로를 비동기 이벤트로 분리해 지연 전파를 줄였습니다.
+- **동적 응답 프리셋**: Slack, GitHub, PortOne처럼 요청 파싱이나 서명 처리가 필요한 프리셋을 전략 패턴으로 분리했습니다.
+- **Replay SSRF 방어**: 외부 발송 전 목적지 주소를 검증하고 내부망 접근과 DNS Rebinding 위험을 차단했습니다.
 
-### 🏢 Backend (Spring Boot)
+### Frontend
 
-#### 1. DDoS 방어 및 Proxy-Aware IP Spoofing 차단
+- **Polling 없는 실시간 로그**: EventSource 기반 SSE 연결로 수신 즉시 대시보드에 로그를 반영합니다.
+- **대량 로그 렌더링 최적화**: 가상화 리스트로 많은 로그가 쌓여도 UI가 멈추지 않도록 처리했습니다.
+- **상태 관리 분리**: FSD 구조, Zustand, TanStack Query로 UI 상태와 서버 상태를 분리했습니다.
+- **자동화된 품질 검증**: Playwright와 Axe로 주요 흐름과 접근성 회귀를 검사합니다.
 
-- **문제**: 가입 없이 누구나 URL을 생성할 수 있어 매크로 공격에 노출되기 쉬우며, Cloudflare나 Nginx(리버스 프록시)를 거칠 경우 모든 접속이 단일 프록시 IP로 식별되어 Rate Limit이 전역적으로 걸려버리는 오작동 문제가 있었습니다. 반대로 클라이언트가 `X-Forwarded-For` 헤더를 위조해 IP를 속일(Spoofing) 위험도 공존했습니다.
-- **해결**: Redis의 **고정 윈도우 카운터 알고리즘**을 도입하여 Rate Limit(IP당 생성 제한, 엔드포인트당 수신 제한)을 적용했습니다. 또한 Spring Boot의 **내장 프록시 신뢰 메커니즘**(`forward-headers-strategy: framework`)을 구성하여, 서버가 신뢰하는 내부 프록시를 거친 요청에서만 안전하게 실제 클라이언트 IP를 추출하도록 아키텍처를 개선했습니다. 이를 통해 터널 환경에서도 정확한 개별 IP 카운팅이 가능하며, 동시에 악의적인 헤더 조작을 프레임워크 단에서 차단합니다.
+보안 설계는 [Security Overview](docs/security/SECURITY_OVERVIEW.md), 더 자세한 설계 의도는 [System Context](docs/artifacts/CONTEXT.md)를 참고해 주세요.
 
-#### 2. 비정형 가비지 데이터 무한 적재 방지 (DB 스토리지 보호)
+## 로컬 개발 환경 (기여자/리뷰어용)
 
-- **문제**: 다양한 형태의 무작위 웹훅 로그가 무한정 쌓일 경우 DB 용량이 빠르게 고갈됩니다.
-- **해결**: 다양한 페이로드를 담기 위해 NoSQL인 MongoDB를 선택했으며, **TTL 인덱스**를 활용해 24시간이 지난 데이터는 스케줄링 서버 없이도 DB 엔진 단에서 자동 파기되도록 설계했습니다. 추가로 앱 레벨에서 단일 엔드포인트당 최대 500건/5MB 초과 시 가장 오래된 로그를 덮어쓰는 **환형 큐** 제어를 구현했습니다.
-
-#### 3. 웹훅 수신과 클라이언트 브로드캐스팅의 결합도 분리
-
-- **문제**: 수많은 클라이언트에게 실시간으로 SSE를 전송하는 작업이 지연될 경우, 웹훅을 수신하는 메인 스레드까지 블로킹될 위험이 있었습니다.
-- **해결**: Spring `ApplicationEvent`와 `@Async`를 결합한 **비동기 이벤트 드리븐** 방식으로 아키텍처를 재설계했습니다. 이를 통해 웹훅 수신(1ms 이내 반환) 로직과 SSE 푸시 로직을 분리하여 서버 처리량을 극대화했습니다.
-
-#### 4. 서드파티 동적 응답 지원
-
-- **문제**: Slack 이벤트 구독처럼 요청 본문을 파싱해 특정 값(`challenge`)을 반환해야 하는 동적 웹훅 대응이 필요했습니다.
-- **해결**: `presetType` 기반 Factory/Strategy 패턴을 도입해 요청을 동적으로 파싱하고 조립하는 핸들러를 구현했습니다.
-
-#### 5. 웹훅 재전송 기능과 SSRF 공격 방어
-
-- **문제**: 개발자가 과거 웹훅을 본인 서버로 다시 쏠 수 있도록 Replay 기능을 만들었으나, 이로 인해 악의적인 사용자가 내부망 서버(DB 등)나 메타데이터 API(`169.254.169.254`)를 공격하는 **SSRF** 위험이 발생했습니다.
-- **해결**: 외부 발송 시 커스텀 `SimpleClientHttpRequestFactory`를 적용해 DNS Resolve 후 타겟 IP가 사설 IP 대역, 루프백, 링크 로컬 주소인 경우 차단하여 SSRF 공격을 방어했습니다. 동시에 IP Pinning을 적용해 DNS Rebinding 공격도 차단했습니다.
-
-### 🎨 Frontend (React / Vite)
-
-#### 1. Polling 없는 실시간 데이터 스트리밍 파이프라인
-
-- **문제**: 웹훅 도착 여부를 HTTP 폴링으로 확인하면 불필요한 네트워크 트래픽과 지연이 발생합니다.
-- **해결**: 네이티브 `EventSource`를 활용해 **SSE** 단방향 스트리밍을 구현했습니다. 네트워크 단절 시 자동 재연결 로직과 클린업을 담당하는 커스텀 훅을 작성하여 실시간 디버깅 경험을 제공합니다.
-
-#### 2. 대량의 로그 렌더링 시 DOM Freezing 방지
-
-- **문제**: 수백 건의 웹훅 로그가 짧은 시간에 쏟아질 경우, 렌더링 부하로 인해 브라우저가 멈추는 현상이 발생할 수 있습니다.
-- **해결**: `react-virtuoso`를 도입하여 **가상화 리스트 렌더링**을 적용했습니다. 화면에 노출되는 요소만 렌더링함으로써 500건 이상의 로그가 쌓여도 부드러운 스크롤 성능을 유지합니다.
-
-#### 3. FSD 아키텍처 기반의 복잡한 상태 관리와 캐싱
-
-- **문제**: 실시간 연결 상태, 선택된 엔드포인트, 누적되는 로그 데이터 등 복잡한 상태를 여러 컴포넌트 간에 안전하게 공유해야 했습니다.
-- **해결**: **FSD** 아키텍처를 도입하여 컴포넌트 간 결합도를 최소화했습니다. `Zustand`를 활용해 전역 상태를 관리하고, `TanStack Query`로 서버 상태 및 데이터 캐싱을 분리하여 유지보수성을 높였습니다.
-
-#### 4. 자동화된 E2E 파이프라인과 웹 접근성 확보
-
-- **문제**: 실시간 UI 변화가 잦은 애플리케이션 특성상 회귀 버그 발생 위험이 높고, 웹 접근성이 누락되기 쉽습니다.
-- **해결**: `Playwright`를 이용해 총 36개의 E2E 테스트 케이스를 구축하여 핵심 워크플로우를 자동 검증합니다. 동시에 `@axe-core/playwright`를 통합해 렌더링되는 모든 뷰의 **웹 접근성을 자동 검사**하여 품질을 유지합니다.
-
----
-
-## ⚡ 빠른 시작
-
-1. 인프라 실행 (Redis, MongoDB)
+1. 인프라 실행
 
 ```bash
 docker-compose up -d
 ```
 
-2. 백엔드 및 프론트엔드 구동
+2. 백엔드 실행
 
 ```bash
-# 백엔드 실행 (새 터미널 탭)
 cd FH_backend
 ./gradlew bootRun
+```
 
-# 프론트엔드 실행 (새 터미널 탭)
+3. 프론트엔드 실행
+
+```bash
 cd FH_frontend
 npm install
 npm run dev
 ```
 
-3. (선택) Cloudflare Tunnel 등으로 로컬 포트 외부 노출
+4. 브라우저에서 `http://localhost:5173` 접속
 
-```bash
-cloudflared tunnel --url http://localhost:8080
-```
+자세한 개발 환경 구성은 [Development Guide](docs/DEVELOPMENT.md)를 참고해 주세요.
 
-4. `http://localhost:5173` 접속하여 로컬 샌드박스 환경 테스트 완료!
+## 문서 모음
+
+| 문서 | 설명 |
+| --- | --- |
+| [Product & Features](docs/artifacts/01_product_and_features.md) | 제품 목표와 핵심 기능 |
+| [Mock API Features](docs/artifacts/02_mock_api_features.md) | K-API Mock 프리셋 설계 |
+| [System Architecture](docs/artifacts/03_system_architecture.md) | 시스템 구조와 데이터 흐름 |
+| [API Spec](docs/artifacts/04_api_spec.md) | API 엔드포인트와 요청/응답 스키마 |
+| [Error Dictionary](docs/artifacts/05_error_dictionary.md) | 공통 에러 코드 |
+| [Security Overview](docs/security/SECURITY_OVERVIEW.md) | 공개 가능한 보안 설계 개요 |
+| [Development Guide](docs/DEVELOPMENT.md) | 로컬 개발 및 검증 가이드 |
+| [ADR 0001](docs/adr/0001-preset-catalog-lives-in-fe-constants.md) | 프리셋 카탈로그 위치 결정 |
+| [ADR 0002](docs/adr/0002-dynamic-preset-split-into-two-types.md) | 동적 프리셋 타입 분리 결정 |
+| [Privacy Policy](docs/legal/PRIVACY_POLICY.md) | 개인정보처리방침 |
+| [Terms of Service](docs/legal/TERMS_OF_SERVICE.md) | 서비스 이용약관 |
+| [License](LICENSE) | 라이선스 |
+
+## 라이선스
+
+현재 레포의 [LICENSE](LICENSE)는 MIT License입니다. 라이선스 정책 변경 여부는 별도 확인이 필요합니다.
+
+## 문의/이슈
+
+버그 제보, 개선 제안, 질문은 [GitHub Issues](https://github.com/pottq577/flashhook/issues)에 남겨주세요.

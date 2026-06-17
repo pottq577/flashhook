@@ -70,7 +70,7 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스입니다. 개발자가 단 
 
 ## 5. 인프라 및 로컬 개발 환경
 
-- **Redis**: 서버를 스팸/DDoS 공격으로부터 보호하기 위해 (Lua 스크립트를 통한) 고정 윈도우(Fixed Window) Rate Limit을 처리합니다.
+- **Redis**: 서버를 스팸/DDoS 공격으로부터 보호하기 위해 요청 빈도 제한을 처리합니다.
 - **MongoDB**: 데이터 자동 파기를 위해 TTL 인덱스에 전적으로 의존합니다.
 - **로컬 테스트**:
   1. `docker-compose up -d`로 Redis와 MongoDB를 실행합니다.

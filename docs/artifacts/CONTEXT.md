@@ -70,7 +70,7 @@ The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.
 
 ## 5. Infrastructure & Local Development
 
-- **Redis**: Handles fixed-window rate limiting (via Lua script) to protect the server from spam/DDoS.
+- **Redis**: Handles request frequency limiting to protect the server from spam/DDoS.
 - **MongoDB**: Relies on TTL indexes for data purging.
 - **Local Testing**:
   1. `docker-compose up -d` for Redis/MongoDB.

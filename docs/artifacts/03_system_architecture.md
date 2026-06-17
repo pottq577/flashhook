@@ -275,19 +275,17 @@ db.logs.createIndex(
 db.logs.createIndex({ logId: 1 }, { unique: true });
 ```
 
-### 2.3. Redis Key 설계
+### 2.3. Redis 사용 영역
 
 ```text
-# Rate Limiting — Fixed Window Counter
-rl:create:{ip}                      → INCR + EXPIRE 86400s (5개/IP/24시간)
-rl:hook:{endpointId}:{ip}           → INCR + EXPIRE 60s  (100건/EP/IP/분)
+# Rate Limiting
+엔드포인트 생성, 웹훅 수신, Replay 요청에 요청 빈도 제한을 적용합니다.
 
 # SSE 연결 관리
-stream_token:{token}                → SET + EXPIRE 30s (SSE 연결용 일회용 토큰)
-sse:connections:{ip}                → SET (동시 SSE 수 추적, 최대 5) (예정)
+SSE 연결용 일회용 토큰과 연결 상태를 관리합니다.
 
-# IP당 활성 엔드포인트 수 (빠른 조회용 캐시)
-endpoint:count:{ip}                 → INCR/DECR + TTL 없음 (MongoDB와 동기화)
+# 임시 캐시
+서비스 남용 방지와 빠른 조회를 위한 휘발성 캐시를 사용합니다.
 ```
 
 ### 2.4. 데이터 보존 및 생명주기 정책 (Data Lifecycle)

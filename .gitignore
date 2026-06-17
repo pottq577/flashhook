@@ -40,6 +40,7 @@ lerna-debug.log*
 toyproject.md
 docs/review/*
 docs/infrastructure/*
+.private/
 
 ### QA Reports & Scripts ###
 docs/qa/*

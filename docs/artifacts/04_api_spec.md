@@ -1,7 +1,7 @@
 # MVP API 명세서
 
 > **기술 스택**: Java 21, Spring Boot 3.5.15
-> **Rate Limit**: Redis를 이용한 고정 윈도우(Fixed Window Counter) 알고리즘 기반으로 적용됩니다.
+> **Rate Limit**: Redis 기반의 요청 빈도 제한이 적용됩니다.
 
 ## 1. 공통 사항
 
@@ -100,7 +100,7 @@ Content-Type: application/json (선택)
 
 **에러**:
 
-- `429 ENDPOINT_LIMIT_EXCEEDED`: 5개/IP/10분 초과 (고정 윈도우)
+- `429 ENDPOINT_LIMIT_EXCEEDED`: 단기간 내 과도한 생성 요청은 제한됩니다.
 - `403 FORBIDDEN`: 악성 IP 블랙리스트에 등재된 경우
 
 ---
@@ -222,7 +222,7 @@ ok
 
 - `404 ENDPOINT_NOT_FOUND`: 존재하지 않거나 만료된 엔드포인트
 - `413 PAYLOAD_TOO_LARGE`: Body 1MB 초과
-- `429 RATE_LIMIT_EXCEEDED`: 100건/EP/1분 초과 (고정 윈도우)
+- `429 RATE_LIMIT_EXCEEDED`: 엔드포인트당 수신 요청 빈도가 제한됩니다.
 - `408 REQUEST_TIMEOUT`: 지연 시간이 너무 길어 타임아웃 발생 시 (서버 하드 타임아웃 15초, Mock 설정은 최대 10초까지 허용)
 
 ---
@@ -310,7 +310,7 @@ GET /api/endpoints/{endpointId}/logs/{logId}
 }
 ```
 
-> **보안 참고**: `authorization`, `x-api-key`, `password` 등 민감한 정보가 포함된 헤더나 쿼리 파라미터는 `[REDACTED]`로 마스킹 처리되어 반환됩니다.
+> **보안 참고**: Authorization, API Key, 비밀번호 등 민감 정보로 추정되는 헤더나 쿼리 파라미터는 `[REDACTED]`로 마스킹 처리되어 반환됩니다.
 
 ---
 
@@ -344,7 +344,7 @@ POST /api/endpoints/{endpointId}/logs/{logId}/replay
 **Response**: `200 OK`
 
 **에러**:
-- `429 RATE_LIMIT_EXCEEDED`: Replay 20회/1분 초과
+- `429 RATE_LIMIT_EXCEEDED`: Replay 요청 빈도가 제한됩니다.
 - `403 FORBIDDEN` / `400 INVALID_REQUEST`: 타겟 URL이 사설 IP, 루프백, 링크 로컬 등 SSRF 공격으로 의심될 경우
 
 ---
