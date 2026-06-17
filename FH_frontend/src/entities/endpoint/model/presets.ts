@@ -462,15 +462,15 @@ const solapiPresets: PresetService = {
     },
     {
       id: 'solapi_3059',
-      label: '발신번호 오류 (3059)',
-      desc: '(400 번호 변작 의심)',
+      label: '도용차단 가입 번호 (3059)',
+      desc: '(400 도용차단 가입 번호)',
       statusCode: 400,
       delayMs: 0,
       headers: CT_JSON,
       body: JSON.stringify(
         {
           errorCode: '3059',
-          errorMessage: '변작된 발신번호',
+          errorMessage: '번호도용문자 차단 서비스에 가입된 발신번호입니다.',
         },
         null,
         2,

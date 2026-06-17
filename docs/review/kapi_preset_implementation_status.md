@@ -1,14 +1,14 @@
 # K-API Preset Implementation Status (Living Document)
 
 ## Progress Summary
-- **Current Progress**: 22%
-- **Tickets Completed**: 2 / 9
+- **Current Progress**: 33%
+- **Tickets Completed**: 3 / 9
 
 | Ticket ID | Description | Priority | Status |
 |---|---|---|---|
 | FH-PRESET-001 | 카카오 unlink 웹훅 페이로드 및 응답 코드 수정 | P0 | [x] Completed |
 | FH-PRESET-002 | 토스페이먼츠 PROVIDER_ERROR -> FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING 교체 | P0 | [x] Completed |
-| FH-PRESET-003 | 솔라피 statusCode 3059 의미 수정 및 5초 타임아웃 명시 | P0 | [ ] Planned |
+| FH-PRESET-003 | 솔라피 statusCode 3059 의미 수정 및 5초 타임아웃 명시 | P0 | [x] Completed |
 | FH-PRESET-004 | 포트원 V2 웹훅 재전송 옵트인 서술 제거 | P1 | [ ] Planned |
 | FH-PRESET-005 | 카카오 KOE 에러 메시지 정확성 보강 | P1 | [ ] Planned |
 | FH-PRESET-006 | Slack X-Slack-No-Retry 사용 조건 명확화 | P2 | [ ] Planned |
@@ -31,3 +31,7 @@
 ### 2026-06-17T04:31:00Z
 - **Event**: FH-PRESET-002 [P0] Completed.
 - **Details**: Replaced Toss Payments non-existent PROVIDER_ERROR (400) preset with FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING (500) in both specification document and frontend presets.ts.
+
+### 2026-06-17T04:32:00Z
+- **Event**: FH-PRESET-003 [P0] Completed.
+- **Details**: Updated Solapi 3059 error message and label to "번호도용문자 차단 서비스에 가입된 발신번호입니다." in the spec and presets.ts. Specified 5 seconds timeout limit for Solapi webhooks in the spec document.
