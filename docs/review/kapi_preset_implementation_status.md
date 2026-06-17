@@ -1,15 +1,15 @@
 # K-API Preset Implementation Status (Living Document)
 
 ## Progress Summary
-- **Current Progress**: 33%
-- **Tickets Completed**: 3 / 9
+- **Current Progress**: 44%
+- **Tickets Completed**: 4 / 9
 
 | Ticket ID | Description | Priority | Status |
 |---|---|---|---|
 | FH-PRESET-001 | 카카오 unlink 웹훅 페이로드 및 응답 코드 수정 | P0 | [x] Completed |
 | FH-PRESET-002 | 토스페이먼츠 PROVIDER_ERROR -> FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING 교체 | P0 | [x] Completed |
 | FH-PRESET-003 | 솔라피 statusCode 3059 의미 수정 및 5초 타임아웃 명시 | P0 | [x] Completed |
-| FH-PRESET-004 | 포트원 V2 웹훅 재전송 옵트인 서술 제거 | P1 | [ ] Planned |
+| FH-PRESET-004 | 포트원 V2 웹훅 재전송 옵트인 서술 제거 | P1 | [x] Completed |
 | FH-PRESET-005 | 카카오 KOE 에러 메시지 정확성 보강 | P1 | [ ] Planned |
 | FH-PRESET-006 | Slack X-Slack-No-Retry 사용 조건 명확화 | P2 | [ ] Planned |
 | FH-PRESET-007 | 카카오 채널 추가/차단 이벤트 프리셋 별도 분리 | P2 | [ ] Planned |
@@ -35,3 +35,7 @@
 ### 2026-06-17T04:32:00Z
 - **Event**: FH-PRESET-003 [P0] Completed.
 - **Details**: Updated Solapi 3059 error message and label to "번호도용문자 차단 서비스에 가입된 발신번호입니다." in the spec and presets.ts. Specified 5 seconds timeout limit for Solapi webhooks in the spec document.
+
+### 2026-06-17T04:33:00Z
+- **Event**: FH-PRESET-004 [P1] Completed.
+- **Details**: Removed the incorrect opt-in retry description for PortOne V2 from the spec document (since PortOne V2 retries 5 times by default).
