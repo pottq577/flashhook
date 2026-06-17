@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
+import javax.crypto.Mac;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -27,10 +28,19 @@ public class EncryptionUtil {
         if (secretKey == null || secretKey.isBlank()) {
             throw new IllegalStateException("flashhook.security.secret-key must be configured");
         }
-        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
-        byte[] validKeyBytes = new byte[32];
-        System.arraycopy(keyBytes, 0, validKeyBytes, 0, Math.min(keyBytes.length, 32));
+        byte[] validKeyBytes = deriveKey(secretKey.getBytes(StandardCharsets.UTF_8), 32);
         this.key = new SecretKeySpec(validKeyBytes, KEY_ALGORITHM);
+    }
+
+    private static byte[] deriveKey(byte[] inputKey, int length) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(inputKey, "HmacSHA256"));
+            byte[] derived = mac.doFinal("flashhook-encryption-key".getBytes(StandardCharsets.UTF_8));
+            return Arrays.copyOf(derived, length);
+        } catch (Exception e) {
+            throw new RuntimeException("Key derivation failed", e);
+        }
     }
 
     public String encrypt(String value) {
