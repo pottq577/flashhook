@@ -2,9 +2,12 @@ package com.flashhook.global.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -13,23 +16,35 @@ import org.springframework.stereotype.Component;
 @Component
 public class EncryptionUtil {
 
-    private static final String ALGORITHM = "AES";
+    private static final String KEY_ALGORITHM = "AES";
+    private static final String TRANSFORMATION = "AES/GCM/NoPadding";
+    private static final int IV_LENGTH = 12;
+    private static final int TAG_LENGTH_BITS = 128;
+    private final SecureRandom secureRandom = new SecureRandom();
     private final Key key;
 
-    public EncryptionUtil(@Value("${flashhook.security.secret-key:0123456789abcdef0123456789abcdef}") String secretKey) {
+    public EncryptionUtil(@Value("${flashhook.security.secret-key}") String secretKey) {
+        if (secretKey == null || secretKey.isBlank()) {
+            throw new IllegalStateException("flashhook.security.secret-key must be configured");
+        }
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         byte[] validKeyBytes = new byte[32];
         System.arraycopy(keyBytes, 0, validKeyBytes, 0, Math.min(keyBytes.length, 32));
-        this.key = new SecretKeySpec(validKeyBytes, ALGORITHM);
+        this.key = new SecretKeySpec(validKeyBytes, KEY_ALGORITHM);
     }
 
     public String encrypt(String value) {
         if (value == null) return null;
         try {
-            Cipher cipher = Cipher.getInstance(ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] iv = new byte[IV_LENGTH];
+            secureRandom.nextBytes(iv);
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(TAG_LENGTH_BITS, iv));
             byte[] encrypted = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(encrypted);
+            byte[] out = new byte[IV_LENGTH + encrypted.length];
+            System.arraycopy(iv, 0, out, 0, IV_LENGTH);
+            System.arraycopy(encrypted, 0, out, IV_LENGTH, encrypted.length);
+            return Base64.getEncoder().encodeToString(out);
         } catch (Exception e) {
             throw new RuntimeException("Encryption failed", e);
         }
@@ -38,10 +53,12 @@ public class EncryptionUtil {
     public String decrypt(String value) {
         if (value == null) return null;
         try {
-            Cipher cipher = Cipher.getInstance(ALGORITHM);
-            cipher.init(Cipher.DECRYPT_MODE, key);
             byte[] decoded = Base64.getDecoder().decode(value);
-            byte[] decrypted = cipher.doFinal(decoded);
+            byte[] iv = Arrays.copyOfRange(decoded, 0, IV_LENGTH);
+            byte[] encrypted = Arrays.copyOfRange(decoded, IV_LENGTH, decoded.length);
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_LENGTH_BITS, iv));
+            byte[] decrypted = cipher.doFinal(encrypted);
             return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RuntimeException("Decryption failed", e);
