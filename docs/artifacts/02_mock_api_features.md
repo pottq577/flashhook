@@ -36,7 +36,7 @@
 - **공식 기술 제약 (검증)**:
   - `invalid_client`: client_id/secret 누락, 잘못된 앱 키 타입(REST API 키 대신 JS 키 사용 등) 시 발생. (KOE010: client_secret 누락/불일치, KOE101: client_id 존재하지 않음)
   - `invalid_grant`: 인가 코드 또는 리프레시 토큰 만료/재사용 시, 혹은 redirect_uri가 불일치할 때 발생. (KOE320: 인가 코드 만료·재사용, KOE303: redirect_uri 불일치)
-  - `misconfigured` (KOE009): 카카오 로그인 비활성화 등 플랫폼 설정 오류.
+  - `misconfigured` (KOE009): 등록되지 않은 플랫폼에서 액세스 토큰을 요청한 경우 (android_key_hash, ios_bundle_id, web_site_url 불일치).
 
 ##### 응답 명세
 
@@ -94,17 +94,17 @@ Content-Type: application/json;charset=UTF-8
 
 ---
 
-**[실패] `misconfigured` — 카카오 로그인 미활성화 (KOE009)**
+**[실패] `misconfigured` — 등록되지 않은 플랫폼 (KOE009)**
 
 ```
 Status: 400 Bad Request
-Content-Type: application/json;charset=UTF-8
+Content-Type: application/json;charset=utf-8
 ```
 
 ```json
 {
   "error": "misconfigured",
-  "error_description": "misconfigured kakao login or not found kakao login",
+  "error_description": "invalid android_key_hash or ios_bundle_id or web_site_url",
   "error_code": "KOE009"
 }
 ```
@@ -475,7 +475,7 @@ Content-Type: application/json
 
 - **프리셋 시나리오**: 결제 승인 완료, 가상계좌 입금 완료, 결제 취소
 - **개발자가 테스트하는 것**: 위변조 방지(시그니처 검증) 및 상태 머신 검증
-- **공식 기술 제약 (검증)**: Standard Webhooks 스펙을 따르는 **웹훅 시그니처 검증**이 필수입니다. 잘못된 시그니처를 전송하는 프리셋을 통해 서버의 위변조 방지 로직을 테스트할 수 있으며, 실패 시 총 5회 재전송을 시도합니다. _(재전송 횟수 5회는 공식 문서 기준이나, 변경 가능성 있음)_
+- **공식 기술 제약 (검증)**: Standard Webhooks 스펙을 따르는 **웹훅 시그니처 검증**이 필수입니다. 잘못된 시그니처를 전송하는 프리셋을 통해 서버의 위변조 방지 로직을 테스트할 수 있으며, 실패 시 최대 5회까지 재전송이 가능합니다. 단, 이는 기본 동작이 아니라 가맹점이 포트원 고객지원팀에 별도로 "웹훅 재발송 기능" 활성화를 요청해야 적용되는 옵트인 기능입니다. 별도 신청을 하지 않으면 포트원은 웹훅을 1회만 발송합니다. _(참고: 재전송 간격(분 단위 스케줄)은 포트원 자체 문서 페이지 간에도 0→1→4→16→256분과 0→1→4→16→64→256분로 약간 다르게 기재되어 있어, 정확한 최신 간격은 포트원 콘솔 또는 고객지원에 별도 확인이 필요하다.)_
 
 > ⚠️ **동적 시그니처 생성 (구현 완료)**: 포트원 V2 웹훅의 시그니처는 **`webhook-id`, `webhook-timestamp`, 페이로드 body를 조합한 HMAC-SHA256** 값입니다.
 > **발송 처리 로직**: 웹훅 로그 Replay 발송 시 `webhook-timestamp` = 현재 Unix 시간(초), `webhook-id` = UUID 생성 → `"{webhook-id}.{webhook-timestamp}.{body}"` 문자열을 AES-256으로 복호화한 시크릿 키로 HMAC-SHA256 서명 → `webhook-signature` 헤더에 `v1,<base64>` 형식으로 삽입되어 안전하게 발송됩니다.
@@ -529,7 +529,7 @@ _서버는 시그니처 불일치 감지 시 `400 Bad Request`를 반환해야 �
 - **개발자가 테스트하는 것**: 알림 시스템 및 SMS 상태 동기화
 - **공식 기술 제약 (검증)**:
   - **REST API**: 1xxx(입력 파라미터 오류), 3xxx(통신사 에러) 등 명확한 에러 코드가 존재합니다. 번호는 하이픈 없는 숫자 포맷이어야 합니다.
-  - **Webhook**: 수신 서버는 **5초 이내 HTTP 200 반환**이 필수입니다. 발송 실패(3xxx) 리포트를 수신해 다른 자동화 파이프라인(Make, n8n 등)으로 연계하는 로직을 테스트하기 좋습니다.
+  - **Webhook**: 공식 문서에는 초 단위의 구체적인 응답 제한 시간이 명시되어 있지 않다. 응답 본문 내용과 무관하게 HTTP 200을 반환하면 재시도가 발생하지 않는다는 규칙만 존재한다. 실패 시 추가 7회, 총 8회까지 시도한다. 최초 재시도는 실패 후 15분 뒤이며, 이후 매 회 대기 시간이 두 배로 늘어난다 (15분 → 30분 → 60분 → ...). 8회 모두 실패하면 해당 웹훅 설정이 비활성화되어 더 이상 이벤트가 전달되지 않는다. 발송 실패(3xxx) 리포트를 수신해 다른 자동화 파이프라인(Make, n8n 등)으로 연계하는 로직을 테스트하기 좋습니다.
 
 ##### 응답 명세
 
@@ -570,7 +570,7 @@ Content-Type: application/json
 
 ---
 
-**[실패] 발신번호 미등록/변작 의심 (statusCode: 3059)**
+**[실패] 변작된 발신번호 (statusCode: 3059)**
 
 ```
 Status: 400 Bad Request
@@ -580,7 +580,7 @@ Content-Type: application/json
 ```json
 {
   "errorCode": "3059",
-  "errorMessage": "번호도용문자차단서비스에 가입된 번호이거나 변작된 발신번호입니다."
+  "errorMessage": "변작된 발신번호"
 }
 ```
 
@@ -606,7 +606,7 @@ Content-Type: application/json
 }
 ```
 
-_FlashHook 응답: `200 OK` (5초 이내)_
+_FlashHook 응답: `200 OK` (응답 시간 제한은 공식 문서에 명시되지 않음 — Body 무관, 상태 코드만으로 판단됨)_
 
 ---
 
@@ -762,7 +762,7 @@ X-Hub-Signature-256: sha256=dummyhmacsha256signaturevalue_release
 - **개발자가 테스트하는 것**: 최초 Slack App 연동 검증, 봇 이벤트 라우팅, 재전송 방어
 - **공식 기술 제약 (검증)**:
   - **URL Verification**: 앱 최초 연동 시 전달되는 JSON의 `challenge` 파라미터 값을 그대로 텍스트 혹은 JSON 본문으로 반환해야만 검증을 통과합니다.
-  - **Events API Retry**: 서버가 **3초 이내에 응답하지 않으면, 최대 3회 자동 재전송**합니다. _(재전송 간격이 "1분 단위의 지수 백오프"라는 서술은 공식 문서에서 명확히 확인되지 않음 — 2025년 기준 변경 가능성 있음)_
+  - **Events API Retry**: 서버가 **3초 이내에 응답하지 않으면, 최대 3회 자동 재전송**합니다. _(재전송 간격: 1차 재시도는 거의 즉시, 2차 재시도는 1분 후, 3차(최종) 재시도는 5분 후에 이루어진다. 공식 문서 docs.slack.dev / api.slack.com 기준으로 확인됨)_
   - 중복 처리를 방지하기 위해 헤더의 `X-Slack-Retry-Num`을 확인해야 하며, 재시도를 중단하고 싶다면 응답에 `X-Slack-No-Retry: 1` 헤더를 포함시키는 로직 등을 정교하게 테스트할 수 있습니다.
 
 > ⚠️ **동적 응답 필요 (URL Verification)**: Slack이 전송하는 `challenge` 값은 매 요청마다 랜덤하게 생성되는 문자열입니다. 고정 mockConfig로는 이 값을 응답 body에 echo할 수 없습니다.\

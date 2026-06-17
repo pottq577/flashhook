@@ -93,7 +93,7 @@ const kakaoPresets: PresetService = {
     },
     {
       id: 'kakao_misconfigured',
-      label: 'misconfigured (로그인 미활성화)',
+      label: 'misconfigured (플랫폼 설정 오류)',
       desc: '(400 KOE009)',
       statusCode: 400,
       delayMs: 0,
@@ -102,7 +102,7 @@ const kakaoPresets: PresetService = {
         {
           error: 'misconfigured',
           error_description:
-            'misconfigured kakao login or not found kakao login',
+            'invalid android_key_hash or ios_bundle_id or web_site_url',
           error_code: 'KOE009',
         },
         null,
@@ -425,8 +425,7 @@ const solapiPresets: PresetService = {
       body: JSON.stringify(
         {
           errorCode: '3059',
-          errorMessage:
-            '번호도용문자차단서비스에 가입된 번호이거나 변작된 발신번호입니다.',
+          errorMessage: '변작된 발신번호',
         },
         null,
         2,
