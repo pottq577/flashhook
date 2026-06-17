@@ -1,7 +1,6 @@
 package com.flashhook.domain.webhook.service;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,9 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.webhook.service.preset.PresetHandlerRegistry;
 import com.flashhook.domain.webhook.service.preset.ResponsePresetHandler;
@@ -55,7 +51,8 @@ public class MockResponseScheduler {
 
     public DeferredResult<ResponseEntity<?>> schedule(MockConfig mockConfig, String rawBody) {
         if (mockConfig.getPresetType() != null) {
-            java.util.Optional<ResponsePresetHandler> handlerOpt = presetHandlerRegistry.getResponseHandler(mockConfig.getPresetType());
+            Optional<ResponsePresetHandler> handlerOpt = presetHandlerRegistry
+                    .getResponseHandler(mockConfig.getPresetType());
             if (handlerOpt.isPresent()) {
                 DeferredResult<ResponseEntity<?>> presetResult = handlerOpt.get().handleResponse(rawBody, mockConfig);
                 if (presetResult != null) {

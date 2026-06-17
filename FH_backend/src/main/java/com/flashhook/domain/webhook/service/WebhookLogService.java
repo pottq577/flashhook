@@ -1,5 +1,6 @@
 package com.flashhook.domain.webhook.service;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -8,6 +9,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SNIHostName;
@@ -32,10 +35,10 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Objects;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
@@ -47,7 +50,6 @@ import com.flashhook.domain.webhook.service.preset.PresetHandlerRegistry;
 import com.flashhook.domain.webhook.service.preset.RequestSigningPresetHandler;
 import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -161,13 +163,14 @@ public class WebhookLogService {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
             @Override
             @NonNull
-            protected HttpURLConnection openConnection(@NonNull URL url, @Nullable java.net.Proxy proxy) throws java.io.IOException {
+            protected HttpURLConnection openConnection(@NonNull URL url, @Nullable java.net.Proxy proxy)
+                    throws IOException {
                 URL pinnedUrl;
                 try {
                     pinnedUrl = new URI(url.getProtocol(), url.getUserInfo(), resolvedIp.getHostAddress(),
                             url.getPort(), url.getPath(), url.getQuery(), url.getRef()).toURL();
                 } catch (URISyntaxException e) {
-                    throw new java.io.IOException("Failed to construct URI for IP pinning", e);
+                    throw new IOException("Failed to construct URI for IP pinning", e);
                 }
                 HttpURLConnection connection = super.openConnection(Objects.requireNonNull(pinnedUrl), proxy);
                 if (connection instanceof HttpsURLConnection httpsConnection) {
@@ -195,7 +198,7 @@ public class WebhookLogService {
 
                         @Override
                         public Socket createSocket(Socket s, String host, int port, boolean autoClose)
-                                throws java.io.IOException {
+                                throws IOException {
                             Socket socket = defaultFactory.createSocket(s, host, port, autoClose);
                             if (socket instanceof SSLSocket sslSocket) {
                                 SSLParameters params = sslSocket.getSSLParameters();
@@ -206,24 +209,24 @@ public class WebhookLogService {
                         }
 
                         @Override
-                        public Socket createSocket(String host, int port) throws java.io.IOException {
+                        public Socket createSocket(String host, int port) throws IOException {
                             return defaultFactory.createSocket(host, port);
                         }
 
                         @Override
                         public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
-                                throws java.io.IOException {
+                                throws IOException {
                             return defaultFactory.createSocket(host, port, localHost, localPort);
                         }
 
                         @Override
-                        public Socket createSocket(InetAddress host, int port) throws java.io.IOException {
+                        public Socket createSocket(InetAddress host, int port) throws IOException {
                             return defaultFactory.createSocket(host, port);
                         }
 
                         @Override
                         public Socket createSocket(InetAddress address, int port, InetAddress localAddress,
-                                int localPort) throws java.io.IOException {
+                                int localPort) throws IOException {
                             return defaultFactory.createSocket(address, port, localAddress, localPort);
                         }
                     });
@@ -272,9 +275,11 @@ public class WebhookLogService {
                 .build();
 
         if (endpoint.getMockConfig() != null && endpoint.getMockConfig().getPresetType() != null) {
-            java.util.Optional<RequestSigningPresetHandler> handlerOpt = presetHandlerRegistry.getRequestSigningHandler(endpoint.getMockConfig().getPresetType());
+            Optional<RequestSigningPresetHandler> handlerOpt = presetHandlerRegistry
+                    .getRequestSigningHandler(endpoint.getMockConfig().getPresetType());
             if (handlerOpt.isPresent()) {
-                payload = handlerOpt.get().handleRequestGeneration(payload, endpoint.getMockConfig().getPresetOptions());
+                payload = handlerOpt.get().handleRequestGeneration(payload,
+                        endpoint.getMockConfig().getPresetOptions());
             }
         }
 
@@ -302,7 +307,7 @@ public class WebhookLogService {
             Update update = new Update().set("replayStatus", "SUCCESS").unset("replayError");
             mongoTemplate.updateFirst(query, update, WebhookLog.class);
 
-        } catch (org.springframework.web.client.RestClientException | NullPointerException e) {
+        } catch (RestClientException | NullPointerException e) {
             log.warn("웹훅 재전송 실패: destinationUrl={}, logId={}", sanitizeUrlForLog(destinationUrl), logId, e);
             Query query = Query.query(Criteria.where("logId").is(logId));
             Update update = new Update().set("replayStatus", "FAILED").set("replayError", e.getMessage());
