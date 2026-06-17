@@ -356,6 +356,39 @@ _FlashHook 응답: `200 OK`_
 
 ---
 
+**[수신] 결제 상태 변경 웹훅**
+
+```
+Method: POST  (토스페이먼츠 → FlashHook)
+Content-Type: application/json
+```
+
+```json
+{
+  "eventType": "PAYMENT.STATUS_CHANGED",
+  "createdAt": "2024-01-15T18:30:00.123456+09:00",
+  "data": {
+    "paymentKey": "tgen_20240115_abc12345",
+    "orderId": "ORDER-2024-00001",
+    "status": "DONE"
+  }
+}
+```
+
+_FlashHook 응답: `200 OK`_
+
+---
+
+##### 결제 웹훅 시스템 비교 (포트원 V2 vs 토스페이먼츠)
+
+| 구분 | 포트원 V2 결제 웹훅 | 토스페이먼츠 결제 웹훅 |
+|---|---|---|
+| **이벤트 타입** | Standard Webhooks (`Transaction.Paid` 등) | 토스페이먼츠 고유 구조 (`PAYMENT.STATUS_CHANGED` 등) |
+| **인증/서명** | `webhook-signature` 헤더 (HMAC-SHA256) | 서명 헤더 미제공 (가상계좌 입금 통보 등 일반 웹훅 기준) |
+| **재시도 제한 시간** | 각 시도 실패 시 exponential backoff 적용 (5회) | 각 시도 실패 시 지수 백오프 적용 (7회) |
+
+---
+
 **[재전송 테스트] 500 에러 반환**
 
 ```

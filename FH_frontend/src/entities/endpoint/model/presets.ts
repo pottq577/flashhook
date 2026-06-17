@@ -325,6 +325,27 @@ const tossPresets: PresetService = {
       ),
     },
     {
+      id: 'toss_webhook_status_changed',
+      label: '결제 상태 변경 웹훅 수신',
+      desc: '(200 정상 응답)',
+      statusCode: 200,
+      delayMs: 0,
+      headers: CT_JSON,
+      body: JSON.stringify(
+        {
+          eventType: 'PAYMENT.STATUS_CHANGED',
+          createdAt: '2024-01-15T18:30:00.123456+09:00',
+          data: {
+            paymentKey: 'tgen_20240115_abc12345',
+            orderId: 'ORDER-2024-00001',
+            status: 'DONE',
+          },
+        },
+        null,
+        2,
+      ),
+    },
+    {
       id: 'toss_webhook_500',
       label: '웹훅 재전송 테스트',
       desc: '(500 의도적 오류)',
