@@ -258,13 +258,22 @@ public class WebhookLogService {
         }
 
         String rawBody;
-        if (webhookLog.getBody() instanceof String) {
-            rawBody = (String) webhookLog.getBody();
+        Object storedBody = webhookLog.getBody();
+        if (storedBody == null) {
+            rawBody = "";
+        } else if (storedBody instanceof String body) {
+            rawBody = body;
         } else {
             try {
-                rawBody = objectMapper.writeValueAsString(webhookLog.getBody());
+                rawBody = objectMapper.writeValueAsString(storedBody);
             } catch (Exception e) {
-                rawBody = "";
+                log.warn("웹훅 재전송 본문 직렬화 실패: logId={}", logId, e);
+                Query query = Query.query(Criteria.where("logId").is(logId));
+                Update update = new Update()
+                        .set("replayStatus", "FAILED")
+                        .set("replayError", "Failed to serialize replay body");
+                mongoTemplate.updateFirst(query, update, WebhookLog.class);
+                throw new CustomException(ErrorCode.INTERNAL_ERROR);
             }
         }
 
@@ -274,13 +283,25 @@ public class WebhookLogService {
                 .body(rawBody)
                 .build();
 
-        if (endpoint.getMockConfig() != null && endpoint.getMockConfig().getPresetType() != null) {
-            Optional<RequestSigningPresetHandler> handlerOpt = presetHandlerRegistry
-                    .getRequestSigningHandler(endpoint.getMockConfig().getPresetType());
-            if (handlerOpt.isPresent()) {
-                payload = handlerOpt.get().handleRequestGeneration(payload,
-                        endpoint.getMockConfig().getPresetOptions());
+        try {
+            if (endpoint.getMockConfig() != null && endpoint.getMockConfig().getPresetType() != null) {
+                Optional<RequestSigningPresetHandler> handlerOpt = presetHandlerRegistry
+                        .getRequestSigningHandler(endpoint.getMockConfig().getPresetType());
+                if (handlerOpt.isPresent()) {
+                    payload = Objects.requireNonNull(
+                            handlerOpt.get().handleRequestGeneration(payload,
+                                    endpoint.getMockConfig().getPresetOptions()),
+                            "preset handler returned null");
+                }
             }
+        } catch (RuntimeException e) {
+            log.warn("프리셋 서명 생성 실패: endpointId={}, logId={}", endpointId, logId, e);
+            Query query = Query.query(Criteria.where("logId").is(logId));
+            Update update = new Update()
+                    .set("replayStatus", "FAILED")
+                    .set("replayError", "Failed to generate preset signature");
+            mongoTemplate.updateFirst(query, update, WebhookLog.class);
+            throw new CustomException(ErrorCode.INTERNAL_ERROR);
         }
 
         HttpEntity<String> entity = new HttpEntity<>(payload.getBody(), payload.getHeaders());
