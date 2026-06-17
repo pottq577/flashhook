@@ -2,7 +2,7 @@
 
 ## 1. 도메인 개요 및 핵심 엔티티
 
-FlashHook은 임시 웹훅 수신(Catcher) 서비스입니다. 개발자가 단 1초 만에 임시 엔드포인트 URL을 생성하여 외부 웹훅(결제 연동, 서드파티 통합 등)을 수신하고 디버깅할 수 있도록 돕는 유틸리티입니다.
+FlashHook은 임시 웹훅 수신(Catcher) 서비스입니다. 개발자가 단 1초 만에 임시 엔드포인트 URL을 생성하여 외부 웹훅(결제 연동, 서드파티 통합 등)을 수신하고 디버깅할 수 있도록 돕는 유틸리티입니다. 또한 수신된 웹훅 페이로드를 개발자의 로컬 서버로 다시 재전송하여 매끄러운 디버깅을 지원하는 **웹훅 재전송 (Replay API)** 기능도 제공합니다.
 
 **핵심 엔티티:**
 
@@ -35,6 +35,12 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스입니다. 개발자가 단 
 5. **분배 (Distribution)**: 웹훅 수신 이벤트는 **Spring `ApplicationEvent` (`WebhookReceivedEvent`)**로 발행되며, `@Async @EventListener`를 통해 연결된 SSE 클라이언트들에게 비동기적으로 브로드캐스팅됩니다.
 6. **렌더링**: 프론트엔드의 `log.store.ts` (Zustand)가 SSE 이벤트를 수신하여 UI에 애니메이션과 함께 렌더링합니다.
 
+**데이터 흐름 (대시보드에서 로컬 서버로 - Replay API):**
+
+1. **Replay 트리거**: 사용자가 대시보드에서 "Replay" 버튼을 클릭하고 로컬 서버 URL(예: ngrok)을 입력합니다.
+2. **SSRF 검증**: 백엔드가 대상 URL을 검증합니다. 만약 사설 IP(Private IP), 루프백(Loopback), 또는 링크 로컬(Link-local) 주소(예: AWS IMDS `169.254.169.254`)로 해석될 경우, SSRF(Server-Side Request Forgery) 공격을 방지하기 위해 요청을 차단합니다.
+3. **요청 발송**: 백엔드가 저장된 `WebhookLog`를 바탕으로 원본과 완벽히 동일한 HTTP 요청을 재구성하여 대상 URL로 발송합니다.
+
 ## 3. 프론트엔드 아키텍처 (React/Vite)
 
 프론트엔드는 **FSD(Feature-Sliced Design)** 아키텍처 패턴을 엄격하게 따릅니다.
@@ -60,6 +66,7 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스입니다. 개발자가 단 
 - **`global/`**: 횡단 관심사 (`config`, `exception`, `ratelimit` 등).
 - **SSE 로직 (`SseEmitterService`)**: `ConcurrentHashMap`을 사용해 활성화된 연결을 관리하며, 30초마다 하트비트(`ping`)를 전송합니다.
 - **Mock 응답 (`MockResponseScheduler`)**: `MockConfig`를 평가하여 외부 호출자에게 지연된 응답이나 커스텀 응답을 반환합니다.
+- **보안 (`Replay Service`)**: 사용자가 입력한 URL로 웹훅을 발송할 때, IP 핀닝(IP Pinning)이 적용된 커스텀 `SimpleClientHttpRequestFactory`를 사용하여 DNS Rebinding 및 SSRF 공격을 차단합니다.
 
 ## 5. 인프라 및 로컬 개발 환경
 
