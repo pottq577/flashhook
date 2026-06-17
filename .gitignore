@@ -22,7 +22,6 @@ node_modules/
 .mcp-memory/
 
 ### Logs ###
-ci.log
 logs/
 *.log
 npm-debug.log*
@@ -37,9 +36,6 @@ lerna-debug.log*
 *.local
 !.env.example
 
-### Docker ###
-docker-compose.override.yml
-
 ### Docs ###
 toyproject.md
 docs/review/*
@@ -48,3 +44,6 @@ docs/infrastructure/*
 ### QA Reports & Scripts ###
 docs/qa/*
 !docs/qa/qa-runner-full.mjs
+
+### AI Agents ###
+.agents/

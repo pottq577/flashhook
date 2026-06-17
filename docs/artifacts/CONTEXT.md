@@ -2,7 +2,7 @@
 
 ## 1. Domain Overview & Core Entities
 
-FlashHook is a temporary webhook catcher service. It solves a specific problem: providing developers a zero-friction, 1-second process to generate a temporary endpoint URL to receive, inspect, and debug external webhooks (like payments or third-party integrations).
+FlashHook is a temporary webhook catcher service. It solves a specific problem: providing developers a zero-friction, 1-second process to generate a temporary endpoint URL to receive, inspect, and debug external webhooks (like payments or third-party integrations). It also provides a **Replay API** to resend captured webhook payloads to developers' local servers for seamless debugging.
 
 **Core Entities:**
 
@@ -18,9 +18,9 @@ FlashHook is a temporary webhook catcher service. It solves a specific problem: 
 - **Static Preset (`presets.ts`)**:
   - Named scenarios (e.g., "카카오 — ALREADY_PROCESSED_PAYMENT") that map to a fixed `MockConfig` tuple.
   - Applying a preset issues a `PATCH /api/endpoints/{id}/mock` with `presetType: null` to clear any dynamic handlers.
-- **Dynamic Preset (Phase 2 & Future)**:
-  - **Type A (Response Handler)**: Requires parsing the request to echo values (e.g., Slack URL Verification). Routes to `MockResponseScheduler` via `presetType`.
-  - **Type B (Webhook Sender)**: Active sending of signed webhook payloads (e.g., GitHub `X-Hub-Signature-256`).
+- **Dynamic Preset**:
+  - **Type A (Response Handler)**: Requires parsing the request to echo values (e.g., Slack URL Verification). Routes to `MockResponseScheduler` using `ResponsePresetHandler`.
+  - **Type B (Request Generation)**: Active signing of webhook payloads before replay dispatch (e.g., GitHub `X-Hub-Signature-256`, PortOne `webhook-signature`). Handled via `RequestSigningPresetHandler`. `presetOptions.secretKey` is securely encrypted at rest via AES-256.
 
 ## 2. System Architecture & Data Flow
 
@@ -34,6 +34,12 @@ The system uses a Vite/React frontend, a Spring Boot backend, MongoDB (persisten
 4. **Processing & Mocking**: Backend saves the `WebhookLog` to MongoDB. `MockResponseScheduler` reads the `MockConfig` and asynchronously returns the configured HTTP response (with optional delay).
 5. **Distribution**: The webhook event is published as a **Spring ApplicationEvent (`WebhookReceivedEvent`)** and asynchronously broadcasted to connected SSE clients via `@Async @EventListener`.
 6. **Render**: Frontend `log.store.ts` (Zustand) catches the SSE event and animates it in the UI.
+
+**Data Flow (Dashboard to Local Server - Replay API):**
+
+1. **Trigger Replay**: User clicks "Replay" in the Dashboard and provides their local server URL (e.g., ngrok).
+2. **SSRF Validation**: Backend validates the target URL. If it resolves to a Private IP, Loopback, or Link-local address (like AWS IMDS `169.254.169.254`), the request is blocked to prevent Server-Side Request Forgery.
+3. **Dispatch**: Backend constructs an identical HTTP request from the saved `WebhookLog` and sends it to the target URL.
 
 ## 3. Frontend Architecture (React/Vite)
 
@@ -60,6 +66,7 @@ The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.
 - **`global/`**: Cross-cutting concerns (`config`, `exception`, `ratelimit`).
 - **SSE Logic (`SseEmitterService`)**: Manages active connections in a `ConcurrentHashMap`. Sends 30-second heartbeats (`ping`).
 - **Mock Responses (`MockResponseScheduler`)**: Evaluates `MockConfig` to delay or customize responses to external callers.
+- **Security (`Replay Service`)**: In `WebhookLogService.replayLog`, uses a custom `SimpleClientHttpRequestFactory` with IP Pinning to block DNS Rebinding and SSRF attacks when dispatching webhooks to user-provided URLs.
 
 ## 5. Infrastructure & Local Development
 

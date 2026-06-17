@@ -2,6 +2,7 @@ package com.flashhook.domain.endpoint.service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import com.flashhook.global.event.EndpointDeletedEvent;
 import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.util.EncryptionUtil;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class EndpointService {
     private final EndpointRepository endpointRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final MeterRegistry meterRegistry;
+    private final EncryptionUtil encryptionUtil;
 
     @Value("${flashhook.log.max-count:500}")
     private int maxLogCount;
@@ -148,6 +151,19 @@ public class EndpointService {
             mockBuilder.presetType(null);
         } else {
             mockBuilder.presetType(presetType.trim());
+        }
+
+        if (request.getPresetOptions() != null) {
+            Map<String, Object> options = new HashMap<>(request.getPresetOptions());
+            if (options.containsKey("secretKey")) {
+                Object secretObj = options.get("secretKey");
+                if (secretObj instanceof String plainSecret && !plainSecret.isBlank()) {
+                    options.put("secretKey", encryptionUtil.encrypt(plainSecret));
+                } else {
+                    options.remove("secretKey");
+                }
+            }
+            mockBuilder.presetOptions(options);
         }
 
         Endpoint updatedEndpoint = endpoint.toBuilder()

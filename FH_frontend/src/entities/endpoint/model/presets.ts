@@ -66,7 +66,7 @@ const kakaoPresets: PresetService = {
       body: JSON.stringify(
         {
           error: 'invalid_client',
-          error_description: 'not exist client id or secret',
+          error_description: 'Not exist client_id flashhook-dummy-rest-api-key',
           error_code: 'KOE101',
         },
         null,
@@ -93,7 +93,7 @@ const kakaoPresets: PresetService = {
     },
     {
       id: 'kakao_misconfigured',
-      label: 'misconfigured (로그인 미활성화)',
+      label: 'misconfigured (플랫폼 설정 오류)',
       desc: '(400 KOE009)',
       statusCode: 400,
       delayMs: 0,
@@ -102,7 +102,7 @@ const kakaoPresets: PresetService = {
         {
           error: 'misconfigured',
           error_description:
-            'misconfigured kakao login or not found kakao login',
+            'invalid android_key_hash or ios_bundle_id or web_site_url',
           error_code: 'KOE009',
         },
         null,
@@ -117,6 +117,91 @@ const kakaoPresets: PresetService = {
       delayMs: 3500,
       headers: CT_JSON,
       body: 'ok',
+    },
+    {
+      id: 'kakao_webhook_unlink',
+      label: '앱 연결 해제 알림 (Unlink)',
+      desc: '(202 Accepted)',
+      statusCode: 202,
+      delayMs: 0,
+      headers: CT_JSON,
+      presetType: 'KAKAO_UNLINK_WEBHOOK',
+      body: JSON.stringify(
+        {
+          app_id: '123456',
+          user_id: '3891047281',
+          referrer_type: 'UNLINK_FROM_APPS',
+        },
+        null,
+        2,
+      ),
+    },
+    {
+      id: 'kakao_webhook_status_change',
+      label: '계정 상태 변경 알림 (SSF/SET)',
+      desc: '(202 Accepted)',
+      statusCode: 202,
+      delayMs: 0,
+      headers: CT_JSON,
+      presetType: 'KAKAO_ACCOUNT_STATUS_CHANGE',
+      body: JSON.stringify(
+        {
+          iss: 'https://kapi.kakao.com',
+          aud: '123456',
+          iat: 1718251890,
+          jti: 'some-unique-jwt-id',
+          events: {
+            'http://schemas.openid.net/secevent/oauth/event-type/user-unlinked': {
+              subject: {
+                subject_type: 'oauth_helper',
+                user_id: '3891047281',
+              },
+            },
+          },
+        },
+        null,
+        2,
+      ),
+    },
+    {
+      id: 'kakao_channel_add',
+      label: '카카오톡 채널 추가 알림',
+      desc: '(200 OK)',
+      statusCode: 200,
+      delayMs: 0,
+      headers: CT_JSON,
+      presetType: 'KAKAO_CHANNEL_CALLBACK',
+      body: JSON.stringify(
+        {
+          event: 'add_channel',
+          id: '123456',
+          user_id: '3891047281',
+          channel_uuid: 'ch_123456',
+          updated_at: '2024-01-15T18:30:00Z',
+        },
+        null,
+        2,
+      ),
+    },
+    {
+      id: 'kakao_channel_block',
+      label: '카카오톡 채널 차단 알림',
+      desc: '(200 OK)',
+      statusCode: 200,
+      delayMs: 0,
+      headers: CT_JSON,
+      presetType: 'KAKAO_CHANNEL_CALLBACK',
+      body: JSON.stringify(
+        {
+          event: 'block_channel',
+          id: '123456',
+          user_id: '3891047281',
+          channel_uuid: 'ch_123456',
+          updated_at: '2024-01-15T18:30:00Z',
+        },
+        null,
+        2,
+      ),
     },
   ],
 };
@@ -173,16 +258,16 @@ const tossPresets: PresetService = {
       ),
     },
     {
-      id: 'toss_provider_error',
-      label: 'PROVIDER_ERROR',
-      desc: '(400 뱅킹망 장애)',
-      statusCode: 400,
+      id: 'toss_failed_payment_internal_system_processing',
+      label: 'FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING',
+      desc: '(500 뱅킹망 장애)',
+      statusCode: 500,
       delayMs: 0,
       headers: CT_JSON,
       body: JSON.stringify(
         {
-          code: 'PROVIDER_ERROR',
-          message: '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+          code: 'FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING',
+          message: '결제 기관에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
         },
         null,
         2,
@@ -234,6 +319,27 @@ const tossPresets: PresetService = {
           status: 'DONE',
           transactionKey: 'TXN_20240115_VBANK001',
           orderId: 'ORDER-2024-00002',
+        },
+        null,
+        2,
+      ),
+    },
+    {
+      id: 'toss_webhook_status_changed',
+      label: '결제 상태 변경 웹훅 수신',
+      desc: '(200 정상 응답)',
+      statusCode: 200,
+      delayMs: 0,
+      headers: CT_JSON,
+      body: JSON.stringify(
+        {
+          eventType: 'PAYMENT.STATUS_CHANGED',
+          createdAt: '2024-01-15T18:30:00.123456+09:00',
+          data: {
+            paymentKey: 'tgen_20240115_abc12345',
+            orderId: 'ORDER-2024-00001',
+            status: 'DONE',
+          },
         },
         null,
         2,
@@ -417,16 +523,15 @@ const solapiPresets: PresetService = {
     },
     {
       id: 'solapi_3059',
-      label: '발신번호 오류 (3059)',
-      desc: '(400 번호 변작 의심)',
+      label: '도용차단 가입 번호 (3059)',
+      desc: '(400 도용차단 가입 번호)',
       statusCode: 400,
       delayMs: 0,
       headers: CT_JSON,
       body: JSON.stringify(
         {
           errorCode: '3059',
-          errorMessage:
-            '번호도용문자차단서비스에 가입된 번호이거나 변작된 발신번호입니다.',
+          errorMessage: '번호도용문자 차단 서비스에 가입된 발신번호입니다.',
         },
         null,
         2,
@@ -446,9 +551,19 @@ const githubPresets: PresetService = {
       id: 'github_push',
       label: 'Push Event',
       desc: '(200 push)',
+      isDynamic: true,
+      presetType: 'GITHUB',
       statusCode: 200,
       delayMs: 0,
-      headers: CT_JSON,
+      headers: {
+        ...CT_JSON,
+        'X-GitHub-Event': 'push',
+        'X-GitHub-Delivery': 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        'X-GitHub-Hook-ID': '12345678',
+        'X-GitHub-Hook-Installation-Target-Type': 'repository',
+        'X-GitHub-Hook-Installation-Target-ID': '987654321',
+        'User-Agent': 'GitHub-Hookshot/abc1234',
+      },
       body: JSON.stringify(
         {
           ref: 'refs/heads/main',
@@ -486,9 +601,19 @@ const githubPresets: PresetService = {
       id: 'github_pr_opened',
       label: 'Pull Request Opened',
       desc: '(200 pull_request)',
+      isDynamic: true,
+      presetType: 'GITHUB',
       statusCode: 200,
       delayMs: 0,
-      headers: CT_JSON,
+      headers: {
+        ...CT_JSON,
+        'X-GitHub-Event': 'pull_request',
+        'X-GitHub-Delivery': 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
+        'X-GitHub-Hook-ID': '12345678',
+        'X-GitHub-Hook-Installation-Target-Type': 'repository',
+        'X-GitHub-Hook-Installation-Target-ID': '987654321',
+        'User-Agent': 'GitHub-Hookshot/abc1234',
+      },
       body: JSON.stringify(
         {
           action: 'opened',
@@ -516,9 +641,19 @@ const githubPresets: PresetService = {
       id: 'github_release',
       label: 'Release Published',
       desc: '(200 release)',
+      isDynamic: true,
+      presetType: 'GITHUB',
       statusCode: 200,
       delayMs: 0,
-      headers: CT_JSON,
+      headers: {
+        ...CT_JSON,
+        'X-GitHub-Event': 'release',
+        'X-GitHub-Delivery': 'c3d4e5f6-a7b8-9012-cdef-123456789012',
+        'X-GitHub-Hook-ID': '12345678',
+        'X-GitHub-Hook-Installation-Target-Type': 'repository',
+        'X-GitHub-Hook-Installation-Target-ID': '987654321',
+        'User-Agent': 'GitHub-Hookshot/abc1234',
+      },
       body: JSON.stringify(
         {
           action: 'published',
@@ -535,6 +670,54 @@ const githubPresets: PresetService = {
             full_name: 'flashhook-user/my-awesome-app',
           },
           sender: { login: 'flashhook-user' },
+        },
+        null,
+        2,
+      ),
+    },
+    {
+      id: 'github_secret_none',
+      label: 'Push Event (시크릿 없음)',
+      desc: '(200 signature absent)',
+      statusCode: 200,
+      delayMs: 0,
+      headers: {
+        ...CT_JSON,
+        'X-GitHub-Event': 'push',
+        'X-GitHub-Delivery': 'd4e5f6a7-b8c9-0123-def0-123456789012',
+        'X-GitHub-Hook-ID': '12345678',
+        'X-GitHub-Hook-Installation-Target-Type': 'repository',
+        'X-GitHub-Hook-Installation-Target-ID': '987654321',
+        'User-Agent': 'GitHub-Hookshot/abc1234',
+      },
+      body: JSON.stringify(
+        {
+          ref: 'refs/heads/main',
+          before: 'abc123def456abc123def456abc123def456abc12',
+          after: '789xyz012789xyz012789xyz012789xyz012789xy',
+          repository: {
+            id: 987654321,
+            name: 'my-awesome-app',
+            full_name: 'flashhook-user/my-awesome-app',
+            private: false,
+          },
+          pusher: { name: 'flashhook-user', email: 'dev@flashhook.io' },
+          commits: [
+            {
+              id: '789xyz012789xyz012789xyz012789xy',
+              message: 'feat: webhook 연동 테스트 추가',
+              timestamp: '2024-01-15T14:30:00+09:00',
+              author: { name: 'FlashHook Dev', email: 'dev@flashhook.io' },
+              added: ['src/webhook/handler.ts'],
+              modified: [],
+              removed: [],
+            },
+          ],
+          head_commit: {
+            id: '789xyz012789xyz012789xyz012789xy',
+            message: 'feat: webhook 연동 테스트 추가',
+            timestamp: '2024-01-15T14:30:00+09:00',
+          },
         },
         null,
         2,
@@ -592,12 +775,10 @@ const slackPresets: PresetService = {
     {
       id: 'slack_retry',
       label: 'retry 이벤트 (재전송 방어)',
-      desc: '(200 X-Slack-Retry-Num: 1)',
-      statusCode: 200,
+      desc: '(500 X-Slack-No-Retry: 1)',
+      statusCode: 500,
       delayMs: 0,
-      headers: CT_JSON,
-      // Note: X-Slack-Retry-Num은 BE ALLOWED_HEADERS 미지원으로 응답 헤더에 포함 불가.
-      // body만으로 재전송 방어 로직 테스트 가능.
+      headers: { ...CT_JSON, 'X-Slack-No-Retry': '1' },
       body: JSON.stringify(
         {
           type: 'event_callback',

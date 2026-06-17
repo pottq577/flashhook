@@ -1,7 +1,6 @@
 package com.flashhook.domain.webhook.service;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,10 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.MockConfig;
+import com.flashhook.domain.webhook.service.preset.PresetHandlerRegistry;
+import com.flashhook.domain.webhook.service.preset.ResponsePresetHandler;
 
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
@@ -27,14 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 public class MockResponseScheduler {
 
     private final ScheduledExecutorService scheduler;
-    private final ObjectMapper objectMapper;
+    private final PresetHandlerRegistry presetHandlerRegistry;
 
     private static final Set<String> ALLOWED_HEADERS = Set.of(
-            "content-type", "access-control-allow-origin", "cache-control", "x-mock-response");
+            "content-type", "access-control-allow-origin", "cache-control", "x-mock-response", "x-slack-no-retry");
 
-    public MockResponseScheduler(ObjectMapper objectMapper) {
+    public MockResponseScheduler(PresetHandlerRegistry presetHandlerRegistry) {
         this.scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2);
-        this.objectMapper = objectMapper;
+        this.presetHandlerRegistry = presetHandlerRegistry;
     }
 
     @PreDestroy
@@ -52,10 +50,14 @@ public class MockResponseScheduler {
     }
 
     public DeferredResult<ResponseEntity<?>> schedule(MockConfig mockConfig, String rawBody) {
-        if ("SLACK_URL_VERIFICATION".equals(mockConfig.getPresetType())) {
-            DeferredResult<ResponseEntity<?>> slackResult = handleSlackUrlVerification(rawBody);
-            if (slackResult != null) {
-                return slackResult;
+        if (mockConfig.getPresetType() != null) {
+            Optional<ResponsePresetHandler> handlerOpt = presetHandlerRegistry
+                    .getResponseHandler(mockConfig.getPresetType());
+            if (handlerOpt.isPresent()) {
+                DeferredResult<ResponseEntity<?>> presetResult = handlerOpt.get().handleResponse(rawBody, mockConfig);
+                if (presetResult != null) {
+                    return presetResult;
+                }
             }
         }
 
@@ -123,32 +125,5 @@ public class MockResponseScheduler {
         }
 
         return deferredResult;
-    }
-
-    private DeferredResult<ResponseEntity<?>> handleSlackUrlVerification(String rawBody) {
-        if (rawBody == null || rawBody.isEmpty()) {
-            DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
-            deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
-            return deferredResult;
-        }
-        try {
-            JsonNode root = objectMapper.readTree(rawBody);
-
-            if (root.has("type") && "url_verification".equals(root.get("type").asText()) && root.has("challenge")) {
-                String challenge = root.get("challenge").asText();
-                Map<String, String> responseBody = Map.of("challenge", challenge);
-                DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
-                deferredResult.setResult(ResponseEntity.ok()
-                        .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
-                        .body(Objects.requireNonNull(objectMapper.writeValueAsString(responseBody))));
-                return deferredResult;
-            }
-            return null;
-        } catch (JsonProcessingException e) {
-            log.error("Failed to parse Slack URL Verification payload", e);
-            DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
-            deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
-            return deferredResult;
-        }
     }
 }

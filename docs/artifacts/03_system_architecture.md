@@ -210,7 +210,11 @@ location /api/endpoints/ {
     "statusCode": 200,
     "delayMs": 0,
     "headers": {},
-    "body": "ok"
+    "body": "ok",
+    "presetType": "PORTONE_V2",                 // 동적 프리셋 지정 시 사용
+    "presetOptions": {                          // 암호화가 필요한 시크릿 등
+      "secretKey": "encrypted_aes256_hash..."
+    }
   },
   "createdAt": ISODate("2026-06-07T22:35:00Z"), // TTL Index 기준 필드
   "expiresAt": ISODate("2026-06-08T22:35:00Z")  // FE 표시용
@@ -488,7 +492,7 @@ src/
   ├── <LogList> (좌측 패널: 슬라이드인 애니메이션으로 새 로그 추가)
   └── Tab Navigation (우측 탭 패널)
         ├── <LogDetail> (로그 상세 보기)
-        └── <MockConfigPanel> (Mock 응답 설정 - Phase 2)
+        └── <MockConfigPanel> (Mock 응답 및 동적 시그니처 설정)
 ```
 
 ### 4.5. 기타 사항

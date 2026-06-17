@@ -100,7 +100,8 @@ Content-Type: application/json (선택)
 
 **에러**:
 
-- `429 ENDPOINT_LIMIT_EXCEEDED`: 5개/IP/24시간 초과 (고정 윈도우)
+- `429 ENDPOINT_LIMIT_EXCEEDED`: 5개/IP/10분 초과 (고정 윈도우)
+- `403 FORBIDDEN`: 악성 IP 블랙리스트에 등재된 경우
 
 ---
 
@@ -171,11 +172,15 @@ PATCH /api/endpoints/{endpointId}/mock
     "X-Custom-Header": "FlashHook"
   },
   "body": "{\"error\": \"Bad Request\"}",
-  "presetType": "SLACK_URL_VERIFICATION"
+  "presetType": "PORTONE_V2",
+  "presetOptions": {
+    "secretKey": "whsec_abcd1234..."
+  }
 }
 ```
 
-> `presetType`: 동적 응답 핸들러를 지정합니다. `null`일 경우 `statusCode`, `headers`, `body` 필드 값으로 고정 응답을 반환합니다. `"SLACK_URL_VERIFICATION"` 같은 동적 프리셋 지정 시, **기존 `statusCode`, `headers`, `body` 값은 무시**되고 핸들러가 동적으로 생성한 응답이 강제 적용되나, **`delayMs`는 여전히 유효**하여 지연 응답 테스트가 가능합니다.
+> `presetType`: 동적 응답 핸들러를 지정합니다. `null`일 경우 `statusCode`, `headers`, `body` 필드 값으로 고정 응답을 반환합니다. `"SLACK_URL_VERIFICATION"`, `"GITHUB"`, `"PORTONE_V2"` 같은 동적 프리셋 지정 시, 수신 파이프라인(Slack) 또는 발송 파이프라인(GitHub, PortOne)에 따라 적절히 인터셉트됩니다.
+> `presetOptions`: `presetType`이 시그니처 생성을 요구할 때 필요한 부가 설정값입니다. `secretKey`는 서버 DB 저장 시 AES-256으로 암호화되어 보관됩니다.
 
 **Response**: `200 OK` (업데이트된 엔드포인트 정보 반환)
 
@@ -321,6 +326,29 @@ DELETE /api/endpoints/{endpointId}/logs
 
 ---
 
+### 4.4. 웹훅 재전송 (Replay)
+
+```text
+POST /api/endpoints/{endpointId}/logs/{logId}/replay
+```
+
+**인증**: `X-Access-Token` 헤더
+
+**Request**:
+```json
+{
+  "destinationUrl": "https://my-ngrok.com/webhook"
+}
+```
+
+**Response**: `200 OK`
+
+**에러**:
+- `429 RATE_LIMIT_EXCEEDED`: Replay 20회/1분 초과
+- `403 FORBIDDEN` / `400 INVALID_REQUEST`: 타겟 URL이 사설 IP, 루프백, 링크 로컬 등 SSRF 공격으로 의심될 경우
+
+---
+
 ## 5. 실시간 스트림
 
 ### 5.1. SSE 연결
@@ -362,6 +390,9 @@ Connection: keep-alive
 **이벤트 형식**:
 
 ```text
+event: connect
+data: connected
+
 event: ping
 data:
 
@@ -409,8 +440,9 @@ GET /api/actuator/health
 | `GET`    | `/api/endpoints/{id}/logs`         | 토큰 | 로그 목록          |
 | `GET`    | `/api/endpoints/{id}/logs/{logId}` | 토큰 | 로그 상세          |
 | `DELETE` | `/api/endpoints/{id}/logs`         | 토큰 | 로그 전체 삭제     |
+| `POST`   | `/api/endpoints/{id}/logs/{logId}/replay` | 토큰 | 수신 웹훅 재전송 |
 | `POST`   | `/api/endpoints/{id}/stream-token` | 토큰 | 스트림 토큰 발급   |
 | `GET`    | `/api/endpoints/{id}/stream`       | 토큰 | SSE 실시간 스트림  |
 | `GET`    | `/api/actuator/health`             |  -   | 헬스체크           |
 
-총 11개 엔드포인트 (MVP)
+총 12개 엔드포인트 (MVP)
