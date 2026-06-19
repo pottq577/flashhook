@@ -60,16 +60,6 @@ FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공
 - **활용 예시**: 터널링이 끊겨 웹훅을 놓쳤을 때, 동일한 페이로드를 로컬 서버로 다시 보내 디버깅하고 싶을 때.
 - **워크플로우**: 과거 로그 선택 → 재전송 대상 URL 입력 → FlashHook이 저장된 요청을 다시 발송.
 
-## 데이터 보존 및 개인정보 안내
-
-FlashHook은 장기 보관 서비스가 아니라 임시 디버깅 도구예요.
-
-- 엔드포인트와 로그는 24시간 후 MongoDB TTL로 자동으로 지워져요.
-- 대시보드에서 엔드포인트와 로그를 직접 삭제할 수 있어요.
-- 웹훅 Payload에 제3자 개인정보가 섞일 수 있어요. 테스트 데이터를 쓰는 걸 권장해요.
-
-자세한 기준은 [개인정보처리방침](docs/legal/PRIVACY_POLICY.md)과 [서비스 이용약관](docs/legal/TERMS_OF_SERVICE.md)을 참고해 주세요.
-
 ## 아키텍처
 
 ```mermaid
@@ -114,6 +104,16 @@ sequenceDiagram
 - **자동화된 품질 검증**: Playwright와 Axe로 주요 흐름과 접근성 회귀를 검사해요.
 
 보안 설계는 [Security Overview](docs/security/SECURITY_OVERVIEW.md), 더 자세한 설계 의도는 [System Context](docs/artifacts/CONTEXT.md)를 참고해 주세요.
+
+## 데이터 보존 및 개인정보 안내
+
+FlashHook은 장기 보관 서비스가 아니라 임시 디버깅 도구예요.
+
+- 엔드포인트와 로그는 24시간 후 MongoDB TTL로 자동으로 지워져요.
+- 대시보드에서 엔드포인트와 로그를 직접 삭제할 수 있어요.
+- 웹훅 Payload에 제3자 개인정보가 섞일 수 있어요. 테스트 데이터를 쓰는 걸 권장해요.
+
+자세한 기준은 [개인정보처리방침](docs/legal/PRIVACY_POLICY.md)과 [서비스 이용약관](docs/legal/TERMS_OF_SERVICE.md)을 참고해 주세요.
 
 ## 로컬 개발 환경 (for contributor)
 
