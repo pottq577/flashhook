@@ -9,7 +9,7 @@ export default defineConfig({
   },
   server: {
     fs: {
-      allow: ["../docs/legal"],
+      allow: [".", "../docs/legal"],
     },
     proxy: {
       "/api": {
