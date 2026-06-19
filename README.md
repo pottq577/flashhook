@@ -3,9 +3,6 @@
 # ⚡ FlashHook
 
 **1초 만에 생성하는 개발자용 웹훅 샌드박스 및 Mock API 서비스**
-
-[![Visit FlashHook](https://img.shields.io/badge/🚀_Visit_FlashHook_Live_Service-171717?style=for-the-badge&logo=vercel&logoColor=white)](https://flashhook.site)
-
 [![FlashHook CI](https://github.com/pottq577/flashhook/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pottq577/flashhook/actions/workflows/ci.yml)
 [![hits](https://myhits.vercel.app/api/hit/https%3A%2F%2Fgithub.com%2Fpottq577%2Fflashhook?color=blue&label=hits&size=small)](https://myhits.vercel.app)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/pottq577/flashhook?utm_source=oss&utm_medium=github&utm_campaign=pottq577%2Fflashhook&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)\
@@ -21,7 +18,7 @@ FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공
 
 ## 지금 바로 사용하기
 
-**Live Service:** [https://flashhook.site](https://flashhook.site)
+[![Visit FlashHook](https://img.shields.io/badge/🚀_Visit_FlashHook_Live_Service-171717?style=for-the-badge&logo=vercel&logoColor=white)](https://flashhook.site)
 
 로컬 설치 없이 웹훅 수신 URL을 생성하고, 대시보드에서 요청 로그를 바로 확인할 수 있어요.
 
@@ -117,7 +114,7 @@ sequenceDiagram
 
 보안 설계는 [Security Overview](docs/security/SECURITY_OVERVIEW.md), 더 자세한 설계 의도는 [System Context](docs/artifacts/CONTEXT.md)를 참고해 주세요.
 
-## 로컬 개발 환경 (기여자/리뷰어용)
+## 로컬 개발 환경 (for contributor)
 
 1. 인프라 실행
 
@@ -163,7 +160,7 @@ npm run dev
 
 ## 라이선스
 
-현재 레포의 [LICENSE](LICENSE)는 MIT License예요. 라이선스 정책을 바꿀지는 별도 확인이 필요해요.
+현재 레포의 [LICENSE](LICENSE)는 MIT License예요.
 
 ## 문의/이슈
 
