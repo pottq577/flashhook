@@ -6,7 +6,7 @@
 
 [![FlashHook CI](https://github.com/pottq577/flashhook/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pottq577/flashhook/actions/workflows/ci.yml)
 [![hits](https://myhits.vercel.app/api/hit/https%3A%2F%2Fgithub.com%2Fpottq577%2Fflashhook?color=blue&label=hits&size=small)](https://myhits.vercel.app)
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/pottq577/flashhook?utm_source=oss&utm_medium=github&utm_campaign=pottq577%2Fflashhook&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)\
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/pottq577/flashhook?utm_source=oss&utm_medium=github&utm_campaign=pottq577%2Fflashhook&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 ![Created](https://img.shields.io/badge/Created-2026.06.08-blue)
 [![Last Commit](https://img.shields.io/github/last-commit/pottq577/flashhook?color=blue)](https://github.com/pottq577/flashhook/commits/main)
 
@@ -45,7 +45,7 @@ FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공
 - **활용 예시**: 결제 성공 시 날아오는 JSON 구조를 정확히 파악해서 파싱 코드를 작성하고 싶을 때.
 - **워크플로우**: 임시 웹훅 URL 생성 → 외부 서비스에 수신지 등록 → 대시보드에서 Payload, Headers, Query를 실시간 확인.
 
-### 2. K-API Mock
+### 2. K-API Mock (응답 조작 가능한 가짜 API 서버)
 
 > **"상대방 서버에 문제가 생기면 내 서버는 안 터지고 잘 버틸 수 있을까?"**
 
@@ -109,13 +109,13 @@ sequenceDiagram
 
 FlashHook은 장기 보관 서비스가 아니라 임시 디버깅 도구예요.
 
-- 엔드포인트와 로그는 24시간 후 MongoDB TTL로 자동으로 지워져요.
+- 엔드포인트와 로그는 생성 후 24시간이 지나면 자동으로 삭제돼요.
 - 대시보드에서 엔드포인트와 로그를 직접 삭제할 수 있어요.
 - 웹훅 Payload에 제3자 개인정보가 섞일 수 있어요. 테스트 데이터를 쓰는 걸 권장해요.
 
 자세한 기준은 [개인정보처리방침](docs/legal/PRIVACY_POLICY.md)과 [서비스 이용약관](docs/legal/TERMS_OF_SERVICE.md)을 참고해 주세요.
 
-## 로컬 개발 환경 (for contributor)
+## 로컬 개발 환경
 
 1. 인프라 실행
 
