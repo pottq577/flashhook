@@ -88,3 +88,31 @@ node docs/qa/qa-runner-full.mjs
 실행이 완료되면 다음 두 문서가 자동으로 갱신/생성됩니다.
 - `docs/qa/qa-report-full.md` (전체 성공률 및 요약 리포트)
 - `docs/qa/bugs.md` (실패한 테스트 케이스 목록)
+
+## 5. 외부 서비스 연동 테스트 (Cloudflare Tunnel)
+
+Slack, Stripe, GitHub 같은 외부 서비스의 웹훅을 로컬 백엔드로 직접 수신하려면, 로컬 서버를 외부에 노출해야 합니다.
+
+### 5.1. Cloudflare Tunnel 설치
+
+```bash
+# macOS (Homebrew)
+brew install cloudflare/cloudflare/cloudflared
+
+# Linux (Debian/Ubuntu)
+curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+sudo dpkg -i cloudflared.deb
+```
+
+### 5.2. 백엔드 터널 실행
+
+백엔드 서버(`localhost:8080`)가 실행 중인 상태에서 아래 명령어를 실행하세요.
+
+```bash
+cloudflared tunnel --url http://localhost:8080
+```
+
+실행 시 출력되는 `https://*.trycloudflare.com` 형태의 임시 URL을 외부 서비스의 웹훅 수신 주소로 등록하면 됩니다.
+
+> **주의**: 이 URL은 세션마다 새로 생성되는 임시 주소입니다. 고정 URL이 필요하면 Cloudflare 계정을 통한 Named Tunnel을 사용하세요.
+

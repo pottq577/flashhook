@@ -6,7 +6,7 @@
 
 [![FlashHook CI](https://github.com/pottq577/flashhook/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pottq577/flashhook/actions/workflows/ci.yml)
 [![hits](https://myhits.vercel.app/api/hit/https%3A%2F%2Fgithub.com%2Fpottq577%2Fflashhook?color=blue&label=hits&size=small)](https://myhits.vercel.app)
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/pottq577/flashhook?utm_source=oss&utm_medium=github&utm_campaign=pottq577%2Fflashhook&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)\
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/pottq577/flashhook?utm_source=oss&utm_medium=github&utm_campaign=pottq577%2Fflashhook&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 ![Created](https://img.shields.io/badge/Created-2026.06.08-blue)
 [![Last Commit](https://img.shields.io/github/last-commit/pottq577/flashhook?color=blue)](https://github.com/pottq577/flashhook/commits/main)
 
@@ -45,13 +45,23 @@ FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공
 - **활용 예시**: 결제 성공 시 날아오는 JSON 구조를 정확히 파악해서 파싱 코드를 작성하고 싶을 때.
 - **워크플로우**: 임시 웹훅 URL 생성 → 외부 서비스에 수신지 등록 → 대시보드에서 Payload, Headers, Query를 실시간 확인.
 
-### 2. K-API Mock
+### 2. K-API Mock (응답 조작 가능한 가짜 API 서버)
 
 > **"상대방 서버에 문제가 생기면 내 서버는 안 터지고 잘 버틸 수 있을까?"**
 
 - **활용 예시**: 카카오 로그인 서버가 지연되거나 실패할 때, 내 서버의 타임아웃/에러 처리를 검증하고 싶을 때.
 - **워크플로우**: 프리셋 또는 수동 Mock 설정 → 호출 URL을 FlashHook 주소로 변경 → 원하는 상태 코드, 지연, 본문으로 응답 확인.
-- Slack URL Verification처럼 요청 값을 읽어 동적으로 응답하는 프리셋도 지원해요.
+
+**국내외 주요 서비스 6종의 공식 응답 스펙을 그대로 재현하는 프리셋을 제공해요.**
+
+| 서비스           | 테스트 가능한 시나리오                                                            |
+| ---------------- | --------------------------------------------------------------------------------- |
+| **카카오**       | OAuth 토큰 발급 성공/실패, `invalid_client`, `invalid_grant`, 응답 지연 (3s / 5s) |
+| **토스페이먼츠** | 결제 성공, 이미 처리된 결제, 잔액 부족, 한도 초과, 응답 지연                      |
+| **포트원 V2**    | 결제 성공/실패, 웹훅 서명 자동 생성 후 Replay 발송                                |
+| **솔라피**       | SMS 발송 성공/실패, 잔액 부족                                                     |
+| **GitHub**       | `X-Hub-Signature-256` 서명 자동 생성 후 Replay 발송                               |
+| **Slack**        | URL Verification `challenge` 자동 응답                                            |
 
 ### 3. Replay API
 
@@ -59,16 +69,6 @@ FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공
 
 - **활용 예시**: 터널링이 끊겨 웹훅을 놓쳤을 때, 동일한 페이로드를 로컬 서버로 다시 보내 디버깅하고 싶을 때.
 - **워크플로우**: 과거 로그 선택 → 재전송 대상 URL 입력 → FlashHook이 저장된 요청을 다시 발송.
-
-## 데이터 보존 및 개인정보 안내
-
-FlashHook은 장기 보관 서비스가 아니라 임시 디버깅 도구예요.
-
-- 엔드포인트와 로그는 24시간 후 MongoDB TTL로 자동으로 지워져요.
-- 대시보드에서 엔드포인트와 로그를 직접 삭제할 수 있어요.
-- 웹훅 Payload에 제3자 개인정보가 섞일 수 있어요. 테스트 데이터를 쓰는 걸 권장해요.
-
-자세한 기준은 [개인정보처리방침](docs/legal/PRIVACY_POLICY.md)과 [서비스 이용약관](docs/legal/TERMS_OF_SERVICE.md)을 참고해 주세요.
 
 ## 아키텍처
 
@@ -115,7 +115,17 @@ sequenceDiagram
 
 보안 설계는 [Security Overview](docs/security/SECURITY_OVERVIEW.md), 더 자세한 설계 의도는 [System Context](docs/artifacts/CONTEXT.md)를 참고해 주세요.
 
-## 로컬 개발 환경 (for contributor)
+## 데이터 보존 및 개인정보 안내
+
+FlashHook은 장기 보관 서비스가 아니라 임시 디버깅 도구예요.
+
+- 엔드포인트와 로그는 생성 후 24시간이 지나면 자동으로 삭제돼요.
+- 대시보드에서 엔드포인트와 로그를 직접 삭제할 수 있어요.
+- 웹훅 Payload에 제3자 개인정보가 섞일 수 있어요. 테스트 데이터를 쓰는 걸 권장해요.
+
+자세한 기준은 [개인정보처리방침](docs/legal/PRIVACY_POLICY.md)과 [서비스 이용약관](docs/legal/TERMS_OF_SERVICE.md)을 참고해 주세요.
+
+## 로컬 개발 환경
 
 1. 인프라 실행
 
@@ -144,20 +154,20 @@ npm run dev
 
 ## 문서 모음
 
-| 문서 | 설명 |
-| --- | --- |
-| [Product & Features](docs/artifacts/01_product_and_features.md) | 제품 목표와 핵심 기능 |
-| [Mock API Features](docs/artifacts/02_mock_api_features.md) | K-API Mock 프리셋 설계 |
-| [System Architecture](docs/artifacts/03_system_architecture.md) | 시스템 구조와 데이터 흐름 |
-| [API Spec](docs/artifacts/04_api_spec.md) | API 엔드포인트와 요청/응답 스키마 |
-| [Error Dictionary](docs/artifacts/05_error_dictionary.md) | 공통 에러 코드 |
-| [Security Overview](docs/security/SECURITY_OVERVIEW.md) | 공개 가능한 보안 설계 개요 |
-| [Development Guide](docs/DEVELOPMENT.md) | 로컬 개발 및 검증 가이드 |
-| [ADR 0001](docs/adr/0001-preset-catalog-lives-in-fe-constants.md) | 프리셋 카탈로그 위치 결정 |
-| [ADR 0002](docs/adr/0002-dynamic-preset-split-into-two-types.md) | 동적 프리셋 타입 분리 결정 |
-| [Privacy Policy](docs/legal/PRIVACY_POLICY.md) | 개인정보처리방침 |
-| [Terms of Service](docs/legal/TERMS_OF_SERVICE.md) | 서비스 이용약관 |
-| [License](LICENSE) | 라이선스 |
+| 문서                                                              | 설명                              |
+| ----------------------------------------------------------------- | --------------------------------- |
+| [Product & Features](docs/artifacts/01_product_and_features.md)   | 제품 목표와 핵심 기능             |
+| [Mock API Features](docs/artifacts/02_mock_api_features.md)       | K-API Mock 프리셋 설계            |
+| [System Architecture](docs/artifacts/03_system_architecture.md)   | 시스템 구조와 데이터 흐름         |
+| [API Spec](docs/artifacts/04_api_spec.md)                         | API 엔드포인트와 요청/응답 스키마 |
+| [Error Dictionary](docs/artifacts/05_error_dictionary.md)         | 공통 에러 코드                    |
+| [Security Overview](docs/security/SECURITY_OVERVIEW.md)           | 공개 가능한 보안 설계 개요        |
+| [Development Guide](docs/DEVELOPMENT.md)                          | 로컬 개발 및 검증 가이드          |
+| [ADR 0001](docs/adr/0001-preset-catalog-lives-in-fe-constants.md) | 프리셋 카탈로그 위치 결정         |
+| [ADR 0002](docs/adr/0002-dynamic-preset-split-into-two-types.md)  | 동적 프리셋 타입 분리 결정        |
+| [Privacy Policy](docs/legal/PRIVACY_POLICY.md)                    | 개인정보처리방침                  |
+| [Terms of Service](docs/legal/TERMS_OF_SERVICE.md)                | 서비스 이용약관                   |
+| [License](LICENSE)                                                | 라이선스                          |
 
 ## 라이선스
 
@@ -165,4 +175,4 @@ npm run dev
 
 ## 문의/이슈
 
-버그 제보, 개선 제안, 질문은 [GitHub Issues](https://github.com/pottq577/flashhook/issues)에 남겨주세요.
+버그 제보, 개선 제안, 질문은 [GitHub Issues](https://github.com/pottq577/flashhook/issues) 또는 [Google Form](https://forms.gle/fu21EPmxTu3h9Pob8)에 남겨주세요.

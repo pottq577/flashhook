@@ -6,14 +6,14 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스예요. 개발자가 단 1�
 
 **핵심 엔티티:**
 
-- **Endpoint (`com.flashhook.domain.endpoint.model.Endpoint`)**:
+- **Endpoint**:
   - 생성된 웹훅 수신 URL을 나타내요.
   - MongoDB의 `endpoints` 컬렉션에 저장해요.
   - TTL 인덱스를 사용해 생성 후 24시간이 지나면 자동 만료(삭제)돼요.
-- **WebhookLog (`com.flashhook.domain.webhook.model.WebhookLog`)**:
+- **WebhookLog**:
   - 수신된 HTTP 요청의 페이로드(헤더, 본문, HTTP 메서드)예요.
   - MongoDB의 `logs` 컬렉션에 저장하고, 24시간 TTL을 가져요.
-- **MockConfig (`com.flashhook.domain.endpoint.model.MockConfig`)**:
+- **MockConfig**:
   - `Endpoint` 문서 내부에 임베디드해 저장해요. 외부 호출자에게 돌려줄 Mock HTTP 응답(상태 코드, 지연 시간, 헤더, 본문)을 정의해요.
 - **정적 프리셋 (Static Preset) (`presets.ts`)**:
   - 고정된 `MockConfig` 튜플에 매핑되는 이름 있는 시나리오(예: "카카오 — ALREADY_PROCESSED_PAYMENT")예요.
@@ -66,15 +66,13 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스예요. 개발자가 단 1�
 - **`global/`**: 횡단 관심사 (`config`, `exception`, `ratelimit` 등).
 - **SSE 로직 (`SseEmitterService`)**: `ConcurrentHashMap`으로 활성 연결을 관리하고, 30초마다 하트비트(`ping`)를 보내요.
 - **Mock 응답 (`MockResponseScheduler`)**: `MockConfig`를 평가해 외부 호출자에게 지연 응답이나 커스텀 응답을 돌려줘요.
-- **보안 (`Replay Service`)**: 사용자가 입력한 URL로 웹훅을 보낼 때 IP Pinning을 적용한 커스텀 `SimpleClientHttpRequestFactory`로 DNS Rebinding과 SSRF 공격을 차단해요.
+- **보안 (`Replay Service`)**: IP Pinning 방식으로 DNS Rebinding과 SSRF 공격을 차단해요.
 
 ## 5. 인프라 및 로컬 개발 환경
 
 - **Redis**: 서버를 스팸/DDoS 공격으로부터 보호하기 위해 요청 빈도 제한을 처리해요.
 - **MongoDB**: 데이터 자동 파기는 TTL 인덱스에 맡겨요.
-- **로컬 테스트**:
-  1. `docker-compose up -d`로 Redis와 MongoDB를 실행해요.
-  2. Cloudflare Tunnel(`cloudflared tunnel --url http://localhost:8080`)로 로컬 백엔드를 Slack, Stripe 같은 서드파티 서비스에 외부 노출해요.
+- **로컬 테스트**: `docker-compose up -d`로 Redis와 MongoDB를 실행해요. 전체 설정은 `docs/DEVELOPMENT.md` 참고.
 - **프록시 타임아웃**: 프로덕션 프록시(Nginx/AWS ALB)는 유휴 연결을 강제 종료할 수 있어요. 30초마다 보내는 SSE 핑(ping)으로 이를 방지해요.
 
 ## 6. 개발 가이드라인 (Development Guidelines)

@@ -151,8 +151,8 @@ export const LegalMarkdown = ({ source }: LegalMarkdownProps) => {
         if (block.type === "ul") {
           return (
             <ul key={index} className={styles.list}>
-              {block.items.map((item) => (
-                <li key={item} className={styles.listItem}>
+              {block.items.map((item, itemIndex) => (
+                <li key={`${index}-ul-${itemIndex}`} className={styles.listItem}>
                   {parseInline(item)}
                 </li>
               ))}
@@ -169,8 +169,8 @@ export const LegalMarkdown = ({ source }: LegalMarkdownProps) => {
             return (
               <div key={index} className={styles.highlightBox}>
                 <ul className={styles.list}>
-                  {quoteListItems.map((item) => (
-                    <li key={item} className={styles.listItem}>
+                  {quoteListItems.map((item, itemIndex) => (
+                    <li key={`${index}-quote-ul-${itemIndex}`} className={styles.listItem}>
                       {parseInline(item)}
                     </li>
                   ))}
@@ -181,9 +181,9 @@ export const LegalMarkdown = ({ source }: LegalMarkdownProps) => {
 
           return (
             <div key={index} className={styles.highlightBox}>
-              {block.lines.map((line) => {
+              {block.lines.map((line, lineIndex) => {
                 return (
-                  <p key={line} className={styles.paragraph}>
+                  <p key={`${index}-quote-p-${lineIndex}`} className={styles.paragraph}>
                     {parseInline(line)}
                   </p>
                 );

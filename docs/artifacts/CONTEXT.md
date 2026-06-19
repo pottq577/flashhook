@@ -6,14 +6,14 @@ FlashHook is a temporary webhook catcher service. It solves a specific problem: 
 
 **Core Entities:**
 
-- **Endpoint (`com.flashhook.domain.endpoint.model.Endpoint`)**:
+- **Endpoint**:
   - A generated webhook receiver URL.
   - Stored in MongoDB (`endpoints` collection).
   - Uses a TTL index to auto-expire 24 hours after creation.
-- **WebhookLog (`com.flashhook.domain.webhook.model.WebhookLog`)**:
+- **WebhookLog**:
   - The payload of an incoming HTTP request (headers, body, method).
   - Stored in MongoDB (`logs` collection) with a 24-hour TTL.
-- **MockConfig (`com.flashhook.domain.endpoint.model.MockConfig`)**:
+- **MockConfig**:
   - Embedded inside `Endpoint`. Defines the mock HTTP response (status, delay, headers, body) returned to the external caller.
 - **Static Preset (`presets.ts`)**:
   - Named scenarios (e.g., "카카오 — ALREADY_PROCESSED_PAYMENT") that map to a fixed `MockConfig` tuple.
@@ -66,15 +66,13 @@ The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.
 - **`global/`**: Cross-cutting concerns (`config`, `exception`, `ratelimit`).
 - **SSE Logic (`SseEmitterService`)**: Manages active connections in a `ConcurrentHashMap`. Sends 30-second heartbeats (`ping`).
 - **Mock Responses (`MockResponseScheduler`)**: Evaluates `MockConfig` to delay or customize responses to external callers.
-- **Security (`Replay Service`)**: In `WebhookLogService.replayLog`, uses a custom `SimpleClientHttpRequestFactory` with IP Pinning to block DNS Rebinding and SSRF attacks when dispatching webhooks to user-provided URLs.
+- **Security (`Replay Service`)**: Uses IP Pinning to block DNS Rebinding and SSRF attacks when dispatching webhooks to user-provided URLs.
 
 ## 5. Infrastructure & Local Development
 
 - **Redis**: Handles request frequency limiting to protect the server from spam/DDoS.
 - **MongoDB**: Relies on TTL indexes for data purging.
-- **Local Testing**:
-  1. `docker-compose up -d` for Redis/MongoDB.
-  2. Use Cloudflare Tunnel (`cloudflared tunnel --url http://localhost:8080`) to expose the local backend to third-party services like Slack or Stripe.
+- **Local Testing**: `docker-compose up -d` for Redis/MongoDB. See `docs/DEVELOPMENT.md` for full setup.
 - **Proxy Timeouts**: Production proxies (Nginx/AWS ALB) kill idle connections. The 30-second SSE ping prevents this.
 
 ## 6. Development Guidelines
