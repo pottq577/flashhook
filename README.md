@@ -144,20 +144,20 @@ npm run dev
 
 ## 문서 모음
 
-| 문서 | 설명 |
-| --- | --- |
-| [Product & Features](docs/artifacts/01_product_and_features.md) | 제품 목표와 핵심 기능 |
-| [Mock API Features](docs/artifacts/02_mock_api_features.md) | K-API Mock 프리셋 설계 |
-| [System Architecture](docs/artifacts/03_system_architecture.md) | 시스템 구조와 데이터 흐름 |
-| [API Spec](docs/artifacts/04_api_spec.md) | API 엔드포인트와 요청/응답 스키마 |
-| [Error Dictionary](docs/artifacts/05_error_dictionary.md) | 공통 에러 코드 |
-| [Security Overview](docs/security/SECURITY_OVERVIEW.md) | 공개 가능한 보안 설계 개요 |
-| [Development Guide](docs/DEVELOPMENT.md) | 로컬 개발 및 검증 가이드 |
-| [ADR 0001](docs/adr/0001-preset-catalog-lives-in-fe-constants.md) | 프리셋 카탈로그 위치 결정 |
-| [ADR 0002](docs/adr/0002-dynamic-preset-split-into-two-types.md) | 동적 프리셋 타입 분리 결정 |
-| [Privacy Policy](docs/legal/PRIVACY_POLICY.md) | 개인정보처리방침 |
-| [Terms of Service](docs/legal/TERMS_OF_SERVICE.md) | 서비스 이용약관 |
-| [License](LICENSE) | 라이선스 |
+| 문서                                                              | 설명                              |
+| ----------------------------------------------------------------- | --------------------------------- |
+| [Product & Features](docs/artifacts/01_product_and_features.md)   | 제품 목표와 핵심 기능             |
+| [Mock API Features](docs/artifacts/02_mock_api_features.md)       | K-API Mock 프리셋 설계            |
+| [System Architecture](docs/artifacts/03_system_architecture.md)   | 시스템 구조와 데이터 흐름         |
+| [API Spec](docs/artifacts/04_api_spec.md)                         | API 엔드포인트와 요청/응답 스키마 |
+| [Error Dictionary](docs/artifacts/05_error_dictionary.md)         | 공통 에러 코드                    |
+| [Security Overview](docs/security/SECURITY_OVERVIEW.md)           | 공개 가능한 보안 설계 개요        |
+| [Development Guide](docs/DEVELOPMENT.md)                          | 로컬 개발 및 검증 가이드          |
+| [ADR 0001](docs/adr/0001-preset-catalog-lives-in-fe-constants.md) | 프리셋 카탈로그 위치 결정         |
+| [ADR 0002](docs/adr/0002-dynamic-preset-split-into-two-types.md)  | 동적 프리셋 타입 분리 결정        |
+| [Privacy Policy](docs/legal/PRIVACY_POLICY.md)                    | 개인정보처리방침                  |
+| [Terms of Service](docs/legal/TERMS_OF_SERVICE.md)                | 서비스 이용약관                   |
+| [License](LICENSE)                                                | 라이선스                          |
 
 ## 라이선스
 
@@ -165,4 +165,4 @@ npm run dev
 
 ## 문의/이슈
 
-버그 제보, 개선 제안, 질문은 [GitHub Issues](https://github.com/pottq577/flashhook/issues)에 남겨주세요.
+버그 제보, 개선 제안, 질문은 [GitHub Issues](https://github.com/pottq577/flashhook/issues) 또는 [Google Form](https://forms.gle/fu21EPmxTu3h9Pob8)에 남겨주세요.
