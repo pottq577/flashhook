@@ -12,12 +12,19 @@
   z-index: 50;
 }
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 1.25rem;
   font-weight: bold;
   color: var(--accent);
   text-decoration: none;
   padding: 0.5rem;
   margin-left: -0.5rem;
+}
+.logoIcon {
+  height: 1.25rem;
+  width: auto;
 }
 .nav {
   display: flex;

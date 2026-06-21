@@ -5,7 +5,8 @@ function Header() {
   return (
     <header className={styles.header}>
       <Link to="/" className={styles.logo}>
-        ⚡ FlashHook
+        <img src="/favicon.svg" alt="FlashHook 로고" className={styles.logoIcon} />
+        FlashHook
       </Link>
       <nav className={styles.nav}>
         <a
