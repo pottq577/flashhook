@@ -68,7 +68,7 @@ const LogList = memo(function LogList({
         <div className={styles.headerRow}>
           <input
             type="text"
-            placeholder="Search payload..."
+            placeholder="method 또는 body 검색…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="로그 페이로드 검색"
