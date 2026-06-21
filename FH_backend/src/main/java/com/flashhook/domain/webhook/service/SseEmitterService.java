@@ -111,7 +111,12 @@ public class SseEmitterService {
                     try {
                         emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
                     } catch (IOException | IllegalStateException e) {
-                        log.debug("Client disconnected or failed to send heartbeat ping. endpointId: {}", endpointId);
+                        log.debug(
+                                "Client disconnected or failed heartbeat ping. endpointId: {}, cause: {}: {}",
+                                endpointId,
+                                e.getClass().getSimpleName(),
+                                e.getMessage()
+                        );
                         removeEmitter(endpointId, emitter);
                     }
                 }, taskExecutor);
