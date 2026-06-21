@@ -202,7 +202,7 @@ function DashboardPage() {
                       </button>
                     </div>
                     <div className={styles.mockPanelBody}>
-                      <Suspense fallback={<div>Loading…</div>}>
+                      <Suspense fallback={<div className={styles.mockPanelSkeleton} />}>
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}
@@ -284,7 +284,7 @@ function DashboardPage() {
                           뒤로가기
                         </button>
                       </div>
-                      <Suspense fallback={<div>Loading…</div>}>
+                      <Suspense fallback={<div className={styles.mockPanelSkeleton} />}>
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}
