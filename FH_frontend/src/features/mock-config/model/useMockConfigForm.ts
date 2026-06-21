@@ -23,6 +23,8 @@ export const COMMON_STATUS_CODES = [
   { value: 503, label: 'Service Unavailable', desc: '' },
 ];
 
+export const COMMON_STATUS_CODES_SET = new Set(COMMON_STATUS_CODES.map(c => c.value));
+
 export const COMMON_DELAY_PRESETS = [
   { value: 0, label: '0ms', desc: '(Instant)' },
   { value: 500, label: '500ms', desc: '(Typical)' },
