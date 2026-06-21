@@ -146,6 +146,17 @@ const LogList = memo(function LogList({
               있어요.
             </p>
           ) : null}
+          {logs.length > 0 && (search || method !== "ALL") ? (
+            <button
+              className={styles.resetBtn}
+              onClick={() => {
+                setSearch("");
+                setMethod("ALL");
+              }}
+            >
+              필터 초기화
+            </button>
+          ) : null}
         </div>
       ) : (
         <Virtuoso
