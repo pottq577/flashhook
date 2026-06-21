@@ -133,7 +133,7 @@ _Body는 `ok` 문자열 또는 성공 응답. Delay 프리셋은 mockConfig의 `
 
 ##### 응답 명세
 
-> **FlashHook 동작 방식**: 이 프리셋에서 FlashHook은 카카오가 보내는 웹훅을 수신하는 서버 역할을 합니다. 아래 페이로드는 카카오 서버 → FlashHook으로 들어오는 수신 페이로드 예시이며, FlashHook은 이를 받고 202 Accepted를 반환해야 합니다.
+> **FlashHook 동작 방식**: 이 프리셋에서 FlashHook은 카카오가 보내는 웹훅을 수신하는 서버 역할을 합니다. 아래 페이로드는 카카오 서버 → FlashHook으로 들어오는 수신 페이로드 예시이며, FlashHook은 이를 받고 200 OK를 반환해야 합니다.
 
 **[수신] 앱 연결 해제 알림**
 
@@ -153,7 +153,7 @@ Content-Type: application/json
 
 - Note: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FROM_ADMIN | UNLINK_FROM_APPS | INCOMPLETE_SIGN_UP` 중 하나의 값을 가집니다.
 
-_FlashHook 응답: `202 Accepted` (Body 불필요 — 카카오는 상태 코드만 확인)_
+_FlashHook 응답: `200 OK` (Body 불필요 — 카카오는 상태 코드만 확인)_
 
 ---
 
@@ -196,12 +196,12 @@ _FlashHook 응답: `200 OK` (Body 불필요 — 카카오는 상태 코드만 �
 
 ##### 카카오 웹훅 시스템 차이 비교
 
-| 구분              | 카카오 로그인 SSF/SET 웹훅            | 카카오톡 채널 콜백 웹훅                                |
+| 구분              | 카카오 로그인 SSF/SET 웹훅            | 카카오톡 채널 콜백 / 구버전 Unlink 웹훅                |
 | ----------------- | ------------------------------------- | ------------------------------------------------------ |
-| **제공 기관**     | developers.kakao.com                  | kakaobusiness.gitbook.io / 채널 관리자센터             |
+| **제공 기관**     | developers.kakao.com                  | 카카오 디벨로퍼스 / 채널 관리자센터                    |
 | **성공 응답**     | `HTTP 202 Accepted`                   | `HTTP 200 OK`                                          |
-| **페이로드 포맷** | SET (Security Event Token - JWT 기반) | JSON (event, user_id 등 플랫 구조)                     |
-| **주요 이벤트**   | OAUTH, RISC, CAEP 카테고리            | 채널 추가 (`add_channel`), 채널 차단 (`block_channel`) |
+| **페이로드 포맷** | SET (Security Event Token - JWT 기반) | JSON (플랫 구조)                                       |
+| **주요 이벤트**   | OAUTH, RISC, CAEP 카테고리            | 채널 추가/차단, 구버전 Unlink                          |
 
 ---
 

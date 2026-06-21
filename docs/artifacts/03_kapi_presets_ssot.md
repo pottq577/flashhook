@@ -76,7 +76,7 @@
 
 - **Method**: `POST`
 - **Content-Type**: `application/json`
-- **FlashHook 응답**: `202 Accepted` (Body 무시)
+- **FlashHook 응답**: `200 OK` (Body 무시)
 
 ```json
 {
