@@ -1,6 +1,7 @@
 package com.flashhook.global.exception;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.MediaType;
@@ -22,10 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
     /**
-     * CustomException 처리
+     * BusinessException 처리
      */
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<?> handleCustomException(CustomException e, HttpServletRequest request) {
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<?> handleBusinessException(BusinessException e, HttpServletRequest request) {
         if (isSseRequest(request)) {
             return ResponseEntity.status(e.getErrorCode().getStatus()).build();
         }
@@ -33,7 +34,7 @@ public class GlobalExceptionHandler {
                 .status(e.getErrorCode().getStatus())
                 .body(ErrorResponse.builder()
                         .code(e.getErrorCode().getCode())
-                        .message(e.getErrorCode().getMessage())
+                        .message(e.getCustomMessage() != null ? e.getCustomMessage() : e.getErrorCode().getMessage())
                         .status(e.getErrorCode().getStatus())
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
@@ -45,18 +46,26 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException e, HttpServletRequest request) {
-        String message = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         if (isSseRequest(request)) {
             return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus()).build();
         }
+
+        List<ErrorResponse.FieldError> errors = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> ErrorResponse.FieldError.builder()
+                        .field(error.getField())
+                        .reason(error.getDefaultMessage())
+                        .build())
+                .toList();
+
         return ResponseEntity
                 .status(ErrorCode.INVALID_REQUEST.getStatus())
                 .body(ErrorResponse.builder()
                         .code(ErrorCode.INVALID_REQUEST.getCode())
-                        .message(message != null ? message : ErrorCode.INVALID_REQUEST.getMessage())
+                        .message(ErrorCode.INVALID_REQUEST.getMessage())
                         .status(ErrorCode.INVALID_REQUEST.getStatus())
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
+                        .errors(errors)
                         .build());
     }
 
@@ -105,6 +114,26 @@ public class GlobalExceptionHandler {
                         .code(ErrorCode.NOT_FOUND.getCode())
                         .message(ErrorCode.NOT_FOUND.getMessage())
                         .status(ErrorCode.NOT_FOUND.getStatus())
+                        .timestamp(Instant.now())
+                        .path(request.getRequestURI())
+                        .build());
+    }
+
+    /**
+     * 잘못된 인자 예외 처리
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request) {
+        log.warn("Illegal argument: {}", e.getMessage());
+        if (isSseRequest(request)) {
+            return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus()).build();
+        }
+        return ResponseEntity
+                .status(ErrorCode.INVALID_REQUEST.getStatus())
+                .body(ErrorResponse.builder()
+                        .code(ErrorCode.INVALID_REQUEST.getCode())
+                        .message(ErrorCode.INVALID_REQUEST.getMessage())
+                        .status(ErrorCode.INVALID_REQUEST.getStatus())
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
                         .build());

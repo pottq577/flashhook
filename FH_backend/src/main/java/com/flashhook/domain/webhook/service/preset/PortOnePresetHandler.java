@@ -1,6 +1,7 @@
 package com.flashhook.domain.webhook.service.preset;
 
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 import com.flashhook.domain.webhook.dto.WebhookPayload;
+import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.exception.PresetException;
 import com.flashhook.global.util.EncryptionUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -81,9 +84,10 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(key, "HmacSHA256"));
             return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
+        } catch (GeneralSecurityException | IllegalArgumentException e) {
             log.error("Failed to generate HMAC-SHA256 signature", e);
-            throw new RuntimeException("Failed to generate HMAC-SHA256 signature", e);
+            throw new PresetException(ErrorCode.PRESET_SIGNATURE_FAILED,
+                    "PortOne 시크릿 키 형식이 올바르지 않거나 서명 생성에 실패했습니다");
         }
     }
 }

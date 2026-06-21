@@ -18,8 +18,8 @@ import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.domain.webhook.repository.WebhookLogRepository;
-import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.exception.WebhookException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,7 +39,7 @@ public class WebhookLogService {
      */
     public Page<WebhookLogResponse> getLogs(String endpointId, String lastSeenId, int page, int size, String sort) {
         if (page < 0 || size <= 0 || size > 100) {
-            throw new CustomException(ErrorCode.INVALID_REQUEST);
+            throw new WebhookException(ErrorCode.INVALID_REQUEST);
         }
 
         Direction direction = "asc".equalsIgnoreCase(sort)
@@ -57,7 +57,7 @@ public class WebhookLogService {
             WebhookLog lastLog = webhookLogRepository.findByLogId(lastSeenId).orElse(null);
             if (lastLog != null) {
                 if (!lastLog.getEndpointId().equals(endpointId)) {
-                    throw new CustomException(ErrorCode.INVALID_REQUEST);
+                    throw new WebhookException(ErrorCode.INVALID_REQUEST);
                 }
                 if (direction == Direction.ASC) {
                     logPage = webhookLogRepository.findNextPage(
@@ -81,10 +81,10 @@ public class WebhookLogService {
      */
     public WebhookLogDetailResponse getLogDetail(String endpointId, String logId) {
         WebhookLog webhookLog = webhookLogRepository.findByLogId(logId)
-                .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
+                .orElseThrow(() -> new WebhookException(ErrorCode.LOG_NOT_FOUND));
 
         if (!webhookLog.getEndpointId().equals(endpointId)) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
+            throw new WebhookException(ErrorCode.FORBIDDEN);
         }
 
         return WebhookLogDetailResponse.from(webhookLog);
@@ -97,7 +97,7 @@ public class WebhookLogService {
     @Transactional
     public void deleteAll(String endpointId) {
         endpointRepository.findByEndpointId(endpointId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
+                .orElseThrow(() -> new WebhookException(ErrorCode.ENDPOINT_NOT_FOUND));
 
         webhookLogRepository.deleteAllByEndpointId(endpointId);
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));

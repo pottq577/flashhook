@@ -26,8 +26,8 @@ import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
 import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.domain.webhook.repository.WebhookLogRepository;
-import com.flashhook.global.exception.CustomException;
 import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.exception.WebhookException;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +59,7 @@ public class WebhookService {
     public MockConfig receive(String endpointId, IncomingWebhookPayload payload) {
         // 1. 엔드포인트 확인
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
+                .orElseThrow(() -> new WebhookException(ErrorCode.ENDPOINT_NOT_FOUND));
 
         // 4. Object Body 및 Preview 생성
         Object bodyObj = payload.getRawBody();
@@ -69,7 +69,7 @@ public class WebhookService {
             } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
                 log.debug("JSON 파싱 실패, 원본 문자열로 저장합니다.", e);
             } catch (Exception e) {
-                log.warn("JSON 파싱 중 예기치 않은 오류 발생", e);
+                log.error("JSON 파싱 중 예기치 않은 오류 발생", e);
             }
         }
 

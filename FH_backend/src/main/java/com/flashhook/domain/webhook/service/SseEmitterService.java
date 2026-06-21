@@ -1,5 +1,6 @@
 package com.flashhook.domain.webhook.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -9,6 +10,7 @@ import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -54,7 +56,7 @@ public class SseEmitterService {
         // 503 방지용 더미 데이터 전송
         try {
             emitter.send(SseEmitter.event().name("connect").data("connected"));
-        } catch (java.io.IOException | IllegalStateException e) {
+        } catch (IOException | IllegalStateException e) {
             log.error("SSE initial connect dummy data send failed for endpointId: {}", endpointId, e);
             removeEmitter(endpointId, emitter);
         }
@@ -79,7 +81,7 @@ public class SseEmitterService {
                     emitter.send(SseEmitter.event()
                             .name("webhook")
                             .data(java.util.Objects.requireNonNull(response)));
-                } catch (java.io.IOException | IllegalStateException e) {
+                } catch (IOException | IllegalStateException e) {
                     log.error("Failed to send webhook log via SSE to endpointId: {}", endpointId, e);
                     try {
                         Query query = Query.query(Criteria.where("logId").is(event.getWebhookLog().getLogId()));
@@ -87,7 +89,7 @@ public class SseEmitterService {
                                 .set("sseDeliveryStatus", "FAILED")
                                 .set("sseError", e.getMessage());
                         mongoTemplate.updateFirst(query, update, WebhookLog.class);
-                    } catch (Exception persistEx) {
+                    } catch (DataAccessException persistEx) {
                         log.error("Failed to persist SSE failure status: logId={}", event.getWebhookLog().getLogId(),
                                 persistEx);
                     } finally {
@@ -108,7 +110,7 @@ public class SseEmitterService {
                 CompletableFuture.runAsync(() -> {
                     try {
                         emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
-                    } catch (java.io.IOException | IllegalStateException e) {
+                    } catch (IOException | IllegalStateException e) {
                         log.error("Failed to send heartbeat ping via SSE to endpointId: {}", endpointId, e);
                         removeEmitter(endpointId, emitter);
                     }

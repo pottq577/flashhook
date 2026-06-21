@@ -1,6 +1,7 @@
 package com.flashhook.global.util;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
 public final class IpUtil {
@@ -28,7 +29,7 @@ public final class IpUtil {
         if (IPV6_PATTERN.matcher(trimmed).matches()) {
             try {
                 return InetAddress.getByName(trimmed).getHostAddress();
-            } catch (java.net.UnknownHostException e) {
+            } catch (UnknownHostException e) {
                 return trimmed;
             }
         }
@@ -36,7 +37,7 @@ public final class IpUtil {
         if (IPV4_PATTERN.matcher(trimmed).matches()) {
             try {
                 return InetAddress.getByName(trimmed).getHostAddress();
-            } catch (java.net.UnknownHostException e) {
+            } catch (UnknownHostException e) {
                 return trimmed;
             }
         }

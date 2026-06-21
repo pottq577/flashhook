@@ -20,7 +20,7 @@ import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import com.flashhook.global.event.EndpointDeletedEvent;
-import com.flashhook.global.exception.CustomException;
+import com.flashhook.global.exception.EndpointException;
 import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.util.EncryptionUtil;
 
@@ -97,7 +97,7 @@ public class EndpointService {
      */
     public EndpointResponse getInfo(String endpointId) {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
+                .orElseThrow(() -> new EndpointException(ErrorCode.ENDPOINT_NOT_FOUND));
 
         return EndpointResponse.builder()
                 .endpointId(endpoint.getEndpointId())
@@ -118,7 +118,7 @@ public class EndpointService {
     @Transactional
     public void delete(String endpointId) {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
+                .orElseThrow(() -> new EndpointException(ErrorCode.ENDPOINT_NOT_FOUND));
         endpointRepository.delete(Objects.requireNonNull(endpoint));
         log.info("Endpoint deleted: endpointId={}", endpointId);
         eventPublisher.publishEvent(new EndpointDeletedEvent(endpointId));
@@ -131,7 +131,7 @@ public class EndpointService {
     @Transactional
     public EndpointResponse updateMockConfig(String endpointId, MockUpdateRequest request) {
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ENDPOINT_NOT_FOUND));
+                .orElseThrow(() -> new EndpointException(ErrorCode.ENDPOINT_NOT_FOUND));
 
         MockConfig.MockConfigBuilder mockBuilder = endpoint.getMockConfig() != null
                 ? endpoint.getMockConfig().toBuilder()

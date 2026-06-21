@@ -27,6 +27,8 @@ import com.flashhook.domain.admin.dto.SuspiciousEndpointDto;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.service.EndpointService;
 import com.flashhook.domain.webhook.service.SseEmitterService;
+import com.flashhook.global.exception.AdminException;
+import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.util.IpUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -99,7 +101,7 @@ public class AdminService {
 
     private String normalizeIp(String ip) {
         if (ip == null || ip.trim().isEmpty()) {
-            throw new IllegalArgumentException("ip must not be blank");
+            throw new AdminException(ErrorCode.INVALID_REQUEST);
         }
         return IpUtil.normalize(ip);
     }
