@@ -31,7 +31,7 @@ function DashboardPage() {
     440,
     800,
   );
-  const { data: endpoint, isLoading, error } = useEndpointQuery(endpointId);
+  const { data: endpoint, isLoading, error, refetch } = useEndpointQuery(endpointId);
 
   const toggleMockPanel = useCallback(
     () => setIsMockPanelOpen((prev) => !prev),
@@ -112,7 +112,7 @@ function DashboardPage() {
           </div>
           <button
             className={styles.btnAction}
-            onClick={() => window.location.reload()}
+            onClick={() => void refetch()}
           >
             다시 시도하기
           </button>
