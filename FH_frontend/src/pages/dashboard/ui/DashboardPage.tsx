@@ -14,6 +14,7 @@ import { EndpointInfo, ConnectionStatus } from "@/widgets/endpoint-info";
 import { LogList, LogDetail } from "@/widgets/log-viewer";
 import { lazy, Suspense } from "react";
 import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
+import { resolveApiBaseUrl } from "@/shared/config/api";
 import styles from "./DashboardPage.module.css";
 
 const MockConfigPanel = lazy(
@@ -159,7 +160,11 @@ function DashboardPage() {
               className={styles.logDetailWrapper}
               style={{ flex: 1, minWidth: 0 }}
             >
-              <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
+              <LogDetail
+                logId={selectedLog?.logId}
+                endpointId={endpointId}
+                webhookUrl={`${resolveApiBaseUrl()}/hooks/${endpointId}`}
+              />
 
               <div className={styles.mockOverlayTrigger}>
                 <button className={styles.btnAction} onClick={toggleMockPanel}>
@@ -260,6 +265,7 @@ function DashboardPage() {
                       <LogDetail
                         logId={selectedLog.logId}
                         endpointId={endpointId}
+                        webhookUrl={`${resolveApiBaseUrl()}/hooks/${endpointId}`}
                       />
                       <div className={styles.mockOverlayTriggerMobile}>
                         <button

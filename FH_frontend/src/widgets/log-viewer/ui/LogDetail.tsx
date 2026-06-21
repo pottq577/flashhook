@@ -7,18 +7,19 @@ import MethodBadge from "@/shared/ui/MethodBadge";
 import PromptModal from "@/shared/ui/PromptModal";
 import { useToastStore } from "@/shared/lib/toast.store";
 import JsonViewer from "./JsonViewer";
-import { resolveApiBaseUrl } from "@/shared/config/api";
 import { logger } from "@/shared/lib/logger";
 import styles from "./LogDetail.module.css";
 
 interface LogDetailProps {
   logId?: string;
   endpointId?: string;
+  webhookUrl?: string;
 }
 
 const LogDetail = memo(function LogDetail({
   logId,
   endpointId,
+  webhookUrl,
 }: LogDetailProps) {
   const { data: log, isLoading } = useLogDetailQuery(endpointId || "", logId);
   const replayMutation = useReplayLogMutation();
@@ -48,9 +49,9 @@ const LogDetail = memo(function LogDetail({
       );
     }
 
-    const baseUrl = resolveApiBaseUrl();
-    const webhookUrl = `${baseUrl}/hooks/${endpointId}`;
-    const curlCommand = `curl -X POST ${webhookUrl} \\\n  -H "Content-Type: application/json" \\\n  -d '{"message": "Hello from FlashHook!"}'`;
+    const resolvedWebhookUrl =
+      webhookUrl ?? `(엔드포인트 URL을 확인할 수 없어요)`;
+    const curlCommand = `curl -X POST ${resolvedWebhookUrl} \\\n  -H "Content-Type: application/json" \\\n  -d '{"message": "Hello from FlashHook!"}'`;
 
     const handleCopy = async () => {
       try {
