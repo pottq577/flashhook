@@ -44,6 +44,15 @@ function LandingPage() {
   // 각 엔드포인트의 만료 시점에 정확히 clearExpired + setNow 호출
   useEffect(() => {
     const timersMap = expiryTimersRef.current;
+    const currentIds = new Set(endpoints.map((ep) => ep.id));
+
+    // 제거된 엔드포인트의 타이머 정리
+    timersMap.forEach((t, id) => {
+      if (!currentIds.has(id)) {
+        clearTimeout(t);
+        timersMap.delete(id);
+      }
+    });
 
     endpoints.forEach((ep) => {
       if (timersMap.has(ep.id)) return; // 이미 등록됨
@@ -58,9 +67,9 @@ function LandingPage() {
     });
 
     return () => {
-      // 언마운트 시 모든 타이머 정리
-      timersMap.forEach((t) => clearTimeout(t));
-      timersMap.clear();
+      // 언마운트 시에만 모든 타이머 정리
+      expiryTimersRef.current.forEach((t) => clearTimeout(t));
+      expiryTimersRef.current.clear();
     };
   }, [endpoints, clearExpired]);
 
