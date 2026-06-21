@@ -36,7 +36,7 @@ const CT_JSON_UTF8 = { "Content-Type": "application/json;charset=UTF-8" };
 const kakaoPresets: PresetService = {
   id: "KAKAO",
   label: "카카오 (Kakao)",
-  docUrl: "https://developers.kakao.com/docs/latest/ko/kakaologin/prerequisite#webhook",
+  docUrl: "https://developers.kakao.com/docs/ko",
   scenarios: [
     {
       id: "kakao_token_success",
@@ -215,7 +215,7 @@ const kakaoPresets: PresetService = {
 const tossPresets: PresetService = {
   id: "TOSS",
   label: "토스페이먼츠 (Toss Payments)",
-  docUrl: "https://docs.tosspayments.com/reference/webhook",
+  docUrl: "https://developers.tosspayments.com/",
   scenarios: [
     {
       id: "toss_confirm_success",
@@ -375,7 +375,7 @@ const tossPresets: PresetService = {
 const portonePresets: PresetService = {
   id: "PORTONE",
   label: "포트원 V2 (PortOne)",
-  docUrl: "https://developers.portone.io/opi/ko/integration/webhook/readme-v2",
+  docUrl: "https://developers.portone.io/opi/ko/readme?v=v2",
   scenarios: [
     {
       id: "portone_paid",
@@ -489,7 +489,7 @@ const portonePresets: PresetService = {
 const solapiPresets: PresetService = {
   id: "SOLAPI",
   label: "솔라피 (Solapi)",
-  docUrl: "https://solapi.com/developers/api/webhook",
+  docUrl: "https://solapi.com/developers",
   scenarios: [
     {
       id: "solapi_success",
@@ -579,7 +579,7 @@ const solapiPresets: PresetService = {
 const githubPresets: PresetService = {
   id: "GITHUB",
   label: "깃허브 (GitHub)",
-  docUrl: "https://docs.github.com/en/webhooks",
+  docUrl: "https://docs.github.com/ko",
   scenarios: [
     {
       id: "github_push",
@@ -766,7 +766,7 @@ const githubPresets: PresetService = {
 const slackPresets: PresetService = {
   id: "SLACK",
   label: "슬랙 (Slack)",
-  docUrl: "https://api.slack.com/apis/connections/events-api",
+  docUrl: "https://docs.slack.dev/",
   scenarios: [
     {
       id: "slack_app_mention",
