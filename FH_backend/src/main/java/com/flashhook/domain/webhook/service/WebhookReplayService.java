@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
@@ -66,7 +67,7 @@ public class WebhookReplayService {
         } else {
             try {
                 rawBody = objectMapper.writeValueAsString(storedBody);
-            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            } catch (JsonProcessingException e) {
                 log.warn("웹훅 재전송 본문 직렬화 실패: logId={}", logId, e);
                 updateReplayStatus(logId, "FAILED", "Failed to serialize replay body");
                 throw new BusinessException(ErrorCode.INTERNAL_ERROR);

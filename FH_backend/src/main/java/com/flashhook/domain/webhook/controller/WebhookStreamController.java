@@ -1,6 +1,7 @@
 package com.flashhook.domain.webhook.controller;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -37,8 +38,8 @@ public class WebhookStreamController {
     public ResponseEntity<Map<String, String>> createStreamToken(@PathVariable String endpointId) {
         String streamToken = UUID.randomUUID().toString().replace("-", "");
         redisTemplate.opsForValue().set(
-                java.util.Objects.requireNonNull("stream_token:" + streamToken),
-                java.util.Objects.requireNonNull(endpointId),
+                Objects.requireNonNull("stream_token:" + streamToken),
+                Objects.requireNonNull(endpointId),
                 30,
                 TimeUnit.SECONDS);
         return ResponseEntity.ok(Map.of("streamToken", streamToken));
