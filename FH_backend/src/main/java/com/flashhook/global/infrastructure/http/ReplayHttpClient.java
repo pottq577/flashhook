@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.flashhook.global.exception.CustomException;
+import com.flashhook.global.exception.BusinessException;
 import com.flashhook.global.exception.ErrorCode;
 
 import lombok.extern.slf4j.Slf4j;
@@ -136,7 +136,7 @@ public class ReplayHttpClient {
             headers.add(HttpHeaders.HOST, isDefaultPort ? host : host + ":" + port);
         } catch (URISyntaxException e) {
             log.error("Failed to parse destination URL for replay: {}", sanitizeUrlForLog(destinationUrl), e);
-            throw new CustomException(ErrorCode.INVALID_REQUEST);
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
         HttpEntity<String> entity = new HttpEntity<>(rawBody, headers);
@@ -161,7 +161,7 @@ public class ReplayHttpClient {
             URI uri = new URI(destinationUrl);
             String scheme = uri.getScheme();
             if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-                throw new CustomException(ErrorCode.INVALID_REQUEST);
+                throw new BusinessException(ErrorCode.INVALID_REQUEST);
             }
 
             InetAddress inetAddress = InetAddress.getByName(uri.getHost());
@@ -173,12 +173,12 @@ public class ReplayHttpClient {
                     inetAddress.isSiteLocalAddress() ||
                     inetAddress.isMulticastAddress() ||
                     isIpv6Ula) {
-                throw new CustomException(ErrorCode.FORBIDDEN);
+                throw new BusinessException(ErrorCode.FORBIDDEN);
             }
             return inetAddress;
         } catch (URISyntaxException | UnknownHostException | NullPointerException e) {
             log.error("Replay destination URL validation failed: {}", sanitizeUrlForLog(destinationUrl), e);
-            throw new CustomException(ErrorCode.INVALID_REQUEST);
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
     }
 

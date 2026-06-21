@@ -22,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
     /**
-     * CustomException 처리
+     * BusinessException 처리
      */
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<?> handleCustomException(CustomException e, HttpServletRequest request) {
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<?> handleBusinessException(BusinessException e, HttpServletRequest request) {
         if (isSseRequest(request)) {
             return ResponseEntity.status(e.getErrorCode().getStatus()).build();
         }
@@ -105,6 +105,26 @@ public class GlobalExceptionHandler {
                         .code(ErrorCode.NOT_FOUND.getCode())
                         .message(ErrorCode.NOT_FOUND.getMessage())
                         .status(ErrorCode.NOT_FOUND.getStatus())
+                        .timestamp(Instant.now())
+                        .path(request.getRequestURI())
+                        .build());
+    }
+
+    /**
+     * 잘못된 인자 예외 처리
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request) {
+        log.warn("Illegal argument: {}", e.getMessage());
+        if (isSseRequest(request)) {
+            return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus()).build();
+        }
+        return ResponseEntity
+                .status(ErrorCode.INVALID_REQUEST.getStatus())
+                .body(ErrorResponse.builder()
+                        .code(ErrorCode.INVALID_REQUEST.getCode())
+                        .message(e.getMessage() != null ? e.getMessage() : ErrorCode.INVALID_REQUEST.getMessage())
+                        .status(ErrorCode.INVALID_REQUEST.getStatus())
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
                         .build());

@@ -12,7 +12,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
-import com.flashhook.global.exception.CustomException;
+import com.flashhook.global.exception.BusinessException;
 import com.flashhook.global.exception.ErrorCode;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,12 +59,12 @@ public class WebhookPayloadParser {
                 buffer.write(data, 0, nRead);
                 bodySize += nRead;
                 if (bodySize > MAX_SIZE) {
-                    throw new CustomException(ErrorCode.PAYLOAD_TOO_LARGE);
+                    throw new BusinessException(ErrorCode.PAYLOAD_TOO_LARGE);
                 }
             }
         } catch (IOException e) {
             log.error("웹훅 페이로드 수신 중 IOException 발생", e);
-            throw new CustomException(ErrorCode.INTERNAL_ERROR);
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR);
         }
 
         String rawBody = "";
