@@ -81,9 +81,9 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(key, "HmacSHA256"));
             return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
+        } catch (java.security.GeneralSecurityException | IllegalArgumentException e) {
             log.error("Failed to generate HMAC-SHA256 signature", e);
-            throw new RuntimeException("Failed to generate HMAC-SHA256 signature", e);
+            throw new com.flashhook.global.exception.CustomException(com.flashhook.global.exception.ErrorCode.INTERNAL_ERROR);
         }
     }
 }

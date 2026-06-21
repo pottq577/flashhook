@@ -38,8 +38,8 @@ public class EncryptionUtil {
             mac.init(new SecretKeySpec(inputKey, "HmacSHA256"));
             byte[] derived = mac.doFinal("flashhook-encryption-key".getBytes(StandardCharsets.UTF_8));
             return Arrays.copyOf(derived, length);
-        } catch (Exception e) {
-            throw new RuntimeException("Key derivation failed", e);
+        } catch (java.security.GeneralSecurityException | IllegalArgumentException e) {
+            throw new com.flashhook.global.exception.EncryptionException("Key derivation failed", e);
         }
     }
 
@@ -55,8 +55,8 @@ public class EncryptionUtil {
             System.arraycopy(iv, 0, out, 0, IV_LENGTH);
             System.arraycopy(encrypted, 0, out, IV_LENGTH, encrypted.length);
             return Base64.getEncoder().encodeToString(out);
-        } catch (Exception e) {
-            throw new RuntimeException("Encryption failed", e);
+        } catch (java.security.GeneralSecurityException | IllegalArgumentException e) {
+            throw new com.flashhook.global.exception.EncryptionException("Encryption failed", e);
         }
     }
 
@@ -70,8 +70,8 @@ public class EncryptionUtil {
             cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_LENGTH_BITS, iv));
             byte[] decrypted = cipher.doFinal(encrypted);
             return new String(decrypted, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            throw new RuntimeException("Decryption failed", e);
+        } catch (java.security.GeneralSecurityException | IllegalArgumentException e) {
+            throw new com.flashhook.global.exception.EncryptionException("Decryption failed", e);
         }
     }
 }
