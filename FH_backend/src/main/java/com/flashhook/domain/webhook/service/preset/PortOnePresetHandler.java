@@ -86,7 +86,7 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
             return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
         } catch (GeneralSecurityException | IllegalArgumentException e) {
             log.error("Failed to generate HMAC-SHA256 signature", e);
-            throw new PresetException(ErrorCode.PRESET_INVALID_CONFIG,
+            throw new PresetException(ErrorCode.PRESET_SIGNATURE_FAILED,
                     "PortOne 시크릿 키 형식이 올바르지 않거나 서명 생성에 실패했습니다");
         }
     }

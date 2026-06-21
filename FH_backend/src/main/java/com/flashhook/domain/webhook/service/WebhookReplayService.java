@@ -111,6 +111,10 @@ public class WebhookReplayService {
             String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
             updateReplayStatus(logId, "FAILED", errorMsg);
             throw new WebhookException(ErrorCode.INTERNAL_ERROR);
+        } catch (WebhookException e) {
+            log.warn("웹훅 재전송 실패 via WebhookReplayService: logId={}", logId, e);
+            updateReplayStatus(logId, "FAILED", e.getMessage());
+            throw e;
         }
     }
 
