@@ -1,6 +1,7 @@
 package com.flashhook.global.util;
 
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -13,6 +14,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.flashhook.global.exception.EncryptionException;
 
 @Component
 public class EncryptionUtil {
@@ -38,13 +41,14 @@ public class EncryptionUtil {
             mac.init(new SecretKeySpec(inputKey, "HmacSHA256"));
             byte[] derived = mac.doFinal("flashhook-encryption-key".getBytes(StandardCharsets.UTF_8));
             return Arrays.copyOf(derived, length);
-        } catch (java.security.GeneralSecurityException | IllegalArgumentException e) {
-            throw new com.flashhook.global.exception.EncryptionException("Key derivation failed", e);
+        } catch (GeneralSecurityException | IllegalArgumentException e) {
+            throw new EncryptionException("Key derivation failed", e);
         }
     }
 
     public String encrypt(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         try {
             byte[] iv = new byte[IV_LENGTH];
             secureRandom.nextBytes(iv);
@@ -55,13 +59,14 @@ public class EncryptionUtil {
             System.arraycopy(iv, 0, out, 0, IV_LENGTH);
             System.arraycopy(encrypted, 0, out, IV_LENGTH, encrypted.length);
             return Base64.getEncoder().encodeToString(out);
-        } catch (java.security.GeneralSecurityException | IllegalArgumentException e) {
-            throw new com.flashhook.global.exception.EncryptionException("Encryption failed", e);
+        } catch (GeneralSecurityException | IllegalArgumentException e) {
+            throw new EncryptionException("Encryption failed", e);
         }
     }
 
     public String decrypt(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         try {
             byte[] decoded = Base64.getDecoder().decode(value);
             byte[] iv = Arrays.copyOfRange(decoded, 0, IV_LENGTH);
@@ -70,8 +75,8 @@ public class EncryptionUtil {
             cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_LENGTH_BITS, iv));
             byte[] decrypted = cipher.doFinal(encrypted);
             return new String(decrypted, StandardCharsets.UTF_8);
-        } catch (java.security.GeneralSecurityException | IllegalArgumentException e) {
-            throw new com.flashhook.global.exception.EncryptionException("Decryption failed", e);
+        } catch (GeneralSecurityException | IllegalArgumentException e) {
+            throw new EncryptionException("Decryption failed", e);
         }
     }
 }

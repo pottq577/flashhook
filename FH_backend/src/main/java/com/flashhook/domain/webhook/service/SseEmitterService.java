@@ -9,6 +9,7 @@ import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -87,7 +88,7 @@ public class SseEmitterService {
                                 .set("sseDeliveryStatus", "FAILED")
                                 .set("sseError", e.getMessage());
                         mongoTemplate.updateFirst(query, update, WebhookLog.class);
-                    } catch (org.springframework.dao.DataAccessException persistEx) {
+                    } catch (DataAccessException persistEx) {
                         log.error("Failed to persist SSE failure status: logId={}", event.getWebhookLog().getLogId(),
                                 persistEx);
                     } finally {

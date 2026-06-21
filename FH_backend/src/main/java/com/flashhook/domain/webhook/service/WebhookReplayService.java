@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.Endpoint;
@@ -104,7 +105,7 @@ public class WebhookReplayService {
             replayHttpClient.sendRequest(destinationUrl, payload.getMethod(), payload.getHeaders(), payload.getBody());
             log.info("Webhook replayed successfully via WebhookReplayService: logId={}", logId);
             updateReplayStatus(logId, "SUCCESS", null);
-        } catch (org.springframework.web.client.RestClientException e) {
+        } catch (RestClientException e) {
             log.warn("웹훅 재전송 실패 via WebhookReplayService: logId={}", logId, e);
             String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
             updateReplayStatus(logId, "FAILED", errorMsg);
