@@ -170,7 +170,7 @@ const LogDetail = memo(function LogDetail({
         </div>
         <div className={styles.metaItem}>
           <span className={styles.metaLabel}>PAYLOAD_SIZE</span>
-          <span>{Math.max(0, log.bodySize / 1024).toFixed(2)} KB</span>
+          <span>{log.bodySize === 0 ? "—" : `${(log.bodySize / 1024).toFixed(2)} KB`}</span>
         </div>
       </div>
 
