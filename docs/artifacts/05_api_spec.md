@@ -335,6 +335,7 @@ POST /api/endpoints/{endpointId}/logs/{logId}/replay
 **인증**: `X-Access-Token` 헤더
 
 **Request**:
+
 ```json
 {
   "destinationUrl": "https://my-ngrok.com/webhook"
@@ -344,6 +345,7 @@ POST /api/endpoints/{endpointId}/logs/{logId}/replay
 **Response**: `200 OK`
 
 **에러**:
+
 - `429 RATE_LIMIT_EXCEEDED`: Replay 요청 빈도가 제한돼요.
 - `403 FORBIDDEN` / `400 INVALID_REQUEST`: 타겟 URL이 사설 IP, 루프백, 링크 로컬 등 SSRF 공격으로 의심될 경우
 
@@ -430,19 +432,19 @@ GET /api/actuator/health
 
 ## 7. 전체 엔드포인트 요약
 
-| Method   | Path                               | 인증 | 설명               |
-| -------- | ---------------------------------- | :--: | ------------------ |
-| `POST`   | `/api/endpoints`                   |  IP  | 엔드포인트 생성    |
-| `GET`    | `/api/endpoints/{id}`              | 토큰 | 엔드포인트 정보    |
-| `DELETE` | `/api/endpoints/{id}`              | 토큰 | 엔드포인트 삭제    |
-| `PATCH`  | `/api/endpoints/{id}/mock`         | 토큰 | 모의 설정 업데이트 |
-| `ANY`    | `/api/hooks/{id}`                  |  -   | 웹훅 수신          |
-| `GET`    | `/api/endpoints/{id}/logs`         | 토큰 | 로그 목록          |
-| `GET`    | `/api/endpoints/{id}/logs/{logId}` | 토큰 | 로그 상세          |
-| `DELETE` | `/api/endpoints/{id}/logs`         | 토큰 | 로그 전체 삭제     |
-| `POST`   | `/api/endpoints/{id}/logs/{logId}/replay` | 토큰 | 수신 웹훅 재전송 |
-| `POST`   | `/api/endpoints/{id}/stream-token` | 토큰 | 스트림 토큰 발급   |
-| `GET`    | `/api/endpoints/{id}/stream`       | 토큰 | SSE 실시간 스트림  |
-| `GET`    | `/api/actuator/health`             |  -   | 헬스체크           |
+| Method   | Path                                      | 인증 | 설명               |
+| -------- | ----------------------------------------- | :--: | ------------------ |
+| `POST`   | `/api/endpoints`                          |  IP  | 엔드포인트 생성    |
+| `GET`    | `/api/endpoints/{id}`                     | 토큰 | 엔드포인트 정보    |
+| `DELETE` | `/api/endpoints/{id}`                     | 토큰 | 엔드포인트 삭제    |
+| `PATCH`  | `/api/endpoints/{id}/mock`                | 토큰 | 모의 설정 업데이트 |
+| `ANY`    | `/api/hooks/{id}`                         |  -   | 웹훅 수신          |
+| `GET`    | `/api/endpoints/{id}/logs`                | 토큰 | 로그 목록          |
+| `GET`    | `/api/endpoints/{id}/logs/{logId}`        | 토큰 | 로그 상세          |
+| `DELETE` | `/api/endpoints/{id}/logs`                | 토큰 | 로그 전체 삭제     |
+| `POST`   | `/api/endpoints/{id}/logs/{logId}/replay` | 토큰 | 수신 웹훅 재전송   |
+| `POST`   | `/api/endpoints/{id}/stream-token`        | 토큰 | 스트림 토큰 발급   |
+| `GET`    | `/api/endpoints/{id}/stream`              | 토큰 | SSE 실시간 스트림  |
+| `GET`    | `/api/actuator/health`                    |  -   | 헬스체크           |
 
 총 12개 엔드포인트 (MVP)
