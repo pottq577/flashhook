@@ -1,5 +1,4 @@
-import { useSSE } from "@/entities/log";
-import { useLogStore } from "@/entities/log";
+import { useSSE, useLogStore, createLogDetailFromLog } from "@/entities/log";
 import { useToastStore } from "@/shared/lib/toast.store";
 import { useCallback } from "react";
 import type { WebhookLog } from "@/entities/log";
@@ -16,19 +15,7 @@ export function useRealtimeLogs(endpointId: string | undefined) {
       // 선택된 로그가 없으면 새 로그를 자동 선택
       const { selectedLog, setSelectedLog } = useLogStore.getState();
       if (selectedLog === null) {
-        setSelectedLog({
-          logId: log.logId,
-          method: log.method,
-          contentType: log.contentType ?? null,
-          clientIp: log.clientIp,
-          bodyPreview: log.bodyPreview,
-          bodySize: log.bodySize,
-          receivedAt: log.receivedAt,
-          url: "",
-          headers: {},
-          queryParams: {},
-          body: null,
-        });
+        setSelectedLog(createLogDetailFromLog(log));
       }
     },
     [addLog, addToast],

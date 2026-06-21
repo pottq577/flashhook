@@ -2,9 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useEndpointQuery } from "@/entities/endpoint";
-import { useLogsQuery } from "@/entities/log";
+import { useLogsQuery, useLogStore, createLogDetailFromLog } from "@/entities/log";
 import { useRealtimeLogs } from "@/features/realtime-logs";
-import { useLogStore } from "@/entities/log";
 import { useEndpointStore } from "@/entities/endpoint";
 import { useIsMobile } from "@/shared/lib/useIsMobile";
 import { useShortcut } from "@/shared/lib/useShortcut";
@@ -49,19 +48,7 @@ function DashboardPage() {
   const handleSelectLog = useCallback(
     (logId: string) => {
       const log = useLogStore.getState().logMap[logId];
-      setSelectedLog({
-        logId,
-        method: log?.method ?? "",
-        contentType: log?.contentType ?? null,
-        clientIp: log?.clientIp ?? "",
-        bodyPreview: log?.bodyPreview ?? "",
-        bodySize: log?.bodySize ?? 0,
-        receivedAt: log?.receivedAt ?? "",
-        url: "",
-        headers: {},
-        queryParams: {},
-        body: null,
-      });
+      setSelectedLog(createLogDetailFromLog(log, logId));
     },
     [setSelectedLog],
   );

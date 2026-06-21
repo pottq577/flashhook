@@ -62,3 +62,19 @@ export const LogsResponseSchema = z
 export type WebhookLog = z.infer<typeof WebhookLogSchema>;
 export type WebhookLogDetail = z.infer<typeof WebhookLogDetailSchema>;
 export type LogsResponse = z.infer<typeof LogsResponseSchema>;
+
+export function createLogDetailFromLog(log?: WebhookLog, logId?: string): WebhookLogDetail {
+  return {
+    logId: logId ?? log?.logId ?? "",
+    method: log?.method ?? "",
+    contentType: log?.contentType ?? null,
+    clientIp: log?.clientIp ?? "",
+    bodyPreview: log?.bodyPreview ?? "",
+    bodySize: log?.bodySize ?? 0,
+    receivedAt: log?.receivedAt ?? "",
+    url: "",
+    headers: {},
+    queryParams: {},
+    body: null,
+  };
+}
