@@ -27,6 +27,7 @@ function LandingPage() {
     useEndpointStore();
   const [now, setNow] = useState(() => Date.now());
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const expiryTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   useEffect(() => {
     clearExpired();
@@ -39,6 +40,38 @@ function LandingPage() {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [clearExpired]);
+
+  // 각 엔드포인트의 만료 시점에 정확히 clearExpired + setNow 호출
+  useEffect(() => {
+    const timersMap = expiryTimersRef.current;
+    const currentIds = new Set(endpoints.map((ep) => ep.id));
+
+    // 제거된 엔드포인트의 타이머 정리
+    timersMap.forEach((t, id) => {
+      if (!currentIds.has(id)) {
+        clearTimeout(t);
+        timersMap.delete(id);
+      }
+    });
+
+    endpoints.forEach((ep) => {
+      if (timersMap.has(ep.id)) return; // 이미 등록됨
+      const msUntilExpiry = new Date(ep.expiresAt).getTime() - Date.now();
+      if (msUntilExpiry <= 0) return; // 이미 만료
+      const t = setTimeout(() => {
+        setNow(Date.now());
+        clearExpired();
+        timersMap.delete(ep.id);
+      }, msUntilExpiry);
+      timersMap.set(ep.id, t);
+    });
+
+    return () => {
+      // 언마운트 시에만 모든 타이머 정리
+      timersMap.forEach((t) => clearTimeout(t));
+      timersMap.clear();
+    };
+  }, [endpoints, clearExpired]);
 
   const handleCreateClick = () => {
     if (localStorage.getItem("flashhook-consent") === "true") {

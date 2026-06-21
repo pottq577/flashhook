@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useEndpointQuery } from "@/entities/endpoint";
-import { useLogsQuery } from "@/entities/log";
+import {
+  useLogsQuery,
+  useLogStore,
+  createLogDetailFromLog,
+} from "@/entities/log";
 import { useRealtimeLogs } from "@/features/realtime-logs";
-import { useLogStore } from "@/entities/log";
 import { useEndpointStore } from "@/entities/endpoint";
 import { useIsMobile } from "@/shared/lib/useIsMobile";
 import { useShortcut } from "@/shared/lib/useShortcut";
@@ -14,6 +17,7 @@ import { EndpointInfo, ConnectionStatus } from "@/widgets/endpoint-info";
 import { LogList, LogDetail } from "@/widgets/log-viewer";
 import { lazy, Suspense } from "react";
 import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
+import { resolveApiBaseUrl } from "@/shared/config/api";
 import styles from "./DashboardPage.module.css";
 
 const MockConfigPanel = lazy(
@@ -22,6 +26,12 @@ const MockConfigPanel = lazy(
 
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
+  const webhookUrl = endpointId
+    ? new URL(
+        `${resolveApiBaseUrl()}/hooks/${encodeURIComponent(endpointId)}`,
+        window.location.origin,
+      ).toString()
+    : undefined;
   const [isMockPanelOpen, setIsMockPanelOpen] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
@@ -31,7 +41,12 @@ function DashboardPage() {
     440,
     800,
   );
-  const { data: endpoint, isLoading, error } = useEndpointQuery(endpointId);
+  const {
+    data: endpoint,
+    isLoading,
+    error,
+    refetch,
+  } = useEndpointQuery(endpointId);
 
   const toggleMockPanel = useCallback(
     () => setIsMockPanelOpen((prev) => !prev),
@@ -48,19 +63,7 @@ function DashboardPage() {
   const handleSelectLog = useCallback(
     (logId: string) => {
       const log = useLogStore.getState().logMap[logId];
-      setSelectedLog({
-        logId,
-        method: log?.method ?? "",
-        contentType: log?.contentType ?? null,
-        clientIp: log?.clientIp ?? "",
-        bodyPreview: log?.bodyPreview ?? "",
-        bodySize: log?.bodySize ?? 0,
-        receivedAt: log?.receivedAt ?? "",
-        url: "",
-        headers: {},
-        queryParams: {},
-        body: null,
-      });
+      setSelectedLog(createLogDetailFromLog(log, logId));
     },
     [setSelectedLog],
   );
@@ -110,10 +113,7 @@ function DashboardPage() {
               {(error as Error).message}
             </span>
           </div>
-          <button
-            className={styles.btnAction}
-            onClick={() => window.location.reload()}
-          >
+          <button className={styles.btnAction} onClick={() => void refetch()}>
             다시 시도하기
           </button>
         </div>
@@ -159,7 +159,11 @@ function DashboardPage() {
               className={styles.logDetailWrapper}
               style={{ flex: 1, minWidth: 0 }}
             >
-              <LogDetail logId={selectedLog?.logId} endpointId={endpointId} />
+              <LogDetail
+                logId={selectedLog?.logId}
+                endpointId={endpointId}
+                webhookUrl={webhookUrl}
+              />
 
               <div className={styles.mockOverlayTrigger}>
                 <button className={styles.btnAction} onClick={toggleMockPanel}>
@@ -202,7 +206,9 @@ function DashboardPage() {
                       </button>
                     </div>
                     <div className={styles.mockPanelBody}>
-                      <Suspense fallback={<div>Loading…</div>}>
+                      <Suspense
+                        fallback={<div className={styles.mockPanelSkeleton} />}
+                      >
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}
@@ -260,6 +266,7 @@ function DashboardPage() {
                       <LogDetail
                         logId={selectedLog.logId}
                         endpointId={endpointId}
+                        webhookUrl={webhookUrl}
                       />
                       <div className={styles.mockOverlayTriggerMobile}>
                         <button
@@ -284,7 +291,9 @@ function DashboardPage() {
                           뒤로가기
                         </button>
                       </div>
-                      <Suspense fallback={<div>Loading…</div>}>
+                      <Suspense
+                        fallback={<div className={styles.mockPanelSkeleton} />}
+                      >
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}
