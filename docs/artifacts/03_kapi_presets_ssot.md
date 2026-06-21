@@ -89,6 +89,29 @@
 
 _참고: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FROM_ADMIN | UNLINK_FROM_APPS | INCOMPLETE_SIGN_UP` 중 하나의 값을 가짐._
 
+#### [수신] 계정 상태 변경 알림 (SSF/SET)
+
+- **Method**: `POST`
+- **Content-Type**: `application/json`
+- **FlashHook 응답**: `202 Accepted` (Body 무시)
+
+```json
+{
+  "iss": "https://kapi.kakao.com",
+  "aud": "123456",
+  "iat": 1718251890,
+  "jti": "some-unique-jwt-id",
+  "events": {
+    "http://schemas.openid.net/secevent/oauth/event-type/user-unlinked": {
+      "subject": {
+        "subject_type": "oauth_helper",
+        "user_id": "3891047281"
+      }
+    }
+  }
+}
+```
+
 #### [수신] 카카오톡 채널 추가 알림
 
 - **Method**: `POST`
@@ -217,6 +240,19 @@ _참고: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FRO
   "status": "DONE",
   "transactionKey": "TXN_20240115_VBANK001",
   "orderId": "ORDER-2024-00002"
+}
+```
+
+#### [수신] 웹훅 재전송 테스트 (HTTP 500)
+
+- **Method**: `POST`
+- **Content-Type**: `application/json`
+- **FlashHook 응답**: `500 Internal Server Error`
+
+```json
+{
+  "error": "internal_server_error",
+  "message": "Mock: 의도적 서버 오류 — 재전송 로직 테스트용"
 }
 ```
 

@@ -127,7 +127,7 @@ _Body는 `ok` 문자열 또는 성공 응답. Delay 프리셋은 mockConfig의 `
 
 #### [Webhook] 계정 연결 해제 및 상태 변경
 
-- **프리셋 시나리오**: 앱 연결 해제 알림 (SSF/SET)
+- **프리셋 시나리오**: 앱 연결 해제 알림 (구버전 Unlink), 계정 상태 변경 알림 (SSF/SET)
 - **개발자가 테스트하는 것**: 사용자 탈퇴에 따른 데이터 동기화 로직, 타임아웃 예외 처리
 - **공식 기술 제약 (검증)**: 카카오 웹훅 서버는 **3초 이내에 HTTP 202 Accepted 응답**(단, Legacy Unlink 및 카카오톡 채널 콜백 웹훅은 200 OK)을 받아야 합니다. FlashHook의 `응답 지연(Delay)` 프리셋을 통해 타임아웃 엣지 케이스를 안전하게 테스트할 수 있습니다.
 
@@ -154,6 +154,34 @@ Content-Type: application/json
 - Note: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FROM_ADMIN | UNLINK_FROM_APPS | INCOMPLETE_SIGN_UP` 중 하나의 값을 가집니다.
 
 _FlashHook 응답: `200 OK` (Body 불필요 — 카카오는 상태 코드만 확인)_
+
+---
+
+**[수신] 계정 상태 변경 알림 (SSF/SET)**
+
+```http
+Method: POST  (카카오 → FlashHook)
+Content-Type: application/json
+```
+
+```json
+{
+  "iss": "https://kapi.kakao.com",
+  "aud": "123456",
+  "iat": 1718251890,
+  "jti": "some-unique-jwt-id",
+  "events": {
+    "http://schemas.openid.net/secevent/oauth/event-type/user-unlinked": {
+      "subject": {
+        "subject_type": "oauth_helper",
+        "user_id": "3891047281"
+      }
+    }
+  }
+}
+```
+
+_FlashHook 응답: `202 Accepted` (Body 불필요 — 카카오는 상태 코드만 확인)_
 
 ---
 
