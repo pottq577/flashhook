@@ -20,6 +20,8 @@ import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
 import { resolveApiBaseUrl } from "@/shared/config/api";
 import styles from "./DashboardPage.module.css";
 
+const MockPanelSkeleton = <div className={styles.mockPanelSkeleton} />;
+
 const MockConfigPanel = lazy(
   () => import("@/widgets/mock-config/ui/MockConfigPanel"),
 );
@@ -207,7 +209,7 @@ function DashboardPage() {
                     </div>
                     <div className={styles.mockPanelBody}>
                       <Suspense
-                        fallback={<div className={styles.mockPanelSkeleton} />}
+                        fallback={MockPanelSkeleton}
                       >
                         <MockConfigPanel
                           endpoint={endpoint}
@@ -292,7 +294,7 @@ function DashboardPage() {
                         </button>
                       </div>
                       <Suspense
-                        fallback={<div className={styles.mockPanelSkeleton} />}
+                        fallback={MockPanelSkeleton}
                       >
                         <MockConfigPanel
                           endpoint={endpoint}

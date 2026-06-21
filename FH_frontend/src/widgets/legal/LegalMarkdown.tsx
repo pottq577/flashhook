@@ -161,9 +161,9 @@ export const LegalMarkdown = ({ source }: LegalMarkdownProps) => {
         }
 
         if (block.type === "quote") {
-          const quoteListItems = block.lines
-            .filter((line) => line.startsWith("- "))
-            .map((line) => line.slice(2));
+          const quoteListItems = block.lines.flatMap((line) =>
+            line.startsWith("- ") ? [line.slice(2)] : []
+          );
 
           if (quoteListItems.length === block.lines.length) {
             return (

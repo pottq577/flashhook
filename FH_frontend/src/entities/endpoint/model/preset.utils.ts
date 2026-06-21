@@ -28,12 +28,14 @@ export function findInitialServiceId(cfg: Endpoint["mockConfig"]): string {
   return CUSTOM_SERVICE_ID;
 }
 
+const PRESET_MAP = new Map(PRESET_CATALOG.map((s) => [s.id, s]));
+
 export function findInitialScenarioId(
   cfg: Endpoint["mockConfig"],
   serviceId: string,
 ): string | null {
   if (!cfg || serviceId === CUSTOM_SERVICE_ID) return null;
-  const service = PRESET_CATALOG.find((s) => s.id === serviceId);
+  const service = PRESET_MAP.get(serviceId);
   if (!service) return null;
   const match = service.scenarios.find(
     (s) =>

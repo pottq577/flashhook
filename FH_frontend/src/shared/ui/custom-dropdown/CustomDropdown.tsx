@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./CustomDropdown.module.css";
 
@@ -11,6 +11,7 @@ interface CustomDropdownProps {
   placeholder: string;
   isOpen: boolean;
   onToggle: () => void;
+  onClose?: () => void;
   isCustomStatus?: boolean;
   displayValue?: (
     val: string | number,
@@ -31,6 +32,7 @@ export function CustomDropdown({
   placeholder,
   isOpen,
   onToggle,
+  onClose,
   isCustomStatus,
   displayValue,
   alignRight,
@@ -38,6 +40,28 @@ export function CustomDropdown({
   onEdit,
   hideNoOptions,
 }: CustomDropdownProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  if (!isOpen && activeIndex !== -1) {
+    setActiveIndex(-1);
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (containerRef.current && !containerRef.current.contains(target)) {
+        if (isOpen && onClose) {
+          onClose();
+        }
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen, onClose]);
+
   const selected = options.find((o) => o.value === value);
   const isCustom = isCustomStatus ?? (!selected && value !== "");
 
@@ -51,16 +75,47 @@ export function CustomDropdown({
 
   const filteredOptions = useMemo(() => {
     if (!isEditable || inputValue === "") return options;
+    const isTyping = String(value) !== inputValue;
+    if (!isTyping) return options;
     const lowerInput = inputValue.toLowerCase();
     return options.filter(
       (o) =>
         String(o.label).toLowerCase().includes(lowerInput) ||
         String(o.value).toLowerCase().includes(lowerInput),
     );
-  }, [isEditable, inputValue, options]);
+  }, [isEditable, inputValue, options, value]);
 
   return (
-    <div className={styles.statusInputWrapper}>
+    <div className={styles.statusInputWrapper} ref={containerRef} onKeyDown={(e) => {
+      if (isOpen) {
+        const maxIndex = filteredOptions.length + (onCustom && !isEditable ? 1 : 0) - 1;
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          setActiveIndex((prev) => (prev < maxIndex ? prev + 1 : 0));
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          setActiveIndex((prev) => (prev > 0 ? prev - 1 : maxIndex));
+        } else if (e.key === "Enter") {
+          if (activeIndex >= 0 && activeIndex < filteredOptions.length) {
+            e.preventDefault();
+            onSelect(filteredOptions[activeIndex].value);
+          } else if (activeIndex === filteredOptions.length && onCustom) {
+            e.preventDefault();
+            onCustom();
+          }
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          if (onClose) onClose();
+          else onToggle();
+        }
+      } else {
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          onToggle();
+          setActiveIndex(0);
+        }
+      }
+    }}>
       <div
         className={styles.customSelectTrigger}
         onClick={!isEditable ? onToggle : undefined}
@@ -133,16 +188,17 @@ export function CustomDropdown({
             transition={{ duration: 0.15 }}
           >
             {filteredOptions.length > 0 ? (
-              filteredOptions.map((o) => (
+              filteredOptions.map((o, idx) => (
                 <div
                   key={String(o.value)}
-                  className={`${styles.customSelectOption} ${value === o.value && !isCustom ? styles.selected : ""}`}
+                  className={`${styles.customSelectOption} ${value === o.value && !isCustom ? styles.selected : ""} ${activeIndex === idx ? styles.activeItem : ""}`}
                   role="option"
                   aria-selected={value === o.value && !isCustom}
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
+                      e.stopPropagation();
                       onSelect(o.value);
                     }
                   }}
@@ -177,17 +233,19 @@ export function CustomDropdown({
             ) : null}
             {onCustom && !isEditable ? (
               <div
-                className={`${styles.customSelectOption} ${isCustom ? styles.selected : ""}`}
+                className={`${styles.customSelectOption} ${isCustom ? styles.selected : ""} ${activeIndex === filteredOptions.length ? styles.activeItem : ""}`}
                 role="option"
                 aria-selected={isCustom}
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
+                    e.stopPropagation();
                     onCustom();
                   }
                 }}
-                onClick={(e) => {
+                onMouseDown={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   onCustom();
                 }}
