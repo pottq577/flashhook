@@ -2,7 +2,11 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useEndpointQuery } from "@/entities/endpoint";
-import { useLogsQuery, useLogStore, createLogDetailFromLog } from "@/entities/log";
+import {
+  useLogsQuery,
+  useLogStore,
+  createLogDetailFromLog,
+} from "@/entities/log";
 import { useRealtimeLogs } from "@/features/realtime-logs";
 import { useEndpointStore } from "@/entities/endpoint";
 import { useIsMobile } from "@/shared/lib/useIsMobile";
@@ -22,7 +26,12 @@ const MockConfigPanel = lazy(
 
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
-  const webhookUrl = endpointId ? `${resolveApiBaseUrl()}/hooks/${endpointId}` : undefined;
+  const webhookUrl = endpointId
+    ? new URL(
+        `${resolveApiBaseUrl()}/hooks/${encodeURIComponent(endpointId)}`,
+        window.location.origin,
+      ).toString()
+    : undefined;
   const [isMockPanelOpen, setIsMockPanelOpen] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
@@ -32,7 +41,12 @@ function DashboardPage() {
     440,
     800,
   );
-  const { data: endpoint, isLoading, error, refetch } = useEndpointQuery(endpointId);
+  const {
+    data: endpoint,
+    isLoading,
+    error,
+    refetch,
+  } = useEndpointQuery(endpointId);
 
   const toggleMockPanel = useCallback(
     () => setIsMockPanelOpen((prev) => !prev),
@@ -99,10 +113,7 @@ function DashboardPage() {
               {(error as Error).message}
             </span>
           </div>
-          <button
-            className={styles.btnAction}
-            onClick={() => void refetch()}
-          >
+          <button className={styles.btnAction} onClick={() => void refetch()}>
             다시 시도하기
           </button>
         </div>
@@ -195,7 +206,9 @@ function DashboardPage() {
                       </button>
                     </div>
                     <div className={styles.mockPanelBody}>
-                      <Suspense fallback={<div className={styles.mockPanelSkeleton} />}>
+                      <Suspense
+                        fallback={<div className={styles.mockPanelSkeleton} />}
+                      >
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}
@@ -278,7 +291,9 @@ function DashboardPage() {
                           뒤로가기
                         </button>
                       </div>
-                      <Suspense fallback={<div className={styles.mockPanelSkeleton} />}>
+                      <Suspense
+                        fallback={<div className={styles.mockPanelSkeleton} />}
+                      >
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}
