@@ -7,11 +7,14 @@
 [![FlashHook CI](https://github.com/pottq577/flashhook/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pottq577/flashhook/actions/workflows/ci.yml)
 [![hits](https://myhits.vercel.app/api/hit/https%3A%2F%2Fgithub.com%2Fpottq577%2Fflashhook?color=blue&label=hits&size=small)](https://myhits.vercel.app)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/pottq577/flashhook?utm_source=oss&utm_medium=github&utm_campaign=pottq577%2Fflashhook&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+\
 ![Created](https://img.shields.io/badge/Created-2026.06.08-blue)
 [![Last Commit](https://img.shields.io/github/last-commit/pottq577/flashhook?color=blue)](https://github.com/pottq577/flashhook/commits/main)
 
-FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공해서,<br/>
-들어오는 웹훅 데이터를 실시간으로 확인하고 외부 API의 예외 응답을 직접 테스트해 볼 수 있는 유틸리티예요.
+<br/>
+<img src="./docs/images/demo.gif" alt="FlashHook Real-time Demo" width="800">
+<p><em>회원가입 없이 웹훅 주소를 즉시 발급받고, 들어오는 요청을 실시간으로 확인하세요.
+<br/>토스나 카카오 결제 웹훅까지 실제와 똑같이 재현됩니다.</em></p>
 
 </div>
 
@@ -36,7 +39,7 @@ FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공
 
 그래서 누구나 **클릭 한 번으로 임시 URL을 발급받아 데이터를 실시간으로 확인**하고, **"이 URL은 잠시 뒤에 에러를 뱉어줘"라고 조작할 수 있는 가짜 서버**를 만들었어요.
 
-## 핵심 기능 3종
+## 핵심 기능
 
 ### 1. Webhook Catcher
 
@@ -45,7 +48,7 @@ FlashHook은 회원가입 없이 바로 쓸 수 있는 엔드포인트를 제공
 - **활용 예시**: 결제 성공 시 날아오는 JSON 구조를 정확히 파악해서 파싱 코드를 작성하고 싶을 때.
 - **워크플로우**: 임시 웹훅 URL 생성 → 외부 서비스에 수신지 등록 → 대시보드에서 Payload, Headers, Query를 실시간 확인.
 
-### 2. K-API Mock (응답 조작 가능한 가짜 API 서버)
+### 2. K-API Mock
 
 > **"상대방 서버에 문제가 생기면 내 서버는 안 터지고 잘 버틸 수 있을까?"**
 

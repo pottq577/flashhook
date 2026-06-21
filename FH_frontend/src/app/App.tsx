@@ -94,9 +94,7 @@ function App() {
     <QueryProvider>
       <BrowserRouter>
         <main>
-          <Suspense
-            fallback={AppLoadingFallback}
-          >
+          <Suspense fallback={AppLoadingFallback}>
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route
