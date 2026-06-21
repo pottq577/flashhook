@@ -66,12 +66,14 @@ function LandingPage() {
       timersMap.set(ep.id, t);
     });
 
-    return () => {
-      // 언마운트 시에만 모든 타이머 정리
-      timersMap.forEach((t) => clearTimeout(t));
-      timersMap.clear();
-    };
   }, [endpoints, clearExpired]);
+
+  useEffect(() => {
+    return () => {
+      expiryTimersRef.current.forEach((t) => clearTimeout(t));
+      expiryTimersRef.current.clear();
+    };
+  }, []);
 
   const handleCreateClick = () => {
     if (localStorage.getItem("flashhook-consent") === "true") {
