@@ -1,6 +1,6 @@
 import type { WebhookLog } from "@/entities/log";
 import { Virtuoso } from "react-virtuoso";
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useDeferredValue } from "react";
 import { useDeleteAllLogsMutation } from "@/entities/log";
 import LogItem from "./LogItem";
 import styles from "./LogList.module.css";
@@ -26,9 +26,11 @@ const LogList = memo(function LogList({
   const [isMethodDropdownOpen, setIsMethodDropdownOpen] = useState(false);
   const deleteMutation = useDeleteAllLogsMutation(endpointId || "");
 
+  const deferredSearch = useDeferredValue(search);
+
   const filteredLogs = useMemo(() => {
     const isAllMethods = method === "ALL";
-    const trimmedSearch = search.trim().toLowerCase();
+    const trimmedSearch = deferredSearch.trim().toLowerCase();
     const isSearchEmpty = trimmedSearch === "";
 
     return logs.filter((log) => {
@@ -40,7 +42,7 @@ const LogList = memo(function LogList({
           log.bodyPreview.toLowerCase().includes(trimmedSearch));
       return matchMethod && matchSearch;
     });
-  }, [logs, search, method]);
+  }, [logs, deferredSearch, method]);
 
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
