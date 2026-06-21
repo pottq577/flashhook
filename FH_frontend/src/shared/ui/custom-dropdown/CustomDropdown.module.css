@@ -140,3 +140,7 @@
   white-space: normal;
   word-break: break-all;
 }
+
+.activeItem {
+  background-color: var(--bg-tertiary);
+}

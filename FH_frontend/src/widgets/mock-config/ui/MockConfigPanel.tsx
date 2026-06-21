@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import type { Endpoint } from "@/entities/endpoint";
 import { CUSTOM_SERVICE_ID } from "@/entities/endpoint";
 import { CustomDropdown } from "@/shared/ui/custom-dropdown/CustomDropdown";
@@ -22,23 +22,9 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { state, actions } = form;
 
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (containerRef.current && !containerRef.current.contains(target)) {
-        setOpenDropdownId(null);
-      }
-    };
-    if (openDropdownId) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [openDropdownId]);
 
   return (
-    <div className={styles.container} ref={containerRef}>
+    <div className={styles.container}>
       <div className={styles.header}>
         <h2>[ MOCK_API_CONFIG ]</h2>
         <p>&gt; EXTERNAL_SERVICE_INTEGRATION_TEST_MODE</p>
@@ -69,6 +55,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             ) : null}
           </div>
           <CustomDropdown
+            onClose={() => setOpenDropdownId(null)}
             value={state.selectedServiceId}
             options={SERVICE_OPTIONS}
             onSelect={(val) => {
@@ -90,6 +77,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           <div className={styles.formGroup}>
             <label>TARGET_PRESET</label>
             <CustomDropdown
+            onClose={() => setOpenDropdownId(null)}
               value={state.selectedScenarioId ?? ""}
               options={state.scenarioOptions}
               onSelect={(val) => {
@@ -130,6 +118,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           >
             <label>STATUS_CODE</label>
             <CustomDropdown
+            onClose={() => setOpenDropdownId(null)}
               value={state.statusCode}
               options={COMMON_STATUS_CODES}
               onSelect={(val) => {
@@ -181,6 +170,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           >
             <label>RESPONSE_DELAY (ms)</label>
             <CustomDropdown
+            onClose={() => setOpenDropdownId(null)}
               value={state.delayMs}
               options={COMMON_DELAY_PRESETS}
               onSelect={(val) => {
@@ -224,6 +214,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                   }}
                 >
                   <CustomDropdown
+            onClose={() => setOpenDropdownId(null)}
                     value={h.key}
                     options={COMMON_HEADER_KEYS}
                     onSelect={(val) => {
@@ -266,6 +257,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                   }}
                 >
                   <CustomDropdown
+            onClose={() => setOpenDropdownId(null)}
                     value={h.value}
                     options={COMMON_HEADER_VALUES}
                     onSelect={(val) => {
