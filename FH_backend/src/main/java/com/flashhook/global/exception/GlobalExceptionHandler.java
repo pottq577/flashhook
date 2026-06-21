@@ -123,7 +123,7 @@ public class GlobalExceptionHandler {
                 .status(ErrorCode.INVALID_REQUEST.getStatus())
                 .body(ErrorResponse.builder()
                         .code(ErrorCode.INVALID_REQUEST.getCode())
-                        .message(e.getMessage() != null ? e.getMessage() : ErrorCode.INVALID_REQUEST.getMessage())
+                        .message(ErrorCode.INVALID_REQUEST.getMessage())
                         .status(ErrorCode.INVALID_REQUEST.getStatus())
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
