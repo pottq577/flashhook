@@ -75,7 +75,7 @@ export const AdminLoginPage = () => {
             className={styles.input}
           />
 
-          {error && (
+          {error ? (
             <motion.p
               id="admin-login-error"
               role="alert"
@@ -86,7 +86,7 @@ export const AdminLoginPage = () => {
             >
               {error}
             </motion.p>
-          )}
+          ) : null}
 
           <button
             type="submit"

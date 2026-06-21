@@ -85,7 +85,7 @@ export function useMockConfigForm(endpoint: Endpoint) {
   );
   const [isCustomStatus, setIsCustomStatus] = useState(() => {
     const code = endpoint.mockConfig?.statusCode || 200;
-    return !COMMON_STATUS_CODES.some((c) => c.value === code);
+    return !COMMON_STATUS_CODES_SET.has(code as number);
   });
   const [delayMs, setDelayMs] = useState<number | string>(
     endpoint.mockConfig?.delayMs || 0,
@@ -115,7 +115,7 @@ export function useMockConfigForm(endpoint: Endpoint) {
     setSelectedScenarioId(findInitialScenarioId(endpoint.mockConfig, serviceId));
     const code = endpoint.mockConfig?.statusCode || 200;
     setStatusCode(code);
-    setIsCustomStatus(!COMMON_STATUS_CODES.some((c) => c.value === code));
+    setIsCustomStatus(!COMMON_STATUS_CODES_SET.has(code as number));
     setDelayMs(endpoint.mockConfig?.delayMs || 0);
     setBody(endpoint.mockConfig?.body || 'ok');
     
@@ -150,7 +150,7 @@ export function useMockConfigForm(endpoint: Endpoint) {
   const applyScenario = (scenario: PresetScenario) => {
     setSelectedScenarioId(scenario.id);
     setStatusCode(scenario.statusCode);
-    setIsCustomStatus(!COMMON_STATUS_CODES.some((c) => c.value === scenario.statusCode));
+    setIsCustomStatus(!COMMON_STATUS_CODES_SET.has(scenario.statusCode));
     setDelayMs(scenario.delayMs);
     setBody(scenario.body);
     setHeaderList(

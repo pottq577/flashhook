@@ -74,25 +74,28 @@ const DevTools = import.meta.env.DEV
       ),
     )
   : () => null;
+
+const AppLoadingFallback = (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      color: "var(--text-secondary)",
+    }}
+  >
+    로딩중…
+  </div>
+);
+
 function App() {
   return (
     <QueryProvider>
       <BrowserRouter>
         <main>
           <Suspense
-            fallback={
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100vh",
-                  color: "var(--text-secondary)",
-                }}
-              >
-                로딩중…
-              </div>
-            }
+            fallback={AppLoadingFallback}
           >
             <Routes>
               <Route path="/" element={<LandingPage />} />

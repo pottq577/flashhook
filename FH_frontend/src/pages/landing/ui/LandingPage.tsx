@@ -18,7 +18,7 @@ function LandingPage() {
   const [error, setError] = useState<string | null>(null);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-  const [terminalLines, setTerminalLines] = useState<string[]>([
+  const [terminalLines, setTerminalLines] = useState<string[]>(() => [
     "$ flashhook --init",
     "> System ready. Waiting for command…",
   ]);
@@ -69,9 +69,10 @@ function LandingPage() {
   }, [endpoints, clearExpired]);
 
   useEffect(() => {
+    const timersMap = expiryTimersRef.current;
     return () => {
-      expiryTimersRef.current.forEach((t) => clearTimeout(t));
-      expiryTimersRef.current.clear();
+      timersMap.forEach((t) => clearTimeout(t));
+      timersMap.clear();
     };
   }, []);
 

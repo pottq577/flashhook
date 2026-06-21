@@ -8,6 +8,15 @@ import ConfirmModal from "@/shared/ui/ConfirmModal";
 
 import { CustomDropdown } from "@/shared/ui/custom-dropdown/CustomDropdown";
 
+const methodOptions = [
+  { value: "ALL", label: "All Methods" },
+  { value: "GET", label: "GET" },
+  { value: "POST", label: "POST" },
+  { value: "PUT", label: "PUT" },
+  { value: "PATCH", label: "PATCH" },
+  { value: "DELETE", label: "DELETE" },
+];
+
 interface LogListProps {
   logs: WebhookLog[];
   selectedLogId: string | null;
@@ -54,15 +63,6 @@ const LogList = memo(function LogList({
     setIsClearModalOpen(false);
     deleteMutation.mutate();
   };
-
-  const methodOptions = [
-    { value: "ALL", label: "All Methods" },
-    { value: "GET", label: "GET" },
-    { value: "POST", label: "POST" },
-    { value: "PUT", label: "PUT" },
-    { value: "PATCH", label: "PATCH" },
-    { value: "DELETE", label: "DELETE" },
-  ];
 
   return (
     <div className={styles.container}>
