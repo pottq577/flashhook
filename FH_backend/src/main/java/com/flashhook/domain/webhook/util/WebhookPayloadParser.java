@@ -12,8 +12,8 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
-import com.flashhook.global.exception.BusinessException;
 import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.exception.WebhookException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -59,12 +59,12 @@ public class WebhookPayloadParser {
                 buffer.write(data, 0, nRead);
                 bodySize += nRead;
                 if (bodySize > MAX_SIZE) {
-                    throw new BusinessException(ErrorCode.PAYLOAD_TOO_LARGE);
+                    throw new WebhookException(ErrorCode.PAYLOAD_TOO_LARGE);
                 }
             }
         } catch (IOException e) {
             log.error("웹훅 페이로드 수신 중 IOException 발생", e);
-            throw new BusinessException(ErrorCode.INTERNAL_ERROR);
+            throw new WebhookException(ErrorCode.INTERNAL_ERROR);
         }
 
         String rawBody = "";

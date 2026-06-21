@@ -1,6 +1,7 @@
 package com.flashhook.global.exception;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.MediaType;
@@ -33,7 +34,7 @@ public class GlobalExceptionHandler {
                 .status(e.getErrorCode().getStatus())
                 .body(ErrorResponse.builder()
                         .code(e.getErrorCode().getCode())
-                        .message(e.getErrorCode().getMessage())
+                        .message(e.getCustomMessage() != null ? e.getCustomMessage() : e.getErrorCode().getMessage())
                         .status(e.getErrorCode().getStatus())
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
@@ -45,18 +46,26 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException e, HttpServletRequest request) {
-        String message = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         if (isSseRequest(request)) {
             return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus()).build();
         }
+
+        List<ErrorResponse.FieldError> errors = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> ErrorResponse.FieldError.builder()
+                        .field(error.getField())
+                        .reason(error.getDefaultMessage())
+                        .build())
+                .toList();
+
         return ResponseEntity
                 .status(ErrorCode.INVALID_REQUEST.getStatus())
                 .body(ErrorResponse.builder()
                         .code(ErrorCode.INVALID_REQUEST.getCode())
-                        .message(message != null ? message : ErrorCode.INVALID_REQUEST.getMessage())
+                        .message(ErrorCode.INVALID_REQUEST.getMessage())
                         .status(ErrorCode.INVALID_REQUEST.getStatus())
                         .timestamp(Instant.now())
                         .path(request.getRequestURI())
+                        .errors(errors)
                         .build());
     }
 

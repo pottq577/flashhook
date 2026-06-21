@@ -16,7 +16,10 @@ import org.springframework.web.context.request.async.DeferredResult;
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.webhook.service.preset.PresetHandlerRegistry;
 import com.flashhook.domain.webhook.service.preset.ResponsePresetHandler;
+import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.exception.ErrorResponse;
 
+import java.time.Instant;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 
@@ -113,8 +116,13 @@ public class MockResponseScheduler {
             } catch (Exception e) {
                 log.error("Internal Server Error processing mock response", e);
                 deferredResult.setErrorResult(
-                        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body("Internal Server Error processing mock response"));
+                        ResponseEntity.status(ErrorCode.INTERNAL_ERROR.getStatus())
+                                .body(ErrorResponse.builder()
+                                        .code(ErrorCode.INTERNAL_ERROR.getCode())
+                                        .message(ErrorCode.INTERNAL_ERROR.getMessage())
+                                        .status(ErrorCode.INTERNAL_ERROR.getStatus())
+                                        .timestamp(Instant.now())
+                                        .build()));
             }
         };
 

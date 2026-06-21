@@ -26,8 +26,8 @@ import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
 import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.domain.webhook.repository.WebhookLogRepository;
-import com.flashhook.global.exception.BusinessException;
 import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.exception.WebhookException;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +59,7 @@ public class WebhookService {
     public MockConfig receive(String endpointId, IncomingWebhookPayload payload) {
         // 1. 엔드포인트 확인
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ENDPOINT_NOT_FOUND));
+                .orElseThrow(() -> new WebhookException(ErrorCode.ENDPOINT_NOT_FOUND));
 
         // 4. Object Body 및 Preview 생성
         Object bodyObj = payload.getRawBody();
