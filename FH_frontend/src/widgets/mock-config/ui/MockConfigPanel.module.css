@@ -55,6 +55,37 @@
   letter-spacing: 0.05em;
 }
 
+.docLinkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease-out;
+  font-weight: 500;
+  /* ux-fitts-target-size: 32px 최소 클릭 영역 확보 */
+  min-height: 32px;
+}
+
+.docLinkBtn:hover {
+  color: var(--accent);
+  background-color: rgba(0, 255, 102, 0.08);
+  box-shadow: 0 0 5px rgba(0, 255, 102, 0.15) inset;
+}
+
+.docLinkBtn:active {
+  /* physics-active-state */
+  transform: scale(0.96);
+  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.docLinkBtn i {
+  font-size: 0.9rem;
+}
+
 .input,
 .select,
 .textarea {
