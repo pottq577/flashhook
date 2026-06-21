@@ -1,6 +1,6 @@
 import type { WebhookLog } from "@/entities/log";
 import { Virtuoso } from "react-virtuoso";
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useDeferredValue } from "react";
 import { useDeleteAllLogsMutation } from "@/entities/log";
 import LogItem from "./LogItem";
 import styles from "./LogList.module.css";
@@ -26,9 +26,11 @@ const LogList = memo(function LogList({
   const [isMethodDropdownOpen, setIsMethodDropdownOpen] = useState(false);
   const deleteMutation = useDeleteAllLogsMutation(endpointId || "");
 
+  const deferredSearch = useDeferredValue(search);
+
   const filteredLogs = useMemo(() => {
     const isAllMethods = method === "ALL";
-    const trimmedSearch = search.trim().toLowerCase();
+    const trimmedSearch = deferredSearch.trim().toLowerCase();
     const isSearchEmpty = trimmedSearch === "";
 
     return logs.filter((log) => {
@@ -40,7 +42,7 @@ const LogList = memo(function LogList({
           log.bodyPreview.toLowerCase().includes(trimmedSearch));
       return matchMethod && matchSearch;
     });
-  }, [logs, search, method]);
+  }, [logs, deferredSearch, method]);
 
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
@@ -68,7 +70,7 @@ const LogList = memo(function LogList({
         <div className={styles.headerRow}>
           <input
             type="text"
-            placeholder="Search payload..."
+            placeholder="method 또는 body 검색…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="로그 페이로드 검색"
@@ -145,6 +147,17 @@ const LogList = memo(function LogList({
               위의 웹훅 URL로 요청을 보내면 이곳에서 실시간으로 확인할 수
               있어요.
             </p>
+          ) : null}
+          {logs.length > 0 && (search || method !== "ALL") ? (
+            <button
+              className={styles.resetBtn}
+              onClick={() => {
+                setSearch("");
+                setMethod("ALL");
+              }}
+            >
+              필터 초기화
+            </button>
           ) : null}
         </div>
       ) : (

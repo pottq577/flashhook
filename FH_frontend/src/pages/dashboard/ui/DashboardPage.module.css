@@ -253,3 +253,7 @@
   align-items: center;
   margin-bottom: 1rem;
 }
+
+.mockPanelSkeleton {
+  min-height: 200px;
+}

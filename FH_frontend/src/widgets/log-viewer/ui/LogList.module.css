@@ -87,3 +87,17 @@
   text-align: center;
   color: var(--text-muted);
 }
+.resetBtn {
+  margin-top: 0.75rem;
+  padding: 0.4rem 1rem;
+  background-color: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.resetBtn:hover {
+  background-color: rgba(249, 115, 22, 0.1);
+}
