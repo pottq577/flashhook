@@ -127,13 +127,13 @@ _Body는 `ok` 문자열 또는 성공 응답. Delay 프리셋은 mockConfig의 `
 
 #### [Webhook] 계정 연결 해제 및 상태 변경
 
-- **프리셋 시나리오**: 앱 연결 해제 알림 (SSF/SET)
+- **프리셋 시나리오**: 앱 연결 해제 알림 (구버전 Unlink), 계정 상태 변경 알림 (SSF/SET)
 - **개발자가 테스트하는 것**: 사용자 탈퇴에 따른 데이터 동기화 로직, 타임아웃 예외 처리
-- **공식 기술 제약 (검증)**: 카카오 웹훅 서버는 **3초 이내에 HTTP 202 Accepted 응답**(단, Legacy Unlink 웹훅은 200 OK)을 받아야 합니다. FlashHook의 `응답 지연(Delay)` 프리셋을 통해 타임아웃 엣지 케이스를 안전하게 테스트할 수 있습니다.
+- **공식 기술 제약 (검증)**: 카카오 웹훅 서버는 **3초 이내에 HTTP 202 Accepted 응답**(단, Legacy Unlink 및 카카오톡 채널 콜백 웹훅은 200 OK)을 받아야 합니다. FlashHook의 `응답 지연(Delay)` 프리셋을 통해 타임아웃 엣지 케이스를 안전하게 테스트할 수 있습니다.
 
 ##### 응답 명세
 
-> **FlashHook 동작 방식**: 이 프리셋에서 FlashHook은 카카오가 보내는 웹훅을 수신하는 서버 역할을 합니다. 아래 페이로드는 카카오 서버 → FlashHook으로 들어오는 수신 페이로드 예시이며, FlashHook은 이를 받고 202 Accepted를 반환해야 합니다.
+> **FlashHook 동작 방식**: 이 프리셋에서 FlashHook은 카카오가 보내는 웹훅을 수신하는 서버 역할을 합니다. 아래 페이로드는 카카오 서버 → FlashHook으로 들어오는 수신 페이로드 예시이며, FlashHook은 이를 받고 200 OK를 반환해야 합니다.
 
 **[수신] 앱 연결 해제 알림**
 
@@ -152,6 +152,34 @@ Content-Type: application/json
 ```
 
 - Note: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FROM_ADMIN | UNLINK_FROM_APPS | INCOMPLETE_SIGN_UP` 중 하나의 값을 가집니다.
+
+_FlashHook 응답: `200 OK` (Body 불필요 — 카카오는 상태 코드만 확인)_
+
+---
+
+**[수신] 계정 상태 변경 알림 (SSF/SET)**
+
+```http
+Method: POST  (카카오 → FlashHook)
+Content-Type: application/json
+```
+
+```json
+{
+  "iss": "https://kapi.kakao.com",
+  "aud": "123456",
+  "iat": 1718251890,
+  "jti": "some-unique-jwt-id",
+  "events": {
+    "http://schemas.openid.net/secevent/oauth/event-type/user-unlinked": {
+      "subject": {
+        "subject_type": "oauth_helper",
+        "user_id": "3891047281"
+      }
+    }
+  }
+}
+```
 
 _FlashHook 응답: `202 Accepted` (Body 불필요 — 카카오는 상태 코드만 확인)_
 
@@ -196,12 +224,12 @@ _FlashHook 응답: `200 OK` (Body 불필요 — 카카오는 상태 코드만 �
 
 ##### 카카오 웹훅 시스템 차이 비교
 
-| 구분              | 카카오 로그인 SSF/SET 웹훅            | 카카오톡 채널 콜백 웹훅                                |
+| 구분              | 카카오 로그인 SSF/SET 웹훅            | 카카오톡 채널 콜백 / 구버전 Unlink 웹훅                |
 | ----------------- | ------------------------------------- | ------------------------------------------------------ |
-| **제공 기관**     | developers.kakao.com                  | kakaobusiness.gitbook.io / 채널 관리자센터             |
+| **제공 기관**     | developers.kakao.com                  | 카카오 디벨로퍼스 / 채널 관리자센터                    |
 | **성공 응답**     | `HTTP 202 Accepted`                   | `HTTP 200 OK`                                          |
-| **페이로드 포맷** | SET (Security Event Token - JWT 기반) | JSON (event, user_id 등 플랫 구조)                     |
-| **주요 이벤트**   | OAUTH, RISC, CAEP 카테고리            | 채널 추가 (`add_channel`), 채널 차단 (`block_channel`) |
+| **페이로드 포맷** | SET (Security Event Token - JWT 기반) | JSON (플랫 구조)                                       |
+| **주요 이벤트**   | OAUTH, RISC, CAEP 카테고리            | 채널 추가/차단, 구버전 Unlink                          |
 
 ---
 
@@ -422,7 +450,7 @@ Content-Type: application/json
 - **개발자가 테스트하는 것**: 결제 검증 로직, 클라이언트 위변조 방어
 - **공식 기술 제약 (검증)**:
   - 포트원 V2는 1000~8000번대의 세분화된 에러 코드를 제공합니다. (예: 4000번대 결제 유효성 오류, 5000번대 PG사 시스템 오류).
-  - 지연 응답에 대비하여 클라이언트 단의 Read Timeout 60초 설정을 권장합니다. _(2025년 기준, 공식 문서 내 권고 수치이므로 변경 가능성 있음)_
+  - 지연 응답에 대비하여 클라이언트 단의 Connection Timeout 및 Read Timeout을 모두 30초로 설정해야 합니다.
   - 요청 중복 방지를 위해 `Idempotency-Key` 헤더를 검증하며, 중복 검출 시 409 (`IDEMPOTENCY_OUTSTANDING_REQUEST`)를 반환합니다.
 
 ##### 응답 명세
@@ -676,13 +704,17 @@ Content-Type: application/json
 ```json
 {
   "groupId": "G4V20240115093045ABCDE12345",
+  "accountId": "111111111111",
   "type": "GROUP-REPORT",
+  "status": "COMPLETE",
   "count": {
     "total": 100,
-    "sent": 97,
-    "failed": 3
+    "sentSuccess": 97,
+    "sentFailed": 3,
+    "sentPending": 0
   },
-  "completedAt": "2024-01-15T09:35:10+09:00"
+  "dateSent": "2024-01-15T09:30:10+09:00",
+  "dateCompleted": "2024-01-15T09:35:10+09:00"
 }
 ```
 

@@ -47,7 +47,27 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
       <div className={styles.form}>
         {/* Level 1: 서비스 선택 */}
         <div className={styles.formGroup}>
-          <label>TARGET_SERVICE</label>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              minHeight: "32px",
+            }}
+          >
+            <label style={{ margin: 0 }}>TARGET_SERVICE</label>
+            {state.currentService?.docUrl ? (
+              <a
+                href={state.currentService.docUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.docLinkBtn}
+                title="공식 웹훅 명세서 보기"
+              >
+                <i className="icon-[mdi--external-link]" /> 공식 문서
+              </a>
+            ) : null}
+          </div>
           <CustomDropdown
             value={state.selectedServiceId}
             options={SERVICE_OPTIONS}
