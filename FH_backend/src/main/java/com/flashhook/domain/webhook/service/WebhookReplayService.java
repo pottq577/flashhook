@@ -65,7 +65,7 @@ public class WebhookReplayService {
         } else {
             try {
                 rawBody = objectMapper.writeValueAsString(storedBody);
-            } catch (Exception e) {
+            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
                 log.warn("웹훅 재전송 본문 직렬화 실패: logId={}", logId, e);
                 updateReplayStatus(logId, "FAILED", "Failed to serialize replay body");
                 throw new CustomException(ErrorCode.INTERNAL_ERROR);
@@ -104,7 +104,7 @@ public class WebhookReplayService {
             replayHttpClient.sendRequest(destinationUrl, payload.getMethod(), payload.getHeaders(), payload.getBody());
             log.info("Webhook replayed successfully via WebhookReplayService: logId={}", logId);
             updateReplayStatus(logId, "SUCCESS", null);
-        } catch (Exception e) {
+        } catch (org.springframework.web.client.RestClientException e) {
             log.warn("웹훅 재전송 실패 via WebhookReplayService: logId={}", logId, e);
             String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
             updateReplayStatus(logId, "FAILED", errorMsg);

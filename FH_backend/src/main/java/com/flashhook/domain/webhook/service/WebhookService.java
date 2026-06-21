@@ -69,7 +69,7 @@ public class WebhookService {
             } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
                 log.debug("JSON 파싱 실패, 원본 문자열로 저장합니다.", e);
             } catch (Exception e) {
-                log.warn("JSON 파싱 중 예기치 않은 오류 발생", e);
+                log.error("JSON 파싱 중 예기치 않은 오류 발생", e);
             }
         }
 
