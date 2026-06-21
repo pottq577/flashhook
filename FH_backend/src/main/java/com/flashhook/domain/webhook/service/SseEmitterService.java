@@ -87,7 +87,7 @@ public class SseEmitterService {
                                 .set("sseDeliveryStatus", "FAILED")
                                 .set("sseError", e.getMessage());
                         mongoTemplate.updateFirst(query, update, WebhookLog.class);
-                    } catch (Exception persistEx) {
+                    } catch (org.springframework.dao.DataAccessException persistEx) {
                         log.error("Failed to persist SSE failure status: logId={}", event.getWebhookLog().getLogId(),
                                 persistEx);
                     } finally {

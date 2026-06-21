@@ -59,7 +59,7 @@ public class RateLimitService {
                     Objects.requireNonNull(Collections.singletonList(key)),
                     Objects.requireNonNull(String.valueOf(windowSeconds)));
             return count != null && count <= limit;
-        } catch (Exception e) {
+        } catch (org.springframework.dao.DataAccessException e) {
             log.warn("Rate limit Redis error. key={}", key, e);
             return failOpen;
         }
@@ -74,7 +74,7 @@ public class RateLimitService {
         try {
             String normalizedIp = IpUtil.normalize(ip);
             return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:ip:" + normalizedIp));
-        } catch (Exception e) {
+        } catch (org.springframework.dao.DataAccessException e) {
             log.warn("Blacklist Redis check error. ip={}", ip, e);
             return !blacklistFailOpen;
         }
