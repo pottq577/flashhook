@@ -10,7 +10,7 @@
 ### 1.1. 기술 제약 사항 요약
 
 - **OAuth 타임아웃**: 제한 시간 명시 없음 (권장: 3~5초 이내)
-- **웹훅 응답 제약**: 3초 이내에 HTTP `202 Accepted` 응답 반환 (SSF/SET 기반). 단, 구버전 Unlink 웹훅은 `200 OK` 반환.
+- **웹훅 응답 제약**: 3초 이내에 HTTP `202 Accepted` 응답 반환 (SSF/SET 기반). 단, 구버전 Unlink 웹훅 및 카카오톡 채널 콜백 웹훅은 `200 OK` 반환.
 - **웹훅 재전송 정책**: 공식 문서 내 자동 재시도 언급 없음.
 
 ### 1.2. REST API 프리셋 명세
@@ -244,7 +244,7 @@ _참고: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FRO
 
 ### 3.1. 기술 제약 사항 요약
 
-- **API 타임아웃**: 클라이언트 Read Timeout 60초 권장
+- **API 타임아웃**: Connection Timeout 및 Read Timeout 모두 30초
 - **웹훅 응답 제약**: 10초 이내 응답 권장 (실패 시 재전송)
 - **웹훅 재전송 정책**: 실패 시 **최대 5회 기본 자동 재전송** (옵트인 아님). 재전송 간격: `0분 → 1분 → 4분 → 16분 → 64분 → 256분` 지수 백오프 및 jittering 적용.
 
@@ -451,13 +451,17 @@ _참고: `2000` 코드는 발송대기(잔액부족/한도초과 보류) 및 정
 ```json
 {
   "groupId": "G4V20240115093045ABCDE12345",
+  "accountId": "111111111111",
   "type": "GROUP-REPORT",
+  "status": "COMPLETE",
   "count": {
     "total": 100,
-    "sent": 97,
-    "failed": 3
+    "sentSuccess": 97,
+    "sentFailed": 3,
+    "sentPending": 0
   },
-  "completedAt": "2024-01-15T09:35:10+09:00"
+  "dateSent": "2024-01-15T09:30:10+09:00",
+  "dateCompleted": "2024-01-15T09:35:10+09:00"
 }
 ```
 

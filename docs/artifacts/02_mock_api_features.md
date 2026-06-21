@@ -129,7 +129,7 @@ _Body는 `ok` 문자열 또는 성공 응답. Delay 프리셋은 mockConfig의 `
 
 - **프리셋 시나리오**: 앱 연결 해제 알림 (SSF/SET)
 - **개발자가 테스트하는 것**: 사용자 탈퇴에 따른 데이터 동기화 로직, 타임아웃 예외 처리
-- **공식 기술 제약 (검증)**: 카카오 웹훅 서버는 **3초 이내에 HTTP 202 Accepted 응답**(단, Legacy Unlink 웹훅은 200 OK)을 받아야 합니다. FlashHook의 `응답 지연(Delay)` 프리셋을 통해 타임아웃 엣지 케이스를 안전하게 테스트할 수 있습니다.
+- **공식 기술 제약 (검증)**: 카카오 웹훅 서버는 **3초 이내에 HTTP 202 Accepted 응답**(단, Legacy Unlink 및 카카오톡 채널 콜백 웹훅은 200 OK)을 받아야 합니다. FlashHook의 `응답 지연(Delay)` 프리셋을 통해 타임아웃 엣지 케이스를 안전하게 테스트할 수 있습니다.
 
 ##### 응답 명세
 
@@ -422,7 +422,7 @@ Content-Type: application/json
 - **개발자가 테스트하는 것**: 결제 검증 로직, 클라이언트 위변조 방어
 - **공식 기술 제약 (검증)**:
   - 포트원 V2는 1000~8000번대의 세분화된 에러 코드를 제공합니다. (예: 4000번대 결제 유효성 오류, 5000번대 PG사 시스템 오류).
-  - 지연 응답에 대비하여 클라이언트 단의 Read Timeout 60초 설정을 권장합니다. _(2025년 기준, 공식 문서 내 권고 수치이므로 변경 가능성 있음)_
+  - 지연 응답에 대비하여 클라이언트 단의 Connection Timeout 및 Read Timeout을 모두 30초로 설정해야 합니다.
   - 요청 중복 방지를 위해 `Idempotency-Key` 헤더를 검증하며, 중복 검출 시 409 (`IDEMPOTENCY_OUTSTANDING_REQUEST`)를 반환합니다.
 
 ##### 응답 명세
@@ -676,13 +676,17 @@ Content-Type: application/json
 ```json
 {
   "groupId": "G4V20240115093045ABCDE12345",
+  "accountId": "111111111111",
   "type": "GROUP-REPORT",
+  "status": "COMPLETE",
   "count": {
     "total": 100,
-    "sent": 97,
-    "failed": 3
+    "sentSuccess": 97,
+    "sentFailed": 3,
+    "sentPending": 0
   },
-  "completedAt": "2024-01-15T09:35:10+09:00"
+  "dateSent": "2024-01-15T09:30:10+09:00",
+  "dateCompleted": "2024-01-15T09:35:10+09:00"
 }
 ```
 
