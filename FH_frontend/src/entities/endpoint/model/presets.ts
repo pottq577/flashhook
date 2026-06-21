@@ -121,8 +121,8 @@ const kakaoPresets: PresetService = {
     {
       id: 'kakao_webhook_unlink',
       label: '앱 연결 해제 알림 (Unlink)',
-      desc: '(202 Accepted)',
-      statusCode: 202,
+      desc: '(200 OK)',
+      statusCode: 200,
       delayMs: 0,
       headers: CT_JSON,
       presetType: 'KAKAO_UNLINK_WEBHOOK',
@@ -532,6 +532,32 @@ const solapiPresets: PresetService = {
         {
           errorCode: '3059',
           errorMessage: '번호도용문자 차단 서비스에 가입된 발신번호입니다.',
+        },
+        null,
+        2,
+      ),
+    },
+    {
+      id: 'solapi_group_report',
+      label: '대량 발송 결과 리포트 (GROUP-REPORT)',
+      desc: '(200 정상 응답)',
+      statusCode: 200,
+      delayMs: 0,
+      headers: CT_JSON,
+      body: JSON.stringify(
+        {
+          groupId: 'G4V20240115093045ABCDE12345',
+          accountId: '111111111111',
+          type: 'GROUP-REPORT',
+          status: 'COMPLETE',
+          count: {
+            total: 100,
+            sentSuccess: 97,
+            sentFailed: 3,
+            sentPending: 0,
+          },
+          dateSent: '2024-01-15T09:30:10+09:00',
+          dateCompleted: '2024-01-15T09:35:10+09:00',
         },
         null,
         2,
