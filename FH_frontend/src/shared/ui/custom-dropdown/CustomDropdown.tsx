@@ -198,6 +198,7 @@ export function CustomDropdown({
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
+                      e.stopPropagation();
                       onSelect(o.value);
                     }
                   }}
@@ -239,6 +240,7 @@ export function CustomDropdown({
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
+                    e.stopPropagation();
                     onCustom();
                   }
                 }}
