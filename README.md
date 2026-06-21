@@ -94,7 +94,7 @@ sequenceDiagram
 - **Database:** MongoDB TTL, Redis
 - **Infra:** Docker, SSE
 
-자세한 구조는 [System Context](docs/artifacts/CONTEXT.md)와 [System Architecture](docs/artifacts/03_system_architecture.md)를 참고해 주세요.
+자세한 구조는 [System Context](docs/artifacts/CONTEXT.md)와 [System Architecture](docs/artifacts/04_system_architecture.md)를 참고해 주세요.
 
 ## 기술적 챌린지
 
@@ -113,7 +113,7 @@ sequenceDiagram
 - **상태 관리 분리**: FSD 구조, Zustand, TanStack Query로 UI 상태와 서버 상태를 분리했어요.
 - **자동화된 품질 검증**: Playwright와 Axe로 주요 흐름과 접근성 회귀를 검사해요.
 
-보안 설계는 [Security Overview](docs/security/SECURITY_OVERVIEW.md), 더 자세한 설계 의도는 [System Context](docs/artifacts/CONTEXT.md)를 참고해 주세요.
+보안 설계는 [Security Overview](docs/security/SECURITY_OVERVIEW.md), 더 자세한 설계 의도는 [System Context (EN)](docs/artifacts/CONTEXT.md) 또는 [System Context (KR)](docs/artifacts/CONTEXT_KR.md)를 참고해 주세요.
 
 ## 데이터 보존 및 개인정보 안내
 
@@ -158,9 +158,10 @@ npm run dev
 | ----------------------------------------------------------------- | --------------------------------- |
 | [Product & Features](docs/artifacts/01_product_and_features.md)   | 제품 목표와 핵심 기능             |
 | [Mock API Features](docs/artifacts/02_mock_api_features.md)       | K-API Mock 프리셋 설계            |
-| [System Architecture](docs/artifacts/03_system_architecture.md)   | 시스템 구조와 데이터 흐름         |
-| [API Spec](docs/artifacts/04_api_spec.md)                         | API 엔드포인트와 요청/응답 스키마 |
-| [Error Dictionary](docs/artifacts/05_error_dictionary.md)         | 공통 에러 코드                    |
+| [K-API Presets Spec](docs/artifacts/03_kapi_presets_ssot.md)      | 6대 K-API 공식 웹훅 명세 (SSOT)   |
+| [System Architecture](docs/artifacts/04_system_architecture.md)   | 시스템 구조와 데이터 흐름         |
+| [API Spec](docs/artifacts/05_api_spec.md)                         | API 엔드포인트와 요청/응답 스키마 |
+| [Error Dictionary](docs/artifacts/06_error_dictionary.md)         | 공통 에러 코드                    |
 | [Security Overview](docs/security/SECURITY_OVERVIEW.md)           | 공개 가능한 보안 설계 개요        |
 | [Development Guide](docs/DEVELOPMENT.md)                          | 로컬 개발 및 검증 가이드          |
 | [ADR 0001](docs/adr/0001-preset-catalog-lives-in-fe-constants.md) | 프리셋 카탈로그 위치 결정         |

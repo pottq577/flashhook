@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { WebhookLog } from "../model/log.schema";
+import { WebhookLogSchema, type WebhookLog } from "../model/log.schema";
 import * as tokenStorage from '@/shared/lib/tokenStorage';
 import { logger } from '@/shared/lib/logger';
 import { resolveApiBaseUrl } from '@/shared/config/api';
@@ -46,7 +46,8 @@ export function useSSE(
 
     eventSource.addEventListener('webhook', (event: MessageEvent) => {
       try {
-        const log = JSON.parse(event.data) as WebhookLog;
+        const parsed = JSON.parse(event.data);
+        const log = WebhookLogSchema.parse(parsed);
         onMessage(log);
       } catch (error) {
         logger.error('Failed to parse webhook event', error);
