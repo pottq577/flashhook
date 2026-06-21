@@ -68,8 +68,8 @@ function LandingPage() {
 
     return () => {
       // 언마운트 시에만 모든 타이머 정리
-      expiryTimersRef.current.forEach((t) => clearTimeout(t));
-      expiryTimersRef.current.clear();
+      timersMap.forEach((t) => clearTimeout(t));
+      timersMap.clear();
     };
   }, [endpoints, clearExpired]);
 
