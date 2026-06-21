@@ -22,6 +22,7 @@ const MockConfigPanel = lazy(
 
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
+  const webhookUrl = endpointId ? `${resolveApiBaseUrl()}/hooks/${endpointId}` : undefined;
   const [isMockPanelOpen, setIsMockPanelOpen] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
@@ -150,7 +151,7 @@ function DashboardPage() {
               <LogDetail
                 logId={selectedLog?.logId}
                 endpointId={endpointId}
-                webhookUrl={`${resolveApiBaseUrl()}/hooks/${endpointId}`}
+                webhookUrl={webhookUrl}
               />
 
               <div className={styles.mockOverlayTrigger}>
@@ -252,7 +253,7 @@ function DashboardPage() {
                       <LogDetail
                         logId={selectedLog.logId}
                         endpointId={endpointId}
-                        webhookUrl={`${resolveApiBaseUrl()}/hooks/${endpointId}`}
+                        webhookUrl={webhookUrl}
                       />
                       <div className={styles.mockOverlayTriggerMobile}>
                         <button
