@@ -4,6 +4,7 @@ import { logger } from "@/shared/lib/logger";
 import { QueryProvider } from "./providers/QueryProvider";
 import { ToastContainer } from "@/shared/ui/ToastContainer";
 import { CookieBanner } from "@/widgets/legal";
+import { MaintenanceBanner } from "@/shared/ui/MaintenanceBanner";
 
 import LandingPage from "@/pages/landing/ui/LandingPage";
 
@@ -93,6 +94,7 @@ function App() {
   return (
     <QueryProvider>
       <BrowserRouter>
+        <MaintenanceBanner />
         <main>
           <Suspense fallback={AppLoadingFallback}>
             <Routes>
