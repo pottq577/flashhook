@@ -212,7 +212,7 @@ function DashboardPage() {
                   transition={
                     isResizing
                       ? { duration: 0 }
-                      : { type: "spring", bounce: 0, duration: 0.4 }
+                      : { type: "spring", bounce: 0, duration: 0.25 }
                   }
                   style={{ width: sidebarWidth }}
                 >
