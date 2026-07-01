@@ -1,6 +1,8 @@
 package com.flashhook.global.security;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -36,9 +38,9 @@ public class AdminAuthFilter extends OncePerRequestFilter {
 
         if (path.startsWith("/api/admin")) {
             String token = request.getHeader("X-Admin-Token");
-            if (token == null || !java.security.MessageDigest.isEqual(
-                    token.getBytes(java.nio.charset.StandardCharsets.UTF_8), 
-                    adminSecretKey.getBytes(java.nio.charset.StandardCharsets.UTF_8))) {
+            if (token == null || !MessageDigest.isEqual(
+                    token.getBytes(StandardCharsets.UTF_8),
+                    adminSecretKey.getBytes(StandardCharsets.UTF_8))) {
                 sendErrorResponse(response, ErrorCode.FORBIDDEN);
                 return;
             }
