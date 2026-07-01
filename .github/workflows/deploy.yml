@@ -1,0 +1,44 @@
+name: Deploy Backend to OCI
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute Remote SSH Commands and Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USERNAME }}
+          key: ${{ secrets.OCI_SSH_KEY }}
+          script: |
+            mkdir -p ~/flashhook
+            cd ~/flashhook
+
+            if [ ! -d ".git" ]; then
+              # NOTE: Change '본인계정' to the actual GitHub username/org if this is a fork,
+              # but typically origin/main is pulled anyway. Adjust the URL if it's a private repo.
+              git clone https://github.com/hyun2y00/flashhook.git . || true
+            else
+              git fetch --all
+              git reset --hard origin/main
+            fi
+
+            cat <<EOF > .env
+            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
+            FLASHHOOK_SECRET_KEY=${{ secrets.FLASHHOOK_SECRET_KEY }}
+            FLASHHOOK_ADMIN_SECRET_KEY=${{ secrets.FLASHHOOK_ADMIN_SECRET_KEY }}
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+            GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+            BASE_MGMT=${{ secrets.BASE_MGMT }}
+            EOF
+
+            chmod 600 .env
+
+            sudo docker compose -f docker-compose.prod.yml up --build -d
