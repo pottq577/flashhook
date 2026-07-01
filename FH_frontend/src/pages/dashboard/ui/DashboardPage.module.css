@@ -179,7 +179,7 @@
   background-color: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   border-left: 1px solid var(--glass-border);
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.4);
+  box-shadow: -10px 0 40px rgba(15, 23, 42, 0.3);
   z-index: 20;
   overflow: hidden;
   flex-shrink: 0;

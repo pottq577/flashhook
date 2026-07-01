@@ -152,6 +152,7 @@
   gap: 0.25rem;
   font-size: 0.9rem;
   color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .metaLabel {
