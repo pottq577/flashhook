@@ -4,7 +4,7 @@ import styles from "./AdminWidgets.module.css";
 
 export const AdminInfrastructureWidget = () => {
   const grafanaUrl =
-    import.meta.env.VITE_GRAFANA_URL || "http://localhost:3000";
+    import.meta.env.VITE_GRAFANA_URL || "https://grafana.flashhook.site";
   return (
     <div className={styles.card}>
       <div className={styles.header}>
