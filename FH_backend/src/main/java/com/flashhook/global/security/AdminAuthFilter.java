@@ -36,7 +36,9 @@ public class AdminAuthFilter extends OncePerRequestFilter {
 
         if (path.startsWith("/api/admin")) {
             String token = request.getHeader("X-Admin-Token");
-            if (token == null || !token.equals(adminSecretKey)) {
+            if (token == null || !java.security.MessageDigest.isEqual(
+                    token.getBytes(java.nio.charset.StandardCharsets.UTF_8), 
+                    adminSecretKey.getBytes(java.nio.charset.StandardCharsets.UTF_8))) {
                 sendErrorResponse(response, ErrorCode.FORBIDDEN);
                 return;
             }
