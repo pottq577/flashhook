@@ -45,4 +45,6 @@ jobs:
 
             chmod 600 .env
 
-            sudo docker-compose -f docker-compose.prod.yml up --build -d
+            curl -sSL "https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-$(uname -m)" -o ./docker-compose-bin
+            chmod +x ./docker-compose-bin
+            sudo ./docker-compose-bin -f docker-compose.prod.yml up --build -d
