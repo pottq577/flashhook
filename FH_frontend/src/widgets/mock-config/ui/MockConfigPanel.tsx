@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 import type { Endpoint } from "@/entities/endpoint";
 import { CUSTOM_SERVICE_ID } from "@/entities/endpoint";
 import { CustomDropdown } from "@/shared/ui/custom-dropdown/CustomDropdown";
@@ -22,6 +22,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
   const { state, actions } = form;
 
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const customStatusId = useId();
 
   return (
     <div className={styles.container}>
@@ -116,7 +117,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
               pointerEvents: state.isDynamic ? "none" : "auto",
             }}
           >
-            <label>STATUS_CODE</label>
+            <label htmlFor={customStatusId}>STATUS_CODE</label>
             <CustomDropdown
             onClose={() => setOpenDropdownId(null)}
               value={state.statusCode}
@@ -143,6 +144,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
             />
             {state.isCustomStatus ? (
               <input
+                id={customStatusId}
                 type="number"
                 min="100"
                 max="599"

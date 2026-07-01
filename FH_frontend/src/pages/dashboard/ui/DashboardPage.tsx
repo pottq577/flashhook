@@ -156,6 +156,7 @@ function DashboardPage() {
   return (
     <div className={styles.container}>
       <Header />
+      <h1 className={styles.srOnly}>웹훅 대시보드</h1>
       <EndpointInfo endpoint={endpoint} />
       <ConnectionStatus status={status} />
       <div style={{ padding: "0 1rem" }}>

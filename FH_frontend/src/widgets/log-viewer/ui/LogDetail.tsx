@@ -55,7 +55,24 @@ const LogDetail = memo(function LogDetail({
 
     const handleCopy = async () => {
       try {
-        await navigator.clipboard.writeText(curlCommand);
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(curlCommand);
+        } else {
+          // Fallback for older browsers or non-secure contexts
+          const textArea = document.createElement("textarea");
+          textArea.value = curlCommand;
+          textArea.style.position = "absolute";
+          textArea.style.left = "-999999px";
+          document.body.prepend(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+          } catch (error) {
+            console.error("Fallback copy failed", error);
+          } finally {
+            textArea.remove();
+          }
+        }
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (e) {
