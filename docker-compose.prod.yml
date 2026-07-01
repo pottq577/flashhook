@@ -72,6 +72,16 @@ services:
     depends_on:
       - prometheus
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: flashhook-cloudflared
+    restart: always
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:?set TUNNEL_TOKEN}
+    depends_on:
+      - backend
+
 volumes:
   redis-data:
   prometheus_data:

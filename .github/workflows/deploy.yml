@@ -41,6 +41,7 @@ jobs:
             REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             BASE_MGMT=${{ secrets.BASE_MGMT }}
+            TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}
             EOF
 
             chmod 600 .env
