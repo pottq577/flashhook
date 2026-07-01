@@ -45,10 +45,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        String clientIp = request.getHeader("X-Real-IP");
-        if (clientIp == null || clientIp.isEmpty()) {
-            clientIp = request.getRemoteAddr();
-        }
+        String clientIp = request.getRemoteAddr();
 
         // 0. 블랙리스트 체크 (가장 먼저)
         if (path.startsWith("/api/hooks/") || path.startsWith("/api/endpoints")) {
