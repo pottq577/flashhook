@@ -56,6 +56,7 @@ public class ReplayHttpClient {
                     throw new IOException("Failed to construct URI for IP pinning", e);
                 }
                 HttpURLConnection connection = super.openConnection(Objects.requireNonNull(pinnedUrl), proxy);
+                connection.setInstanceFollowRedirects(false);
                 if (connection instanceof HttpsURLConnection httpsConnection) {
                     String originalHost = url.getHost();
                     httpsConnection.setHostnameVerifier((hostname, session) -> {
