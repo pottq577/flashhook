@@ -24,7 +24,7 @@ jobs:
             cd ~/flashhook
 
             if [ ! -d ".git" ]; then
-              git clone https://github.com/hyun2y00/flashhook.git .
+              git clone https://github.com/pottq577/flashhook.git .
             else
               git fetch --all
               git reset --hard origin/main
