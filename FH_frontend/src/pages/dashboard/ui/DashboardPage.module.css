@@ -148,9 +148,10 @@
 }
 
 .mockOverlayTrigger {
-  position: absolute;
+  position: sticky;
   bottom: 1.5rem;
-  right: 1.5rem;
+  align-self: flex-end;
+  margin-top: auto;
   z-index: 10;
 }
 
