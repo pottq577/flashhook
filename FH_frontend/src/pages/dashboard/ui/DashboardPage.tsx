@@ -38,10 +38,16 @@ function DashboardPage() {
   const shouldReduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
 
+  const {
+    sidebarWidth: leftSidebarWidth,
+    startResizing: startLeftResizing,
+  } = useSidebarResize(380, 250, 600, "left");
+
   const { sidebarWidth, isResizing, startResizing } = useSidebarResize(
     440,
     440,
     800,
+    "right"
   );
   const {
     data: endpoint,
@@ -157,13 +163,22 @@ function DashboardPage() {
       </div>
 
       <main className={styles.main}>
-        <section className={styles.sidebar}>
+        <section
+          className={styles.sidebar}
+          style={!isMobile ? { width: leftSidebarWidth, flexShrink: 0 } : undefined}
+        >
           <LogList
             logs={logs}
             selectedLogId={selectedLog?.logId || null}
             onSelect={handleSelectLog}
             endpointId={endpointId}
           />
+          {!isMobile ? (
+            <div
+              className={styles.leftResizeHandle}
+              onPointerDown={startLeftResizing}
+            />
+          ) : null}
         </section>
 
         {/* Desktop Detail View */}
