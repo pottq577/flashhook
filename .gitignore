@@ -35,6 +35,7 @@ lerna-debug.log*
 .env.*
 *.local
 !.env.example
+keys/
 
 ### Docs ###
 toyproject.md

@@ -56,6 +56,7 @@ public class ReplayHttpClient {
                     throw new IOException("Failed to construct URI for IP pinning", e);
                 }
                 HttpURLConnection connection = super.openConnection(Objects.requireNonNull(pinnedUrl), proxy);
+                connection.setInstanceFollowRedirects(false);
                 if (connection instanceof HttpsURLConnection httpsConnection) {
                     String originalHost = url.getHost();
                     httpsConnection.setHostnameVerifier((hostname, session) -> {
@@ -142,11 +143,17 @@ public class ReplayHttpClient {
         HttpEntity<String> entity = new HttpEntity<>(rawBody, headers);
 
         try {
-            restTemplate.exchange(
+            var response = restTemplate.exchange(
                     destinationUrl,
                     HttpMethod.valueOf(method),
                     entity,
                     String.class);
+
+            if (response.getStatusCode().is3xxRedirection()) {
+                log.warn("웹훅 재전송 리다이렉트 거부 (3xx): destinationUrl={}", sanitizeUrlForLog(destinationUrl));
+                throw new WebhookException(ErrorCode.INVALID_REQUEST);
+            }
+
             log.info("Webhook replayed successfully via ReplayHttpClient: destinationUrl={}",
                     sanitizeUrlForLog(destinationUrl));
 
