@@ -26,7 +26,7 @@ public class RateLimitService {
     @Value("${flashhook.ratelimit.fail-open:true}")
     private boolean failOpen;
 
-    @Value("${flashhook.ratelimit.blacklist-fail-open:false}")
+    @Value("${flashhook.ratelimit.blacklist-fail-open:true}")
     private boolean blacklistFailOpen;
 
     private final RedisTemplate<String, String> redisTemplate;
