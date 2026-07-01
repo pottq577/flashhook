@@ -86,6 +86,7 @@ node docs/qa/qa-runner-full.mjs
 ```
 
 실행이 완료되면 다음 두 문서가 자동으로 갱신/생성됩니다.
+
 - `docs/qa/qa-report-full.md` (전체 성공률 및 요약 리포트)
 - `docs/qa/bugs.md` (실패한 테스트 케이스 목록)
 
@@ -121,6 +122,7 @@ cloudflared tunnel --url http://localhost:8080
 운영망에 배포를 완료한 직후, 서비스 장애를 막기 위해 다음 두 가지를 **반드시 수동으로 진행**해야 합니다.
 
 ### 6.1. MongoDB TTL 인덱스 수동 생성
+
 운영 환경(`application-prod.yml`)에서는 인덱스 자동 생성이 꺼져 있습니다. 따라서 데이터베이스가 꽉 차서 다운되는 것을 막기 위해, MongoDB 터미널에서 다음 명령어로 24시간 만료(TTL) 인덱스를 한 번 만들어 줍니다.
 
 ```javascript
@@ -130,9 +132,9 @@ db.logs.createIndex({ "receivedAt": 1 }, { expireAfterSeconds: 86400 });
 ```
 
 ### 6.2. Cloudflare WAF (Bot 방어) 예외 처리
+
 타사 웹훅 발송 서버(GitHub, Stripe 등)는 사람의 브라우저가 아닌 '자동화된 봇(Bot)'입니다. Cloudflare의 봇 방어 모드가 이들을 공격으로 간주하여 차단(403)하지 않도록 WAF 예외 처리가 필수입니다.
 
 - Cloudflare 대시보드 -> **Security** -> **WAF** -> **Custom rules** 이동
 - **Field:** `URI Path`, **Operator:** `starts with`, **Value:** `/api/endpoints/`
 - **Action:** `Skip` (이후 나오는 Bot Fight Mode, Security Level 등 모두 체크)
-
