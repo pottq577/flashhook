@@ -14,7 +14,7 @@ export function LandingFeatures() {
         <div className={styles.codeBlock}>
           <code>
             <span className={styles.keyword}>curl</span> -X POST \<br />
-            &nbsp;&nbsp;https://flashhook.dev/api/e/
+            &nbsp;&nbsp;https://api.flashhook.site/api/hooks/e/
             <span className={styles.variable}>YOUR_ID</span> \<br />
             &nbsp;&nbsp;-H{" "}
             <span className={styles.string}>
@@ -32,15 +32,19 @@ export function LandingFeatures() {
       <div className={styles.splitContent}>
         <div className={styles.codeBlock} style={{ whiteSpace: "pre-wrap" }}>
           <code>
-            <span className={styles.comment}>// Real-time incoming payload</span>
+            <span className={styles.comment}>
+              // Real-time incoming payload
+            </span>
             {"\n{\n  "}
-            <span className={styles.key}>"method"</span>: <span className={styles.string}>"POST"</span>,
-            {"\n  "}
+            <span className={styles.key}>"method"</span>:{" "}
+            <span className={styles.string}>"POST"</span>,{"\n  "}
             <span className={styles.key}>"headers"</span>: {"{\n    "}
-            <span className={styles.key}>"content-type"</span>: <span className={styles.string}>"application/json"</span>
+            <span className={styles.key}>"content-type"</span>:{" "}
+            <span className={styles.string}>"application/json"</span>
             {"\n  },\n  "}
             <span className={styles.key}>"body"</span>: {"{\n    "}
-            <span className={styles.key}>"event"</span>: <span className={styles.string}>"payment.success"</span>
+            <span className={styles.key}>"event"</span>:{" "}
+            <span className={styles.string}>"payment.success"</span>
             {"\n  }\n}"}
           </code>
         </div>
