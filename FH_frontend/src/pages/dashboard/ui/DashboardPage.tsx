@@ -100,7 +100,13 @@ function DashboardPage() {
         </div>
       </div>
     );
-  if (error)
+  if (error) {
+    const isAuthError =
+      (error as Error).message.includes("INVALID_TOKEN") ||
+      (error as Error).message.includes("ENDPOINT_NOT_FOUND") ||
+      (error as Error).message.includes("인증이 필요해요") ||
+      (error as Error).message.includes("권한이 없어요");
+
     return (
       <div className={styles.container}>
         <Header />
@@ -115,12 +121,19 @@ function DashboardPage() {
               {(error as Error).message}
             </span>
           </div>
-          <button className={styles.btnAction} onClick={() => void refetch()}>
-            다시 시도하기
-          </button>
+          {isAuthError ? (
+            <a href="/" className={styles.btnAction}>
+              홈으로 돌아가기
+            </a>
+          ) : (
+            <button className={styles.btnAction} onClick={() => void refetch()}>
+              다시 시도하기
+            </button>
+          )}
         </div>
       </div>
     );
+  }
   if (!endpoint)
     return (
       <div className={styles.container}>
