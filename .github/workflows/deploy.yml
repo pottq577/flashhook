@@ -4,6 +4,10 @@ on:
   push:
     branches: ["main"]
 
+concurrency:
+  group: deploy-oci
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -15,16 +19,18 @@ jobs:
           username: ${{ secrets.OCI_USERNAME }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script: |
+            set -euo pipefail
             mkdir -p ~/flashhook
             cd ~/flashhook
 
             if [ ! -d ".git" ]; then
-              git clone https://github.com/hyun2y00/flashhook.git . || true
+              git clone https://github.com/hyun2y00/flashhook.git .
             else
               git fetch --all
               git reset --hard origin/main
             fi
 
+            umask 077
             cat <<EOF > .env
             SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
             FLASHHOOK_SECRET_KEY=${{ secrets.FLASHHOOK_SECRET_KEY }}
