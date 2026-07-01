@@ -29,7 +29,10 @@ public class WebhookPayloadParser {
         String url = request.getRequestURL().toString()
                 + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
         String contentType = request.getContentType();
-        String clientIp = request.getRemoteAddr();
+        String clientIp = request.getHeader("X-Real-IP");
+        if (clientIp == null || clientIp.isEmpty()) {
+            clientIp = request.getRemoteAddr();
+        }
 
         Map<String, String> headers = new HashMap<>();
         Enumeration<String> headerNames = request.getHeaderNames();
