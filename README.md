@@ -78,24 +78,27 @@
 ```mermaid
 sequenceDiagram
     participant WebhookSender as Third-party App
+    participant CF as Cloudflare Tunnel
     participant Spring as Backend (Spring Boot)
     participant Redis as Redis (Rate Limit)
     participant Mongo as MongoDB (TTL Data)
     participant FE as Frontend (React + SSE)
 
     FE->>Spring: 1. Subscribe to Endpoint (SSE)
-    WebhookSender->>Spring: 2. Request /api/hooks/{endpointId}
-    Spring->>Redis: 3. Check Rate Limits
-    Spring->>Mongo: 4. Save WebhookLog
-    Spring-->>FE: 5. Push Event (SSE)
-    FE->>FE: 6. Render Log in Dashboard
-    Spring-->>WebhookSender: 7. Return Mock Response (Custom Status/Body/Delay)
+    WebhookSender->>CF: 2. Request /api/hooks/{endpointId}
+    CF->>Spring: 3. Secure Proxy (Zero Trust)
+    Spring->>Redis: 4. Check Rate Limits
+    Spring->>Mongo: 5. Save WebhookLog
+    Spring-->>FE: 6. Push Event (SSE)
+    FE->>FE: 7. Render Log in Dashboard
+    Spring-->>CF: 8. Return Mock Response (Custom Status/Body/Delay)
+    CF-->>WebhookSender: 9. Forward Mock Response
 ```
 
 - **Backend:** Java 21, Spring Boot 3.5.15
 - **Frontend:** React 19, TypeScript, Vite, Zustand, TanStack Query, React Router, Framer Motion, Playwright + Axe, FSD 아키텍처
 - **Database:** MongoDB TTL, Redis
-- **Infra:** Docker, SSE
+- **Infra:** Docker, SSE, Cloudflare Tunnel (Zero Trust)
 
 자세한 구조는 [System Context](docs/artifacts/CONTEXT.md)와 [System Architecture](docs/artifacts/04_system_architecture.md)를 참고해 주세요.
 
