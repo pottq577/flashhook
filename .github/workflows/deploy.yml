@@ -19,8 +19,6 @@ jobs:
             cd ~/flashhook
 
             if [ ! -d ".git" ]; then
-              # NOTE: Change '본인계정' to the actual GitHub username/org if this is a fork,
-              # but typically origin/main is pulled anyway. Adjust the URL if it's a private repo.
               git clone https://github.com/hyun2y00/flashhook.git . || true
             else
               git fetch --all
