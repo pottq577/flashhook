@@ -18,6 +18,10 @@
     {
       "source": "/api/(.*)",
       "destination": "https://api.flashhook.site/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
