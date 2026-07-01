@@ -85,7 +85,7 @@ sequenceDiagram
     participant FE as Frontend (React + SSE)
 
     FE->>Spring: 1. Subscribe to Endpoint (SSE)
-    WebhookSender->>CF: 2. Request /api/endpoints/{endpointId}
+    WebhookSender->>CF: 2. Request /api/hooks/{endpointId}
     CF->>Spring: 3. Secure Proxy (Zero Trust)
     Spring->>Redis: 4. Check Rate Limits
     Spring->>Mongo: 5. Save WebhookLog

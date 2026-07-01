@@ -48,7 +48,7 @@ cd FH_backend
 ./gradlew bootRun
 ```
 
-서버가 뜨면 `http://localhost:8080/api/actuator/health` 에서 `{"status":"UP"}` 응답을 볼 수 있어요.
+서버가 뜨면 `http://localhost:9090/actuator/health` 에서 `{"status":"UP"}` 응답을 볼 수 있어요.
 
 ### 3.3. 프론트엔드 서버 띄우기
 
@@ -136,5 +136,5 @@ db.logs.createIndex({ "receivedAt": 1 }, { expireAfterSeconds: 86400 });
 GitHub이나 Stripe처럼 타사에서 웹훅을 보내는 서버는 사람이 아니라 '봇(Bot)'이에요. Cloudflare 봇 방어 모드가 이 요청을 공격으로 착각해서 차단(403)하지 않게 WAF 예외 처리를 꼭 해줘야 해요.
 
 - Cloudflare 대시보드에서 **Security** -> **WAF** -> **Custom rules** 로 이동해요.
-- **Field:** `URI Path`, **Operator:** `starts with`, **Value:** `/api/endpoints/` 로 설정해요.
+- **Field:** `URI Path`, **Operator:** `starts with`, **Value:** `/api/hooks/` 로 설정해요.
 - **Action:** `Skip` 을 누르고 밑에 나오는 Bot Fight Mode, Security Level 등을 전부 체크해요.
