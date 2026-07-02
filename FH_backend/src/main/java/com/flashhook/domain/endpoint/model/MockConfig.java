@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -32,12 +33,12 @@ public class MockConfig implements Serializable {
     @org.springframework.data.annotation.PersistenceCreator
     @com.fasterxml.jackson.annotation.JsonCreator
     public MockConfig(
-            @com.fasterxml.jackson.annotation.JsonProperty("statusCode") Integer statusCode,
-            @com.fasterxml.jackson.annotation.JsonProperty("delayMs") Long delayMs,
-            @com.fasterxml.jackson.annotation.JsonProperty("headers") Map<String, String> headers,
-            @com.fasterxml.jackson.annotation.JsonProperty("body") String body,
-            @com.fasterxml.jackson.annotation.JsonProperty("presetType") String presetType,
-            @com.fasterxml.jackson.annotation.JsonProperty("presetOptions") Map<String, Object> presetOptions) {
+            @JsonProperty("statusCode") Integer statusCode,
+            @JsonProperty("delayMs") Long delayMs,
+            @JsonProperty("headers") Map<String, String> headers,
+            @JsonProperty("body") String body,
+            @JsonProperty("presetType") String presetType,
+            @JsonProperty("presetOptions") Map<String, Object> presetOptions) {
         this.statusCode = (statusCode != null && statusCode != 0) ? statusCode : 200;
         this.delayMs = (delayMs != null) ? delayMs : 0L;
         this.headers = headers;
