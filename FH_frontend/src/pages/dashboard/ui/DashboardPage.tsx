@@ -107,11 +107,12 @@ function DashboardPage() {
       </div>
     );
   if (error) {
+    const err = error as { status?: number; code?: string; message?: string };
     const isAuthError =
-      (error as Error).message.includes("INVALID_TOKEN") ||
-      (error as Error).message.includes("ENDPOINT_NOT_FOUND") ||
-      (error as Error).message.includes("인증이 필요해요") ||
-      (error as Error).message.includes("권한이 없어요");
+      err.status === 401 ||
+      err.status === 403 ||
+      err.code === "INVALID_TOKEN" ||
+      err.code === "ENDPOINT_NOT_FOUND";
 
     return (
       <div className={styles.container}>

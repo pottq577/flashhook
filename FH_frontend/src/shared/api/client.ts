@@ -5,6 +5,20 @@ import { resolveApiBaseUrl } from "@/shared/config/api";
 
 const BASE_URL = resolveApiBaseUrl();
 
+export class ApiError extends Error {
+  status?: number;
+  code?: string;
+  endpointId?: string;
+
+  constructor(message: string, status?: number, code?: string, endpointId?: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.code = code;
+    this.endpointId = endpointId;
+  }
+}
+
 interface RequestOptions {
   method?: string;
   headers?: Record<string, string>;
@@ -63,8 +77,11 @@ export async function apiRequest(
         }
 
         if (response.status >= 500) {
-          throw new Error(
+          throw new ApiError(
             `서버에 문제가 생겼어요 (${response.status}). 잠시 후 다시 시도해주세요.`,
+            response.status,
+            undefined,
+            endpointId
           );
         }
 
@@ -87,17 +104,17 @@ export async function apiRequest(
         ) {
           const e = errorData as { code: string; message?: string };
           const msg = e.message ? `[${e.code}] ${e.message}` : `[${e.code}]`;
-          throw new Error(msg);
+          throw new ApiError(msg, response.status, e.code, endpointId);
         }
 
         if (response.status === 401) {
-          throw new Error("인증이 필요해요. 다시 로그인해주세요.");
+          throw new ApiError("인증이 필요해요. 다시 로그인해주세요.", response.status, undefined, endpointId);
         } else if (response.status === 403) {
-          throw new Error("이 페이지를 볼 수 있는 권한이 없어요.");
+          throw new ApiError("이 페이지를 볼 수 있는 권한이 없어요.", response.status, undefined, endpointId);
         } else if (response.status === 404) {
-          throw new Error("요청한 페이지나 정보를 찾을 수 없어요.");
+          throw new ApiError("요청한 페이지나 정보를 찾을 수 없어요.", response.status, undefined, endpointId);
         }
-        throw new Error(`정보를 불러오지 못했어요 (${response.status}).`);
+        throw new ApiError(`정보를 불러오지 못했어요 (${response.status}).`, response.status, undefined, endpointId);
       }
 
       if (response.status === 204) {

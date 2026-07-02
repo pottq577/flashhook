@@ -7,10 +7,23 @@ const globalErrorHandler = (error: Error) => {
   const msg = error.message || "";
 
   // 1. 만료 또는 권한 없음
-  if (msg.includes("INVALID_TOKEN") || msg.includes("ENDPOINT_NOT_FOUND")) {
-    Object.keys(localStorage)
-      .filter((key) => key.startsWith("fh_token_"))
-      .forEach((key) => localStorage.removeItem(key));
+  const err = error as { status?: number; code?: string; endpointId?: string };
+  if (
+    err.status === 401 ||
+    err.status === 403 ||
+    err.code === "INVALID_TOKEN" ||
+    err.code === "ENDPOINT_NOT_FOUND" ||
+    msg.includes("INVALID_TOKEN") || 
+    msg.includes("ENDPOINT_NOT_FOUND")
+  ) {
+    if (err.endpointId) {
+      localStorage.removeItem(`fh_token_${err.endpointId}`);
+    } else {
+      // Fallback: remove all if endpointId is somehow missing
+      Object.keys(localStorage)
+        .filter((key) => key.startsWith("fh_token_"))
+        .forEach((key) => localStorage.removeItem(key));
+    }
     
     useToastStore.getState().addToast("인증이 만료되었거나 접근할 수 없습니다.");
     return;
