@@ -95,7 +95,7 @@ sequenceDiagram
     CF-->>WebhookSender: 9. Forward Mock Response
 ```
 
-- **Backend:** Java 21, Spring Boot 3.5.15
+- **Backend:** Java 21, Spring Boot 4.0.7
 - **Frontend:** React 19, TypeScript, Vite, Zustand, TanStack Query, React Router, Framer Motion, Playwright + Axe, FSD 아키텍처
 - **Database:** MongoDB TTL, Redis
 - **Infra:** Docker, SSE, Cloudflare Tunnel (Zero Trust)

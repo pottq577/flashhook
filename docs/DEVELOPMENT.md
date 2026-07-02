@@ -138,3 +138,17 @@ GitHub이나 Stripe처럼 타사에서 웹훅을 보내는 서버는 사람이 �
 - Cloudflare 대시보드에서 **Security** -> **WAF** -> **Custom rules** 로 이동해요.
 - **Field:** `URI Path`, **Operator:** `starts with`, **Value:** `/api/hooks/` 로 설정해요.
 - **Action:** `Skip` 을 누르고 밑에 나오는 Bot Fight Mode, Security Level 등을 전부 체크해요.
+
+## 7. 개발 컨벤션 및 유의사항 (Action Items)
+
+Spring Boot 4.0.x 및 최신 라이브러리 환경에 맞추어 다음 컨벤션을 준수해 주세요.
+
+### 7.1. Nullability 어노테이션
+- 신규 필터 및 컴포넌트 작성 시, Nullable/NonNull 정책 적용에는 반드시 `org.jspecify.annotations` 패키지를 사용하십시오. (Spring Framework 7 생태계 권장 JSpecify 표준)
+
+### 7.2. 불변 객체(Immutability)와 엔티티 설계
+- **값 객체(VO):** `final` 필드와 명시적 `@JsonCreator` 커스텀 생성자를 활용하여 불변성과 기본값을 보장하세요. (파라미터 누락/null 유입 방지)
+- **Document 엔티티(`@Document`):** Spring Data MongoDB의 리플렉션 호환성을 고려하여 `final` 키워드 사용을 피하거나 제한적으로 사용하십시오.
+
+### 7.3. Jackson 3 API 사용
+- JSON 파싱 및 역직렬화 시 `asText()` 메서드는 타입 캐스팅 모호함으로 인해 deprecated 되었습니다. 대신 `asString()`을 사용하십시오.
