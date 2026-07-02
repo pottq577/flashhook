@@ -2,6 +2,7 @@ import styles from "./PromptModal.module.css";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useState, useRef } from "react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
+import { useLatest } from "../hooks/useLatest";
 
 interface PromptModalProps {
   isOpen: boolean;
@@ -51,22 +52,26 @@ function PromptModal({
     }
   }, [isOpen]);
 
+  const latestOnCancel = useLatest(onCancel);
+  const latestOnConfirm = useLatest(onConfirm);
+  const latestInputValue = useLatest(inputValue);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onCancel();
+        latestOnCancel.current();
       } else if (e.key === "Enter") {
         const target = e.target as HTMLElement | null;
         const isButton = target?.tagName === "BUTTON";
         if (isButton) return;
         e.preventDefault();
-        onConfirm(inputValue);
+        latestOnConfirm.current(latestInputValue.current);
       }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onCancel, onConfirm, inputValue]);
+  }, [isOpen, latestOnCancel, latestOnConfirm, latestInputValue]);
 
   return (
     <AnimatePresence onExitComplete={() => setIsActive(false)}>

@@ -17,8 +17,8 @@ export function SEOHead({ title, description, canonicalPath, children }: SEOHead
 
   return (
     <Helmet>
-      {title && <title>{title}</title>}
-      {description && <meta name="description" content={description} />}
+      {title ? <title>{title}</title> : null}
+      {description ? <meta name="description" content={description} /> : null}
       <link rel="canonical" href={canonicalUrl} />
       {children}
     </Helmet>
