@@ -3,7 +3,7 @@ package com.flashhook.global.ratelimit;
 import java.util.Collections;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.flashhook.global.config.FlashHookProperties;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -23,13 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RateLimitService {
 
-    @Value("${flashhook.ratelimit.fail-open:true}")
-    private boolean failOpen;
-
-    @Value("${flashhook.ratelimit.blacklist-fail-open:false}")
-    private boolean blacklistFailOpen;
-
     private final RedisTemplate<String, String> redisTemplate;
+    private final FlashHookProperties properties;
 
     private static final String LUA_SCRIPT = "local current = redis.call('INCR', KEYS[1]) " +
             "if current == 1 then " +
@@ -62,7 +57,7 @@ public class RateLimitService {
             return count != null && count <= limit;
         } catch (DataAccessException e) {
             log.warn("Rate limit Redis error. key={}", key, e);
-            return failOpen;
+            return properties.ratelimit().failOpen();
         }
     }
 
@@ -77,7 +72,7 @@ public class RateLimitService {
             return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:ip:" + normalizedIp));
         } catch (DataAccessException e) {
             log.warn("Blacklist Redis check error. ip={}", ip, e);
-            return !blacklistFailOpen;
+            return !properties.ratelimit().blacklistFailOpen();
         }
     }
 }

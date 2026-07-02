@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.flashhook.global.config.FlashHookProperties;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,8 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminAuthFilter extends OncePerRequestFilter {
 
-    @Value("${flashhook.admin.secret-key}")
-    private String adminSecretKey;
+    private final FlashHookProperties properties;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -40,7 +39,7 @@ public class AdminAuthFilter extends OncePerRequestFilter {
             String token = request.getHeader("X-Admin-Token");
             if (token == null || !MessageDigest.isEqual(
                     token.getBytes(StandardCharsets.UTF_8),
-                    adminSecretKey.getBytes(StandardCharsets.UTF_8))) {
+                    properties.admin().secretKey().getBytes(StandardCharsets.UTF_8))) {
                 sendErrorResponse(response, ErrorCode.FORBIDDEN);
                 return;
             }

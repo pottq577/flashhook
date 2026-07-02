@@ -2,7 +2,7 @@ package com.flashhook.global.ratelimit;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.flashhook.global.config.FlashHookProperties;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
@@ -23,14 +23,9 @@ import lombok.RequiredArgsConstructor;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitService rateLimitService;
+    private final FlashHookProperties properties;
 
     public static final String CREATE_LIMIT_PREFIX = "rl:create2:";
-
-    @Value("${flashhook.ratelimit.endpoint-create:5}")
-    private int endpointCreateLimit;
-
-    @Value("${flashhook.ratelimit.webhook-receive:100}")
-    private int webhookReceiveLimit;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -62,7 +57,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 String endpointId = parts[3];
                 String key = "rl:hook:" + endpointId + ":" + clientIp;
                 // 1분(60초) 기준
-                if (!rateLimitService.isAllowed(key, webhookReceiveLimit, 60)) {
+                if (!rateLimitService.isAllowed(key, properties.ratelimit().webhookReceive(), 60)) {
                     sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
                     return;
                 }
@@ -73,7 +68,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         if ("POST".equalsIgnoreCase(method) && "/api/endpoints".equals(path)) {
             String key = CREATE_LIMIT_PREFIX + clientIp;
             // 10분(600초) 기준
-            if (!rateLimitService.isAllowed(key, endpointCreateLimit, 10 * 60)) {
+            if (!rateLimitService.isAllowed(key, properties.ratelimit().endpointCreate(), 10 * 60)) {
                 sendErrorResponse(response, ErrorCode.ENDPOINT_LIMIT_EXCEEDED);
                 return;
             }

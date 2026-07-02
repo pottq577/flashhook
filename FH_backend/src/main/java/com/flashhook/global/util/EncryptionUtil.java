@@ -12,7 +12,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.flashhook.global.config.FlashHookProperties;
 import org.springframework.stereotype.Component;
 
 import com.flashhook.global.exception.EncryptionException;
@@ -27,7 +27,8 @@ public class EncryptionUtil {
     private final SecureRandom secureRandom = new SecureRandom();
     private final Key key;
 
-    public EncryptionUtil(@Value("${flashhook.security.secret-key}") String secretKey) {
+    public EncryptionUtil(FlashHookProperties properties) {
+        String secretKey = properties.security().secretKey();
         if (secretKey == null || secretKey.isBlank()) {
             throw new IllegalStateException("flashhook.security.secret-key must be configured");
         }

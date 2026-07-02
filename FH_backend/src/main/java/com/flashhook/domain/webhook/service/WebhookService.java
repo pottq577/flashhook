@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.flashhook.global.config.FlashHookProperties;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
@@ -44,15 +44,7 @@ public class WebhookService {
     private final MongoTemplate mongoTemplate;
     private final MeterRegistry meterRegistry;
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Value("${flashhook.log.max-count:500}")
-    private int maxLogCount;
-
-    @Value("${flashhook.log.max-size-bytes:5242880}")
-    private long maxLogSizeBytes;
-
-    @Value("${flashhook.log.body-preview-length:300}")
-    private int bodyPreviewLength;
+    private final FlashHookProperties properties;
 
     @CacheEvict(value = "endpoints", key = "#endpointId")
     @Transactional
@@ -74,9 +66,9 @@ public class WebhookService {
         }
 
         String bodyPreview = payload.getRawBody();
-        if (payload.getRawBody() != null && payload.getRawBody().length() > bodyPreviewLength) {
+        if (payload.getRawBody() != null && payload.getRawBody().length() > properties.log().bodyPreviewLength()) {
             int cutIndex = payload.getRawBody().offsetByCodePoints(0,
-                    Math.min(payload.getRawBody().codePointCount(0, payload.getRawBody().length()), bodyPreviewLength));
+                    Math.min(payload.getRawBody().codePointCount(0, payload.getRawBody().length()), properties.log().bodyPreviewLength()));
             bodyPreview = payload.getRawBody().substring(0, cutIndex);
         }
 
@@ -127,8 +119,8 @@ public class WebhookService {
         long currentCount = endpoint.getLogCount();
         long currentSize = endpoint.getLogSizeBytes();
 
-        while (currentCount > maxLogCount || currentSize > maxLogSizeBytes) {
-            int fetchSize = (int) Math.max(currentCount - maxLogCount, 50);
+        while (currentCount > properties.log().maxCount() || currentSize > properties.log().maxSizeBytes()) {
+            int fetchSize = (int) Math.max(currentCount - properties.log().maxCount(), 50);
             if (fetchSize > 1000)
                 fetchSize = 1000;
 
@@ -146,7 +138,7 @@ public class WebhookService {
             List<String> idsToRemove = new ArrayList<>();
 
             for (WebhookLog webhookLogItem : oldLogs) {
-                if (currentCount <= maxLogCount && currentSize <= maxLogSizeBytes) {
+                if (currentCount <= properties.log().maxCount() && currentSize <= properties.log().maxSizeBytes()) {
                     break;
                 }
                 idsToRemove.add(webhookLogItem.getId());
