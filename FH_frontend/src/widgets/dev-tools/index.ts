@@ -1,1 +1,1 @@
-export * from './ui/DevTools';
+export { DevTools } from './ui/DevTools';

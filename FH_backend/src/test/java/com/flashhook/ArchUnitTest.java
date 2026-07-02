@@ -11,6 +11,7 @@ import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.sli
 public class ArchUnitTest {
 
     @ArchTest
+    @SuppressWarnings("unused")
     static final ArchRule layerDependenciesAreRespected = layeredArchitecture()
             .consideringAllDependencies()
             .layer("Controller").definedBy("..controller..")
@@ -25,6 +26,7 @@ public class ArchUnitTest {
             .whereLayer("Repository").mayOnlyBeAccessedByLayers("Service", "Event", "Global");
 
     @ArchTest
+    @SuppressWarnings("unused")
     static final ArchRule noCircularDependencies = slices()
             .matching("com.flashhook.domain.(*)..")
             .should().beFreeOfCycles();

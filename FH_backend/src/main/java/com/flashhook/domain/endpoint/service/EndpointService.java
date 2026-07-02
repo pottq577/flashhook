@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
+import com.flashhook.global.config.FlashHookProperties;
 import com.flashhook.global.event.EndpointDeletedEvent;
 import com.flashhook.global.exception.EndpointException;
 import com.flashhook.global.exception.ErrorCode;
@@ -40,18 +40,20 @@ public class EndpointService {
     private final ApplicationEventPublisher eventPublisher;
     private final MeterRegistry meterRegistry;
     private final EncryptionUtil encryptionUtil;
+    private final FlashHookProperties properties;
 
-    @Value("${flashhook.log.max-count:500}")
-    private int maxLogCount;
+    private String buildWebhookUrl(String endpointId) {
+        return properties.baseUrl() + "/api/hooks/" + endpointId;
+    }
 
-    @Value("${flashhook.log.max-size-bytes:5242880}")
-    private long maxLogSizeBytes;
+    private String buildDashboardUrl(String endpointId) {
+        return properties.feUrl() + "/dashboard/" + endpointId;
+    }
 
-    @Value("${flashhook.base-url:http://localhost:8080}")
-    private String baseUrl;
-
-    @Value("${flashhook.fe-url:http://localhost:5173}")
-    private String feUrl;
+    private Map<String, Object> buildLimits() {
+        return Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb",
+                properties.log().maxSizeBytes() / 1024 / 1024);
+    }
 
     /**
      * 엔드포인트 생성
@@ -67,7 +69,7 @@ public class EndpointService {
         Endpoint endpoint = Endpoint.builder()
                 .endpointId(endpointId)
                 .accessTokenHash(accessTokenHash)
-                .label(request != null ? request.getLabel() : null)
+                .label(request != null ? request.label() : null)
                 .creatorIp(ip)
                 .logCount(0)
                 .logSizeBytes(0)
@@ -84,10 +86,10 @@ public class EndpointService {
                 .endpointId(endpointId)
                 .accessToken(accessToken)
                 .label(endpoint.getLabel())
-                .webhookUrl(baseUrl + "/api/hooks/" + endpointId)
-                .dashboardUrl(feUrl + "/dashboard/" + endpointId)
+                .webhookUrl(buildWebhookUrl(endpointId))
+                .dashboardUrl(buildDashboardUrl(endpointId))
                 .expiresAt(expiresAt)
-                .limits(Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
+                .limits(buildLimits())
                 .mockConfig(endpoint.getMockConfig())
                 .build();
     }
@@ -103,10 +105,10 @@ public class EndpointService {
                 .endpointId(endpoint.getEndpointId())
                 .accessToken(null) // 보안상 조회 시 미반환
                 .label(endpoint.getLabel())
-                .webhookUrl(baseUrl + "/api/hooks/" + endpointId)
-                .dashboardUrl(feUrl + "/dashboard/" + endpointId)
+                .webhookUrl(buildWebhookUrl(endpointId))
+                .dashboardUrl(buildDashboardUrl(endpointId))
                 .expiresAt(endpoint.getExpiresAt())
-                .limits(Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
+                .limits(buildLimits())
                 .mockConfig(endpoint.getMockConfig())
                 .build();
     }
@@ -137,24 +139,24 @@ public class EndpointService {
                 ? endpoint.getMockConfig().toBuilder()
                 : MockConfig.builder();
 
-        if (request.getStatusCode() != null)
-            mockBuilder.statusCode(request.getStatusCode());
-        if (request.getDelayMs() != null)
-            mockBuilder.delayMs(request.getDelayMs());
-        if (request.getHeaders() != null)
-            mockBuilder.headers(request.getHeaders());
-        if (request.getBody() != null)
-            mockBuilder.body(request.getBody());
+        if (request.statusCode() != null)
+            mockBuilder.statusCode(request.statusCode());
+        if (request.delayMs() != null)
+            mockBuilder.delayMs(request.delayMs());
+        if (request.headers() != null)
+            mockBuilder.headers(request.headers());
+        if (request.body() != null)
+            mockBuilder.body(request.body());
 
-        String presetType = request.getPresetType();
+        String presetType = request.presetType();
         if (presetType == null || presetType.isBlank()) {
             mockBuilder.presetType(null);
         } else {
             mockBuilder.presetType(presetType.trim());
         }
 
-        if (request.getPresetOptions() != null) {
-            Map<String, Object> options = new HashMap<>(request.getPresetOptions());
+        if (request.presetOptions() != null) {
+            Map<String, Object> options = new HashMap<>(request.presetOptions());
             if (options.containsKey("secretKey")) {
                 Object secretObj = options.get("secretKey");
                 if (secretObj instanceof String plainSecret && !plainSecret.isBlank()) {
@@ -177,10 +179,10 @@ public class EndpointService {
                 .endpointId(updatedEndpoint.getEndpointId())
                 .accessToken(null)
                 .label(updatedEndpoint.getLabel())
-                .webhookUrl(baseUrl + "/api/hooks/" + endpointId)
-                .dashboardUrl(feUrl + "/dashboard/" + endpointId)
+                .webhookUrl(buildWebhookUrl(endpointId))
+                .dashboardUrl(buildDashboardUrl(endpointId))
                 .expiresAt(updatedEndpoint.getExpiresAt())
-                .limits(Map.of("maxLogs", maxLogCount, "maxSizeMb", maxLogSizeBytes / 1024 / 1024))
+                .limits(buildLimits())
                 .mockConfig(updatedEndpoint.getMockConfig())
                 .build();
     }

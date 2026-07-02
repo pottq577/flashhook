@@ -1,1 +1,1 @@
-export * from './ui/RequireAdminAuth';
+export { RequireAdminAuth } from './ui/RequireAdminAuth';

@@ -17,9 +17,9 @@ public class PresetHandlerRegistry {
             List<ResponsePresetHandler> responseHandlerList,
             List<RequestSigningPresetHandler> requestSigningHandlerList) {
         this.responseHandlers = responseHandlerList.stream()
-                .collect(Collectors.toMap(ResponsePresetHandler::getPresetType, Function.identity()));
+                .collect(Collectors.toMap(h -> h.getPresetType(), Function.identity()));
         this.requestSigningHandlers = requestSigningHandlerList.stream()
-                .collect(Collectors.toMap(RequestSigningPresetHandler::getPresetType, Function.identity()));
+                .collect(Collectors.toMap(h -> h.getPresetType(), Function.identity()));
     }
 
     public Optional<ResponsePresetHandler> getResponseHandler(String presetType) {

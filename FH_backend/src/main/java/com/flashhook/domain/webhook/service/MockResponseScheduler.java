@@ -1,6 +1,6 @@
 package com.flashhook.domain.webhook.service;
 
-import java.util.Optional;
+import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,11 +15,9 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.webhook.service.preset.PresetHandlerRegistry;
-import com.flashhook.domain.webhook.service.preset.ResponsePresetHandler;
 import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.exception.ErrorResponse;
 
-import java.time.Instant;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,13 +52,13 @@ public class MockResponseScheduler {
 
     public DeferredResult<ResponseEntity<?>> schedule(MockConfig mockConfig, String rawBody) {
         if (mockConfig.getPresetType() != null) {
-            Optional<ResponsePresetHandler> handlerOpt = presetHandlerRegistry
-                    .getResponseHandler(mockConfig.getPresetType());
-            if (handlerOpt.isPresent()) {
-                DeferredResult<ResponseEntity<?>> presetResult = handlerOpt.get().handleResponse(rawBody, mockConfig);
-                if (presetResult != null) {
-                    return presetResult;
-                }
+            DeferredResult<ResponseEntity<?>> presetResult = presetHandlerRegistry
+                    .getResponseHandler(mockConfig.getPresetType())
+                    .map(handler -> handler.handleResponse(rawBody, mockConfig))
+                    .orElse(null);
+
+            if (presetResult != null) {
+                return presetResult;
             }
         }
 

@@ -1,38 +1,25 @@
 package com.flashhook.domain.endpoint.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.extern.jackson.Jacksonized;
+import java.util.Map;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 
-import java.util.Map;
-
-@Getter
 @Builder
 @Jacksonized
-@NoArgsConstructor
-@AllArgsConstructor
-public class MockUpdateRequest {
-    @Min(100)
-    @Max(599)
-    private Integer statusCode;
+public record MockUpdateRequest(
+        @Min(100) @Max(599) Integer statusCode,
 
-    @Min(0)
-    @Max(10000)
-    private Long delayMs;
+        @Min(0) @Max(10000) Long delayMs,
 
-    @Size(max = 50)
-    private Map<String, String> headers;
+        @Size(max = 50) Map<String, String> headers,
 
-    @Size(max = 65536)
-    private String body;
+        @Size(max = 65536) String body,
 
-    @Size(max = 50)
-    private String presetType;
+        @Size(max = 50) String presetType,
 
-    private Map<String, Object> presetOptions;
+        Map<String, Object> presetOptions) {
 }

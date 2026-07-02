@@ -7,8 +7,8 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -50,7 +50,7 @@ public class AdminService {
                 .toLocalDate().atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant();
 
         Query countQuery = new Query();
-        countQuery.addCriteria(Criteria.where("createdAt").gte(startOfDay));
+        countQuery.addCriteria(Criteria.where("createdAt").gte(Objects.requireNonNull(startOfDay)));
         long endpointsToday = mongoTemplate.count(countQuery, Endpoint.class);
 
         Aggregation agg = Aggregation.newAggregation(
@@ -82,7 +82,7 @@ public class AdminService {
                 .logCount(e.getLogCount())
                 .logSizeBytes(e.getLogSizeBytes())
                 .createdAt(e.getCreatedAt())
-                .build()).collect(Collectors.toList());
+                .build()).toList();
     }
 
     public void deleteEndpoint(String endpointId) {
@@ -123,6 +123,6 @@ public class AdminService {
             return List.of();
         return keys.stream()
                 .map(k -> k.replace(BLACKLIST_PREFIX, ""))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

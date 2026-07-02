@@ -1,1 +1,1 @@
-export * from './api/useRealtimeLogs';
+export { useRealtimeLogs } from './api/useRealtimeLogs';

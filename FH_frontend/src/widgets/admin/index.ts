@@ -1,4 +1,4 @@
-export * from './ui/AdminAbuserTable';
-export * from './ui/AdminBlacklistManager';
-export * from './ui/AdminInfrastructureWidget';
-export * from './ui/AdminMetricsWidget';
+export { AdminAbuserTable } from './ui/AdminAbuserTable';
+export { AdminBlacklistManager } from './ui/AdminBlacklistManager';
+export { AdminInfrastructureWidget } from './ui/AdminInfrastructureWidget';
+export { AdminMetricsWidget } from './ui/AdminMetricsWidget';

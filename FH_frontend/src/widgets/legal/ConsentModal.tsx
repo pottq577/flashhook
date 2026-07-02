@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useState } from "react";
+import React, { useEffect, useId, useState, useEffectEvent } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useFocusTrap } from "../../shared/hooks/useFocusTrap";
 import { LabelingCard } from "./LabelingCard";
@@ -25,17 +25,19 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
 
   const modalRef = useFocusTrap(isActive);
 
+  const handleDecline = useEffectEvent(onDecline);
+
   // Escape key
   useEffect(() => {
     if (!isOpen) return;
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onDecline();
+      if (e.key === "Escape") handleDecline();
     };
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onDecline]);
+  }, [isOpen]);
 
   return (
     <AnimatePresence onExitComplete={() => setIsActive(false)}>
