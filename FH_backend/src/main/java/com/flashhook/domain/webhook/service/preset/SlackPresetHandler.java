@@ -9,9 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.MockConfig;
 
 import lombok.RequiredArgsConstructor;
@@ -39,8 +39,8 @@ public class SlackPresetHandler implements ResponsePresetHandler {
         try {
             JsonNode root = objectMapper.readTree(rawBody);
 
-            if (root.has("type") && "url_verification".equals(root.get("type").asText()) && root.has("challenge")) {
-                String challenge = root.get("challenge").asText();
+            if (root.has("type") && "url_verification".equals(root.get("type").asString()) && root.has("challenge")) {
+                String challenge = root.get("challenge").asString();
                 Map<String, String> responseBody = Map.of("challenge", challenge);
                 DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
                 deferredResult.setResult(ResponseEntity.ok()
@@ -49,7 +49,7 @@ public class SlackPresetHandler implements ResponsePresetHandler {
                 return deferredResult;
             }
             return null;
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.error("Failed to parse Slack URL Verification payload", e);
             DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
             deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());

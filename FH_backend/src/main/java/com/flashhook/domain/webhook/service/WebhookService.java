@@ -17,7 +17,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
@@ -32,6 +31,8 @@ import com.flashhook.global.exception.WebhookException;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
@@ -49,7 +50,6 @@ public class WebhookService {
     @CacheEvict(value = "endpoints", key = "#endpointId")
     @Transactional
     public MockConfig receive(String endpointId, IncomingWebhookPayload payload) {
-        // 1. 엔드포인트 확인
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new WebhookException(ErrorCode.ENDPOINT_NOT_FOUND));
 
@@ -58,7 +58,7 @@ public class WebhookService {
         if (payload.contentType() != null && payload.contentType().toLowerCase().contains("application/json")) {
             try {
                 bodyObj = objectMapper.readValue(payload.rawBody(), Object.class);
-            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            } catch (JacksonException e) {
                 log.debug("JSON 파싱 실패, 원본 문자열로 저장합니다.", e);
             } catch (Exception e) {
                 log.error("JSON 파싱 중 예기치 않은 오류 발생", e);
@@ -113,7 +113,7 @@ public class WebhookService {
         // 8. 이벤트 발행 (SSE 전파용)
         eventPublisher.publishEvent(new WebhookReceivedEvent(webhookLog));
 
-        return endpoint.getMockConfig() != null ? endpoint.getMockConfig() : new MockConfig();
+        return endpoint.getMockConfig() != null ? endpoint.getMockConfig() : MockConfig.builder().build();
     }
 
     private void enforceLogCap(Endpoint endpoint) {

@@ -3,8 +3,8 @@ package com.flashhook.global.security;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.MDC;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
