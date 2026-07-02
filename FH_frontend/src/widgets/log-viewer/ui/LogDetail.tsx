@@ -66,9 +66,13 @@ const LogDetail = memo(function LogDetail({
           document.body.prepend(textArea);
           textArea.select();
           try {
-            document.execCommand("copy");
+            const successful = document.execCommand("copy");
+            if (!successful) {
+              throw new Error("execCommand copy returned false");
+            }
           } catch (error) {
-            console.error("Fallback copy failed", error);
+            logger.error("Fallback copy failed", error);
+            throw error;
           } finally {
             textArea.remove();
           }
