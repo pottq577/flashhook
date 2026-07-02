@@ -9,6 +9,7 @@ import { useEndpointStore } from "@/entities/endpoint";
 import { TerminalHero } from "./TerminalHero";
 import { LandingFeatures } from "./LandingFeatures";
 import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
+import { SEOHead } from "@/shared/ui/SEOHead";
 import styles from "./LandingPage.module.css";
 
 function LandingPage() {
@@ -125,6 +126,26 @@ function LandingPage() {
 
   return (
     <div className={styles.container}>
+      <SEOHead
+        title="FlashHook - 1초 Webhook Catcher"
+        description="로그인 없이 1초 만에 임시 Webhook URL을 생성하고 실시간으로 HTTP 요청을 검사하세요."
+      >
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "FlashHook",
+            "operatingSystem": "Web",
+            "applicationCategory": "DeveloperApplication",
+            "description": "1초 만에 만드는 임시 Webhook URL. 로그인 없이 1초 만에 임시 웹훅을 생성하고 실시간으로 HTTP 요청을 검사 및 모니터링할 수 있는 무료 개발자 도구입니다.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "KRW"
+            }
+          })}
+        </script>
+      </SEOHead>
       <TerminalHero
         terminalLines={terminalLines}
         isLoading={isLoading}
