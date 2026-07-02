@@ -1,0 +1,20 @@
+initscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.openrewrite:plugin:6.16.1")
+    }
+}
+
+rootProject {
+    apply plugin: org.openrewrite.gradle.RewritePlugin
+    
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        rewrite("org.openrewrite.recipe:rewrite-jackson:2.10.1")
+    }
+}

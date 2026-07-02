@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
@@ -49,7 +49,6 @@ public class WebhookService {
     @CacheEvict(value = "endpoints", key = "#endpointId")
     @Transactional
     public MockConfig receive(String endpointId, IncomingWebhookPayload payload) {
-        // 1. 엔드포인트 확인
         Endpoint endpoint = endpointRepository.findByEndpointId(endpointId)
                 .orElseThrow(() -> new WebhookException(ErrorCode.ENDPOINT_NOT_FOUND));
 
@@ -58,7 +57,7 @@ public class WebhookService {
         if (payload.contentType() != null && payload.contentType().toLowerCase().contains("application/json")) {
             try {
                 bodyObj = objectMapper.readValue(payload.rawBody(), Object.class);
-            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            } catch (tools.jackson.core.JacksonException e) {
                 log.debug("JSON 파싱 실패, 원본 문자열로 저장합니다.", e);
             } catch (Exception e) {
                 log.error("JSON 파싱 중 예기치 않은 오류 발생", e);

@@ -48,7 +48,7 @@ public class Endpoint implements Serializable {
     private Instant expiresAt;
 
     @Builder.Default
-    private final MockConfig mockConfig = new MockConfig();
+    private MockConfig mockConfig = new MockConfig();
 
     public void incrementLogStats(long sizeBytes) {
         this.logCount += 1;
