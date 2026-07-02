@@ -3,6 +3,7 @@ package com.flashhook.global.infrastructure.http;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.Proxy;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -46,7 +47,7 @@ public class ReplayHttpClient {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
             @Override
             @NonNull
-            protected HttpURLConnection openConnection(@NonNull URL url, @Nullable java.net.Proxy proxy)
+            protected HttpURLConnection openConnection(@NonNull URL url, @Nullable Proxy proxy)
                     throws IOException {
                 URL pinnedUrl;
                 try {
@@ -144,8 +145,8 @@ public class ReplayHttpClient {
 
         try {
             var response = restTemplate.exchange(
-                    destinationUrl,
-                    HttpMethod.valueOf(method),
+                    Objects.requireNonNull(destinationUrl),
+                    HttpMethod.valueOf(Objects.requireNonNull(method)),
                     entity,
                     String.class);
 

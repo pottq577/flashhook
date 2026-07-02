@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.data.domain.Sort;
@@ -49,7 +50,7 @@ public class AdminService {
                 .toLocalDate().atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant();
 
         Query countQuery = new Query();
-        countQuery.addCriteria(Criteria.where("createdAt").gte(startOfDay));
+        countQuery.addCriteria(Criteria.where("createdAt").gte(Objects.requireNonNull(startOfDay)));
         long endpointsToday = mongoTemplate.count(countQuery, Endpoint.class);
 
         Aggregation agg = Aggregation.newAggregation(

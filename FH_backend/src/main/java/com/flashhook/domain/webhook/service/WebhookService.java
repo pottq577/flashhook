@@ -159,7 +159,7 @@ public class WebhookService {
                     break;
                 }
 
-                long removedSize = removedLogs.stream().mapToLong(WebhookLog::getBodySize).sum();
+                long removedSize = removedLogs.stream().mapToLong(l -> l.getBodySize()).sum();
                 int removedCount = removedLogs.size();
 
                 Query query = Query.query(Criteria.where("endpointId").is(endpoint.getEndpointId()));

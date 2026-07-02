@@ -35,7 +35,7 @@ public record WebhookLogDetailResponse(
             return null;
         return input.entrySet().stream()
                 .collect(Collectors.toMap(
-                        Map.Entry::getKey,
+                        e -> e.getKey(),
                         e -> SENSITIVE_KEYS.contains(e.getKey().toLowerCase()) ? "[REDACTED]" : e.getValue()));
     }
 

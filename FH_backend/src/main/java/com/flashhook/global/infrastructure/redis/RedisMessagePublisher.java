@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RedisMessagePublisher {
 
+    @SuppressWarnings("unused")
     private final RedisTemplate<String, String> redisTemplate;
 
     /**

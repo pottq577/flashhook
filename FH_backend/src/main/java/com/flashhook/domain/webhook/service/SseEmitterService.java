@@ -135,7 +135,7 @@ public class SseEmitterService {
      */
     public int getActiveConnectionCount() {
         return emitters.values().stream()
-                .mapToInt(List::size)
+                .mapToInt(l -> l.size())
                 .sum();
     }
 }
