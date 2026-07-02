@@ -4,6 +4,7 @@ export function useSidebarResize(
   initialWidth = 440,
   minWidth = 440,
   maxWidth = 800,
+  side: "left" | "right" = "right"
 ) {
   const [sidebarWidth, setSidebarWidth] = useState(initialWidth);
   const [isResizing, setIsResizing] = useState(false);
@@ -28,13 +29,16 @@ export function useSidebarResize(
       if (!isDragging.current) return;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => {
-        const newWidth = window.innerWidth - e.clientX;
+        const newWidth = side === "right" 
+          ? window.innerWidth - e.clientX 
+          : e.clientX;
+          
         if (newWidth >= minWidth && newWidth < maxWidth) {
           setSidebarWidth(newWidth);
         }
       });
     },
-    [minWidth, maxWidth],
+    [minWidth, maxWidth, side],
   );
 
   const handleMouseUp = useCallback(() => {

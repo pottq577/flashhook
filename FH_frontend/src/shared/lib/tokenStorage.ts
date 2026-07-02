@@ -7,11 +7,11 @@ function buildKey(endpointId: string): string {
 }
 
 export function get(endpointId: string): string | null {
-  return sessionStorage.getItem(buildKey(endpointId));
+  return localStorage.getItem(buildKey(endpointId));
 }
 
 export function set(endpointId: string, token: string): void {
-  sessionStorage.setItem(buildKey(endpointId), token);
+  localStorage.setItem(buildKey(endpointId), token);
 
   const historyRaw = localStorage.getItem("fh_history") || "[]";
   try {
@@ -33,7 +33,7 @@ export function set(endpointId: string, token: string): void {
 }
 
 export function remove(endpointId: string): void {
-  sessionStorage.removeItem(buildKey(endpointId));
+  localStorage.removeItem(buildKey(endpointId));
 
   const historyRaw = localStorage.getItem("fh_history") || "[]";
   try {

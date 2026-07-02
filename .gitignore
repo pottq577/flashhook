@@ -49,3 +49,5 @@ docs/qa/*
 
 ### AI Agents ###
 .agents/
+.vercel
+.env*

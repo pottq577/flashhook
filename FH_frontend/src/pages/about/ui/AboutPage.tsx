@@ -1,10 +1,15 @@
 import { Header } from "@/widgets/header";
 import { Footer } from "@/widgets/footer";
+import { SEOHead } from "@/shared/ui/SEOHead";
 import styles from "./about.module.css";
 
 function AboutPage() {
   return (
     <div className={styles.container}>
+      <SEOHead
+        title="소개 - FlashHook"
+        description="복잡한 회원가입이나 터널링 설정 없이 웹훅과 HTTP 요청을 바로 테스트할 수 있는 FlashHook에 대해 알아보세요."
+      />
       <Header />
       <h1 className={styles.title}>FlashHook 소개</h1>
 

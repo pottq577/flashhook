@@ -38,10 +38,16 @@ function DashboardPage() {
   const shouldReduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
 
+  const {
+    sidebarWidth: leftSidebarWidth,
+    startResizing: startLeftResizing,
+  } = useSidebarResize(380, 250, 600, "left");
+
   const { sidebarWidth, isResizing, startResizing } = useSidebarResize(
     440,
     440,
     800,
+    "right"
   );
   const {
     data: endpoint,
@@ -100,7 +106,14 @@ function DashboardPage() {
         </div>
       </div>
     );
-  if (error)
+  if (error) {
+    const err = error as { status?: number; code?: string; message?: string };
+    const isAuthError =
+      err.status === 401 ||
+      err.status === 403 ||
+      err.code === "INVALID_TOKEN" ||
+      err.code === "ENDPOINT_NOT_FOUND";
+
     return (
       <div className={styles.container}>
         <Header />
@@ -115,12 +128,19 @@ function DashboardPage() {
               {(error as Error).message}
             </span>
           </div>
-          <button className={styles.btnAction} onClick={() => void refetch()}>
-            다시 시도하기
-          </button>
+          {isAuthError ? (
+            <a href="/" className={styles.btnAction}>
+              홈으로 돌아가기
+            </a>
+          ) : (
+            <button className={styles.btnAction} onClick={() => void refetch()}>
+              다시 시도하기
+            </button>
+          )}
         </div>
       </div>
     );
+  }
   if (!endpoint)
     return (
       <div className={styles.container}>
@@ -137,6 +157,7 @@ function DashboardPage() {
   return (
     <div className={styles.container}>
       <Header />
+      <h1 className={styles.srOnly}>웹훅 대시보드</h1>
       <EndpointInfo endpoint={endpoint} />
       <ConnectionStatus status={status} />
       <div style={{ padding: "0 1rem" }}>
@@ -144,13 +165,22 @@ function DashboardPage() {
       </div>
 
       <main className={styles.main}>
-        <section className={styles.sidebar}>
+        <section
+          className={styles.sidebar}
+          style={!isMobile ? { width: leftSidebarWidth, flexShrink: 0 } : undefined}
+        >
           <LogList
             logs={logs}
             selectedLogId={selectedLog?.logId || null}
             onSelect={handleSelectLog}
             endpointId={endpointId}
           />
+          {!isMobile ? (
+            <div
+              className={styles.leftResizeHandle}
+              onPointerDown={startLeftResizing}
+            />
+          ) : null}
         </section>
 
         {/* Desktop Detail View */}
@@ -184,7 +214,7 @@ function DashboardPage() {
                   transition={
                     isResizing
                       ? { duration: 0 }
-                      : { type: "spring", bounce: 0, duration: 0.4 }
+                      : { type: "spring", bounce: 0, duration: 0.25 }
                   }
                   style={{ width: sidebarWidth }}
                 >
