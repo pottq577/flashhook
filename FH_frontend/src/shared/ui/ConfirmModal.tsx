@@ -1,8 +1,7 @@
 import styles from "./ConfirmModal.module.css";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useEffectEvent } from "react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { useLatest } from "../hooks/useLatest";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -29,16 +28,16 @@ function ConfirmModal({
 
   const modalRef = useFocusTrap(isActive);
 
-  const latestOnCancel = useLatest(onCancel);
+  const handleCancel = useEffectEvent(onCancel);
 
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") latestOnCancel.current();
+      if (e.key === "Escape") handleCancel();
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, latestOnCancel]);
+  }, [isOpen]);
 
   return (
     <AnimatePresence onExitComplete={() => setIsActive(false)}>

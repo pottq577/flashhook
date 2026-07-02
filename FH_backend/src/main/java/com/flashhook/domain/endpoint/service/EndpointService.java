@@ -42,6 +42,19 @@ public class EndpointService {
     private final EncryptionUtil encryptionUtil;
     private final FlashHookProperties properties;
 
+    private String buildWebhookUrl(String endpointId) {
+        return properties.baseUrl() + "/api/hooks/" + endpointId;
+    }
+
+    private String buildDashboardUrl(String endpointId) {
+        return properties.feUrl() + "/dashboard/" + endpointId;
+    }
+
+    private Map<String, Object> buildLimits() {
+        return Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb",
+                properties.log().maxSizeBytes() / 1024 / 1024);
+    }
+
     /**
      * 엔드포인트 생성
      */
@@ -73,11 +86,10 @@ public class EndpointService {
                 .endpointId(endpointId)
                 .accessToken(accessToken)
                 .label(endpoint.getLabel())
-                .webhookUrl(properties.baseUrl() + "/api/hooks/" + endpointId)
-                .dashboardUrl(properties.feUrl() + "/dashboard/" + endpointId)
+                .webhookUrl(buildWebhookUrl(endpointId))
+                .dashboardUrl(buildDashboardUrl(endpointId))
                 .expiresAt(expiresAt)
-                .limits(Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb",
-                        properties.log().maxSizeBytes() / 1024 / 1024))
+                .limits(buildLimits())
                 .mockConfig(endpoint.getMockConfig())
                 .build();
     }
@@ -93,11 +105,10 @@ public class EndpointService {
                 .endpointId(endpoint.getEndpointId())
                 .accessToken(null) // 보안상 조회 시 미반환
                 .label(endpoint.getLabel())
-                .webhookUrl(properties.baseUrl() + "/api/hooks/" + endpointId)
-                .dashboardUrl(properties.feUrl() + "/dashboard/" + endpointId)
+                .webhookUrl(buildWebhookUrl(endpointId))
+                .dashboardUrl(buildDashboardUrl(endpointId))
                 .expiresAt(endpoint.getExpiresAt())
-                .limits(Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb",
-                        properties.log().maxSizeBytes() / 1024 / 1024))
+                .limits(buildLimits())
                 .mockConfig(endpoint.getMockConfig())
                 .build();
     }
@@ -168,11 +179,10 @@ public class EndpointService {
                 .endpointId(updatedEndpoint.getEndpointId())
                 .accessToken(null)
                 .label(updatedEndpoint.getLabel())
-                .webhookUrl(properties.baseUrl() + "/api/hooks/" + endpointId)
-                .dashboardUrl(properties.feUrl() + "/dashboard/" + endpointId)
+                .webhookUrl(buildWebhookUrl(endpointId))
+                .dashboardUrl(buildDashboardUrl(endpointId))
                 .expiresAt(updatedEndpoint.getExpiresAt())
-                .limits(Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb",
-                        properties.log().maxSizeBytes() / 1024 / 1024))
+                .limits(buildLimits())
                 .mockConfig(updatedEndpoint.getMockConfig())
                 .build();
     }

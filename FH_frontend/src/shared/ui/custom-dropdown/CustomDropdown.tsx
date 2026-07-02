@@ -1,6 +1,5 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useEffectEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLatest } from "../../hooks/useLatest";
 import styles from "./CustomDropdown.module.css";
 
 interface CustomDropdownProps {
@@ -48,14 +47,16 @@ export function CustomDropdown({
     setActiveIndex(-1);
   }
 
-  const latestOnClose = useLatest(onClose);
+  const handleClose = useEffectEvent(() => {
+    if (onClose) onClose();
+  });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (containerRef.current && !containerRef.current.contains(target)) {
-        if (isOpen && latestOnClose.current) {
-          latestOnClose.current();
+        if (isOpen) {
+          handleClose();
         }
       }
     };
@@ -63,7 +64,7 @@ export function CustomDropdown({
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen, latestOnClose]);
+  }, [isOpen]);
 
   const selected = options.find((o) => o.value === value);
   const isCustom = isCustomStatus ?? (!selected && value !== "");

@@ -2,13 +2,18 @@ package com.flashhook.global.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.validation.annotation.Validated;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+
+@Validated
 @ConfigurationProperties(prefix = "flashhook")
 public record FlashHookProperties(
         LogProperties log,
         RateLimitProperties ratelimit,
-        AdminProperties admin,
-        SecurityProperties security,
+        @Valid AdminProperties admin,
+        @Valid SecurityProperties security,
         @DefaultValue("http://localhost:8080") String baseUrl,
         @DefaultValue("http://localhost:5173") String feUrl) {
     public record LogProperties(
@@ -25,10 +30,10 @@ public record FlashHookProperties(
     }
 
     public record AdminProperties(
-            String secretKey) {
+            @NotBlank String secretKey) {
     }
 
     public record SecurityProperties(
-            String secretKey) {
+            @NotBlank String secretKey) {
     }
 }
