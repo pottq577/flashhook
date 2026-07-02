@@ -39,8 +39,8 @@ public class SlackPresetHandler implements ResponsePresetHandler {
         try {
             JsonNode root = objectMapper.readTree(rawBody);
 
-            if (root.has("type") && "url_verification".equals(root.get("type").asText()) && root.has("challenge")) {
-                String challenge = root.get("challenge").asText();
+            if (root.has("type") && "url_verification".equals(root.get("type").asString()) && root.has("challenge")) {
+                String challenge = root.get("challenge").asString();
                 Map<String, String> responseBody = Map.of("challenge", challenge);
                 DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
                 deferredResult.setResult(ResponseEntity.ok()
