@@ -47,6 +47,10 @@ public class Endpoint implements Serializable {
 
     private Instant expiresAt;
 
+    // IDE에서 'Field mockConfig can be final' 경고가 발생할 수 있으나,
+    // Spring Data MongoDB 엔티티(Document) 필드는 기본 생성자 및 리플렉션 호환성을 위해
+    // 의도적으로 final 키워드를 생략하는 것이 Best Practice입니다.
+    @SuppressWarnings("FieldMayBeFinal")
     @Builder.Default
     private MockConfig mockConfig = MockConfig.builder().build();
 
