@@ -82,7 +82,7 @@ public class AdminService {
                 .logCount(e.getLogCount())
                 .logSizeBytes(e.getLogSizeBytes())
                 .createdAt(e.getCreatedAt())
-                .build()).collect(Collectors.toList());
+                .build()).toList();
     }
 
     public void deleteEndpoint(String endpointId) {
@@ -123,6 +123,6 @@ public class AdminService {
             return List.of();
         return keys.stream()
                 .map(k -> k.replace(BLACKLIST_PREFIX, ""))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

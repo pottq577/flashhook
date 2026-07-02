@@ -65,14 +65,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                         return;
                     }
 
-                    Optional<Endpoint> endpointOpt = endpointRepository.findByEndpointId(endpointId);
-                    if (endpointOpt.isEmpty()) {
-                        sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
-                        return;
-                    }
-
-                    Endpoint endpoint = endpointOpt.get();
-                    if (!AccessTokenUtil.verifyToken(token, endpoint.getAccessTokenHash())) {
+                    Endpoint endpoint = endpointRepository.findByEndpointId(endpointId).orElse(null);
+                    if (endpoint == null || !AccessTokenUtil.verifyToken(token, endpoint.getAccessTokenHash())) {
                         sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
                         return;
                     }

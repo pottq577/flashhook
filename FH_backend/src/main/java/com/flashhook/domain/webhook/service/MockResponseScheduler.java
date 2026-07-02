@@ -54,13 +54,13 @@ public class MockResponseScheduler {
 
     public DeferredResult<ResponseEntity<?>> schedule(MockConfig mockConfig, String rawBody) {
         if (mockConfig.getPresetType() != null) {
-            Optional<ResponsePresetHandler> handlerOpt = presetHandlerRegistry
-                    .getResponseHandler(mockConfig.getPresetType());
-            if (handlerOpt.isPresent()) {
-                DeferredResult<ResponseEntity<?>> presetResult = handlerOpt.get().handleResponse(rawBody, mockConfig);
-                if (presetResult != null) {
-                    return presetResult;
-                }
+            DeferredResult<ResponseEntity<?>> presetResult = presetHandlerRegistry
+                    .getResponseHandler(mockConfig.getPresetType())
+                    .map(handler -> handler.handleResponse(rawBody, mockConfig))
+                    .orElse(null);
+
+            if (presetResult != null) {
+                return presetResult;
             }
         }
 

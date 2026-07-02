@@ -87,14 +87,14 @@ public class WebhookReplayService {
 
         try {
             if (endpoint.getMockConfig() != null && endpoint.getMockConfig().getPresetType() != null) {
-                Optional<RequestSigningPresetHandler> handlerOpt = presetHandlerRegistry
-                        .getRequestSigningHandler(endpoint.getMockConfig().getPresetType());
-                if (handlerOpt.isPresent()) {
-                    payload = Objects.requireNonNull(
-                            handlerOpt.get().handleRequestGeneration(payload,
-                                    endpoint.getMockConfig().getPresetOptions()),
-                            "preset handler returned null");
-                }
+                WebhookPayload currentPayload = payload;
+                payload = presetHandlerRegistry
+                        .getRequestSigningHandler(endpoint.getMockConfig().getPresetType())
+                        .map(handler -> Objects.requireNonNull(
+                                handler.handleRequestGeneration(currentPayload,
+                                        endpoint.getMockConfig().getPresetOptions()),
+                                "preset handler returned null"))
+                        .orElse(currentPayload);
             }
         } catch (RuntimeException e) {
             log.warn("프리셋 서명 생성 실패: endpointId={}, logId={}", endpointId, logId, e);
