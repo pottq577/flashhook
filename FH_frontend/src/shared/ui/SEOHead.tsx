@@ -12,7 +12,8 @@ export function SEOHead({ title, description, canonicalPath, children }: SEOHead
   const location = useLocation();
   const path = canonicalPath !== undefined ? canonicalPath : location.pathname;
   // Ensure we don't end up with double slashes
-  const canonicalUrl = `https://www.flashhook.site${path === "/" ? "" : path}`;
+  const defaultDomain = import.meta.env.VITE_SITE_URL || "https://www.flashhook.site";
+  const canonicalUrl = `${defaultDomain}${path === "/" ? "" : path}`;
 
   return (
     <Helmet>
