@@ -24,6 +24,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import org.springframework.stereotype.Component;
+import org.jspecify.annotations.Nullable;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -45,7 +46,7 @@ public class ReplayHttpClient {
 
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
             @Override
-            protected HttpURLConnection openConnection(URL url, Proxy proxy)
+            protected HttpURLConnection openConnection(URL url, @Nullable Proxy proxy)
                     throws IOException {
                 URL pinnedUrl;
                 try {

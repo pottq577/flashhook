@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 import org.springframework.stereotype.Component;
+import org.jspecify.annotations.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.flashhook.global.config.FlashHookProperties;
@@ -23,9 +24,9 @@ public class AdminAuthFilter extends OncePerRequestFilter {
     private final FlashHookProperties properties;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
         String method = request.getMethod();
 

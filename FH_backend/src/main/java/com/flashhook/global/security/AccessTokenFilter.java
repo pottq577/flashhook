@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import org.slf4j.MDC;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -26,9 +27,9 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     private final EndpointRepository endpointRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String traceId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         MDC.put("traceId", traceId);

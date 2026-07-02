@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,9 +28,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
     public static final String CREATE_LIMIT_PREFIX = "rl:create2:";
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
         String method = request.getMethod();
