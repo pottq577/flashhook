@@ -2,13 +2,13 @@ package com.flashhook.global.ratelimit;
 
 import java.io.IOException;
 
-import com.flashhook.global.config.FlashHookProperties;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.flashhook.global.config.FlashHookProperties;
 import com.flashhook.global.exception.ErrorCode;
 
 import jakarta.servlet.FilterChain;

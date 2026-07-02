@@ -12,9 +12,9 @@ import javax.crypto.Mac;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.flashhook.global.config.FlashHookProperties;
 import org.springframework.stereotype.Component;
 
+import com.flashhook.global.config.FlashHookProperties;
 import com.flashhook.global.exception.EncryptionException;
 
 @Component

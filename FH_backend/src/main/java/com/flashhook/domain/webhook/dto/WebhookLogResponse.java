@@ -4,24 +4,20 @@ import java.time.Instant;
 
 import com.flashhook.domain.webhook.model.WebhookLog;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * 웹훅 로그 목록 응답 DTO
  */
 @Builder
 public record WebhookLogResponse(
-    String logId,
-    String method,
-    String contentType,
-    String clientIp,
-    String bodyPreview,
-    long bodySize,
-    Instant receivedAt
-) {
+        String logId,
+        String method,
+        String contentType,
+        String clientIp,
+        String bodyPreview,
+        long bodySize,
+        Instant receivedAt) {
 
     /**
      * WebhookLog → WebhookLogResponse 변환 팩토리 메소드

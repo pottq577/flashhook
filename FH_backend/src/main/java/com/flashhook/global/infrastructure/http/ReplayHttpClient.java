@@ -159,7 +159,7 @@ public class ReplayHttpClient {
 
         } catch (RestClientException e) {
             log.warn("웹훅 재전송 실패 via ReplayHttpClient: destinationUrl={}", sanitizeUrlForLog(destinationUrl), e);
-            throw e; 
+            throw e;
         }
     }
 

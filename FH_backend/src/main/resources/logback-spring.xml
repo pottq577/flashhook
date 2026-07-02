@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="CONSOLE_LOG_PATTERN" value="%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} [%X{traceId:-}] %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <property name="CONSOLE_LOG_PATTERN"
+        value="%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} [%X{traceId:-}] %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}" />
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
     <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
         <!-- 큐 크기 증가 (기본값 256) -->
@@ -11,11 +12,11 @@
         <discardingThreshold>0</discardingThreshold>
         <!-- 애플리케이션 종료 시 큐에 남은 로그 처리 최대 대기 시간 -->
         <maxFlushTime>5000</maxFlushTime>
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="CONSOLE" />
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="ASYNC_CONSOLE"/>
+        <appender-ref ref="ASYNC_CONSOLE" />
     </root>
 
 </configuration>

@@ -7,28 +7,24 @@ import java.util.stream.Collectors;
 
 import com.flashhook.domain.webhook.model.WebhookLog;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * 웹훅 로그 상세 응답 DTO
  */
 @Builder
 public record WebhookLogDetailResponse(
-    String logId,
-    String method,
-    String contentType,
-    String clientIp,
-    String bodyPreview,
-    long bodySize,
-    Instant receivedAt,
-    String url,
-    Map<String, String> headers,
-    Map<String, String> queryParams,
-    Object body
-) {
+        String logId,
+        String method,
+        String contentType,
+        String clientIp,
+        String bodyPreview,
+        long bodySize,
+        Instant receivedAt,
+        String url,
+        Map<String, String> headers,
+        Map<String, String> queryParams,
+        Object body) {
 
     private static final Set<String> SENSITIVE_KEYS = Set.of(
             "authorization", "x-api-key", "cookie", "x-auth-token",

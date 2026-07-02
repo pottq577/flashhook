@@ -1,10 +1,7 @@
 package com.flashhook.domain.endpoint.dto;
 
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 
 /**
@@ -13,6 +10,5 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public record EndpointCreateRequest(
-    @Size(max = 100, message = "라벨은 최대 100자까지 가능합니다")
-    String label
-) {}
+        @Size(max = 100, message = "라벨은 최대 100자까지 가능합니다") String label) {
+}

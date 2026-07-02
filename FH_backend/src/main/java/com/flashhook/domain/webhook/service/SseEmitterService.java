@@ -115,8 +115,7 @@ public class SseEmitterService {
                                 "Client disconnected or failed heartbeat ping. endpointId: {}, cause: {}: {}",
                                 endpointId,
                                 e.getClass().getSimpleName(),
-                                e.getMessage()
-                        );
+                                e.getMessage());
                         removeEmitter(endpointId, emitter);
                     }
                 }, taskExecutor);

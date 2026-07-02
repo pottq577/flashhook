@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.flashhook.global.config.FlashHookProperties;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
+import com.flashhook.global.config.FlashHookProperties;
 import com.flashhook.global.event.EndpointDeletedEvent;
 import com.flashhook.global.exception.EndpointException;
 import com.flashhook.global.exception.ErrorCode;
@@ -76,7 +76,8 @@ public class EndpointService {
                 .webhookUrl(properties.baseUrl() + "/api/hooks/" + endpointId)
                 .dashboardUrl(properties.feUrl() + "/dashboard/" + endpointId)
                 .expiresAt(expiresAt)
-                .limits(Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb", properties.log().maxSizeBytes() / 1024 / 1024))
+                .limits(Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb",
+                        properties.log().maxSizeBytes() / 1024 / 1024))
                 .mockConfig(endpoint.getMockConfig())
                 .build();
     }
@@ -95,7 +96,8 @@ public class EndpointService {
                 .webhookUrl(properties.baseUrl() + "/api/hooks/" + endpointId)
                 .dashboardUrl(properties.feUrl() + "/dashboard/" + endpointId)
                 .expiresAt(endpoint.getExpiresAt())
-                .limits(Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb", properties.log().maxSizeBytes() / 1024 / 1024))
+                .limits(Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb",
+                        properties.log().maxSizeBytes() / 1024 / 1024))
                 .mockConfig(endpoint.getMockConfig())
                 .build();
     }
@@ -169,7 +171,8 @@ public class EndpointService {
                 .webhookUrl(properties.baseUrl() + "/api/hooks/" + endpointId)
                 .dashboardUrl(properties.feUrl() + "/dashboard/" + endpointId)
                 .expiresAt(updatedEndpoint.getExpiresAt())
-                .limits(Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb", properties.log().maxSizeBytes() / 1024 / 1024))
+                .limits(Map.of("maxLogs", properties.log().maxCount(), "maxSizeMb",
+                        properties.log().maxSizeBytes() / 1024 / 1024))
                 .mockConfig(updatedEndpoint.getMockConfig())
                 .build();
     }

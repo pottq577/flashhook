@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.flashhook.global.config.FlashHookProperties;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
@@ -26,6 +25,7 @@ import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
 import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.domain.webhook.repository.WebhookLogRepository;
+import com.flashhook.global.config.FlashHookProperties;
 import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.exception.WebhookException;
 
@@ -68,7 +68,8 @@ public class WebhookService {
         String bodyPreview = payload.getRawBody();
         if (payload.getRawBody() != null && payload.getRawBody().length() > properties.log().bodyPreviewLength()) {
             int cutIndex = payload.getRawBody().offsetByCodePoints(0,
-                    Math.min(payload.getRawBody().codePointCount(0, payload.getRawBody().length()), properties.log().bodyPreviewLength()));
+                    Math.min(payload.getRawBody().codePointCount(0, payload.getRawBody().length()),
+                            properties.log().bodyPreviewLength()));
             bodyPreview = payload.getRawBody().substring(0, cutIndex);
         }
 
