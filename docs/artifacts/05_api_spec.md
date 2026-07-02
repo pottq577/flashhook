@@ -1,6 +1,6 @@
 # MVP API 명세서
 
-> **기술 스택**: Java 21, Spring Boot 3.5.15
+> **기술 스택**: Java 21, Spring Boot 4.0.7
 > **Rate Limit**: Redis 기반 요청 빈도 제한을 적용해요.
 
 ## 1. 공통 사항
