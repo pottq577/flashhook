@@ -19,15 +19,15 @@ import lombok.Setter;
 public class MockConfig implements Serializable {
     private static final long serialVersionUID = 1L;
     @Builder.Default
-    private final int statusCode = 200;
+    private int statusCode = 200;
 
     @Builder.Default
-    private final long delayMs = 0;
+    private long delayMs = 0;
 
     private Map<String, String> headers;
 
     @Builder.Default
-    private final String body = "ok";
+    private String body = "ok";
 
     private String presetType;
 
