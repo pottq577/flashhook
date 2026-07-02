@@ -354,7 +354,7 @@ void saveLog(WebhookLog log) {
 
 ## Part 3. 백엔드 아키텍처
 
-> Java Spring Boot / 3-Layer + ApplicationEvent
+> Java Spring Boot 4.0.7 / 3-Layer + ApplicationEvent
 
 ### 3.1. 아키텍처 패턴 선택
 
@@ -418,6 +418,8 @@ com.flashhook
 
 ### 3.3. 핵심 코드 설계 세부
 
+- **불변성 및 어노테이션**: 도메인 엔티티(예: `MockConfig`)는 `final` 필드와 `@PersistenceCreator`, `@JsonCreator`를 사용하여 불변성을 강제. Nullability는 JSpecify(`org.jspecify.annotations`)를 사용.
+- **Jackson 3 API**: JSON 파싱 시 `asText()` 대신 `asString()`을 사용하여 타입 캐스팅 모호함을 예방.
 - **비동기 이벤트 처리**: `AsyncConfig`에서 `ThreadPoolTaskExecutor`를 설정하여 비동기 작업을 처리.
 - **웹훅 수신 및 이벤트 발행**: `WebhookService.receive()`에서 페이로드를 파싱 및 MongoDB에 저장한 후 `WebhookReceivedEvent` 이벤트를 비동기로 발행.
 - **SSE 이벤트 푸시**: `SseEmitterService`에서 `@Async @EventListener`를 통해 이벤트를 수신한 뒤 클라이언트에게 스트리밍.

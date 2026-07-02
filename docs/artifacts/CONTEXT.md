@@ -57,7 +57,7 @@ The frontend strictly enforces **Feature-Sliced Design (FSD)**.
 - **TanStack Query**: Server state (fetching, mutations). Globally handles token expiration and 500 errors.
 - **Zustand**: Client/UI state. `log.store.ts` manages real-time logs (max 500) from SSE without prop-drilling.
 
-## 4. Backend Architecture (Spring Boot 3)
+## 4. Backend Architecture (Spring Boot 4.0.7)
 
 The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.flashhook`.
 
@@ -65,7 +65,7 @@ The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.
   - **Controllers**: `EndpointController`, `WebhookReceiveController`, `WebhookStreamController`.
 - **`global/`**: Cross-cutting concerns (`config`, `exception`, `ratelimit`).
 - **SSE Logic (`SseEmitterService`)**: Manages active connections in a `ConcurrentHashMap`. Sends 30-second heartbeats (`ping`).
-- **Mock Responses (`MockResponseScheduler`)**: Evaluates `MockConfig` to delay or customize responses to external callers.
+- **Mock Responses (`MockResponseScheduler`)**: Evaluates `MockConfig` to delay or customize responses to external callers. Note that `MockConfig` is an immutable entity using `final` fields, `@PersistenceCreator`, and `@JsonCreator`.
 - **Security (`Replay Service`)**: Uses IP Pinning to block DNS Rebinding and SSRF attacks when dispatching webhooks to user-provided URLs.
 
 ## 5. Infrastructure & Local Development
@@ -79,5 +79,6 @@ The backend uses **Domain-Driven Design (DDD) / Package-by-Feature** under `com.
 
 1. **FSD Enforcement**: Modules in `entities/` MUST NOT import from `widgets/` or `pages/`.
 2. **API Contracts**: All JSON payloads must be parsed/validated through Zod schemas in `entities/`.
-3. **Lombok**: Use `@Getter`, `@RequiredArgsConstructor`. Avoid `@Data` on MongoDB entities to prevent serialization loops.
-4. **Zero Magic**: Keep code explicit. No hidden side-effects. Verification (build/lint/test) must pass before claiming completion.
+3. **Backend Stack & Lombok**: Use `@Getter`, `@RequiredArgsConstructor`. Avoid `@Data` on MongoDB entities. Domain objects (like `MockConfig`) should enforce immutability with `final` fields and explicit constructors (`@JsonCreator`).
+4. **Nullability & JSON**: Use JSpecify (`org.jspecify.annotations`) for Nullability. Use Jackson 3 API (`asString()` instead of `asText()`).
+5. **Zero Magic**: Keep code explicit. No hidden side-effects. Verification (build/lint/test) must pass before claiming completion.
