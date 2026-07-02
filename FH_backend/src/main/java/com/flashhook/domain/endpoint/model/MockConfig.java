@@ -7,31 +7,30 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import lombok.Setter;
 
 @Getter
-@Setter
 @Builder(toBuilder = true)
-@NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor_ = {
+    @org.springframework.data.annotation.PersistenceCreator,
+    @com.fasterxml.jackson.annotation.JsonCreator
+})
 public class MockConfig implements Serializable {
     private static final long serialVersionUID = 1L;
-    @Builder.Default
-    private int statusCode = 200;
 
     @Builder.Default
-    private long delayMs = 0;
-
-    private Map<String, String> headers;
+    private final int statusCode = 200;
 
     @Builder.Default
-    private String body = "ok";
+    private final long delayMs = 0;
 
-    private String presetType;
+    private final Map<String, String> headers;
 
-    private Map<String, Object> presetOptions;
+    @Builder.Default
+    private final String body = "ok";
+
+    private final String presetType;
+
+    private final Map<String, Object> presetOptions;
 
     public Map<String, String> getHeaders() {
         if (headers == null) {
