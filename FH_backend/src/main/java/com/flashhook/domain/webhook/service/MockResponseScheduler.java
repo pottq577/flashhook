@@ -1,7 +1,6 @@
 package com.flashhook.domain.webhook.service;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,7 +15,6 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.webhook.service.preset.PresetHandlerRegistry;
-import com.flashhook.domain.webhook.service.preset.ResponsePresetHandler;
 import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.exception.ErrorResponse;
 

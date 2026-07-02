@@ -1,7 +1,6 @@
 package com.flashhook.domain.webhook.service;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,7 +18,6 @@ import com.flashhook.domain.webhook.dto.WebhookPayload;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.domain.webhook.repository.WebhookLogRepository;
 import com.flashhook.domain.webhook.service.preset.PresetHandlerRegistry;
-import com.flashhook.domain.webhook.service.preset.RequestSigningPresetHandler;
 import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.exception.WebhookException;
 import com.flashhook.global.infrastructure.http.ReplayHttpClient;
@@ -103,7 +101,7 @@ public class WebhookReplayService {
         }
 
         try {
-            replayHttpClient.sendRequest(destinationUrl, payload.getMethod(), payload.getHeaders(), payload.getBody());
+            replayHttpClient.sendRequest(destinationUrl, payload.method(), payload.headers(), payload.body());
             log.info("Webhook replayed successfully via WebhookReplayService: logId={}", logId);
             updateReplayStatus(logId, "SUCCESS", null);
         } catch (RestClientException e) {

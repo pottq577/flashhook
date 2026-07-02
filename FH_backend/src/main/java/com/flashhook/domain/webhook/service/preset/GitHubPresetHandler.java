@@ -46,12 +46,12 @@ public class GitHubPresetHandler implements RequestSigningPresetHandler {
             return payload;
         }
 
-        String rawBody = payload.getBody() == null ? "" : payload.getBody();
+        String rawBody = payload.body() == null ? "" : payload.body();
         String digest = "sha256=" + encodeHex(hmacSha256(secretKey.getBytes(StandardCharsets.UTF_8), rawBody));
 
         HttpHeaders newHeaders = new HttpHeaders();
-        if (payload.getHeaders() != null) {
-            newHeaders.putAll(payload.getHeaders());
+        if (payload.headers() != null) {
+            newHeaders.putAll(payload.headers());
         }
         newHeaders.set("X-Hub-Signature-256", digest);
 

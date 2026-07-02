@@ -1,7 +1,6 @@
 package com.flashhook.global.security;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.MDC;

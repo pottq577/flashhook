@@ -51,7 +51,7 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
 
         String webhookId = UUID.randomUUID().toString();
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
-        String body = payload.getBody() == null ? "" : payload.getBody();
+        String body = payload.body() == null ? "" : payload.body();
         String signedContent = webhookId + "." + timestamp + "." + body;
 
         String secret = secretKey.startsWith("whsec_") ? secretKey.substring(6) : secretKey;
@@ -67,8 +67,8 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
         String signature = "v1," + Base64.getEncoder().encodeToString(digestBytes);
 
         HttpHeaders newHeaders = new HttpHeaders();
-        if (payload.getHeaders() != null) {
-            newHeaders.putAll(payload.getHeaders());
+        if (payload.headers() != null) {
+            newHeaders.putAll(payload.headers());
         }
         newHeaders.set("webhook-id", webhookId);
         newHeaders.set("webhook-timestamp", timestamp);
