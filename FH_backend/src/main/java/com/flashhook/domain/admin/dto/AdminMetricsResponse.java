@@ -5,12 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AdminMetricsResponse {
-    private long endpointsCreatedToday;
-    private long totalWebhooksReceived;
-    private int activeSseConnections;
-}
+public record AdminMetricsResponse(
+    long endpointsCreatedToday,
+    long totalWebhooksReceived,
+    int activeSseConnections
+) {}

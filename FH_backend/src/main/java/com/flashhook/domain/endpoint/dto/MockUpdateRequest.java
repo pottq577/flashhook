@@ -11,28 +11,25 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Map;
 
-@Getter
 @Builder
 @Jacksonized
-@NoArgsConstructor
-@AllArgsConstructor
-public class MockUpdateRequest {
+public record MockUpdateRequest(
     @Min(100)
     @Max(599)
-    private Integer statusCode;
+    Integer statusCode,
 
     @Min(0)
     @Max(10000)
-    private Long delayMs;
+    Long delayMs,
 
     @Size(max = 50)
-    private Map<String, String> headers;
+    Map<String, String> headers,
 
     @Size(max = 65536)
-    private String body;
+    String body,
 
     @Size(max = 50)
-    private String presetType;
+    String presetType,
 
-    private Map<String, Object> presetOptions;
-}
+    Map<String, Object> presetOptions
+) {}

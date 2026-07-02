@@ -50,7 +50,7 @@ public class AdminController {
 
     @PostMapping("/blacklist")
     public ResponseEntity<Void> blacklistIp(@Valid @RequestBody BlacklistRequest request) {
-        adminService.blacklistIp(request.getIp());
+        adminService.blacklistIp(request.ip());
         return ResponseEntity.noContent().build();
     }
 

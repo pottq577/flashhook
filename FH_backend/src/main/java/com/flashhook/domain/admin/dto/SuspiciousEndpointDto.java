@@ -7,14 +7,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class SuspiciousEndpointDto {
-    private String endpointId;
-    private String creatorIp;
-    private int logCount;
-    private long logSizeBytes;
-    private Instant createdAt;
-}
+public record SuspiciousEndpointDto(
+    String endpointId,
+    String creatorIp,
+    int logCount,
+    long logSizeBytes,
+    Instant createdAt
+) {}

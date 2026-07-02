@@ -73,7 +73,7 @@ public class WebhookLogController {
             @PathVariable String endpointId,
             @PathVariable String logId,
             @Valid @RequestBody ReplayRequest request) {
-        webhookReplayService.replayLog(endpointId, logId, request.getDestinationUrl());
+        webhookReplayService.replayLog(endpointId, logId, request.destinationUrl());
         return ResponseEntity.ok().build();
     }
 }

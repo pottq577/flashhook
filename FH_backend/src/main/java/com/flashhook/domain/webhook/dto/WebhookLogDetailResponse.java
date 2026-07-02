@@ -15,25 +15,20 @@ import lombok.NoArgsConstructor;
 /**
  * 웹훅 로그 상세 응답 DTO
  */
-@Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class WebhookLogDetailResponse {
-
-    private String logId;
-    private String method;
-    private String contentType;
-    private String clientIp;
-    private String bodyPreview;
-    private long bodySize;
-    private Instant receivedAt;
-
-    // 상세 필드
-    private String url;
-    private Map<String, String> headers;
-    private Map<String, String> queryParams;
-    private Object body;
+public record WebhookLogDetailResponse(
+    String logId,
+    String method,
+    String contentType,
+    String clientIp,
+    String bodyPreview,
+    long bodySize,
+    Instant receivedAt,
+    String url,
+    Map<String, String> headers,
+    Map<String, String> queryParams,
+    Object body
+) {
 
     private static final Set<String> SENSITIVE_KEYS = Set.of(
             "authorization", "x-api-key", "cookie", "x-auth-token",
