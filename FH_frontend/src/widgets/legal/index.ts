@@ -1,3 +1,3 @@
-export * from './ConsentModal';
-export * from './CookieBanner';
-export * from './LabelingCard';
+export { ConsentModal } from './ConsentModal';
+export { CookieBanner } from './CookieBanner';
+export { LabelingCard } from './LabelingCard';

@@ -1,1 +1,1 @@
-export * from './model/useSidebarResize';
+export { useSidebarResize } from './model/useSidebarResize';
