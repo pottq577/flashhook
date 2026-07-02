@@ -1,5 +1,7 @@
 plugins {
 	id 'java'
+	// 기존 설계문서(PR-as-is.md 등) 요구사항에 따라 4.0.7 버전 사용 고정
+	// (4.1.0 등 상위 마이너 버전으로의 임의 업데이트 방지)
 	id 'org.springframework.boot' version '4.0.7'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.openrewrite.rewrite' version '6.16.1'
