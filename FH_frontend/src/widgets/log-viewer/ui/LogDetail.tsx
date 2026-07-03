@@ -149,7 +149,7 @@ const LogDetail = memo(function LogDetail({
             addToast(`[Replay] ${destinationUrl} 주소로 다시 보냈어요.`);
           },
           onError: (err) => {
-            addToast(`[Replay] 다시 보내지 못했어요: ${err.message}`, 4000);
+            addToast(`[Replay] 다시 보내지 못했어요: ${err.message}`);
           },
         },
       );

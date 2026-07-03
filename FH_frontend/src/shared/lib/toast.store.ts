@@ -16,10 +16,11 @@ const MAX_TOASTS = 5;
 
 export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
-  addToast: (message, duration = 1500) => {
+  addToast: (message, duration) => {
     const id = crypto.randomUUID();
+    const calculatedDuration = duration ?? Math.max(1500, Math.min(message.length * 100, 4000));
     set((state) => {
-      const newToasts = [...state.toasts, { id, message, duration }];
+      const newToasts = [...state.toasts, { id, message, duration: calculatedDuration }];
       return { toasts: newToasts.slice(-MAX_TOASTS) };
     });
   },
