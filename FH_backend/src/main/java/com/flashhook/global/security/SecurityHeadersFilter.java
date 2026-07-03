@@ -30,7 +30,7 @@ public class SecurityHeadersFilter implements Filter {
             httpResponse.setHeader("X-Content-Type-Options", "nosniff");
             httpResponse.setHeader("X-Frame-Options", "DENY");
             httpResponse.setHeader("Content-Security-Policy",
-                    "default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;");
+                    "default-src 'self'; style-src 'self' 'unsafe-inline';");
 
             String forwardedProto = httpRequest.getHeader("X-Forwarded-Proto");
             boolean isSecure = request.isSecure() || "https".equalsIgnoreCase(forwardedProto);
