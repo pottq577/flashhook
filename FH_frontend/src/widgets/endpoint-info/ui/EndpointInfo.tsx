@@ -4,6 +4,9 @@ import CountdownTimer from "./CountdownTimer";
 import styles from "./EndpointInfo.module.css";
 
 function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {
+  const d = new Date(endpoint.expiresAt);
+  const formattedDate = `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
   return (
     <div className={styles.container}>
       <div className={styles.infoGroup}>
@@ -34,8 +37,9 @@ function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {
         <div className={styles.statItem}>
           <span className={styles.statLabel}>만료 일시:</span>
           <span className={styles.statValue}>
-            {new Date(endpoint.expiresAt).toLocaleString()} (
-            <CountdownTimer expiresAt={endpoint.expiresAt} />)
+            {formattedDate}
+            <br />
+            (<CountdownTimer expiresAt={endpoint.expiresAt} />)
           </span>
         </div>
       </div>
