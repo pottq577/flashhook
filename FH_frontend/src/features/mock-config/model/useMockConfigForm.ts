@@ -206,13 +206,13 @@ export function useMockConfigForm(endpoint: Endpoint, onSuccessCb?: () => void) 
       onSuccess: () => {
         setIsSaved(true);
         addToast('모의 설정을 저장했어요.');
-        onSuccessCb?.();
         if (savedResetTimerRef.current !== null) {
           window.clearTimeout(savedResetTimerRef.current);
         }
         savedResetTimerRef.current = window.setTimeout(() => {
           setIsSaved(false);
           savedResetTimerRef.current = null;
+          onSuccessCb?.();
         }, 2000);
       }
     });
