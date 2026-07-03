@@ -57,7 +57,7 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스예요. 개발자가 단 1�
 - **TanStack Query**: 서버 상태(데이터 패칭 및 뮤테이션)를 관리해요. 토큰 만료와 500 에러를 전역적으로 처리해요.
 - **Zustand**: 클라이언트/UI 상태를 관리해요. `log.store.ts`로 SSE에서 받은 실시간 로그를 Props 드릴링 없이 관리해요.
 
-## 4. 백엔드 아키텍처 (Spring Boot 3)
+## 4. 백엔드 아키텍처 (Spring Boot 4.0.7)
 
 백엔드는 `com.flashhook` 패키지 하위에서 **DDD(Domain-Driven Design) / Package-by-Feature** 구조를 사용해요.
 
@@ -65,7 +65,7 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스예요. 개발자가 단 1�
   - **Controllers**: `EndpointController`, `WebhookReceiveController`, `WebhookStreamController`.
 - **`global/`**: 횡단 관심사 (`config`, `exception`, `ratelimit` 등).
 - **SSE 로직 (`SseEmitterService`)**: `ConcurrentHashMap`으로 활성 연결을 관리하고, 30초마다 하트비트(`ping`)를 보내요.
-- **Mock 응답 (`MockResponseScheduler`)**: `MockConfig`를 평가해 외부 호출자에게 지연 응답이나 커스텀 응답을 돌려줘요.
+- **Mock 응답 (`MockResponseScheduler`)**: `MockConfig`를 평가해 외부 호출자에게 지연 응답이나 커스텀 응답을 돌려줘요. `MockConfig`는 `final` 필드와 `@PersistenceCreator`, `@JsonCreator`를 사용하여 불변 객체로 설계돼요.
 - **보안 (`Replay Service`)**: IP Pinning 방식으로 DNS Rebinding과 SSRF 공격을 차단해요.
 
 ## 5. 인프라 및 로컬 개발 환경
@@ -79,5 +79,6 @@ FlashHook은 임시 웹훅 수신(Catcher) 서비스예요. 개발자가 단 1�
 
 1. **FSD 강제 규칙**: `entities/` 내 모듈은 `widgets/`나 `pages/` 패키지를 임포트(import)하면 안 돼요.
 2. **API 컨트랙트**: 모든 JSON 페이로드는 `entities/`에 정의된 Zod 스키마로 파싱하고 검증해야 해요.
-3. **Lombok 사용**: `@Getter`와 `@RequiredArgsConstructor`만 사용하세요. 직렬화 무한 루프를 막기 위해 MongoDB 엔티티에 `@Data` 사용은 금지해요.
-4. **Zero Magic (마법 금지)**: 코드는 명시적으로 작성하고, 숨겨진 사이드 이펙트를 피하세요. 검증(빌드/린트/테스트)을 통과하기 전까지는 완료를 선언하지 마세요.
+3. **백엔드 스택 & Lombok 사용**: `@Getter`와 `@RequiredArgsConstructor`만 사용하세요. 직렬화 무한 루프를 막기 위해 MongoDB 엔티티에 `@Data` 사용은 금지해요. `MockConfig`와 같은 도메인 객체는 `final` 필드와 명시적 생성자(`@JsonCreator`)를 통해 불변성을 보장하세요.
+4. **Nullability & JSON**: Nullability 어노테이션은 JSpecify(`org.jspecify.annotations`)를 사용하고, JSON 파싱 시 Jackson 3의 `asString()`(기존 `asText()` 대체)을 사용하세요.
+5. **Zero Magic (마법 금지)**: 코드는 명시적으로 작성하고, 숨겨진 사이드 이펙트를 피하세요. 검증(빌드/린트/테스트)을 통과하기 전까지는 완료를 선언하지 마세요.

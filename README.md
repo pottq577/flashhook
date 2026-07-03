@@ -95,7 +95,7 @@ sequenceDiagram
     CF-->>WebhookSender: 9. Forward Mock Response
 ```
 
-- **Backend:** Java 21, Spring Boot 3.5.15
+- **Backend:** Java 21, Spring Boot 4.0.7
 - **Frontend:** React 19, TypeScript, Vite, Zustand, TanStack Query, React Router, Framer Motion, Playwright + Axe, FSD 아키텍처
 - **Database:** MongoDB TTL, Redis
 - **Infra:** Docker, SSE, Cloudflare Tunnel (Zero Trust)
@@ -118,6 +118,15 @@ sequenceDiagram
 - **대량 로그 렌더링 최적화**: 가상화 리스트로 많은 로그가 쌓여도 UI가 멈추지 않게 했어요.
 - **상태 관리 분리**: FSD 구조, Zustand, TanStack Query로 UI 상태와 서버 상태를 분리했어요.
 - **자동화된 품질 검증**: Playwright와 Axe로 주요 흐름과 접근성 회귀를 검사해요.
+
+### 품질 최적화 (Quality & UX)
+
+- **SEO & 웹 성능 최적화**: 히어로 이미지 우선 로딩(`fetchpriority="high"`) 및 폰트 프리로드를 통해 LCP를 개선하고, 다국어 타겟팅 및 OpenGraph, JSON-LD 동적 삽입을 통한 SEO/GEO 최적화를 적용했어요.
+- **UI/UX 개선**: 
+  - 자연스러운 화면 전환 애니메이션 최적화 (`300ms ease-out cubic-bezier`)
+  - 고정폭 숫자 서체(`tabular-nums`) 적용으로 동적 데이터 렌더링 시 레이아웃 Jitter 방지
+  - Fitts's Law에 의거한 인터랙티브 클릭 타겟 크기 확보 (최소 32px)
+  - 다크/라이트 테마에 반응하는 부드러운 그림자 효과로 시각적 계층 구조 강화
 
 보안 설계는 [Security Overview](docs/security/SECURITY_OVERVIEW.md), 더 자세한 설계 의도는 [System Context (EN)](docs/artifacts/CONTEXT.md) 또는 [System Context (KR)](docs/artifacts/CONTEXT_KR.md)를 참고해 주세요.
 

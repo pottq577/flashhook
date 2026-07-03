@@ -138,3 +138,36 @@ GitHub이나 Stripe처럼 타사에서 웹훅을 보내는 서버는 사람이 �
 - Cloudflare 대시보드에서 **Security** -> **WAF** -> **Custom rules** 로 이동해요.
 - **Field:** `URI Path`, **Operator:** `starts with`, **Value:** `/api/hooks/` 로 설정해요.
 - **Action:** `Skip` 을 누르고 밑에 나오는 Bot Fight Mode, Security Level 등을 전부 체크해요.
+
+## 7. 개발 컨벤션 및 유의사항 (Action Items)
+
+Spring Boot 4.0.x 및 최신 라이브러리 환경에 맞추어 다음 컨벤션을 준수해 주세요.
+
+### 7.1. Nullability 어노테이션
+
+- 신규 필터 및 컴포넌트 작성 시, Nullable/NonNull 정책 적용에는 반드시 `org.jspecify.annotations` 패키지를 사용하십시오. (Spring Framework 7 생태계 권장 JSpecify 표준)
+
+### 7.2. 불변 객체(Immutability)와 엔티티 설계
+
+- **값 객체(VO):** `final` 필드와 명시적 `@JsonCreator` 커스텀 생성자를 활용하여 불변성과 기본값을 보장하세요. (파라미터 누락/null 유입 방지)
+- **Document 엔티티(`@Document`):** Spring Data MongoDB의 리플렉션 호환성을 고려하여 `final` 키워드 사용을 피하거나 제한적으로 사용하십시오.
+
+### 7.3. Jackson 3 API 사용
+
+- JSON 파싱 및 역직렬화 시 `asText()` 메서드는 타입 캐스팅 모호함으로 인해 deprecated 되었습니다. 대신 `asString()`을 사용하십시오.
+
+## 8. UI/UX 및 프론트엔드 품질 가이드라인 (Quality Audits)
+
+Core Web Vitals 실측 결과 및 UI/UX 감사(Audit) 결과를 바탕으로, 프론트엔드 컴포넌트 개발 시 아래 사항들을 준수해 주세요.
+
+### 8.1. 웹 품질 및 성능 최적화 (Web Quality & SEO)
+
+- **LCP 최적화**: 첫 페이지의 핵심 렌더링 요소를 위해 히어로 이미지 등 주요 리소스에 `fetchpriority="high"` 속성을 부여하고, 폰트 및 핵심 CSS 프리로드를 적용하세요.
+- **SEO/GEO 최적화**: 페이지의 `lang` 속성 명시, OpenGraph 메타 태그, 그리고 크롤러 봇을 위한 `JSON-LD` 구조화 데이터를 동적으로 삽입하도록 구현하세요.
+
+### 8.2. 인터랙션 및 타이포그래피 (UI/UX)
+
+- **애니메이션 타이밍 (Easing Curves)**: 패널 클릭이나 탭 전환 등 레이아웃 전환 시, 화면 구성 요소가 튀거나 시각적 피로를 주지 않도록 기본 애니메이션 지속 시간을 `300ms`로 맞추고 `ease-out cubic-bezier` 커브를 사용하세요.
+- **레이아웃 흔들림 방지 (Jitter)**: 로그의 타임스탬프, 바이트 크기, 요청 횟수 등 가변적인 숫자 텍스트로 인해 레이아웃이 좌우로 흔들리지 않도록 `font-variant-numeric: tabular-nums;` 속성을 반드시 적용하세요.
+- **인터랙티브 타겟 크기 (Fitts's Law)**: 모바일 및 터치 환경을 고려하여, 복사 버튼이나 트리거 요소 등 클릭 컴포넌트의 가상 타겟 영역(Padding 포함)은 최소 `32px` 이상으로 확보하세요.
+- **그림자 및 시각 계층 구조 (Elevation)**: 사이드바나 대시보드 뷰어(`mockSidebarContainer`)처럼 깊이감이 필요한 컴포넌트는 단순 테두리 대신 부드러운 그림자 효과(`box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3)`) 및 테마 연동 CSS 변수를 사용하여 계층 구조를 명확히 하세요.
