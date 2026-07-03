@@ -18,6 +18,7 @@ import { LogList, LogDetail } from "@/widgets/log-viewer";
 import { lazy, Suspense } from "react";
 import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
 import { resolveApiBaseUrl } from "@/shared/config/api";
+import { SEOHead } from "@/shared/ui/SEOHead";
 import styles from "./DashboardPage.module.css";
 
 const MockPanelSkeleton = <div className={styles.mockPanelSkeleton} />;
@@ -89,21 +90,12 @@ function DashboardPage() {
     }
   }, [isMobile, logs, selectedLog, handleSelectLog]);
 
-  // 페이지 타이틀(UX Best Practice) 동적 적용
-  useEffect(() => {
-    const originalTitle = document.title;
-    if (endpointId) {
-      const shortId = endpointId.slice(0, 6);
-      document.title = `[${shortId}] 대시보드 - FlashHook`;
-    }
-    return () => {
-      document.title = originalTitle;
-    };
-  }, [endpointId]);
+  const pageTitle = endpointId ? `[${endpointId.slice(0, 6)}] 대시보드 - FlashHook` : "대시보드 - FlashHook";
 
   if (!endpointId)
     return (
       <div className={styles.container}>
+        <SEOHead title={pageTitle} />
         <Header />
         <div className={styles.center}>
           <p>엔드포인트 ID가 맞지 않아요</p>
@@ -116,6 +108,7 @@ function DashboardPage() {
   if (isLoading)
     return (
       <div className={styles.container}>
+        <SEOHead title={pageTitle} />
         <Header />
         <div className={styles.center}>
           <div className={styles.spinner}></div>
@@ -135,6 +128,7 @@ function DashboardPage() {
 
     return (
       <div className={styles.container}>
+        <SEOHead title={pageTitle} />
         <Header />
         <div className={styles.center}>
           <div className="errorBox">
@@ -163,6 +157,7 @@ function DashboardPage() {
   if (!endpoint)
     return (
       <div className={styles.container}>
+        <SEOHead title={pageTitle} />
         <Header />
         <div className={styles.center}>
           <p>엔드포인트를 찾을 수 없어요</p>
@@ -175,6 +170,7 @@ function DashboardPage() {
 
   return (
     <div className={styles.container}>
+      <SEOHead title={pageTitle} />
       <Header />
       <h1 className={styles.srOnly}>웹훅 대시보드</h1>
       <EndpointInfo endpoint={endpoint} />
