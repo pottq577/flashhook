@@ -4,8 +4,18 @@ import { logger } from "@/shared/lib/logger";
 import { useCreateEndpointMutation } from "@/entities/endpoint";
 import { Footer } from "@/widgets/footer";
 import { lazy, Suspense } from "react";
-const ConsentModal = lazy(() => import("@/widgets/legal/ConsentModal").then(m => ({ default: m.ConsentModal })));
-const ConfirmModal = lazy(() => import("@/shared/ui/ConfirmModal"));
+import { withErrorCatch } from "@/shared/lib/withErrorCatch";
+
+const ConsentModal = lazy(() =>
+  withErrorCatch(() =>
+    import("@/widgets/legal/ConsentModal").then((m) => ({
+      default: m.ConsentModal,
+    })),
+  ),
+);
+const ConfirmModal = lazy(() =>
+  withErrorCatch(() => import("@/shared/ui/ConfirmModal")),
+);
 import { useEndpointStore } from "@/entities/endpoint";
 import { TerminalHero } from "./TerminalHero";
 import { LandingFeatures } from "./LandingFeatures";
@@ -161,29 +171,25 @@ function LandingPage() {
         <AdBanner />
       </div>
       <Footer />
-      {isConsentOpen && (
-        <Suspense fallback={null}>
-          <ConsentModal
-            isOpen={isConsentOpen}
-            onAccept={handleAcceptConsent}
-            onDecline={() => setIsConsentOpen(false)}
-          />
-        </Suspense>
-      )}
-      {deleteTargetId !== null && (
-        <Suspense fallback={null}>
-          <ConfirmModal
-            isOpen={deleteTargetId !== null}
-            title="엔드포인트 삭제"
-            message="이 엔드포인트의 접근 기록을 삭제하시겠습니까? (서버의 데이터는 삭제되지 않습니다)"
-            onConfirm={() => {
-              if (deleteTargetId) removeEndpoint(deleteTargetId);
-              setDeleteTargetId(null);
-            }}
-            onCancel={() => setDeleteTargetId(null)}
-          />
-        </Suspense>
-      )}
+      <Suspense fallback={null}>
+        <ConsentModal
+          isOpen={isConsentOpen}
+          onAccept={handleAcceptConsent}
+          onDecline={() => setIsConsentOpen(false)}
+        />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ConfirmModal
+          isOpen={deleteTargetId !== null}
+          title="엔드포인트 삭제"
+          message="이 엔드포인트의 접근 기록을 삭제하시겠습니까? (서버의 데이터는 삭제되지 않습니다)"
+          onConfirm={() => {
+            if (deleteTargetId) removeEndpoint(deleteTargetId);
+            setDeleteTargetId(null);
+          }}
+          onCancel={() => setDeleteTargetId(null)}
+        />
+      </Suspense>
     </div>
   );
 }
