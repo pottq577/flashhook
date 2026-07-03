@@ -89,6 +89,18 @@ function DashboardPage() {
     }
   }, [isMobile, logs, selectedLog, handleSelectLog]);
 
+  // 페이지 타이틀(UX Best Practice) 동적 적용
+  useEffect(() => {
+    const originalTitle = document.title;
+    if (endpointId) {
+      const shortId = endpointId.slice(0, 6);
+      document.title = `[${shortId}] 대시보드 - FlashHook`;
+    }
+    return () => {
+      document.title = originalTitle;
+    };
+  }, [endpointId]);
+
   if (!endpointId)
     return (
       <div className={styles.container}>
