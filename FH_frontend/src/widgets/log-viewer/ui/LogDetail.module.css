@@ -137,7 +137,9 @@
 
 .url {
   color: var(--accent-secondary);
-  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .metaInfo {
@@ -192,13 +194,14 @@
 
 .key {
   color: var(--accent-secondary);
-  min-width: 200px;
+  white-space: nowrap;
 }
 
 .value {
   color: var(--text-primary);
   word-break: break-all;
   min-width: 0;
+  flex: 1;
 }
 
 .empty {

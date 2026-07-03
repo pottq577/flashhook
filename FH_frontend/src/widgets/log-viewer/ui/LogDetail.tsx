@@ -159,7 +159,7 @@ const LogDetail = memo(function LogDetail({
   return (
     <div className={styles.container} data-testid="log-detail">
       <div className={styles.header}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, minWidth: 0 }}>
           <MethodBadge method={log.method} />
           <span className={styles.url}>{log.url}</span>
         </div>
