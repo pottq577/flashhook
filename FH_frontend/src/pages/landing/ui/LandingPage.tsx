@@ -27,7 +27,6 @@ function LandingPage() {
   const navigate = useNavigate();
   const { mutateAsync: createEndpoint } = useCreateEndpointMutation();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [terminalLines, setTerminalLines] = useState<string[]>(() => [
@@ -105,7 +104,6 @@ function LandingPage() {
     if (isLoading) return;
     setIsConsentOpen(false);
     setIsLoading(true);
-    setError(null);
     setTerminalLines((prev) => [
       ...prev,
       "$ flashhook create-endpoint",
@@ -128,9 +126,6 @@ function LandingPage() {
         ...prev,
         "> Error: Failed to create endpoint",
       ]);
-      setError(
-        err instanceof Error ? err.message : "Failed to create endpoint",
-      );
       setIsLoading(false);
     }
   };
@@ -160,7 +155,6 @@ function LandingPage() {
       <TerminalHero
         terminalLines={terminalLines}
         isLoading={isLoading}
-        error={error}
         endpoints={endpoints}
         now={now}
         onCreateClick={handleCreateClick}

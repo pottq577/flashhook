@@ -50,10 +50,16 @@ const globalErrorHandler = (error: Error) => {
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
-    onError: globalErrorHandler,
+    onError: (error, query) => {
+      if (query.meta?.suppressErrorToast) return;
+      globalErrorHandler(error);
+    },
   }),
   mutationCache: new MutationCache({
-    onError: globalErrorHandler,
+    onError: (error, variables, context, mutation) => {
+      if (mutation.meta?.suppressErrorToast) return;
+      globalErrorHandler(error);
+    },
   }),
   defaultOptions: {
     queries: {

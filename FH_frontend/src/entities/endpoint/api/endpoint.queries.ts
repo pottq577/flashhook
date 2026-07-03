@@ -23,6 +23,7 @@ export const useEndpointQuery = (endpointId: string | undefined) => {
 
       return getEndpoint(endpointId);
     },
+    meta: { suppressErrorToast: true },
     enabled: !!endpointId,
   });
 };
