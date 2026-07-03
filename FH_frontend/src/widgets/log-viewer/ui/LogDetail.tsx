@@ -165,7 +165,27 @@ const LogDetail = memo(function LogDetail({
     }
     const shareUrl = urlObj.toString();
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = shareUrl;
+        textArea.style.position = "absolute";
+        textArea.style.left = "-999999px";
+        document.body.prepend(textArea);
+        textArea.select();
+        try {
+          const successful = document.execCommand("copy");
+          if (!successful) {
+            throw new Error("execCommand copy returned false");
+          }
+        } catch (error) {
+          logger.error("Fallback copy failed", error);
+          throw error;
+        } finally {
+          textArea.remove();
+        }
+      }
       addToast("로그가 복사되었어요. (안전하게 헤더만 공유돼요)");
     } catch (e) {
       logger.error("Failed to copy share URL", e);
