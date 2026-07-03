@@ -21,6 +21,10 @@
   ],
   "rewrites": [
     {
+      "source": "/webhooks/(.*)",
+      "destination": "https://flashhook-seo-pages.vercel.app/webhooks/$1"
+    },
+    {
       "source": "/api",
       "destination": "https://api.flashhook.site/api"
     },

@@ -1,0 +1,68 @@
+[
+  {
+    "slug": "stripe",
+    "displayName": "Stripe",
+    "officialDocsUrl": "https://stripe.com/docs/webhooks",
+    "authMethod": "Stripe-Signature Header (HMAC SHA256)",
+    "sampleEvents": [
+      {
+        "eventName": "payment_intent.succeeded",
+        "samplePayload": {
+          "id": "evt_1M...",
+          "object": "event",
+          "api_version": "2022-11-15",
+          "created": 1676643200,
+          "data": {
+            "object": {
+              "id": "pi_1M...",
+              "object": "payment_intent",
+              "amount": 2000,
+              "currency": "usd",
+              "status": "succeeded"
+            }
+          },
+          "type": "payment_intent.succeeded"
+        }
+      }
+    ],
+    "setupSteps": [
+      "Log into your Stripe Dashboard.",
+      "Navigate to Developers > Webhooks.",
+      "Click 'Add endpoint'.",
+      "Paste your FlashHook URL in the 'Endpoint URL' field.",
+      "Select the events you want to listen to (e.g., payment_intent.succeeded)."
+    ]
+  },
+  {
+    "slug": "github",
+    "displayName": "GitHub",
+    "officialDocsUrl": "https://docs.github.com/en/webhooks-and-events/webhooks/about-webhooks",
+    "authMethod": "X-Hub-Signature-256 Header (HMAC SHA256)",
+    "sampleEvents": [
+      {
+        "eventName": "push",
+        "samplePayload": {
+          "ref": "refs/heads/main",
+          "before": "0000000000000000000000000000000000000000",
+          "after": "c1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0",
+          "repository": {
+            "name": "flashhook",
+            "full_name": "user/flashhook"
+          },
+          "pusher": {
+            "name": "octocat",
+            "email": "octocat@github.com"
+          }
+        }
+      }
+    ],
+    "setupSteps": [
+      "Go to your GitHub repository.",
+      "Click 'Settings' > 'Webhooks'.",
+      "Click 'Add webhook'.",
+      "Paste your FlashHook URL into the 'Payload URL' field.",
+      "Change 'Content type' to 'application/json'.",
+      "Select the events you want to trigger the webhook."
+    ]
+  }
+]
