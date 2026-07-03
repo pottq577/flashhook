@@ -12,7 +12,7 @@ export default defineConfig({
       transformIndexHtml(html) {
         return html.replace(
           /<link rel="stylesheet" crossorigin href="(\/assets\/fonts-[^"]+\.css)">/g,
-          '<link rel="preload" as="style" crossorigin href="$1">\n    <link rel="stylesheet" crossorigin href="$1" media="print" onload="this.media=\'all\'">'
+          '<link rel="preload" as="style" crossorigin href="$1">\n    <link rel="stylesheet" crossorigin href="$1" media="print" onload="this.media=\'all\'">\n    <noscript><link rel="stylesheet" crossorigin href="$1"></noscript>'
         );
       },
     },
