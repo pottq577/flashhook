@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { logger } from '@/shared/lib/logger';
-import Toast from './Toast';
+import { useToastStore } from '@/shared/lib/toast.store';
 import styles from './CopyButton.module.css';
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const addToast = useToastStore((state) => state.addToast);
 
   useEffect(() => {
     if (copied) {
@@ -18,7 +18,7 @@ function CopyButton({ text }: { text: string }) {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      setShowToast(true);
+      addToast('복사했어요');
     } catch (err) {
       logger.error('Failed to copy text', err);
     }
@@ -43,13 +43,6 @@ function CopyButton({ text }: { text: string }) {
           </svg>
         )}
       </button>
-      
-      {showToast ? (
-        <Toast 
-          message="복사했어요" 
-          onClose={() => setShowToast(false)} 
-        />
-      ) : null}
     </>
   );
 }
