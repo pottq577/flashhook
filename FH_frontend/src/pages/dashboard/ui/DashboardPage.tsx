@@ -82,6 +82,13 @@ function DashboardPage() {
     }
   }, [endpointId, endpoint?.expiresAt, addEndpoint]);
 
+  // 데스크톱 환경에서는 항상 최근 로그(첫 번째)를 기본으로 보여주도록 자동 선택
+  useEffect(() => {
+    if (!isMobile && logs.length > 0 && !selectedLog) {
+      handleSelectLog(logs[0].logId);
+    }
+  }, [isMobile, logs, selectedLog, handleSelectLog]);
+
   if (!endpointId)
     return (
       <div className={styles.container}>
