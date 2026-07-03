@@ -3,6 +3,10 @@ name: Deploy Backend to OCI
 on:
   push:
     branches: ["main"]
+    paths:
+      - "FH_backend/**"
+      - "docker-compose.prod.yml"
+      - ".github/workflows/deploy.yml"
 
 concurrency:
   group: deploy-oci
