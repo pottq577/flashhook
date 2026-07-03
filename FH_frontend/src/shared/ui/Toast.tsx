@@ -30,7 +30,7 @@ function Toast({ message, duration = 3000, onClose }: ToastProps) {
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.7}
-      onDragEnd={(e, { offset, velocity }) => {
+      onDragEnd={(_, { offset, velocity }) => {
         if (Math.abs(offset.x) > 50 || Math.abs(velocity.x) > 500) {
           onClose();
         }
