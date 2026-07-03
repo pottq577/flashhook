@@ -43,7 +43,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String clientIp = request.getRemoteAddr();
 
         // 0. 블랙리스트 체크 (가장 먼저)
-        if (path.startsWith("/api/hooks/") || path.startsWith("/api/endpoints")) {
+        if (path.startsWith("/api/hooks/") || path.startsWith("/api/endpoints")
+                || path.startsWith("/api/public/logs/")) {
             if (rateLimitService.isBlacklisted(clientIp)) {
                 sendErrorResponse(response, ErrorCode.FORBIDDEN);
                 return;
