@@ -2,16 +2,8 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/500.css";
-import "@fontsource/jetbrains-mono/700.css";
-import "@fontsource/geist-sans/400.css";
-import "@fontsource/geist-sans/500.css";
-import "@fontsource/geist-sans/600.css";
-import "@fontsource/geist-mono/400.css";
-import "@fontsource/geist-mono/500.css";
-import "@fontsource/geist-mono/600.css";
+// Load fonts asynchronously to prevent render blocking
+import("./fonts").catch((err) => console.error("Failed to load fonts", err));
 import "./index.css";
 import App from "./app/App.tsx";
 import { ErrorBoundary } from "./app/ErrorBoundary.tsx";

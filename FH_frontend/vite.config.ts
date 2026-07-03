@@ -23,6 +23,7 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
+            if (id.includes("@fontsource") || id.includes("pretendard")) return "fonts";
             if (id.includes("framer-motion") || id.includes("lucide-react") || id.includes("react-helmet-async")) return "vendor-ui";
             if (id.includes("@tanstack") || id.includes("zustand")) return "vendor-query";
             if (/\/node_modules\/(react|react-dom|react-router-dom)\//.test(id)) return "vendor-react";
