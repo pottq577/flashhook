@@ -9,7 +9,7 @@ function CopyButton({ text }: { text: string }) {
 
   useEffect(() => {
     if (copied) {
-      const timer = setTimeout(() => setCopied(false), 2000);
+      const timer = setTimeout(() => setCopied(false), 1500);
       return () => clearTimeout(timer);
     }
   }, [copied]);
@@ -47,6 +47,7 @@ function CopyButton({ text }: { text: string }) {
       {showToast ? (
         <Toast 
           message="복사했어요" 
+          duration={1500}
           onClose={() => setShowToast(false)} 
         />
       ) : null}
