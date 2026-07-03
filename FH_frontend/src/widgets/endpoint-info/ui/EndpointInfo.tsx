@@ -7,12 +7,14 @@ function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {
   return (
     <div className={styles.container}>
       <div className={styles.infoGroup}>
-        <span className={styles.label}>웹훅 URL</span>
+        <div className={styles.labelRow}>
+          <span className={styles.label}>웹훅 URL</span>
+          <CopyButton text={endpoint.webhookUrl} />
+        </div>
         <div className={styles.valueRow}>
           <code className={styles.code} data-testid="webhook-url">
             {endpoint.webhookUrl}
           </code>
-          <CopyButton text={endpoint.webhookUrl} />
         </div>
       </div>
 

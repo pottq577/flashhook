@@ -256,7 +256,7 @@ function DashboardPage() {
 
         {/* Mobile Bottom Sheet Detail View */}
         <AnimatePresence initial={false}>
-          {isMobile && selectedLog ? (
+          {isMobile && (selectedLog || isMockPanelOpen) ? (
             <>
               <motion.button
                 type="button"
@@ -293,24 +293,15 @@ function DashboardPage() {
               >
                 <div className={styles.bottomSheetHandle} />
                 <div className={styles.bottomSheetContent}>
-                  {!isMockPanelOpen ? (
+                  {!isMockPanelOpen && selectedLog ? (
                     <>
                       <LogDetail
                         logId={selectedLog.logId}
                         endpointId={endpointId}
                         webhookUrl={webhookUrl}
                       />
-                      <div className={styles.mockOverlayTriggerMobile}>
-                        <button
-                          className={styles.btnAction}
-                          onClick={toggleMockPanel}
-                          style={{ width: "100%" }}
-                        >
-                          ⚡️ Mock 설정 열기
-                        </button>
-                      </div>
                     </>
-                  ) : (
+                  ) : isMockPanelOpen ? (
                     <>
                       <div className={styles.mockPanelHeaderMobile}>
                         <h3 className={styles.mockPanelTitle}>
@@ -332,12 +323,25 @@ function DashboardPage() {
                         />
                       </Suspense>
                     </>
-                  )}
+                  ) : null}
                 </div>
               </motion.div>
             </>
           ) : null}
         </AnimatePresence>
+
+        {/* Mobile Fixed Mock FAB */}
+        {isMobile && !isMockPanelOpen && (
+          <div className={styles.mobileFixedBottomBar}>
+            <button
+              className={styles.btnAction}
+              onClick={toggleMockPanel}
+              aria-label="Mock 설정 열기"
+            >
+              ⚡️ Mock 응답 설정
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );
