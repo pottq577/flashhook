@@ -2,10 +2,10 @@ import type { Endpoint } from "@/entities/endpoint";
 import CopyButton from "@/shared/ui/CopyButton";
 import CountdownTimer from "./CountdownTimer";
 import styles from "./EndpointInfo.module.css";
+import { formatExpiresAt } from "@/shared/lib/formatDate";
 
 function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {
-  const d = new Date(endpoint.expiresAt);
-  const formattedDate = `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const formattedDate = formatExpiresAt(endpoint.expiresAt);
 
   return (
     <div className={styles.container}>

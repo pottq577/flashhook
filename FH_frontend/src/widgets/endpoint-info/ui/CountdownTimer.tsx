@@ -11,6 +11,11 @@ function CountdownTimer({ expiresAt }: CountdownTimerProps) {
     const targetDate = new Date(expiresAt).getTime();
 
     const updateTimer = () => {
+      if (isNaN(targetDate)) {
+        setTimeLeft("-");
+        return;
+      }
+
       const now = new Date().getTime();
       const distance = targetDate - now;
 
