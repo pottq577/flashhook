@@ -2,8 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { logger } from "@/shared/lib/logger";
 import { QueryProvider } from "./providers/QueryProvider";
-import { ToastContainer } from "@/shared/ui/ToastContainer";
-import { CookieBanner } from "@/widgets/legal";
+const ToastContainer = lazy(() => import("@/shared/ui/ToastContainer").then(m => ({ default: m.ToastContainer })));
+import { CookieBanner } from "@/widgets/legal/CookieBanner";
 import { MaintenanceBanner } from "@/shared/ui/MaintenanceBanner";
 
 import LandingPage from "@/pages/landing/ui/LandingPage";
@@ -123,7 +123,9 @@ function App() {
           </Suspense>
         </main>
         <CookieBanner />
-        <ToastContainer />
+        <Suspense fallback={null}>
+          <ToastContainer />
+        </Suspense>
         <Suspense fallback={null}>
           <DevTools />
         </Suspense>
