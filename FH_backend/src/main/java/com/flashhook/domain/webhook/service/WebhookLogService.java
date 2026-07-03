@@ -16,6 +16,7 @@ import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
 import com.flashhook.domain.webhook.dto.WebhookLogResponse;
+import com.flashhook.domain.webhook.dto.PublicWebhookLogResponse;
 import com.flashhook.domain.webhook.model.WebhookLog;
 import com.flashhook.domain.webhook.repository.WebhookLogRepository;
 import com.flashhook.global.exception.ErrorCode;
@@ -88,6 +89,16 @@ public class WebhookLogService {
         }
 
         return WebhookLogDetailResponse.from(webhookLog);
+    }
+
+    /**
+     * 공개 로그 상세 조회 (공유용, 마스킹 적용)
+     */
+    public PublicWebhookLogResponse getPublicLogDetail(String logId) {
+        WebhookLog webhookLog = webhookLogRepository.findByLogId(logId)
+                .orElseThrow(() -> new WebhookException(ErrorCode.LOG_NOT_FOUND));
+
+        return PublicWebhookLogResponse.from(webhookLog);
     }
 
     /**
