@@ -32,10 +32,10 @@ export const AdminLoginPage = () => {
     } catch (err) {
       setAdminToken(null);
       if (err instanceof Error && err.message === "Authentication failed") {
-        setError("인증에 실패했습니다. 올바른 관리자 토큰을 입력해주세요.");
+        setError("인증에 실패했어요. 올바른 관리자 토큰을 입력해 주세요.");
       } else {
         setError(
-          "네트워크 또는 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+          "네트워크 또는 서버 오류가 발생했어요. 잠시 후 다시 시도해 주세요.",
         );
       }
     } finally {

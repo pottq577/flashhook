@@ -51,7 +51,7 @@ export class ErrorBoundary extends Component<
             화면을 띄우다 문제가 생겼어요
           </h1>
           <p style={{ color: "var(--text-secondary)", marginBottom: "2rem" }}>
-            {"일시적인 문제가 생겼어요. 잠시 후 다시 시도해주세요."}
+            {"일시적인 문제가 생겼어요. 잠시 후 다시 시도해 주세요."}
           </p>
           <button
             onClick={() => window.location.reload()}

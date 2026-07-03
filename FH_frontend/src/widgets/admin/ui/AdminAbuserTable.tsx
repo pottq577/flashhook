@@ -50,7 +50,7 @@ export const AdminAbuserTable = () => {
                   className={styles.emptyState}
                   style={{ color: "var(--danger)" }}
                 >
-                  데이터를 불러오는데 실패했습니다.
+                  데이터를 불러오지 못했어요.
                 </td>
               </tr>
             ) : !data || data.length === 0 ? (
