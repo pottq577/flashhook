@@ -10,7 +10,7 @@ export function useRealtimeLogs(endpointId: string | undefined) {
   const handleMessage = useCallback(
     (log: WebhookLog) => {
       addLog(log);
-      addToast(`${log.method} 요청을 받았어요`, 3000);
+      addToast(`${log.method} 요청을 받았어요`);
 
       // 선택된 로그가 없으면 새 로그를 자동 선택
       const { selectedLog, setSelectedLog } = useLogStore.getState();
