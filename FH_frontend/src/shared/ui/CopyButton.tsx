@@ -47,7 +47,6 @@ function CopyButton({ text }: { text: string }) {
       {showToast ? (
         <Toast 
           message="복사했어요" 
-          duration={1500}
           onClose={() => setShowToast(false)} 
         />
       ) : null}
