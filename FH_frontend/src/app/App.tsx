@@ -12,6 +12,7 @@ import { MaintenanceBanner } from "@/shared/ui/MaintenanceBanner";
 import LandingPage from "@/pages/landing/ui/LandingPage";
 
 import { withErrorCatch } from "@/shared/lib/withErrorCatch";
+import { RouteErrorBoundary } from "@/shared/ui/RouteErrorBoundary";
 
 const DashboardPage = lazy(() =>
   withErrorCatch(() => import("@/pages/dashboard/ui/DashboardPage")),
@@ -93,7 +94,8 @@ function App() {
         <MaintenanceBanner />
         <main>
           <Suspense fallback={AppLoadingFallback}>
-            <Routes>
+            <RouteErrorBoundary>
+              <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route
                 path="/dashboard/:endpointId"
@@ -116,6 +118,7 @@ function App() {
 
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
+            </RouteErrorBoundary>
           </Suspense>
         </main>
         <CookieBanner />
