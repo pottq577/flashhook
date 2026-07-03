@@ -4,7 +4,7 @@ This Next.js application serves as the Programmatic SEO (pSEO) engine for FlashH
 
 ## Architecture
 
-- **Next.js 15+ App Router**: Uses `generateStaticParams` to build static HTML pages at build time.
+- **Next.js 16 App Router**: Uses `generateStaticParams` to build static HTML pages at build time.
 - **Tailwind CSS v4**: For styling.
 - **Deployment**: Deployed on Vercel as an independent project (`flashhook-seo-pages`).
 - **Integration**: The main React SPA (`FH_frontend`) uses `vercel.json` rewrites to proxy `/webhooks/*` traffic to this Next.js app, maintaining a single domain (`flashhook.site`) for users and search engines.
