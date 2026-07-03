@@ -1,22 +1,33 @@
-import fs from 'fs';
-import path from 'path';
-import { notFound } from 'next/navigation';
+import { notFound } from "next/navigation";
+import providersData from "../../../../data/webhook-providers.json";
+
+interface WebhookProvider {
+  slug: string;
+  displayName: string;
+  officialDocsUrl: string;
+  authMethod: string;
+  setupSteps: string[];
+  sampleEvents: Array<{
+    eventName: string;
+    samplePayload: unknown;
+  }>;
+}
+
+const providers = providersData as WebhookProvider[];
 
 export async function generateStaticParams() {
-  const filePath = path.join(process.cwd(), 'data', 'webhook-providers.json');
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  const providers = JSON.parse(fileContents);
- 
-  return providers.map((provider: any) => ({
+  return providers.map((provider) => ({
     slug: provider.slug,
   }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const filePath = path.join(process.cwd(), 'data', 'webhook-providers.json');
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  const providers = JSON.parse(fileContents);
-  const provider = providers.find((p: any) => p.slug === params.slug);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const provider = providers.find((p) => p.slug === slug);
 
   if (!provider) {
     return {};
@@ -32,11 +43,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default function WebhookProviderPage({ params }: { params: { slug: string } }) {
-  const filePath = path.join(process.cwd(), 'data', 'webhook-providers.json');
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  const providers = JSON.parse(fileContents);
-  const provider = providers.find((p: any) => p.slug === params.slug);
+export default async function WebhookProviderPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const provider = providers.find((p) => p.slug === slug);
 
   if (!provider) {
     notFound();
@@ -49,7 +62,8 @@ export default function WebhookProviderPage({ params }: { params: { slug: string
           Test {provider.displayName} Webhooks
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-          Use FlashHook to catch and inspect {provider.displayName} webhooks in real-time. No login required.
+          Use FlashHook to catch and inspect {provider.displayName} webhooks in
+          real-time. No login required.
         </p>
         <div className="flex items-center space-x-4">
           <a
@@ -73,8 +87,10 @@ export default function WebhookProviderPage({ params }: { params: { slug: string
         <div>
           <h2 className="text-2xl font-semibold mb-4">Setup Instructions</h2>
           <ol className="list-decimal pl-5 space-y-3 text-gray-700 dark:text-gray-300">
-            {provider.setupSteps.map((step: string, idx: number) => (
-              <li key={idx} className="pl-1">{step}</li>
+            {provider.setupSteps.map((step, idx) => (
+              <li key={idx} className="pl-1">
+                {step}
+              </li>
             ))}
           </ol>
 
@@ -86,10 +102,13 @@ export default function WebhookProviderPage({ params }: { params: { slug: string
 
         <div>
           <h2 className="text-2xl font-semibold mb-4">Sample Event Payload</h2>
-          {provider.sampleEvents.map((event: any, idx: number) => (
+          {provider.sampleEvents.map((event, idx) => (
             <div key={idx} className="mb-6">
               <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">
-                Event: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">{event.eventName}</code>
+                Event:{" "}
+                <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
+                  {event.eventName}
+                </code>
               </h3>
               <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto shadow-inner">
                 <pre className="text-sm text-green-400 font-mono">
