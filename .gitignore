@@ -41,6 +41,7 @@ keys/
 toyproject.md
 docs/review/*
 docs/infrastructure/*
+docs/context/*
 .private/
 
 ### QA Reports & Scripts ###
