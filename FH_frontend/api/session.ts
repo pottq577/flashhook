@@ -39,8 +39,8 @@ export default async function handler(request: Request) {
     if (apiResponse.ok) {
       const logData = await apiResponse.json();
       if (logData && typeof logData === 'object' && 'method' in logData && 'receivedAt' in logData) {
-        title = `FlashHook 공유 로그 - ${logData.method}`;
-        const d = new Date(logData.receivedAt);
+        title = `FlashHook 공유 로그 - ${String(logData.method)}`;
+        const d = new Date(String(logData.receivedAt));
         const dateStr = isNaN(d.getTime()) ? '알 수 없는 시간' : d.toLocaleString();
         description = `안전하게 공유된 FlashHook 로그입니다. 수신 시간: ${dateStr}`;
       }
