@@ -23,6 +23,7 @@ export const useAdminMetrics = () => {
     queryFn: adminApi.getMetrics,
     refetchInterval: POLLING_INTERVAL,
     enabled: !!token,
+    meta: { suppressErrorToast: true },
   });
 };
 
@@ -33,6 +34,7 @@ export const useAdminSuspiciousEndpoints = () => {
     queryFn: adminApi.getSuspiciousEndpoints,
     refetchInterval: POLLING_INTERVAL,
     enabled: !!token,
+    meta: { suppressErrorToast: true },
   });
 };
 
@@ -43,6 +45,7 @@ export const useAdminBlacklist = () => {
     queryFn: adminApi.getBlacklistedIps,
     refetchInterval: POLLING_INTERVAL,
     enabled: !!token,
+    meta: { suppressErrorToast: true },
   });
 };
 

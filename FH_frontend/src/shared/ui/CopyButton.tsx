@@ -21,6 +21,7 @@ function CopyButton({ text }: { text: string }) {
       addToast('복사했어요');
     } catch (err) {
       logger.error('Failed to copy text', err);
+      addToast('복사에 실패했어요. 권한을 확인해주세요.');
     }
   };
 
