@@ -46,7 +46,7 @@ function CopyButton({ text }: { text: string }) {
       
       {showToast ? (
         <Toast 
-          message="Copied to clipboard!" 
+          message="복사했어요" 
           onClose={() => setShowToast(false)} 
         />
       ) : null}
