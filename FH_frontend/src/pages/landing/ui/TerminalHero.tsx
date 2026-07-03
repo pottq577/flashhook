@@ -4,7 +4,6 @@ import styles from "./LandingPage.module.css";
 interface TerminalHeroProps {
   terminalLines: string[];
   isLoading: boolean;
-  error: string | null;
   endpoints: Array<{ id: string; createdAt: number }>;
   now: number;
   onCreateClick: () => void;
@@ -14,7 +13,6 @@ interface TerminalHeroProps {
 export function TerminalHero({
   terminalLines,
   isLoading,
-  error,
   endpoints,
   now,
   onCreateClick,
@@ -64,12 +62,6 @@ export function TerminalHero({
           >
             {isLoading ? "[ CREATING… ]" : "[ CREATE_NEW_ENDPOINT ]"}
           </button>
-
-          {error ? (
-            <div className={styles.errorBox} role="alert">
-              Error: {error}
-            </div>
-          ) : null}
 
           {endpoints.length > 0 ? (
             <div className={styles.recentEndpoints}>

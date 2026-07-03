@@ -57,7 +57,7 @@ export const AdminBlacklistManager = () => {
           <div className={styles.emptyState}>목록을 불러오는 중...</div>
         ) : isError ? (
           <div className={styles.emptyState} style={{ color: "var(--danger)" }}>
-            데이터를 불러오는데 실패했습니다.
+            데이터를 불러오지 못했어요.
           </div>
         ) : !ips || ips.length === 0 ? (
           <div

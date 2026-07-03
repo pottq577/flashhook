@@ -132,9 +132,8 @@ function DashboardPage() {
         <Header />
         <div className={styles.center}>
           <div className="errorBox">
-            ⚠️ 문제가 생겼어요.
-            <br />
-            <br />
+            <h2>⚠️ 문제가 생겼어요.</h2>
+            <p>엔드포인트 정보를 불러오지 못했어요.</p>
             <span
               style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}
             >

@@ -60,6 +60,7 @@ export const useReplayLogMutation = () => {
   return useMutation({
     mutationFn: ({ endpointId, logId, destinationUrl }: { endpointId: string; logId: string; destinationUrl: string }) => 
       replayLog(endpointId, logId, destinationUrl),
+    meta: { suppressErrorToast: true },
     onError: (error, variables) => {
       logger.error('Failed to replay log', { 
         endpointId: variables.endpointId, 

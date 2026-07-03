@@ -78,7 +78,7 @@ export async function apiRequest(
 
         if (response.status >= 500) {
           throw new ApiError(
-            `서버에 문제가 생겼어요 (${response.status}). 잠시 후 다시 시도해주세요.`,
+            `서버에 문제가 생겼어요 (${response.status}). 잠시 후 다시 시도해 주세요.`,
             response.status,
             undefined,
             endpointId
@@ -108,7 +108,7 @@ export async function apiRequest(
         }
 
         if (response.status === 401) {
-          throw new ApiError("인증이 필요해요. 다시 로그인해주세요.", response.status, undefined, endpointId);
+          throw new ApiError("인증이 필요해요. 다시 로그인해 주세요.", response.status, undefined, endpointId);
         } else if (response.status === 403) {
           throw new ApiError("이 페이지를 볼 수 있는 권한이 없어요.", response.status, undefined, endpointId);
         } else if (response.status === 404) {
@@ -132,7 +132,7 @@ export async function apiRequest(
           continue;
         }
         throw new Error(
-          "응답 시간이 너무 길어요. 인터넷 연결을 확인해주세요.",
+          "응답 시간이 너무 길어요. 인터넷 연결을 확인해 주세요.",
           { cause: error },
         );
       }

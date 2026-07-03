@@ -27,7 +27,6 @@ function LandingPage() {
   const navigate = useNavigate();
   const { mutateAsync: createEndpoint } = useCreateEndpointMutation();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [terminalLines, setTerminalLines] = useState<string[]>(() => [
@@ -105,7 +104,6 @@ function LandingPage() {
     if (isLoading) return;
     setIsConsentOpen(false);
     setIsLoading(true);
-    setError(null);
     setTerminalLines((prev) => [
       ...prev,
       "$ flashhook create-endpoint",
@@ -128,9 +126,6 @@ function LandingPage() {
         ...prev,
         "> Error: Failed to create endpoint",
       ]);
-      setError(
-        err instanceof Error ? err.message : "Failed to create endpoint",
-      );
       setIsLoading(false);
     }
   };
@@ -160,7 +155,6 @@ function LandingPage() {
       <TerminalHero
         terminalLines={terminalLines}
         isLoading={isLoading}
-        error={error}
         endpoints={endpoints}
         now={now}
         onCreateClick={handleCreateClick}
@@ -182,7 +176,7 @@ function LandingPage() {
         <ConfirmModal
           isOpen={deleteTargetId !== null}
           title="엔드포인트 삭제"
-          message="이 엔드포인트의 접근 기록을 삭제하시겠습니까? (서버의 데이터는 삭제되지 않습니다)"
+          message="이 엔드포인트의 접근 기록을 삭제할까요? (서버 데이터는 지워지지 않아요)"
           onConfirm={() => {
             if (deleteTargetId) removeEndpoint(deleteTargetId);
             setDeleteTargetId(null);
