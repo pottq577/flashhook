@@ -48,7 +48,7 @@ const globalErrorHandler = (error: Error) => {
 
 const showErrorToast = (result: ReturnType<typeof globalErrorHandler>) => {
   if (result?.authExpired) {
-    useToastStore.getState().addToast("인증이 만료되었거나 접근할 수 없습니다.");
+    useToastStore.getState().addToast("인증이 만료되었거나 접근할 수 없어요.");
   } else if (result?.message) {
     useToastStore.getState().addToast(result.message);
   }

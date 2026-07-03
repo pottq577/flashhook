@@ -176,7 +176,7 @@ function LandingPage() {
         <ConfirmModal
           isOpen={deleteTargetId !== null}
           title="엔드포인트 삭제"
-          message="이 엔드포인트의 접근 기록을 삭제하시겠습니까? (서버의 데이터는 삭제되지 않습니다)"
+          message="이 엔드포인트의 접근 기록을 삭제할까요? (서버 데이터는 지워지지 않아요)"
           onConfirm={() => {
             if (deleteTargetId) removeEndpoint(deleteTargetId);
             setDeleteTargetId(null);
