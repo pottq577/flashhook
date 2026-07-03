@@ -2,8 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-// Load fonts asynchronously to prevent render blocking
-import("./fonts").catch((err) => console.error("Failed to load fonts", err));
+import "./fonts";
 import "./index.css";
 import App from "./app/App.tsx";
 import { ErrorBoundary } from "./app/ErrorBoundary.tsx";
