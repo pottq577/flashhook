@@ -59,7 +59,7 @@ export const SERVICE_OPTIONS = [
 
 export const generateId = () => crypto.randomUUID();
 
-export function useMockConfigForm(endpoint: Endpoint) {
+export function useMockConfigForm(endpoint: Endpoint, onSuccessCb?: () => void) {
   const { mutate, isPending } = useUpdateMockConfigMutation(endpoint.endpointId);
   const addToast = useToastStore((state) => state.addToast);
   
@@ -206,6 +206,7 @@ export function useMockConfigForm(endpoint: Endpoint) {
       onSuccess: () => {
         setIsSaved(true);
         addToast('모의 설정을 저장했어요.', 3000);
+        onSuccessCb?.();
         if (savedResetTimerRef.current !== null) {
           window.clearTimeout(savedResetTimerRef.current);
         }

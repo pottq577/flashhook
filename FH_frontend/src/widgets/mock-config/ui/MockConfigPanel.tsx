@@ -15,10 +15,11 @@ import styles from "./MockConfigPanel.module.css";
 
 interface MockConfigPanelProps {
   endpoint: Endpoint;
+  onSuccess?: () => void;
 }
 
-export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
-  const form = useMockConfigForm(endpoint);
+export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanelProps) {
+  const form = useMockConfigForm(endpoint, onSuccess);
   const { state, actions } = form;
 
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);

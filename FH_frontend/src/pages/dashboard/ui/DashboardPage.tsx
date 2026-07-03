@@ -244,6 +244,7 @@ function DashboardPage() {
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}
+                          onSuccess={() => setIsMockPanelOpen(false)}
                         />
                       </Suspense>
                     </div>
@@ -320,6 +321,7 @@ function DashboardPage() {
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}
+                          onSuccess={() => setIsMockPanelOpen(false)}
                         />
                       </Suspense>
                     </>
