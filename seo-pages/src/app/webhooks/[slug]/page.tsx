@@ -36,9 +36,13 @@ export async function generateMetadata({
   return {
     title: `${provider.displayName} Webhook Testing — Free Sandbox | FlashHook`,
     description: `Learn how to test ${provider.displayName} webhooks using FlashHook. View sample payloads, setup instructions, and authentication methods.`,
+    alternates: {
+      canonical: `https://flashhook.site/webhooks/${provider.slug}`,
+    },
     openGraph: {
       title: `${provider.displayName} Webhook Testing — Free Sandbox | FlashHook`,
       description: `Learn how to test ${provider.displayName} webhooks using FlashHook. View sample payloads, setup instructions, and authentication methods.`,
+      url: `https://flashhook.site/webhooks/${provider.slug}`,
     },
   };
 }
