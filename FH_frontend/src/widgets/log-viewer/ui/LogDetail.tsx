@@ -156,6 +156,18 @@ const LogDetail = memo(function LogDetail({
     }
   };
 
+  const handleShareClick = async () => {
+    if (!logId) return;
+    const shareUrl = `https://flashhook.site/session/${logId}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      addToast("로그가 복사되었어요. (안전하게 헤더만 공유돼요)");
+    } catch (e) {
+      logger.error("Failed to copy share URL", e);
+      addToast("주소 복사에 실패했어요.");
+    }
+  };
+
   return (
     <div className={styles.container} data-testid="log-detail">
       <div className={styles.header}>
@@ -163,18 +175,31 @@ const LogDetail = memo(function LogDetail({
           <MethodBadge method={log.method} />
           <span className={styles.url}>{log.url}</span>
         </div>
-        <button
-          className={styles.copyButton}
-          style={{
-            padding: "0.25rem 0.75rem",
-            borderRadius: "4px",
-            borderColor: "var(--primary-color)",
-          }}
-          onClick={handleReplayClick}
-          disabled={replayMutation.isPending}
-        >
-          {replayMutation.isPending ? "REPLAYING..." : "REPLAY"}
-        </button>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <button
+            className={styles.copyButton}
+            style={{
+              padding: "0.25rem 0.75rem",
+              borderRadius: "4px",
+              borderColor: "var(--border-color)",
+            }}
+            onClick={handleShareClick}
+          >
+            SHARE
+          </button>
+          <button
+            className={styles.copyButton}
+            style={{
+              padding: "0.25rem 0.75rem",
+              borderRadius: "4px",
+              borderColor: "var(--primary-color)",
+            }}
+            onClick={handleReplayClick}
+            disabled={replayMutation.isPending}
+          >
+            {replayMutation.isPending ? "REPLAYING..." : "REPLAY"}
+          </button>
+        </div>
       </div>
 
       <div className={styles.metaInfo}>
