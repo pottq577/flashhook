@@ -20,7 +20,11 @@ function Fallback({ error, resetErrorBoundary }: FallbackProps) {
     >
       <h2 style={{ marginBottom: "1rem" }}>문제가 발생했어요</h2>
       <p style={{ color: "var(--text-secondary)", marginBottom: "2rem", wordBreak: "break-all" }}>
-        {error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다."}
+        {import.meta.env.MODE === "development"
+          ? error instanceof Error
+            ? error.message
+            : "알 수 없는 오류가 발생했습니다."
+          : "일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요."}
       </p>
       <button
         onClick={resetErrorBoundary}

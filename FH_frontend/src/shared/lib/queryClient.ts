@@ -25,8 +25,7 @@ const globalErrorHandler = (error: Error) => {
         .forEach((key) => localStorage.removeItem(key));
     }
     
-    useToastStore.getState().addToast("인증이 만료되었거나 접근할 수 없습니다.");
-    return;
+    return { authExpired: true };
   }
 
   // 2. 기타 사용자 귀책 사유 (400, 429 등)
@@ -35,8 +34,7 @@ const globalErrorHandler = (error: Error) => {
     try {
       const parsed = JSON.parse(jsonMatch[0]);
       if (parsed.message) {
-        useToastStore.getState().addToast(parsed.message);
-        return;
+        return { message: parsed.message };
       }
     } catch (e) {
       logger.warn("Failed to parse custom error message from string", {
@@ -45,20 +43,32 @@ const globalErrorHandler = (error: Error) => {
       });
     }
   }
-  useToastStore.getState().addToast(msg);
+  return { message: msg };
+};
+
+const showErrorToast = (result: ReturnType<typeof globalErrorHandler>) => {
+  if (result?.authExpired) {
+    useToastStore.getState().addToast("인증이 만료되었거나 접근할 수 없습니다.");
+  } else if (result?.message) {
+    useToastStore.getState().addToast(result.message);
+  }
 };
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
-      if (query.meta?.suppressErrorToast) return;
-      globalErrorHandler(error);
+      const result = globalErrorHandler(error);
+      if (!query.meta?.suppressErrorToast) {
+        showErrorToast(result);
+      }
     },
   }),
   mutationCache: new MutationCache({
     onError: (error, _variables, _context, mutation) => {
-      if (mutation.meta?.suppressErrorToast) return;
-      globalErrorHandler(error);
+      const result = globalErrorHandler(error);
+      if (!mutation.meta?.suppressErrorToast) {
+        showErrorToast(result);
+      }
     },
   }),
   defaultOptions: {
