@@ -159,7 +159,7 @@ const LogDetail = memo(function LogDetail({
 
   const handleShareClick = async () => {
     if (!logId) return;
-    const urlObj = new URL(`https://flashhook.site/session/${logId}`);
+    const urlObj = new URL(`${window.location.origin}/session/${logId}`);
     if (isNoIndex) {
       urlObj.searchParams.set('noindex', 'true');
     }
@@ -176,12 +176,12 @@ const LogDetail = memo(function LogDetail({
   return (
     <div className={styles.container} data-testid="log-detail">
       <div className={styles.header}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, minWidth: 0 }}>
+        <div className={styles.headerLeft}>
           <MethodBadge method={log.method} />
           <span className={styles.url}>{log.url}</span>
         </div>
-        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <label style={{ display: "flex", alignItems: "center", gap: "0.25rem", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+        <div className={styles.headerRight}>
+          <label className={styles.noIndexLabel}>
             <input 
               type="checkbox" 
               checked={isNoIndex} 
@@ -191,22 +191,12 @@ const LogDetail = memo(function LogDetail({
           </label>
           <button
             className={styles.copyButton}
-            style={{
-              padding: "0.25rem 0.75rem",
-              borderRadius: "4px",
-              borderColor: "var(--border-color)",
-            }}
             onClick={handleShareClick}
           >
             SHARE
           </button>
           <button
-            className={styles.copyButton}
-            style={{
-              padding: "0.25rem 0.75rem",
-              borderRadius: "4px",
-              borderColor: "var(--primary-color)",
-            }}
+            className={`${styles.copyButton} ${styles.primaryButton}`}
             onClick={handleReplayClick}
             disabled={replayMutation.isPending}
           >

@@ -53,6 +53,11 @@ export const usePublicLogQuery = (logId: string | undefined) => {
       }
     },
     enabled: !!logId,
+    retry: (failureCount, error: unknown) => {
+      const err = error as Error & { status?: number; response?: { status?: number } };
+      if (err?.status === 404 || err?.response?.status === 404) return false;
+      return failureCount < 3;
+    },
   });
 };
 

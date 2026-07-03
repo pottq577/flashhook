@@ -37,6 +37,15 @@ export default function PublicSessionPage() {
   const pageTitle = `FlashHook 공유 로그 - ${log.method}`;
   const pageDescription = `안전하게 공유된 FlashHook 로그입니다. 헤더 정보 등 페이로드의 일부를 확인할 수 있습니다.`;
 
+  const formattedDate = (() => {
+    try {
+      const d = new Date(log.receivedAt);
+      return isNaN(d.getTime()) ? '알 수 없는 시간' : d.toLocaleString();
+    } catch {
+      return '알 수 없는 시간';
+    }
+  })();
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] font-sans">
       <Helmet>
@@ -79,7 +88,7 @@ export default function PublicSessionPage() {
             <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">받은 시간</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{new Date(log.receivedAt).toLocaleString()}</dd>
+                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{formattedDate}</dd>
               </div>
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">본문 상태</dt>
