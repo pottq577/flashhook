@@ -64,5 +64,263 @@
       "Change 'Content type' to 'application/json'.",
       "Select the events you want to trigger the webhook."
     ]
+  },
+  {
+    "slug": "slack",
+    "displayName": "Slack",
+    "officialDocsUrl": "https://api.slack.com/apis/connections/events-api",
+    "authMethod": "X-Slack-Signature Header (HMAC SHA256)",
+    "sampleEvents": [
+      {
+        "eventName": "message.channels",
+        "samplePayload": {
+          "token": "z26uF1WKt65M...",
+          "team_id": "T123ABC456",
+          "api_app_id": "A123ABC456",
+          "event": {
+            "type": "message",
+            "channel": "C123ABC456",
+            "user": "U123ABC456",
+            "text": "Hello world",
+            "ts": "1355517523.000005"
+          },
+          "type": "event_callback",
+          "event_id": "Ev123ABC456",
+          "event_time": 1355517523
+        }
+      }
+    ],
+    "setupSteps": [
+      "Go to your Slack App configuration.",
+      "Navigate to 'Event Subscriptions'.",
+      "Toggle 'Enable Events' to On.",
+      "Enter your FlashHook URL in the 'Request URL' field.",
+      "Subscribe to bot or user events as needed."
+    ]
+  },
+  {
+    "slug": "discord",
+    "displayName": "Discord",
+    "officialDocsUrl": "https://discord.com/developers/docs/resources/webhook",
+    "authMethod": "No signature by default for standard webhooks; Interaction webhooks use Ed25519",
+    "sampleEvents": [
+      {
+        "eventName": "MESSAGE_CREATE (Interaction)",
+        "samplePayload": {
+          "type": 1,
+          "id": "123456789012345678",
+          "application_id": "123456789012345678",
+          "token": "A_UNIQUE_TOKEN...",
+          "version": 1,
+          "user": {
+            "id": "123456789012345678",
+            "username": "FlashHookUser"
+          }
+        }
+      }
+    ],
+    "setupSteps": [
+      "Open your Discord Server Settings.",
+      "Go to Integrations > Webhooks.",
+      "Create a new Webhook and copy the URL.",
+      "(Alternatively, for App Interactions, set the 'Interactions Endpoint URL' to FlashHook in the Developer Portal)."
+    ]
+  },
+  {
+    "slug": "paypal",
+    "displayName": "PayPal",
+    "officialDocsUrl": "https://developer.paypal.com/api/rest/webhooks/",
+    "authMethod": "Paypal-Auth-Algo, Paypal-Cert-Url, Paypal-Transmission-Sig, Paypal-Transmission-Id, Paypal-Transmission-Time",
+    "sampleEvents": [
+      {
+        "eventName": "PAYMENT.SALE.COMPLETED",
+        "samplePayload": {
+          "id": "8OQ04836K...",
+          "create_time": "2023-10-25T14:32:00Z",
+          "resource_type": "sale",
+          "event_type": "PAYMENT.SALE.COMPLETED",
+          "summary": "Payment completed for $ 20.00 USD",
+          "resource": {
+            "id": "2M092...",
+            "state": "completed",
+            "amount": {
+              "total": "20.00",
+              "currency": "USD"
+            }
+          }
+        }
+      }
+    ],
+    "setupSteps": [
+      "Go to the PayPal Developer Dashboard.",
+      "Open your App > Webhooks section.",
+      "Click 'Add Webhook'.",
+      "Enter your FlashHook URL.",
+      "Select the event types you want to receive."
+    ]
+  },
+  {
+    "slug": "shopify",
+    "displayName": "Shopify",
+    "officialDocsUrl": "https://shopify.dev/docs/apps/webhooks",
+    "authMethod": "X-Shopify-Hmac-Sha256 Header",
+    "sampleEvents": [
+      {
+        "eventName": "orders/create",
+        "samplePayload": {
+          "id": 820982911946154500,
+          "email": "jon@example.com",
+          "closed_at": null,
+          "created_at": "2023-11-20T16:15:47-04:00",
+          "updated_at": "2023-11-20T16:15:47-04:00",
+          "number": 234,
+          "note": null,
+          "token": "b1946ac92492d2347c6235b4d2611184",
+          "gateway": "paypal",
+          "test": true,
+          "total_price": "403.00",
+          "subtotal_price": "393.00",
+          "total_weight": 0,
+          "total_tax": "0.00"
+        }
+      }
+    ],
+    "setupSteps": [
+      "From your Shopify admin, go to Settings > Notifications.",
+      "Scroll down to the Webhooks section.",
+      "Click 'Create webhook'.",
+      "Select an Event and Format (JSON).",
+      "Enter your FlashHook URL."
+    ]
+  },
+  {
+    "slug": "twilio",
+    "displayName": "Twilio",
+    "officialDocsUrl": "https://www.twilio.com/docs/usage/webhooks",
+    "authMethod": "X-Twilio-Signature Header (HMAC SHA1)",
+    "sampleEvents": [
+      {
+        "eventName": "Incoming Message (SMS)",
+        "samplePayload": {
+          "ToCountry": "US",
+          "ToState": "CA",
+          "SmsMessageSid": "SMxxxxxxx...",
+          "NumMedia": "0",
+          "ToCity": "SAN FRANCISCO",
+          "FromZip": "94105",
+          "SmsSid": "SMxxxxxxx...",
+          "FromState": "CA",
+          "SmsStatus": "received",
+          "FromCity": "SAN FRANCISCO",
+          "Body": "Hello from Twilio!",
+          "FromCountry": "US",
+          "To": "+1234567890",
+          "MessagingServiceSid": "MGxxxxxxx...",
+          "ToZip": "94105",
+          "NumSegments": "1",
+          "MessageSid": "SMxxxxxxx...",
+          "AccountSid": "ACxxxxxxx...",
+          "From": "+0987654321",
+          "ApiVersion": "2010-04-01"
+        }
+      }
+    ],
+    "setupSteps": [
+      "Go to the Twilio Console.",
+      "Navigate to Phone Numbers > Manage > Active Numbers.",
+      "Select a phone number.",
+      "Under 'Messaging', find 'A MESSAGE COMES IN'.",
+      "Set 'Webhook' and paste your FlashHook URL."
+    ]
+  },
+  {
+    "slug": "portone",
+    "displayName": "PortOne (포트원)",
+    "officialDocsUrl": "https://developers.portone.io/docs/ko/webhook",
+    "authMethod": "IP Whitelist & Secret Key Verification",
+    "sampleEvents": [
+      {
+        "eventName": "결제(입금) 완료 (V2)",
+        "samplePayload": {
+          "type": "Transaction.Ready",
+          "timestamp": "2023-01-01T00:00:00.000Z",
+          "data": {
+            "paymentId": "payment-id-1234",
+            "transactionId": "transaction-id-5678",
+            "storeId": "store-1"
+          }
+        }
+      }
+    ],
+    "setupSteps": [
+      "포트원 관리자 콘솔에 로그인합니다.",
+      "결제 연동 > 웹훅(Webhook) 메뉴로 이동합니다.",
+      "웹훅 URL에 FlashHook 주소를 입력합니다.",
+      "웹훅 버전(V1/V2) 및 이벤트를 선택하고 저장합니다."
+    ]
+  },
+  {
+    "slug": "tosspayments",
+    "displayName": "TossPayments (토스페이먼츠)",
+    "officialDocsUrl": "https://docs.tosspayments.com/reference/webhook",
+    "authMethod": "Basic Auth (Secret Key) / IP Whitelist",
+    "sampleEvents": [
+      {
+        "eventName": "PAYMENT_STATUS_CHANGED",
+        "samplePayload": {
+          "eventType": "PAYMENT_STATUS_CHANGED",
+          "createdAt": "2022-01-01T00:00:00.000Z",
+          "data": {
+            "paymentKey": "5EN3k...",
+            "status": "DONE",
+            "orderId": "order-id-1234",
+            "totalAmount": 15000,
+            "method": "카드"
+          }
+        }
+      }
+    ],
+    "setupSteps": [
+      "토스페이먼츠 개발자센터에 로그인합니다.",
+      "내 상점 > 웹훅 설정 메뉴로 이동합니다.",
+      "새 웹훅을 추가하고 FlashHook URL을 등록합니다.",
+      "수신할 이벤트를 선택하고 활성화합니다."
+    ]
+  },
+  {
+    "slug": "kakao",
+    "displayName": "Kakao (카카오)",
+    "officialDocsUrl": "https://developers.kakao.com/docs/latest/ko/kakaopay/webhook",
+    "authMethod": "HMAC-SHA256 Signature Header",
+    "sampleEvents": [
+      {
+        "eventName": "결제 승인",
+        "samplePayload": {
+          "cid": "TC0ONETIME",
+          "tid": "T1234567890123456789",
+          "partner_order_id": "partner_order_id",
+          "partner_user_id": "partner_user_id",
+          "payment_method_type": "MONEY",
+          "amount": {
+            "total": 2200,
+            "tax_free": 0,
+            "vat": 200,
+            "point": 0,
+            "discount": 0,
+            "green_deposit": 0
+          },
+          "item_name": "초코파이",
+          "quantity": 1,
+          "created_at": "2022-01-01T00:00:00",
+          "approved_at": "2022-01-01T00:01:00"
+        }
+      }
+    ],
+    "setupSteps": [
+      "카카오 디벨로퍼스 콘솔에 로그인합니다.",
+      "내 애플리케이션 > 카카오페이 > 웹훅 설정으로 이동합니다.",
+      "웹훅 콜백 URL에 FlashHook 주소를 입력합니다.",
+      "웹훅 시크릿 키를 확인하고 설정을 저장합니다."
+    ]
   }
 ]

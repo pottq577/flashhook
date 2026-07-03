@@ -1,11 +1,11 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { usePublicLogQuery } from '@/entities/log/api/log.queries';
-import { Button } from '@/shared/ui/Button';
 
 export default function PublicSessionPage() {
   const { logId } = useParams<{ logId: string }>();
+  const [searchParams] = useSearchParams();
+  const isNoIndex = searchParams.get('noindex') === 'true';
   const navigate = useNavigate();
   const { data: log, isLoading, isError } = usePublicLogQuery(logId);
 
@@ -22,7 +22,12 @@ export default function PublicSessionPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-4 text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">세션을 찾을 수 없어요</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-6">존재하지 않거나 삭제된 로그예요.</p>
-        <Button onClick={() => navigate('/')}>메인으로 돌아가기</Button>
+        <button 
+          onClick={() => navigate('/')}
+          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+        >
+          메인으로 돌아가기
+        </button>
       </div>
     );
   }
@@ -39,12 +44,18 @@ export default function PublicSessionPage() {
         <meta name="description" content={pageDescription} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
+        {isNoIndex && <meta name="robots" content="noindex" />}
       </Helmet>
       
       <header className="bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 p-4">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold text-blue-600 dark:text-blue-400 cursor-pointer" onClick={() => navigate('/')}>FlashHook</h1>
-          <Button onClick={() => navigate('/')} variant="outline" size="sm">나도 웹훅 테스트하기</Button>
+          <button 
+            onClick={() => navigate('/')} 
+            className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            나도 웹훅 테스트하기
+          </button>
         </div>
       </header>
 
@@ -96,9 +107,12 @@ export default function PublicSessionPage() {
             FlashHook을 사용하면 로그인 없이 1초 만에 테스트용 웹훅 엔드포인트를 만들고 
             실시간으로 페이로드를 확인할 수 있어요.
           </p>
-          <Button size="lg" onClick={() => navigate('/')}>
+          <button 
+            onClick={() => navigate('/')}
+            className="px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
+          >
             지금 무료로 시작하기
-          </Button>
+          </button>
         </div>
       </main>
     </div>

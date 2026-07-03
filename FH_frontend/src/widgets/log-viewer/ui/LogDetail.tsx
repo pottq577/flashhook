@@ -26,6 +26,7 @@ const LogDetail = memo(function LogDetail({
   const addToast = useToastStore((state) => state.addToast);
   const [copied, setCopied] = useState(false);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
+  const [isNoIndex, setIsNoIndex] = useState(false);
 
   if (isLoading) {
     return (
@@ -158,7 +159,11 @@ const LogDetail = memo(function LogDetail({
 
   const handleShareClick = async () => {
     if (!logId) return;
-    const shareUrl = `https://flashhook.site/session/${logId}`;
+    const urlObj = new URL(`https://flashhook.site/session/${logId}`);
+    if (isNoIndex) {
+      urlObj.searchParams.set('noindex', 'true');
+    }
+    const shareUrl = urlObj.toString();
     try {
       await navigator.clipboard.writeText(shareUrl);
       addToast("로그가 복사되었어요. (안전하게 헤더만 공유돼요)");
@@ -175,7 +180,15 @@ const LogDetail = memo(function LogDetail({
           <MethodBadge method={log.method} />
           <span className={styles.url}>{log.url}</span>
         </div>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "0.25rem", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+            <input 
+              type="checkbox" 
+              checked={isNoIndex} 
+              onChange={(e) => setIsNoIndex(e.target.checked)} 
+            />
+            검색엔진 노출 방지
+          </label>
           <button
             className={styles.copyButton}
             style={{

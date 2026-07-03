@@ -47,6 +47,7 @@ export default async function handler(request: Request) {
       <meta property="og:description" content="${description}"/>
       <meta property="og:type" content="website"/>
       <meta name="description" content="${description}"/>
+      ${url.searchParams.get('noindex') === 'true' ? '<meta name="robots" content="noindex" />' : ''}
     `;
 
     html = html.replace('</head>', `${ogTags}</head>`);
