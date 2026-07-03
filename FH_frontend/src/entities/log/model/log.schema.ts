@@ -59,8 +59,17 @@ export const LogsResponseSchema = z
     totalPages: data.page?.totalPages ?? data.totalPages ?? 0,
   }));
 
+export const PublicWebhookLogSchema = z.object({
+  logId: z.string(),
+  method: z.string(),
+  receivedAt: z.string(),
+  safeHeaders: z.record(z.string(), z.string()),
+  bodyStatus: z.string(),
+});
+
 export type WebhookLog = z.infer<typeof WebhookLogSchema>;
 export type WebhookLogDetail = z.infer<typeof WebhookLogDetailSchema>;
+export type PublicWebhookLog = z.infer<typeof PublicWebhookLogSchema>;
 export type LogsResponse = z.infer<typeof LogsResponseSchema>;
 
 export function createLogDetailFromLog(log?: WebhookLog, logId?: string): WebhookLogDetail {

@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { getLogs, getLogDetail, deleteAllLogs, replayLog } from './log.api';
+import { getLogs, getLogDetail, getPublicLog, deleteAllLogs, replayLog } from './log.api';
 import { useLogStore } from "../model/log.store";
 import { logger } from '@/shared/lib/logger';
 import { queryClient } from '@/shared/lib/queryClient';
@@ -36,6 +36,28 @@ export const useLogDetailQuery = (endpointId: string, logId: string | undefined)
       }
     },
     enabled: !!endpointId && !!logId,
+  });
+};
+
+export const usePublicLogQuery = (logId: string | undefined) => {
+  return useQuery({
+    queryKey: ['publicLog', logId],
+    queryFn: async () => {
+      if (!logId) return null;
+      try {
+        const data = await getPublicLog(logId);
+        return data;
+      } catch (error) {
+        logger.error('Failed to fetch public log', { logId, error });
+        throw error;
+      }
+    },
+    enabled: !!logId,
+    retry: (failureCount, error: unknown) => {
+      const err = error as Error & { status?: number; response?: { status?: number } };
+      if (err?.status === 404 || err?.response?.status === 404) return false;
+      return failureCount < 3;
+    },
   });
 };
 

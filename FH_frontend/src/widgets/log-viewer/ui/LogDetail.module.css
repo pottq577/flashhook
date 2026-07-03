@@ -60,7 +60,7 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  min-width: 50px; /* To balance the space-between with copy button */
+  min-width: 50px;
 }
 
 .macDot {
@@ -85,7 +85,7 @@
   border-radius: 4px;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 0.25rem 0.75rem;
   min-height: 32px;
   min-width: 32px;
   display: flex;
@@ -105,6 +105,15 @@
 
 .copyButton:active {
   transform: scale(0.96);
+}
+
+.primaryButton {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.primaryButton:hover {
+  background: rgba(var(--primary-color-rgb, 0, 153, 255), 0.1);
 }
 
 .curlCodeWrapper {
@@ -128,11 +137,36 @@
 .header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+  flex-wrap: wrap;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.headerRight {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.noIndexLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .url {

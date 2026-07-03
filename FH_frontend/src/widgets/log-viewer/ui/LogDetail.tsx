@@ -26,6 +26,7 @@ const LogDetail = memo(function LogDetail({
   const addToast = useToastStore((state) => state.addToast);
   const [copied, setCopied] = useState(false);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
+  const [isNoIndex, setIsNoIndex] = useState(false);
 
   if (isLoading) {
     return (
@@ -156,25 +157,72 @@ const LogDetail = memo(function LogDetail({
     }
   };
 
+  const handleShareClick = async () => {
+    if (!logId) return;
+    const urlObj = new URL(`${window.location.origin}/session/${logId}`);
+    if (isNoIndex) {
+      urlObj.searchParams.set('noindex', 'true');
+    }
+    const shareUrl = urlObj.toString();
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = shareUrl;
+        textArea.style.position = "absolute";
+        textArea.style.left = "-999999px";
+        document.body.prepend(textArea);
+        textArea.select();
+        try {
+          const successful = document.execCommand("copy");
+          if (!successful) {
+            throw new Error("execCommand copy returned false");
+          }
+        } catch (error) {
+          logger.error("Fallback copy failed", error);
+          throw error;
+        } finally {
+          textArea.remove();
+        }
+      }
+      addToast("로그가 복사되었어요. (안전하게 헤더만 공유돼요)");
+    } catch (e) {
+      logger.error("Failed to copy share URL", e);
+      addToast("주소 복사에 실패했어요.");
+    }
+  };
+
   return (
     <div className={styles.container} data-testid="log-detail">
       <div className={styles.header}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, minWidth: 0 }}>
+        <div className={styles.headerLeft}>
           <MethodBadge method={log.method} />
           <span className={styles.url}>{log.url}</span>
         </div>
-        <button
-          className={styles.copyButton}
-          style={{
-            padding: "0.25rem 0.75rem",
-            borderRadius: "4px",
-            borderColor: "var(--primary-color)",
-          }}
-          onClick={handleReplayClick}
-          disabled={replayMutation.isPending}
-        >
-          {replayMutation.isPending ? "REPLAYING..." : "REPLAY"}
-        </button>
+        <div className={styles.headerRight}>
+          <label className={styles.noIndexLabel}>
+            <input 
+              type="checkbox" 
+              checked={isNoIndex} 
+              onChange={(e) => setIsNoIndex(e.target.checked)} 
+            />
+            검색엔진 노출 방지
+          </label>
+          <button
+            className={styles.copyButton}
+            onClick={handleShareClick}
+          >
+            SHARE
+          </button>
+          <button
+            className={`${styles.copyButton} ${styles.primaryButton}`}
+            onClick={handleReplayClick}
+            disabled={replayMutation.isPending}
+          >
+            {replayMutation.isPending ? "REPLAYING..." : "REPLAY"}
+          </button>
+        </div>
       </div>
 
       <div className={styles.metaInfo}>

@@ -43,7 +43,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String clientIp = request.getRemoteAddr();
 
         // 0. 블랙리스트 체크 (가장 먼저)
-        if (path.startsWith("/api/hooks/") || path.startsWith("/api/endpoints")) {
+        if (path.startsWith("/api/hooks/") || path.startsWith("/api/endpoints")
+                || path.startsWith("/api/public/logs/")) {
             if (rateLimitService.isBlacklisted(clientIp)) {
                 sendErrorResponse(response, ErrorCode.FORBIDDEN);
                 return;
@@ -85,6 +86,16 @@ public class RateLimitFilter extends OncePerRequestFilter {
                     sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
                     return;
                 }
+            }
+        }
+
+        // 4. Public API (GET /api/public/logs/{logId})
+        if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/public/logs/")) {
+            String key = "rl:public_log:" + clientIp;
+            // 1분(60초) 기준 60회 제한
+            if (!rateLimitService.isAllowed(key, 60, 60)) {
+                sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
+                return;
             }
         }
 
