@@ -6,11 +6,18 @@
   background-color: var(--bg-tertiary);
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 .infoGroup {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+.labelRow {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 .label {
@@ -23,8 +30,8 @@
 .valueRow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
   min-width: 0;
+  width: 100%;
 }
 .code {
   background-color: var(--bg-secondary);
@@ -34,9 +41,16 @@
   font-family: var(--font-mono);
   border: 1px solid var(--border);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-x: auto;
   text-shadow: var(--terminal-glow);
+  width: 100%;
+}
+.code::-webkit-scrollbar {
+  height: 4px;
+}
+.code::-webkit-scrollbar-thumb {
+  background: var(--border-focus);
+  border-radius: 2px;
 }
 .statsGroup {
   display: flex;
@@ -57,4 +71,27 @@
   font-size: 0.9rem;
   color: var(--text-primary);
   font-family: var(--font-sans);
+  word-break: keep-all;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .infoGroup {
+    width: 100%;
+  }
+  .statsGroup {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .statItem {
+    flex: 1;
+    min-width: 0;
+  }
+  .statItem:last-child {
+    flex: 1.5;
+  }
 }

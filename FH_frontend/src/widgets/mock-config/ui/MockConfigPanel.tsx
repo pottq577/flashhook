@@ -15,10 +15,11 @@ import styles from "./MockConfigPanel.module.css";
 
 interface MockConfigPanelProps {
   endpoint: Endpoint;
+  onSuccess?: () => void;
 }
 
-export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
-  const form = useMockConfigForm(endpoint);
+export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanelProps) {
+  const form = useMockConfigForm(endpoint, onSuccess);
   const { state, actions } = form;
 
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
@@ -28,7 +29,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>[ MOCK_API_CONFIG ]</h2>
-        <p>&gt; EXTERNAL_SERVICE_INTEGRATION_TEST_MODE</p>
+        <p>&gt; EXTERNAL_SERVICE_INTEGRATION_TEST</p>
       </div>
 
       <div className={styles.form}>
@@ -78,7 +79,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           <div className={styles.formGroup}>
             <label>TARGET_PRESET</label>
             <CustomDropdown
-            onClose={() => setOpenDropdownId(null)}
+              onClose={() => setOpenDropdownId(null)}
               value={state.selectedScenarioId ?? ""}
               options={state.scenarioOptions}
               onSelect={(val) => {
@@ -119,7 +120,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           >
             <label htmlFor={customStatusId}>STATUS_CODE</label>
             <CustomDropdown
-            onClose={() => setOpenDropdownId(null)}
+              onClose={() => setOpenDropdownId(null)}
               value={state.statusCode}
               options={COMMON_STATUS_CODES}
               onSelect={(val) => {
@@ -172,7 +173,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
           >
             <label>RESPONSE_DELAY (ms)</label>
             <CustomDropdown
-            onClose={() => setOpenDropdownId(null)}
+              onClose={() => setOpenDropdownId(null)}
               value={state.delayMs}
               options={COMMON_DELAY_PRESETS}
               onSelect={(val) => {
@@ -216,7 +217,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                   }}
                 >
                   <CustomDropdown
-            onClose={() => setOpenDropdownId(null)}
+                    onClose={() => setOpenDropdownId(null)}
                     value={h.key}
                     options={COMMON_HEADER_KEYS}
                     onSelect={(val) => {
@@ -259,7 +260,7 @@ export default function MockConfigPanel({ endpoint }: MockConfigPanelProps) {
                   }}
                 >
                   <CustomDropdown
-            onClose={() => setOpenDropdownId(null)}
+                    onClose={() => setOpenDropdownId(null)}
                     value={h.value}
                     options={COMMON_HEADER_VALUES}
                     onSelect={(val) => {

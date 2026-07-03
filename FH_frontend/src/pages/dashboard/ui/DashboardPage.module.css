@@ -262,9 +262,25 @@
 }
 
 /* Mobile specific overrides */
-.mockOverlayTriggerMobile {
-  margin-top: 1rem;
-  text-align: center;
+.mobileFixedBottomBar {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  width: auto;
+  white-space: nowrap;
+}
+
+.mobileFixedBottomBar .btnAction {
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: var(--radius-full);
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 255, 102, 0.2);
+  font-size: 1rem;
 }
 
 .mockPanelHeaderMobile {

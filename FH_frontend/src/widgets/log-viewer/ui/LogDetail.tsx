@@ -146,10 +146,10 @@ const LogDetail = memo(function LogDetail({
         { endpointId, logId, destinationUrl },
         {
           onSuccess: () => {
-            addToast(`[Replay] ${destinationUrl} 주소로 다시 보냈어요.`, 3000);
+            addToast(`[Replay] ${destinationUrl} 주소로 다시 보냈어요.`);
           },
           onError: (err) => {
-            addToast(`[Replay] 다시 보내지 못했어요: ${err.message}`, 4000);
+            addToast(`[Replay] 다시 보내지 못했어요: ${err.message}`);
           },
         },
       );
@@ -159,7 +159,7 @@ const LogDetail = memo(function LogDetail({
   return (
     <div className={styles.container} data-testid="log-detail">
       <div className={styles.header}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, minWidth: 0 }}>
           <MethodBadge method={log.method} />
           <span className={styles.url}>{log.url}</span>
         </div>

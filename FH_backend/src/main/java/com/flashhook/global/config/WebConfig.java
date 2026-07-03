@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,8 +32,7 @@ public class WebConfig {
     public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
         List<String> origins = new ArrayList<>(List.of("https://flashhook.site", "https://www.flashhook.site"));
 
-        if (Arrays.asList(environment.getActiveProfiles()).contains("local")
-                || Arrays.asList(environment.getActiveProfiles()).contains("test")) {
+        if (environment.acceptsProfiles(Profiles.of("local", "default"))) {
             origins.add("http://localhost:5173");
             origins.add("http://127.0.0.1:5173");
         }

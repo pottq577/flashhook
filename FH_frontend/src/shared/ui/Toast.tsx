@@ -27,6 +27,14 @@ function Toast({ message, duration = 3000, onClose }: ToastProps) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={shouldReduceMotion ? undefined : { opacity: 0, y: 20, scale: 0.9, transition: { duration: 0.15, ease: "easeIn" } }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.7}
+      onDragEnd={(_, { offset, velocity }) => {
+        if (Math.abs(offset.x) > 50 || Math.abs(velocity.x) > 500) {
+          onClose();
+        }
+      }}
     >
       <span className={styles.icon} aria-hidden="true">✨</span>
       {message}
