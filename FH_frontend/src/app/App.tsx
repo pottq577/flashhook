@@ -40,6 +40,9 @@ const AboutPage = lazy(() =>
 const ContactPage = lazy(() =>
   withErrorCatch(() => import("@/pages/about/ui/ContactPage")),
 );
+const PublicSessionPage = lazy(() =>
+  withErrorCatch(() => import("@/pages/session/ui/PublicSessionPage")),
+);
 const AdminLoginPage = lazy(() =>
   withErrorCatch(() =>
     import("@/pages/admin/ui/AdminLoginPage").then((module) => ({
@@ -115,6 +118,7 @@ function App() {
                   </RequireAdminAuth>
                 }
               />
+              <Route path="/session/:logId" element={<PublicSessionPage />} />
 
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

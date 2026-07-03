@@ -1,5 +1,5 @@
 import { apiRequest } from '@/shared/api/client';
-import { LogsResponseSchema, WebhookLogDetailSchema, type LogsResponse, type WebhookLogDetail } from "../model/log.schema";
+import { LogsResponseSchema, WebhookLogDetailSchema, PublicWebhookLogSchema, type LogsResponse, type WebhookLogDetail, type PublicWebhookLog } from "../model/log.schema";
 
 export async function getLogs(
   endpointId: string,
@@ -17,6 +17,11 @@ export async function getLogs(
     endpointId,
   );
   return LogsResponseSchema.parse(data);
+}
+
+export async function getPublicLog(logId: string): Promise<PublicWebhookLog> {
+  const data = await apiRequest(`/public/logs/${logId}`);
+  return PublicWebhookLogSchema.parse(data);
 }
 
 export async function getLogDetail(
