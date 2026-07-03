@@ -24,7 +24,8 @@ public record PublicWebhookLogResponse(
                 .filter(entry -> ALLOWED_HEADERS.contains(entry.getKey().toLowerCase()))
                 .collect(Collectors.toMap(
                         entry -> entry.getKey().toLowerCase(),
-                        entry -> entry.getValue()));
+                        entry -> entry.getValue(),
+                        (existing, replacement) -> existing));
 
         return PublicWebhookLogResponse.builder()
                 .logId(log.getLogId())
