@@ -144,3 +144,8 @@ pre {
   font-size: 0.95rem;
   text-align: center;
 }
+
+button {
+  min-width: 32px;
+  min-height: 32px;
+}
