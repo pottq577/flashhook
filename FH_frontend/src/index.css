@@ -44,7 +44,7 @@
 
   /* Typography */
   --font-sans: "Geist", "Pretendard", "Inter", -apple-system, sans-serif;
-  --font-mono: "Geist Mono", "JetBrains Mono", "Fira Code", monospace;
+  --font-mono: "Geist Mono", "Fira Code", monospace;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -143,4 +143,26 @@ pre {
   margin-top: 1.5rem;
   font-size: 0.95rem;
   text-align: center;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  min-width: 32px;
+  min-height: 32px;
+  position: relative;
+}
+
+/* Ensure 44x44 minimum touch target without changing visual size */
+button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: inherit;
 }

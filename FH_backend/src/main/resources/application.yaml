@@ -12,10 +12,11 @@ spring:
     active: local
 
   # MongoDB auto-index 설정
+  mongodb:
+    uri: mongodb://localhost:27017/flashhook?minPoolSize=10&maxPoolSize=100
+    auto-index-creation: true # 엔티티의 @Indexed(TTL 등) 자동 생성 허용
+
   data:
-    mongodb:
-      uri: mongodb://localhost:27017/flashhook?minPoolSize=10&maxPoolSize=100
-      auto-index-creation: true # 엔티티의 @Indexed(TTL 등) 자동 생성 허용
     redis:
       host: localhost
       port: 6379

@@ -35,3 +35,4 @@ out/
 ### 환경 변수 / 시크릿 ###
 src/main/resources/application-*.yaml
 !src/main/resources/application-*.example.yaml
+!src/main/resources/application-prod.yaml

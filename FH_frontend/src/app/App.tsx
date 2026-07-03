@@ -1,21 +1,17 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { logger } from "@/shared/lib/logger";
 import { QueryProvider } from "./providers/QueryProvider";
-import { ToastContainer } from "@/shared/ui/ToastContainer";
-import { CookieBanner } from "@/widgets/legal";
+const ToastContainer = lazy(() =>
+  withErrorCatch(() =>
+    import("@/shared/ui/ToastContainer").then((m) => ({ default: m.ToastContainer })),
+  ),
+);
+import { CookieBanner } from "@/widgets/legal/CookieBanner";
 import { MaintenanceBanner } from "@/shared/ui/MaintenanceBanner";
 
 import LandingPage from "@/pages/landing/ui/LandingPage";
 
-const withErrorCatch = <T,>(importFunc: () => Promise<T>) => {
-  return importFunc().catch((err) => {
-    logger.error("Failed to dynamically load chunk", err);
-    throw new Error(
-      "페이지를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해주세요.",
-    );
-  });
-};
+import { withErrorCatch } from "@/shared/lib/withErrorCatch";
 
 const DashboardPage = lazy(() =>
   withErrorCatch(() => import("@/pages/dashboard/ui/DashboardPage")),
@@ -123,7 +119,9 @@ function App() {
           </Suspense>
         </main>
         <CookieBanner />
-        <ToastContainer />
+        <Suspense fallback={null}>
+          <ToastContainer />
+        </Suspense>
         <Suspense fallback={null}>
           <DevTools />
         </Suspense>

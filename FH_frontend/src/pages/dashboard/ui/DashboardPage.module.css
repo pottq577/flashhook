@@ -39,7 +39,7 @@
   cursor: pointer;
   text-decoration: none;
   font-size: 1rem;
-  transition: color 0.2s ease-in, background-color 0.2s ease-in, border-color 0.2s ease-in, transform 0.2s ease-in;
+  transition: color 300ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 300ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 300ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -48,7 +48,7 @@
 
 .btnAction:hover {
   background-color: rgba(0, 255, 102, 0.1);
-  transition: color 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out, transform 0.2s ease-out;
+  transition: color 300ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 300ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 300ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .btnAction:active {
@@ -179,7 +179,7 @@
   background-color: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   border-left: 1px solid var(--glass-border);
-  box-shadow: -10px 0 40px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
   z-index: 20;
   overflow: hidden;
   flex-shrink: 0;
@@ -194,7 +194,7 @@
   cursor: col-resize;
   z-index: 30;
   background-color: transparent;
-  transition: background-color 0.2s;
+  transition: background-color 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .resizeHandle:hover,
@@ -211,7 +211,7 @@
   cursor: col-resize;
   z-index: 30;
   background-color: transparent;
-  transition: background-color 0.2s;
+  transition: background-color 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .leftResizeHandle:hover,
