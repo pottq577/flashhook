@@ -1,18 +1,13 @@
-import React, { useState, useSyncExternalStore } from "react";
+import React, { useState } from "react";
 import styles from "./legal.module.css";
 
-const emptySubscribe = () => () => {};
-
 export const CookieBanner: React.FC = () => {
-  const isMounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [isAccepted, setIsAccepted] = useState(false);
 
   const handleAccept = () => {
     localStorage.setItem("flashhook_storage_consent", "true");
     setIsAccepted(true);
   };
-
-  if (!isMounted) return null;
 
   const hasConsent = localStorage.getItem("flashhook_storage_consent") === "true";
   if (hasConsent || isAccepted) return null;
