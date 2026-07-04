@@ -60,7 +60,17 @@ export default function PublicSessionPage() {
       </Helmet>
       
       <header className={styles.header}>
-        <h1 className={styles.logo} onClick={() => navigate('/')}>FlashHook</h1>
+        <h1
+          className={styles.logo}
+          role="button"
+          tabIndex={0}
+          onClick={() => navigate('/')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') navigate('/');
+          }}
+        >
+          FlashHook
+        </h1>
         <button 
           onClick={() => navigate('/')} 
           className={styles.btnSecondary}
