@@ -160,6 +160,24 @@
   align-items: center;
 }
 
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .headerLeft {
+    width: 100%;
+  }
+  
+  .headerRight {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+}
+
 .noIndexLabel {
   display: flex;
   align-items: center;
