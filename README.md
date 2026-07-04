@@ -24,10 +24,6 @@
 
 [![Visit FlashHook](https://img.shields.io/badge/🚀_Visit_FlashHook_Live_Service-171717?style=for-the-badge&logo=vercel&logoColor=white)](https://flashhook.site)
 
-✅ **회원가입 없음 (No Sign-up)**: 접속 즉시 테스트용 웹훅 URL 발급
-✅ **팀원과 쉬운 공유 (Share Logs)**: 한 번의 클릭으로 테스트 로그를 팀원과 안전하게 공유
-✅ **무료 샌드박스 (Free Sandbox)**: Stripe, GitHub 등 외부 서비스 연동 전 마음껏 테스트
-
 ## 기획 배경
 
 ### Problem
@@ -75,13 +71,6 @@
 - **활용 예시**: 터널링이 끊겨 웹훅을 놓쳤을 때, 동일한 페이로드를 로컬 서버로 다시 보내 디버깅하고 싶을 때.
 - **워크플로우**: 과거 로그 선택 → 재전송 대상 URL 입력 → FlashHook이 저장된 요청을 다시 발송.
 
-### 4. Share Session (팀 공유)
-
-> **"내가 받은 웹훅 페이로드를 팀원한테 보여주면서 논의하고 싶어"**
-
-- **활용 예시**: 결제 실패 웹훅의 헤더와 상태를 프론트엔드/백엔드 개발자가 함께 보며 디버깅할 때.
-- **워크플로우**: 로그 상세 패널에서 `SHARE` 버튼 클릭 → 클립보드에 링크 복사 → 안전하게 헤더만 노출된 공유 페이지 전달.
-
 ## 아키텍처
 
 ```mermaid
@@ -128,10 +117,10 @@ sequenceDiagram
 - **상태 관리 분리**: FSD 구조, Zustand, TanStack Query로 UI 상태와 서버 상태를 분리했어요.
 - **자동화된 품질 검증**: Playwright와 Axe로 주요 흐름과 접근성 회귀를 검사해요.
 
-### 품질 최적화 (Quality & UX)
+### 품질 최적화
 
 - **SEO & 웹 성능 최적화**: 히어로 이미지 우선 로딩(`fetchpriority="high"`) 및 폰트 프리로드를 통해 LCP를 개선하고, 다국어 타겟팅 및 OpenGraph, JSON-LD 동적 삽입을 통한 SEO/GEO 최적화를 적용했어요.
-- **UI/UX 개선**: 
+- **UI/UX 개선**:
   - 자연스러운 화면 전환 애니메이션 최적화 (`300ms ease-out cubic-bezier`)
   - 고정폭 숫자 서체(`tabular-nums`) 적용으로 동적 데이터 렌더링 시 레이아웃 Jitter 방지
   - Fitts's Law에 의거한 인터랙티브 클릭 타겟 크기 확보 (최소 32px)
@@ -196,7 +185,7 @@ npm run dev
 
 ## 라이선스
 
-현재 레포의 [LICENSE](LICENSE)는 MIT License예요.
+프로젝트의 [LICENSE](LICENSE)는 MIT License예요.
 
 ## 문의/이슈
 
