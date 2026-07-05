@@ -198,11 +198,17 @@ export function useMockConfigForm(endpoint: Endpoint, onSuccessCb?: () => void) 
       setHeaderWarning('WARNING: EMPTY_KEY_IGNORED');
     }
 
+    const finalHeaders = { ...headers };
+    if (currentScenario) {
+      finalHeaders["X-Flashhook-Preset-Status"] = currentScenario.status || "unverified";
+      finalHeaders["X-Flashhook-Report-Url"] = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${currentScenario.id}`;
+    }
+
     mutate({
       statusCode: sCode,
       delayMs: dMs,
       body,
-      headers,
+      headers: finalHeaders,
       presetType: currentScenario?.presetType ?? null,
     }, {
       onSuccess: () => {

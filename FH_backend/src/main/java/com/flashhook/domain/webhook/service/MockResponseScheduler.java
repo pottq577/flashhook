@@ -29,7 +29,8 @@ public class MockResponseScheduler {
     private final PresetHandlerRegistry presetHandlerRegistry;
 
     private static final Set<String> ALLOWED_HEADERS = Set.of(
-            "content-type", "access-control-allow-origin", "cache-control", "x-mock-response", "x-slack-no-retry");
+            "content-type", "access-control-allow-origin", "cache-control", "x-mock-response", "x-slack-no-retry",
+            "x-flashhook-preset-status", "x-flashhook-report-url");
 
     public MockResponseScheduler(PresetHandlerRegistry presetHandlerRegistry) {
         this.scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2);
