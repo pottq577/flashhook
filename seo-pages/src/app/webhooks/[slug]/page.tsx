@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import providersData from "../../../../data/webhook-providers.json";
 
 interface WebhookProvider {
+  language: "ko" | "en";
   slug: string;
   displayName: string;
   officialDocsUrl: string;
@@ -21,8 +22,6 @@ export async function generateStaticParams() {
   }));
 }
 
-const KOREAN_PROVIDERS = new Set(["portone", "tosspayments", "kakao", "solapi"]);
-
 export async function generateMetadata({
   params,
 }: {
@@ -35,7 +34,8 @@ export async function generateMetadata({
     return {};
   }
 
-  const isKorean = KOREAN_PROVIDERS.has(slug);
+  // language 필드 기반으로 분기 — 하드코딩 Set 불필요
+  const isKorean = provider.language === "ko";
   const title = isKorean
     ? `${provider.displayName} 웹훅 테스트 — 무료 샌드박스 | FlashHook`
     : `${provider.displayName} Webhook Testing — Free Sandbox | FlashHook`;
@@ -53,6 +53,7 @@ export async function generateMetadata({
       title,
       description,
       url: `https://flashhook.site/webhooks/${provider.slug}`,
+      locale: isKorean ? "ko_KR" : "en_US",
     },
   };
 }
@@ -69,22 +70,48 @@ export default async function WebhookProviderPage({
     notFound();
   }
 
+  const isKorean = provider.language === "ko";
+
+  // 본문 UI 문자열: 메타데이터와 동일한 language 기준으로 분기
+  const ui = isKorean
+    ? {
+        heading: `${provider.displayName} 웹훅 테스트`,
+        subheading: `FlashHook으로 ${provider.displayName} 웹훅을 실시간으로 캐치하고 검사하세요. 회원가입 불필요.`,
+        ctaButton: `${provider.displayName} 웹훅 테스트 시작`,
+        officialDocs: "공식 문서 →",
+        setupTitle: "설정 방법",
+        authTitle: "인증 방식",
+        authMethod: "방식:",
+        sampleTitle: "샘플 이벤트 페이로드",
+        eventLabel: "이벤트:",
+      }
+    : {
+        heading: `Test ${provider.displayName} Webhooks`,
+        subheading: `Use FlashHook to catch and inspect ${provider.displayName} webhooks in real-time. No login required.`,
+        ctaButton: `Start Testing ${provider.displayName} Webhooks`,
+        officialDocs: "Official Docs →",
+        setupTitle: "Setup Instructions",
+        authTitle: "Authentication",
+        authMethod: "Method:",
+        sampleTitle: "Sample Event Payload",
+        eventLabel: "Event:",
+      };
+
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="mb-8 border-b pb-6 border-gray-200 dark:border-gray-800">
         <h1 className="text-4xl font-bold mb-4 tracking-tight">
-          Test {provider.displayName} Webhooks
+          {ui.heading}
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-          Use FlashHook to catch and inspect {provider.displayName} webhooks in
-          real-time. No login required.
+          {ui.subheading}
         </p>
         <div className="flex items-center space-x-4">
           <a
             href="https://flashhook.site"
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors"
           >
-            Start Testing {provider.displayName} Webhooks
+            {ui.ctaButton}
           </a>
           <a
             href={provider.officialDocsUrl}
@@ -92,14 +119,14 @@ export default async function WebhookProviderPage({
             rel="noopener noreferrer"
             className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
           >
-            Official Docs &rarr;
+            {ui.officialDocs}
           </a>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Setup Instructions</h2>
+          <h2 className="text-2xl font-semibold mb-4">{ui.setupTitle}</h2>
           <ol className="list-decimal pl-5 space-y-3 text-gray-700 dark:text-gray-300">
             {provider.setupSteps.map((step, idx) => (
               <li key={idx} className="pl-1">
@@ -108,18 +135,19 @@ export default async function WebhookProviderPage({
             ))}
           </ol>
 
-          <h2 className="text-2xl font-semibold mt-8 mb-4">Authentication</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">{ui.authTitle}</h2>
           <p className="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-800">
-            <span className="font-medium">Method:</span> {provider.authMethod}
+            <span className="font-medium">{ui.authMethod}</span>{" "}
+            {provider.authMethod}
           </p>
         </div>
 
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Sample Event Payload</h2>
+          <h2 className="text-2xl font-semibold mb-4">{ui.sampleTitle}</h2>
           {provider.sampleEvents.map((event, idx) => (
             <div key={idx} className="mb-6">
               <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">
-                Event:{" "}
+                {ui.eventLabel}{" "}
                 <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
                   {event.eventName}
                 </code>

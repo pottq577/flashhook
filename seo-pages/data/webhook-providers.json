@@ -1,5 +1,6 @@
 [
   {
+    "language": "en",
     "slug": "stripe",
     "displayName": "Stripe",
     "officialDocsUrl": "https://stripe.com/docs/webhooks",
@@ -34,6 +35,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "github",
     "displayName": "GitHub",
     "officialDocsUrl": "https://docs.github.com/en/webhooks-and-events/webhooks/about-webhooks",
@@ -66,6 +68,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "slack",
     "displayName": "Slack",
     "officialDocsUrl": "https://api.slack.com/apis/connections/events-api",
@@ -99,6 +102,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "discord",
     "displayName": "Discord",
     "officialDocsUrl": "https://discord.com/developers/docs/resources/webhook",
@@ -127,6 +131,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "paypal",
     "displayName": "PayPal",
     "officialDocsUrl": "https://developer.paypal.com/api/rest/webhooks/",
@@ -160,6 +165,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "shopify",
     "displayName": "Shopify",
     "officialDocsUrl": "https://shopify.dev/docs/apps/webhooks",
@@ -194,6 +200,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "twilio",
     "displayName": "Twilio",
     "officialDocsUrl": "https://www.twilio.com/docs/usage/webhooks",
@@ -234,6 +241,7 @@
     ]
   },
   {
+    "language": "ko",
     "slug": "portone",
     "displayName": "PortOne (포트원)",
     "officialDocsUrl": "https://developers.portone.io/docs/ko/webhook",
@@ -260,6 +268,7 @@
     ]
   },
   {
+    "language": "ko",
     "slug": "tosspayments",
     "displayName": "TossPayments (토스페이먼츠)",
     "officialDocsUrl": "https://docs.tosspayments.com/reference/webhook",
@@ -288,6 +297,7 @@
     ]
   },
   {
+    "language": "ko",
     "slug": "kakao",
     "displayName": "Kakao (카카오)",
     "officialDocsUrl": "https://developers.kakao.com/docs/latest/ko/kakaopay/webhook",
@@ -324,6 +334,7 @@
     ]
   },
   {
+    "language": "ko",
     "slug": "solapi",
     "displayName": "Solapi (솔라피)",
     "officialDocsUrl": "https://developers.solapi.com/references/message-send",
