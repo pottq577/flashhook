@@ -353,7 +353,27 @@ export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanel
             pointerEvents: state.isDynamic ? "none" : "auto",
           }}
         >
-          <label htmlFor="input-body">RESPONSE_BODY</label>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label htmlFor="input-body">RESPONSE_BODY</label>
+            <button
+              type="button"
+              className={styles.docLinkBtn}
+              onClick={() => {
+                let textToCopy = state.body;
+                if (state.currentScenario) {
+                  const isVerified = state.currentScenario.status === "verified";
+                  const statusText = isVerified ? `커뮤니티 검증됨 ✓ (${state.currentScenario.verifiedCount || 0}건)` : `공식문서 기반 · 커뮤니티 검증 전`;
+                  const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${state.currentScenario.id}`;
+                  const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 스펙이 다르다면 제보해 주세요: ${reportUrl}\n\n`;
+                  textToCopy = commentStr + state.body;
+                }
+                navigator.clipboard.writeText(textToCopy).catch(() => {});
+              }}
+              title="코드 스니펫 복사"
+            >
+              <i className="icon-[mdi--content-copy]" /> 복사
+            </button>
+          </div>
           <textarea
             id="input-body"
             name="body"
