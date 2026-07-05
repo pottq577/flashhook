@@ -1,6 +1,9 @@
 import { useState, useId } from "react";
 import type { Endpoint } from "@/entities/endpoint";
-import { CUSTOM_SERVICE_ID } from "@/entities/endpoint";
+import {
+  CUSTOM_SERVICE_ID,
+  getPresetDriftReportUrl,
+} from "@/entities/endpoint";
 import { CustomDropdown } from "@/shared/ui/custom-dropdown/CustomDropdown";
 import {
   useMockConfigForm,
@@ -102,12 +105,7 @@ export default function MockConfigPanel({
                 )
               }
               displayValue={(_val, opt) => (opt ? opt.label : "SELECT_PRESET…")}
-              renderOptionBadge={(opt: {
-                value: string | number;
-                label: string;
-                desc?: string;
-                lastVerifiedAt?: string;
-              }) => {
+              renderOptionBadge={(opt) => {
                 const dateToUse = opt.lastVerifiedAt || "2026-07-01";
                 const verifiedText = ` (최종 확인일: ${dateToUse.replace(/-/g, ".")})`;
                 const label = `공식문서 기반${verifiedText}`;
@@ -377,14 +375,24 @@ export default function MockConfigPanel({
                       state.currentScenario?.lastVerifiedAt || "2026-07-01";
                     const verifiedText = ` (최종 확인일: ${dateToUse.replace(/-/g, ".")})`;
                     const statusText = `공식문서 기반${verifiedText}`;
-                    const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.md&title=[Drift]+${state.currentScenario?.id}`;
+                    const reportUrl = getPresetDriftReportUrl(
+                      state.currentScenario?.id || "",
+                    );
                     const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 실제 스펙과 다르다면 알려주세요: ${reportUrl}\n\n`;
                     const textToCopy = commentStr + state.body;
 
-                    navigator.clipboard.writeText(textToCopy).catch(() => {});
-                    addToast(
-                      "페이로드를 복사했어요. 이슈 템플릿에 붙여넣어 주세요.",
-                    );
+                    navigator.clipboard
+                      .writeText(textToCopy)
+                      .then(() =>
+                        addToast(
+                          "페이로드를 복사했어요. 이슈 템플릿에 붙여넣어 주세요.",
+                        ),
+                      )
+                      .catch(() =>
+                        addToast(
+                          "클립보드 복사에 실패했어요. 직접 붙여넣어 주세요.",
+                        ),
+                      );
                     window.open(reportUrl, "_blank", "noopener,noreferrer");
                   }}
                   title="실제 스펙과 다른가요? 이슈로 알려주세요. (현재 페이로드가 자동으로 복사돼요)"

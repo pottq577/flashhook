@@ -4,6 +4,7 @@ import type { Endpoint } from "@/entities/endpoint";
 import {
   PRESET_CATALOG,
   CUSTOM_SERVICE_ID,
+  getPresetDriftReportUrl,
   type PresetScenario,
 } from "@/entities/endpoint";
 import {
@@ -230,8 +231,9 @@ export function useMockConfigForm(
     if (currentScenario) {
       finalHeaders["X-Flashhook-Preset-Status"] =
         currentScenario.lastVerifiedAt || "2026-07-01";
-      finalHeaders["X-Flashhook-Report-Url"] =
-        `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.md&title=[Drift]+${currentScenario.id}`;
+      finalHeaders["X-Flashhook-Report-Url"] = getPresetDriftReportUrl(
+        currentScenario.id,
+      );
     }
 
     mutate(

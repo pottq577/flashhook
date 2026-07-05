@@ -3,9 +3,17 @@ import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./CustomDropdown.module.css";
 
-interface CustomDropdownProps {
+export interface DefaultDropdownOption {
   value: string | number;
-  options: { value: string | number; label: string; desc?: string }[];
+  label: string;
+  desc?: string;
+}
+
+interface CustomDropdownProps<
+  T extends DefaultDropdownOption = DefaultDropdownOption,
+> {
+  value: string | number;
+  options: T[];
   onSelect: (val: string | number) => void;
   onCustom?: () => void;
   customLabel?: string;
@@ -14,22 +22,17 @@ interface CustomDropdownProps {
   onToggle: () => void;
   onClose?: () => void;
   isCustomStatus?: boolean;
-  displayValue?: (
-    val: string | number,
-    opt?: { value: string | number; label: string; desc?: string },
-  ) => string;
+  displayValue?: (val: string | number, opt?: T) => string;
   alignRight?: boolean;
   isEditable?: boolean;
   onEdit?: (val: string) => void;
   hideNoOptions?: boolean;
-  renderOptionBadge?: (opt: {
-    value: string | number;
-    label: string;
-    desc?: string;
-  }) => ReactNode;
+  renderOptionBadge?: (opt: T) => ReactNode;
 }
 
-export function CustomDropdown({
+export function CustomDropdown<
+  T extends DefaultDropdownOption = DefaultDropdownOption,
+>({
   value,
   options,
   onSelect,
@@ -46,7 +49,7 @@ export function CustomDropdown({
   onEdit,
   hideNoOptions,
   renderOptionBadge,
-}: CustomDropdownProps) {
+}: CustomDropdownProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(-1);
 

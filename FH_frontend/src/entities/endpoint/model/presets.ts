@@ -28,6 +28,10 @@ export interface PresetService {
   scenarios: PresetScenario[];
 }
 
+export const getPresetDriftReportUrl = (presetId: string) => {
+  return `https://github.com/pottq577/flashhook/issues/new?template=preset_drift.md&title=[Drift]+${presetId}`;
+};
+
 const CT_JSON = { "Content-Type": "application/json" };
 const CT_JSON_UTF8 = { "Content-Type": "application/json;charset=UTF-8" };
 
