@@ -1,6 +1,9 @@
 import { useState, useId } from "react";
 import type { Endpoint } from "@/entities/endpoint";
-import { CUSTOM_SERVICE_ID } from "@/entities/endpoint";
+import {
+  CUSTOM_SERVICE_ID,
+  getPresetDriftReportUrl,
+} from "@/entities/endpoint";
 import { CustomDropdown } from "@/shared/ui/custom-dropdown/CustomDropdown";
 import {
   useMockConfigForm,
@@ -11,6 +14,7 @@ import {
   SERVICE_OPTIONS,
   generateId,
 } from "@/features/mock-config";
+import { useToastStore } from "@/shared/lib/toast.store";
 import styles from "./MockConfigPanel.module.css";
 
 interface MockConfigPanelProps {
@@ -18,12 +22,16 @@ interface MockConfigPanelProps {
   onSuccess?: () => void;
 }
 
-export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanelProps) {
+export default function MockConfigPanel({
+  endpoint,
+  onSuccess,
+}: MockConfigPanelProps) {
   const form = useMockConfigForm(endpoint, onSuccess);
   const { state, actions } = form;
 
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const customStatusId = useId();
+  const addToast = useToastStore((s) => s.addToast);
 
   return (
     <div className={styles.container}>
@@ -97,6 +105,22 @@ export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanel
                 )
               }
               displayValue={(_val, opt) => (opt ? opt.label : "SELECT_PRESET…")}
+              renderOptionBadge={(opt) => {
+                const dateToUse = opt.lastVerifiedAt || "2026-07-01";
+                const verifiedText = ` (최종 확인일: ${dateToUse.replace(/-/g, ".")})`;
+                const label = `공식문서 기반${verifiedText}`;
+                return (
+                  <div className={styles.presetBadge}>
+                    {label}
+                    <span
+                      style={{ cursor: "help", marginLeft: "0.25rem" }}
+                      title="공식 문서를 바탕으로 만들었지만, 스펙이 바뀌어 실제와 다를 수 있어요. 정확한 내용은 '공식 문서' 링크에서 직접 확인해 주세요. 프리셋 사용으로 인해 발생한 문제는 FlashHook이 책임지지 않아요. (자세한 내용은 이용약관을 참고해 주세요)"
+                    >
+                      ⓘ
+                    </span>
+                  </div>
+                );
+              }}
             />
             {state.isDynamic ? (
               <p
@@ -333,7 +357,51 @@ export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanel
             pointerEvents: state.isDynamic ? "none" : "auto",
           }}
         >
-          <label htmlFor="input-body">RESPONSE_BODY</label>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <label htmlFor="input-body">RESPONSE_BODY</label>
+            {state.selectedServiceId !== CUSTOM_SERVICE_ID &&
+              state.currentScenario && (
+                <button
+                  type="button"
+                  className={styles.docLinkBtn}
+                  onClick={() => {
+                    const dateToUse =
+                      state.currentScenario?.lastVerifiedAt || "2026-07-01";
+                    const verifiedText = ` (최종 확인일: ${dateToUse.replace(/-/g, ".")})`;
+                    const statusText = `공식문서 기반${verifiedText}`;
+                    const reportUrl = getPresetDriftReportUrl(
+                      state.currentScenario?.id || "",
+                    );
+                    const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 실제 스펙과 다르다면 알려주세요: ${reportUrl}\n\n`;
+                    const textToCopy = commentStr + state.body;
+
+                    navigator.clipboard
+                      .writeText(textToCopy)
+                      .then(() =>
+                        addToast(
+                          "페이로드를 복사했어요. 이슈 템플릿에 붙여넣어 주세요.",
+                        ),
+                      )
+                      .catch(() =>
+                        addToast(
+                          "클립보드 복사에 실패했어요. 직접 붙여넣어 주세요.",
+                        ),
+                      );
+                    window.open(reportUrl, "_blank", "noopener,noreferrer");
+                  }}
+                  title="실제 스펙과 다른가요? 이슈로 알려주세요. (현재 페이로드가 자동으로 복사돼요)"
+                >
+                  <i className="icon-[mdi--alert-circle-outline]" /> 잘못된 스펙
+                  제보하기
+                </button>
+              )}
+          </div>
           <textarea
             id="input-body"
             name="body"

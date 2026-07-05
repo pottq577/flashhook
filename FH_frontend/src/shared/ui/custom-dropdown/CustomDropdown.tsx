@@ -1,10 +1,19 @@
 import { useState, useMemo, useRef, useEffect, useEffectEvent } from "react";
+import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./CustomDropdown.module.css";
 
-interface CustomDropdownProps {
+export interface DefaultDropdownOption {
   value: string | number;
-  options: { value: string | number; label: string; desc?: string }[];
+  label: string;
+  desc?: string;
+}
+
+interface CustomDropdownProps<
+  T extends DefaultDropdownOption = DefaultDropdownOption,
+> {
+  value: string | number;
+  options: T[];
   onSelect: (val: string | number) => void;
   onCustom?: () => void;
   customLabel?: string;
@@ -13,17 +22,17 @@ interface CustomDropdownProps {
   onToggle: () => void;
   onClose?: () => void;
   isCustomStatus?: boolean;
-  displayValue?: (
-    val: string | number,
-    opt?: { value: string | number; label: string; desc?: string },
-  ) => string;
+  displayValue?: (val: string | number, opt?: T) => string;
   alignRight?: boolean;
   isEditable?: boolean;
   onEdit?: (val: string) => void;
   hideNoOptions?: boolean;
+  renderOptionBadge?: (opt: T) => ReactNode;
 }
 
-export function CustomDropdown({
+export function CustomDropdown<
+  T extends DefaultDropdownOption = DefaultDropdownOption,
+>({
   value,
   options,
   onSelect,
@@ -39,7 +48,8 @@ export function CustomDropdown({
   isEditable,
   onEdit,
   hideNoOptions,
-}: CustomDropdownProps) {
+  renderOptionBadge,
+}: CustomDropdownProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(-1);
 
@@ -90,36 +100,41 @@ export function CustomDropdown({
   }, [isEditable, inputValue, options, value]);
 
   return (
-    <div className={styles.statusInputWrapper} ref={containerRef} onKeyDown={(e) => {
-      if (isOpen) {
-        const maxIndex = filteredOptions.length + (onCustom && !isEditable ? 1 : 0) - 1;
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          setActiveIndex((prev) => (prev < maxIndex ? prev + 1 : 0));
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          setActiveIndex((prev) => (prev > 0 ? prev - 1 : maxIndex));
-        } else if (e.key === "Enter") {
-          if (activeIndex >= 0 && activeIndex < filteredOptions.length) {
+    <div
+      className={styles.statusInputWrapper}
+      ref={containerRef}
+      onKeyDown={(e) => {
+        if (isOpen) {
+          const maxIndex =
+            filteredOptions.length + (onCustom && !isEditable ? 1 : 0) - 1;
+          if (e.key === "ArrowDown") {
             e.preventDefault();
-            onSelect(filteredOptions[activeIndex].value);
-          } else if (activeIndex === filteredOptions.length && onCustom) {
+            setActiveIndex((prev) => (prev < maxIndex ? prev + 1 : 0));
+          } else if (e.key === "ArrowUp") {
             e.preventDefault();
-            onCustom();
+            setActiveIndex((prev) => (prev > 0 ? prev - 1 : maxIndex));
+          } else if (e.key === "Enter") {
+            if (activeIndex >= 0 && activeIndex < filteredOptions.length) {
+              e.preventDefault();
+              onSelect(filteredOptions[activeIndex].value);
+            } else if (activeIndex === filteredOptions.length && onCustom) {
+              e.preventDefault();
+              onCustom();
+            }
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            if (onClose) onClose();
+            else onToggle();
           }
-        } else if (e.key === "Escape") {
-          e.preventDefault();
-          if (onClose) onClose();
-          else onToggle();
+        } else {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            onToggle();
+            setActiveIndex(0);
+          }
         }
-      } else {
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          onToggle();
-          setActiveIndex(0);
-        }
-      }
-    }}>
+      }}
+    >
       <div
         className={styles.customSelectTrigger}
         onClick={!isEditable ? onToggle : undefined}
@@ -224,6 +239,7 @@ export function CustomDropdown({
                         {String(o.value)}
                       </span>
                     ) : null}
+                    {renderOptionBadge ? renderOptionBadge(o) : null}
                   </div>
                 </div>
               ))

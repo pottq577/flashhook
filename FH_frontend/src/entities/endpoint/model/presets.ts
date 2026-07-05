@@ -18,6 +18,7 @@ export interface PresetScenario {
   body: string;
   isDynamic?: boolean;
   presetType?: string;
+  lastVerifiedAt?: string;
 }
 
 export interface PresetService {
@@ -26,6 +27,10 @@ export interface PresetService {
   docUrl?: string;
   scenarios: PresetScenario[];
 }
+
+export const getPresetDriftReportUrl = (presetId: string) => {
+  return `https://github.com/pottq577/flashhook/issues/new?template=preset_drift.md&title=[Drift]+${presetId}`;
+};
 
 const CT_JSON = { "Content-Type": "application/json" };
 const CT_JSON_UTF8 = { "Content-Type": "application/json;charset=UTF-8" };
@@ -44,6 +49,7 @@ const kakaoPresets: PresetService = {
       desc: "(200 OK)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON_UTF8,
       body: JSON.stringify(
         {
@@ -64,6 +70,7 @@ const kakaoPresets: PresetService = {
       desc: "(400 KOE101)",
       statusCode: 400,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON_UTF8,
       body: JSON.stringify(
         {
@@ -81,6 +88,7 @@ const kakaoPresets: PresetService = {
       desc: "(400 KOE320)",
       statusCode: 400,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON_UTF8,
       body: JSON.stringify(
         {
@@ -99,6 +107,7 @@ const kakaoPresets: PresetService = {
       desc: "(400 KOE009)",
       statusCode: 400,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON_UTF8,
       body: JSON.stringify(
         {
@@ -117,6 +126,7 @@ const kakaoPresets: PresetService = {
       desc: "(200 + 3500ms 지연)",
       statusCode: 200,
       delayMs: 3500,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: "ok",
     },
@@ -126,6 +136,7 @@ const kakaoPresets: PresetService = {
       desc: "(200 OK)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       presetType: "KAKAO_UNLINK_WEBHOOK",
       body: JSON.stringify(
@@ -144,6 +155,7 @@ const kakaoPresets: PresetService = {
       desc: "(202 Accepted)",
       statusCode: 202,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: { "Content-Type": "application/secevent+jwt" },
       presetType: "KAKAO_ACCOUNT_STATUS_CHANGE",
       body: JSON.stringify(
@@ -155,14 +167,15 @@ const kakaoPresets: PresetService = {
           txm: "tx-abc-123",
           jti: "some-unique-jwt-id",
           events: {
-            "https://schemas.openid.net/secevent/oauth/event-type/user-unlinked": {
-              subject: {
-                subject_type: "iss-sub",
-                iss: "https://kauth.kakao.com",
-                sub: "3891047281",
+            "https://schemas.openid.net/secevent/oauth/event-type/user-unlinked":
+              {
+                subject: {
+                  subject_type: "iss-sub",
+                  iss: "https://kauth.kakao.com",
+                  sub: "3891047281",
+                },
+                reason: "UNLINK_FROM_APPS",
               },
-              reason: "UNLINK_FROM_APPS",
-            },
           },
         },
         null,
@@ -175,6 +188,7 @@ const kakaoPresets: PresetService = {
       desc: "(202 Accepted)",
       statusCode: 202,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: { "Content-Type": "application/secevent+jwt" },
       presetType: "KAKAO_ACCOUNT_STATUS_CHANGE",
       body: JSON.stringify(
@@ -186,14 +200,15 @@ const kakaoPresets: PresetService = {
           txm: "tx-abc-124",
           jti: "some-unique-jwt-id-2",
           events: {
-            "https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked": {
-              subject: {
-                subject_type: "iss-sub",
-                iss: "https://kauth.kakao.com",
-                sub: "3891047281",
+            "https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked":
+              {
+                subject: {
+                  subject_type: "iss-sub",
+                  iss: "https://kauth.kakao.com",
+                  sub: "3891047281",
+                },
+                reason: "user",
               },
-              reason: "user",
-            },
           },
         },
         null,
@@ -206,6 +221,7 @@ const kakaoPresets: PresetService = {
       desc: "(202 Accepted)",
       statusCode: 202,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: { "Content-Type": "application/secevent+jwt" },
       presetType: "KAKAO_ACCOUNT_STATUS_CHANGE",
       body: JSON.stringify(
@@ -217,14 +233,15 @@ const kakaoPresets: PresetService = {
           txm: "tx-abc-125",
           jti: "some-unique-jwt-id-3",
           events: {
-            "https://schemas.openid.net/secevent/risc/event-type/account-disabled": {
-              subject: {
-                subject_type: "iss-sub",
-                iss: "https://kauth.kakao.com",
-                sub: "3891047281",
+            "https://schemas.openid.net/secevent/risc/event-type/account-disabled":
+              {
+                subject: {
+                  subject_type: "iss-sub",
+                  iss: "https://kauth.kakao.com",
+                  sub: "3891047281",
+                },
+                reason: "hijacking",
               },
-              reason: "hijacking",
-            },
           },
         },
         null,
@@ -237,6 +254,7 @@ const kakaoPresets: PresetService = {
       desc: "(202 Accepted)",
       statusCode: 202,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: { "Content-Type": "application/secevent+jwt" },
       presetType: "KAKAO_ACCOUNT_STATUS_CHANGE",
       body: JSON.stringify(
@@ -248,14 +266,15 @@ const kakaoPresets: PresetService = {
           txm: "tx-abc-126",
           jti: "some-unique-jwt-id-4",
           events: {
-            "https://schemas.kakao.com/platevent/kakao/event-type/user-profile-changed": {
-              subject: {
-                subject_type: "iss-sub",
-                iss: "https://kauth.kakao.com",
-                sub: "3891047281",
+            "https://schemas.kakao.com/platevent/kakao/event-type/user-profile-changed":
+              {
+                subject: {
+                  subject_type: "iss-sub",
+                  iss: "https://kauth.kakao.com",
+                  sub: "3891047281",
+                },
+                profile: "account_email birthday",
               },
-              profile: "account_email birthday",
-            },
           },
         },
         null,
@@ -268,6 +287,7 @@ const kakaoPresets: PresetService = {
       desc: "(200 OK)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       presetType: "KAKAO_CHANNEL_CALLBACK",
       body: JSON.stringify(
@@ -288,6 +308,7 @@ const kakaoPresets: PresetService = {
       desc: "(200 OK)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       presetType: "KAKAO_CHANNEL_CALLBACK",
       body: JSON.stringify(
@@ -319,6 +340,7 @@ const tossPresets: PresetService = {
       desc: "(200 OK)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -347,6 +369,7 @@ const tossPresets: PresetService = {
       desc: "(400 중복 승인)",
       statusCode: 400,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -363,6 +386,7 @@ const tossPresets: PresetService = {
       desc: "(500 뱅킹망 장애)",
       statusCode: 500,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -380,6 +404,7 @@ const tossPresets: PresetService = {
       desc: "(400 이미 취소)",
       statusCode: 400,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -396,6 +421,7 @@ const tossPresets: PresetService = {
       desc: "(400 카드사 거절)",
       statusCode: 400,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -412,6 +438,7 @@ const tossPresets: PresetService = {
       desc: "(200 정상 응답)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -431,6 +458,7 @@ const tossPresets: PresetService = {
       desc: "(200 정상 응답)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -452,6 +480,7 @@ const tossPresets: PresetService = {
       desc: "(500 의도적 오류)",
       statusCode: 500,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -479,6 +508,7 @@ const portonePresets: PresetService = {
       desc: "(200 OK)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -505,6 +535,7 @@ const portonePresets: PresetService = {
       desc: "(404 NOT_FOUND)",
       statusCode: 404,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -521,6 +552,7 @@ const portonePresets: PresetService = {
       desc: "(200 PENDING)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -543,6 +575,7 @@ const portonePresets: PresetService = {
       desc: "(200 FAILED)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -566,6 +599,7 @@ const portonePresets: PresetService = {
       desc: "(409 중복 요청)",
       statusCode: 409,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -593,6 +627,7 @@ const solapiPresets: PresetService = {
       desc: "(200 정상 접수)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -614,6 +649,7 @@ const solapiPresets: PresetService = {
       desc: "(400 잔액 부족)",
       statusCode: 400,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -630,6 +666,7 @@ const solapiPresets: PresetService = {
       desc: "(400 도용차단 가입 번호)",
       statusCode: 400,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -646,6 +683,7 @@ const solapiPresets: PresetService = {
       desc: "(200 정상 응답)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -685,6 +723,7 @@ const githubPresets: PresetService = {
       presetType: "GITHUB",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: {
         ...CT_JSON,
         "X-GitHub-Event": "push",
@@ -735,6 +774,7 @@ const githubPresets: PresetService = {
       presetType: "GITHUB",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: {
         ...CT_JSON,
         "X-GitHub-Event": "pull_request",
@@ -775,6 +815,7 @@ const githubPresets: PresetService = {
       presetType: "GITHUB",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: {
         ...CT_JSON,
         "X-GitHub-Event": "release",
@@ -811,6 +852,7 @@ const githubPresets: PresetService = {
       desc: "(200 signature absent)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: {
         ...CT_JSON,
         "X-GitHub-Event": "push",
@@ -870,6 +912,7 @@ const slackPresets: PresetService = {
       desc: "(200 event_callback)",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: JSON.stringify(
         {
@@ -900,6 +943,7 @@ const slackPresets: PresetService = {
       presetType: "SLACK_URL_VERIFICATION",
       statusCode: 200,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: CT_JSON,
       body: '{"challenge": "동적 처리됨"}',
     },
@@ -909,6 +953,7 @@ const slackPresets: PresetService = {
       desc: "(500 X-Slack-No-Retry: 1)",
       statusCode: 500,
       delayMs: 0,
+      lastVerifiedAt: "2026-07-01",
       headers: { ...CT_JSON, "X-Slack-No-Retry": "1" },
       body: JSON.stringify(
         {
