@@ -21,6 +21,8 @@ export async function generateStaticParams() {
   }));
 }
 
+const KOREAN_PROVIDERS = new Set(["portone", "tosspayments", "kakao", "solapi"]);
+
 export async function generateMetadata({
   params,
 }: {
@@ -33,15 +35,23 @@ export async function generateMetadata({
     return {};
   }
 
+  const isKorean = KOREAN_PROVIDERS.has(slug);
+  const title = isKorean
+    ? `${provider.displayName} 웹훅 테스트 — 무료 샌드박스 | FlashHook`
+    : `${provider.displayName} Webhook Testing — Free Sandbox | FlashHook`;
+  const description = isKorean
+    ? `FlashHook으로 ${provider.displayName} 웹훅을 무료로 테스트하세요. 샘플 페이로드, 설정 가이드, 인증 방식을 확인하고 즉시 디버깅할 수 있습니다. 회원가입 불필요.`
+    : `Learn how to test ${provider.displayName} webhooks using FlashHook. View sample payloads, setup instructions, and authentication methods.`;
+
   return {
-    title: `${provider.displayName} Webhook Testing — Free Sandbox | FlashHook`,
-    description: `Learn how to test ${provider.displayName} webhooks using FlashHook. View sample payloads, setup instructions, and authentication methods.`,
+    title,
+    description,
     alternates: {
       canonical: `https://flashhook.site/webhooks/${provider.slug}`,
     },
     openGraph: {
-      title: `${provider.displayName} Webhook Testing — Free Sandbox | FlashHook`,
-      description: `Learn how to test ${provider.displayName} webhooks using FlashHook. View sample payloads, setup instructions, and authentication methods.`,
+      title,
+      description,
       url: `https://flashhook.site/webhooks/${provider.slug}`,
     },
   };
