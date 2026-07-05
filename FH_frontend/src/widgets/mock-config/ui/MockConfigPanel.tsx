@@ -377,7 +377,7 @@ export default function MockConfigPanel({
                       state.currentScenario?.lastVerifiedAt || "2026-07-01";
                     const verifiedText = ` (최종 확인일: ${dateToUse.replace(/-/g, ".")})`;
                     const statusText = `공식문서 기반${verifiedText}`;
-                    const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${state.currentScenario?.id}`;
+                    const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.md&title=[Drift]+${state.currentScenario?.id}`;
                     const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 스펙이 다르다면 제보해 주세요: ${reportUrl}\n\n`;
                     const textToCopy = commentStr + state.body;
 
