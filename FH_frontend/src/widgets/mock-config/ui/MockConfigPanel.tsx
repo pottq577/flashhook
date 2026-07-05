@@ -11,6 +11,7 @@ import {
   SERVICE_OPTIONS,
   generateId,
 } from "@/features/mock-config";
+import { useToastStore } from "@/shared/lib/toast.store";
 import styles from "./MockConfigPanel.module.css";
 
 interface MockConfigPanelProps {
@@ -27,6 +28,7 @@ export default function MockConfigPanel({
 
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const customStatusId = useId();
+  const addToast = useToastStore((s) => s.addToast);
 
   return (
     <div className={styles.container}>
@@ -369,28 +371,33 @@ export default function MockConfigPanel({
             }}
           >
             <label htmlFor="input-body">RESPONSE_BODY</label>
-            <button
-              type="button"
-              className={styles.docLinkBtn}
-              onClick={() => {
-                let textToCopy = state.body;
-                if (state.currentScenario) {
-                  const isVerified =
-                    state.currentScenario.status === "verified";
-                  const statusText = isVerified
-                    ? `커뮤니티 검증됨 ✓ (${state.currentScenario.verifiedCount || 0}건)`
-                    : `공식문서 기반 · 커뮤니티 검증 전`;
-                  const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${state.currentScenario.id}`;
-                  const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 스펙이 다르다면 제보해 주세요: ${reportUrl}\n\n`;
-                  textToCopy = commentStr + state.body;
-                }
-                navigator.clipboard.writeText(textToCopy).catch(() => {});
-              }}
-              title="프리셋 상태 및 제보 링크가 주석으로 포함된 스니펫 복사"
-            >
-              <i className="icon-[mdi--content-copy]" /> 바디 복사 (안내 주석
-              포함)
-            </button>
+            {state.selectedServiceId !== CUSTOM_SERVICE_ID &&
+              state.currentScenario && (
+                <button
+                  type="button"
+                  className={styles.docLinkBtn}
+                  onClick={() => {
+                    const isVerified =
+                      state.currentScenario?.status === "verified";
+                    const statusText = isVerified
+                      ? `커뮤니티 검증됨 ✓ (${state.currentScenario?.verifiedCount || 0}건)`
+                      : `공식문서 기반 · 커뮤니티 검증 전`;
+                    const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${state.currentScenario?.id}`;
+                    const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 스펙이 다르다면 제보해 주세요: ${reportUrl}\n\n`;
+                    const textToCopy = commentStr + state.body;
+
+                    navigator.clipboard.writeText(textToCopy).catch(() => {});
+                    addToast(
+                      "페이로드가 복사되었습니다. 이슈 템플릿에 붙여넣어 주세요.",
+                    );
+                    window.open(reportUrl, "_blank", "noopener,noreferrer");
+                  }}
+                  title="스펙 오류가 있나요? 이슈를 제보해 주세요. (현재 페이로드 자동 복사)"
+                >
+                  <i className="icon-[mdi--alert-circle-outline]" /> 스펙 불일치
+                  제보
+                </button>
+              )}
           </div>
           <textarea
             id="input-body"
