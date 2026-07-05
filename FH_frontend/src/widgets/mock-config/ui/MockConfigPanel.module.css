@@ -229,9 +229,3 @@
   border: 1px solid var(--border);
   margin-left: 0.5rem;
 }
-
-.presetBadge.verified {
-  color: #00c853;
-  border-color: #00c853;
-  background: rgba(0, 200, 83, 0.1);
-}

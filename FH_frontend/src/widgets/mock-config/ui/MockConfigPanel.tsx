@@ -112,9 +112,7 @@ export default function MockConfigPanel({
                 const verifiedText = ` (최종 확인일: ${dateToUse.replace(/-/g, ".")})`;
                 const label = `공식문서 기반${verifiedText}`;
                 return (
-                  <div
-                    className={`${styles.presetBadge} ${styles.verified}`}
-                  >
+                  <div className={styles.presetBadge}>
                     {label}
                     <span
                       style={{ cursor: "help", marginLeft: "0.25rem" }}
@@ -375,7 +373,8 @@ export default function MockConfigPanel({
                   type="button"
                   className={styles.docLinkBtn}
                   onClick={() => {
-                    const dateToUse = state.currentScenario?.lastVerifiedAt || "2026-07-01";
+                    const dateToUse =
+                      state.currentScenario?.lastVerifiedAt || "2026-07-01";
                     const verifiedText = ` (최종 확인일: ${dateToUse.replace(/-/g, ".")})`;
                     const statusText = `공식문서 기반${verifiedText}`;
                     const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${state.currentScenario?.id}`;
