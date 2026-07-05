@@ -106,16 +106,15 @@ export default function MockConfigPanel({
                 value: string | number;
                 label: string;
                 desc?: string;
-                status?: "unverified" | "verified";
-                verifiedCount?: number;
+                lastVerifiedAt?: string;
               }) => {
-                const isVerified = opt.status === "verified";
-                const label = isVerified
-                  ? `커뮤니티 검증됨 ✓ (${opt.verifiedCount || 0}건)`
-                  : `공식문서 기반 · 커뮤니티 검증 전`;
+                const verifiedText = opt.lastVerifiedAt
+                  ? `(최종 확인: ${opt.lastVerifiedAt.replace(/-/g, ".")})`
+                  : "(검증 전)";
+                const label = `공식문서 기반 ${verifiedText}`;
                 return (
                   <div
-                    className={`${styles.presetBadge} ${isVerified ? styles.verified : ""}`}
+                    className={`${styles.presetBadge} ${opt.lastVerifiedAt ? styles.verified : ""}`}
                   >
                     {label}
                     <span
@@ -377,11 +376,10 @@ export default function MockConfigPanel({
                   type="button"
                   className={styles.docLinkBtn}
                   onClick={() => {
-                    const isVerified =
-                      state.currentScenario?.status === "verified";
-                    const statusText = isVerified
-                      ? `커뮤니티 검증됨 ✓ (${state.currentScenario?.verifiedCount || 0}건)`
-                      : `공식문서 기반 · 커뮤니티 검증 전`;
+                    const verifiedText = state.currentScenario?.lastVerifiedAt
+                      ? `(최종 확인: ${state.currentScenario.lastVerifiedAt.replace(/-/g, ".")})`
+                      : "(검증 전)";
+                    const statusText = `공식문서 기반 ${verifiedText}`;
                     const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${state.currentScenario?.id}`;
                     const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 스펙이 다르다면 제보해 주세요: ${reportUrl}\n\n`;
                     const textToCopy = commentStr + state.body;
