@@ -116,7 +116,7 @@ export default function MockConfigPanel({
                     {label}
                     <span
                       style={{ cursor: "help", marginLeft: "0.25rem" }}
-                      title="본 프리셋은 공식 문서를 기반으로 제작되었으나, 대상 서비스의 스펙 변경에 따라 실제와 다를 수 있습니다. 정확한 스펙은 상단 '공식 문서' 링크에서 확인 바랍니다. 본 프리셋 사용으로 발생하는 불이익에 대해 서비스는 책임지지 않습니다. (상세 내용은 이용약관 참조)"
+                      title="공식 문서를 바탕으로 만들었지만, 스펙이 바뀌어 실제와 다를 수 있어요. 정확한 내용은 '공식 문서' 링크에서 직접 확인해 주세요. 프리셋 사용으로 인해 발생한 문제는 FlashHook이 책임지지 않아요. (자세한 내용은 이용약관을 참고해 주세요)"
                     >
                       ⓘ
                     </span>
@@ -378,19 +378,19 @@ export default function MockConfigPanel({
                     const verifiedText = ` (최종 확인일: ${dateToUse.replace(/-/g, ".")})`;
                     const statusText = `공식문서 기반${verifiedText}`;
                     const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.md&title=[Drift]+${state.currentScenario?.id}`;
-                    const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 스펙이 다르다면 제보해 주세요: ${reportUrl}\n\n`;
+                    const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 실제 스펙과 다르다면 알려주세요: ${reportUrl}\n\n`;
                     const textToCopy = commentStr + state.body;
 
                     navigator.clipboard.writeText(textToCopy).catch(() => {});
                     addToast(
-                      "페이로드가 복사되었습니다. 이슈 템플릿에 붙여넣어 주세요.",
+                      "페이로드를 복사했어요. 이슈 템플릿에 붙여넣어 주세요.",
                     );
                     window.open(reportUrl, "_blank", "noopener,noreferrer");
                   }}
-                  title="스펙 오류가 있나요? 이슈를 제보해 주세요. (현재 페이로드 자동 복사)"
+                  title="실제 스펙과 다른가요? 이슈로 알려주세요. (현재 페이로드가 자동으로 복사돼요)"
                 >
-                  <i className="icon-[mdi--alert-circle-outline]" /> 스펙 불일치
-                  제보
+                  <i className="icon-[mdi--alert-circle-outline]" /> 잘못된 스펙
+                  제보하기
                 </button>
               )}
           </div>
