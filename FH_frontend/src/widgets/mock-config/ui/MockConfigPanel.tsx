@@ -97,6 +97,26 @@ export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanel
                 )
               }
               displayValue={(_val, opt) => (opt ? opt.label : "SELECT_PRESET…")}
+              renderOptionBadge={(opt: { value: string | number; label: string; desc?: string; status?: "unverified" | "verified"; verifiedCount?: number }) => {
+                const isVerified = opt.status === "verified";
+                const label = isVerified ? `커뮤니티 검증됨 ✓ (${opt.verifiedCount || 0}건)` : `공식문서 기반 · 커뮤니티 검증 전`;
+                return (
+                  <div className={`${styles.presetBadge} ${isVerified ? styles.verified : ""}`}>
+                    {label}
+                    <div 
+                      className={styles.presetBadgeTooltipContainer}
+                      onMouseDown={(e) => {
+                        e.stopPropagation(); // prevent option selection on tooltip interaction
+                      }}
+                    >
+                      <span style={{cursor: 'help'}}>ⓘ</span>
+                      <div className={styles.presetBadgeTooltip}>
+                        AI가 공식 문서를 참고해 초안을 생성했으며, 아직 실사용 검증은 거치지 않았습니다. 프리셋은 최신 공식 스펙과 다를 수 있으며, 정확한 스펙은 '공식 문서' 링크에서 확인 바랍니다. 본 프리셋 사용으로 발생하는 불이익에 대해 서비스는 책임지지 않습니다. (상세 내용은 이용약관 참조)
+                      </div>
+                    </div>
+                  </div>
+                );
+              }}
             />
             {state.isDynamic ? (
               <p

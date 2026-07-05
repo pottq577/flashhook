@@ -139,6 +139,8 @@ export function useMockConfigForm(endpoint: Endpoint, onSuccessCb?: () => void) 
       value: s.id,
       label: s.label,
       desc: s.desc,
+      status: s.status,
+      verifiedCount: s.verifiedCount,
     })) ?? [];
 
   const currentScenario = currentService?.scenarios.find((s) => s.id === selectedScenarioId);
