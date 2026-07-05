@@ -18,6 +18,8 @@ export interface PresetScenario {
   body: string;
   isDynamic?: boolean;
   presetType?: string;
+  status?: "unverified" | "verified";
+  verifiedCount?: number;
 }
 
 export interface PresetService {
