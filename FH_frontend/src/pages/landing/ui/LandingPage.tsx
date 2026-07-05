@@ -141,9 +141,13 @@ function LandingPage() {
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
             "name": "FlashHook",
+            "url": "https://flashhook.site",
             "operatingSystem": "Web",
             "applicationCategory": "DeveloperApplication",
             "description": "1초 만에 만드는 임시 Webhook URL. 로그인 없이 1초 만에 임시 웹훅을 생성하고 실시간으로 HTTP 요청을 검사 및 모니터링할 수 있는 무료 개발자 도구입니다.",
+            "featureList": "웹훅 URL 즉시 생성, K-API Mock 프리셋(토스·카카오·포트원·솔라피), 실시간 SSE 로그, Replay API",
+            "screenshot": "https://flashhook.site/og-image.png",
+            "inLanguage": ["ko", "en"],
             "offers": {
               "@type": "Offer",
               "price": "0",

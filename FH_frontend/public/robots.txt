@@ -1,15 +1,14 @@
 User-agent: *
 Allow: /
 
-# 학습용 크롤러 차단
+# 학습 전용 크롤러 차단 (검색/인용용 크롤러는 아래에서 별도 허용)
 User-agent: GPTBot
 Disallow: /
 User-agent: ClaudeBot
 Disallow: /
 User-agent: CCBot
 Disallow: /
-User-agent: Google-Extended
-Disallow: /
+# Google-Extended: 구글 AI Overview(SGE) 인용 허용을 위해 차단 제거
 
 # 검색/인용용 크롤러 허용
 User-agent: OAI-SearchBot

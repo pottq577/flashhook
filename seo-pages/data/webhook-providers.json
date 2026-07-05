@@ -1,5 +1,6 @@
 [
   {
+    "language": "en",
     "slug": "stripe",
     "displayName": "Stripe",
     "officialDocsUrl": "https://stripe.com/docs/webhooks",
@@ -34,6 +35,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "github",
     "displayName": "GitHub",
     "officialDocsUrl": "https://docs.github.com/en/webhooks-and-events/webhooks/about-webhooks",
@@ -66,6 +68,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "slack",
     "displayName": "Slack",
     "officialDocsUrl": "https://api.slack.com/apis/connections/events-api",
@@ -99,6 +102,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "discord",
     "displayName": "Discord",
     "officialDocsUrl": "https://discord.com/developers/docs/resources/webhook",
@@ -127,6 +131,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "paypal",
     "displayName": "PayPal",
     "officialDocsUrl": "https://developer.paypal.com/api/rest/webhooks/",
@@ -160,6 +165,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "shopify",
     "displayName": "Shopify",
     "officialDocsUrl": "https://shopify.dev/docs/apps/webhooks",
@@ -194,6 +200,7 @@
     ]
   },
   {
+    "language": "en",
     "slug": "twilio",
     "displayName": "Twilio",
     "officialDocsUrl": "https://www.twilio.com/docs/usage/webhooks",
@@ -234,6 +241,7 @@
     ]
   },
   {
+    "language": "ko",
     "slug": "portone",
     "displayName": "PortOne (포트원)",
     "officialDocsUrl": "https://developers.portone.io/docs/ko/webhook",
@@ -260,6 +268,7 @@
     ]
   },
   {
+    "language": "ko",
     "slug": "tosspayments",
     "displayName": "TossPayments (토스페이먼츠)",
     "officialDocsUrl": "https://docs.tosspayments.com/reference/webhook",
@@ -288,6 +297,7 @@
     ]
   },
   {
+    "language": "ko",
     "slug": "kakao",
     "displayName": "Kakao (카카오)",
     "officialDocsUrl": "https://developers.kakao.com/docs/latest/ko/kakaopay/webhook",
@@ -321,6 +331,35 @@
       "내 애플리케이션 > 카카오페이 > 웹훅 설정으로 이동합니다.",
       "웹훅 콜백 URL에 FlashHook 주소를 입력합니다.",
       "웹훅 시크릿 키를 확인하고 설정을 저장합니다."
+    ]
+  },
+  {
+    "language": "ko",
+    "slug": "solapi",
+    "displayName": "Solapi (솔라피)",
+    "officialDocsUrl": "https://developers.solapi.com/references/message-send",
+    "authMethod": "HMAC-SHA256 Signature (Authorization Header)",
+    "sampleEvents": [
+      {
+        "eventName": "문자 발송 결과 콜백",
+        "samplePayload": {
+          "groupId": "G4V20180307105602819MZNMCMBLJ0RA",
+          "messageId": "M4V20180307105602819N2KBKRBCG5H5",
+          "type": "SMS",
+          "statusCode": "2000",
+          "statusMessage": "정상",
+          "to": "01012345678",
+          "from": "02-1234-5678",
+          "text": "테스트 메시지입니다.",
+          "datetime": "2023-01-01T00:00:00.000Z"
+        }
+      }
+    ],
+    "setupSteps": [
+      "솔라피 콘솔(console.solapi.com)에 로그인합니다.",
+      "API 설정 > Webhook 메뉴로 이동합니다.",
+      "웹훅 URL에 FlashHook 주소를 등록합니다.",
+      "테스트 메시지를 발송하여 FlashHook 대시보드에서 콜백 수신 여부를 확인합니다."
     ]
   }
 ]
