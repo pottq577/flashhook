@@ -116,21 +116,12 @@ export default function MockConfigPanel({
                     className={`${styles.presetBadge} ${isVerified ? styles.verified : ""}`}
                   >
                     {label}
-                    <div
-                      className={styles.presetBadgeTooltipContainer}
-                      onMouseDown={(e) => {
-                        e.stopPropagation(); // prevent option selection on tooltip interaction
-                      }}
+                    <span
+                      style={{ cursor: "help", marginLeft: "0.25rem" }}
+                      title="본 프리셋은 공식 문서를 기반으로 제작되었으나, 대상 서비스의 스펙 변경에 따라 실제와 다를 수 있습니다. 정확한 스펙은 상단 '공식 문서' 링크에서 확인 바랍니다. 본 프리셋 사용으로 발생하는 불이익에 대해 서비스는 책임지지 않습니다. (상세 내용은 이용약관 참조)"
                     >
-                      <span style={{ cursor: "help" }}>ⓘ</span>
-                      <div className={styles.presetBadgeTooltip}>
-                        본 프리셋은 공식 문서를 기반으로 제작되었으나, 대상
-                        서비스의 스펙 변경에 따라 실제와 다를 수 있습니다.
-                        정확한 스펙은 상단 '공식 문서' 링크에서 확인 바랍니다.
-                        본 프리셋 사용으로 발생하는 불이익에 대해 서비스는
-                        책임지지 않습니다. (상세 내용은 이용약관 참조)
-                      </div>
-                    </div>
+                      ⓘ
+                    </span>
                   </div>
                 );
               }}
@@ -395,9 +386,10 @@ export default function MockConfigPanel({
                 }
                 navigator.clipboard.writeText(textToCopy).catch(() => {});
               }}
-              title="코드 스니펫 복사"
+              title="프리셋 상태 및 제보 링크가 주석으로 포함된 스니펫 복사"
             >
-              <i className="icon-[mdi--content-copy]" /> 복사
+              <i className="icon-[mdi--content-copy]" /> 바디 복사 (안내 주석
+              포함)
             </button>
           </div>
           <textarea
