@@ -109,9 +109,9 @@ export default function MockConfigPanel({
                 lastVerifiedAt?: string;
               }) => {
                 const verifiedText = opt.lastVerifiedAt
-                  ? `(최종 확인: ${opt.lastVerifiedAt.replace(/-/g, ".")})`
-                  : "(검증 전)";
-                const label = `공식문서 기반 ${verifiedText}`;
+                  ? ` (최종 확인일: ${opt.lastVerifiedAt.replace(/-/g, ".")})`
+                  : "";
+                const label = `공식문서 기반${verifiedText}`;
                 return (
                   <div
                     className={`${styles.presetBadge} ${opt.lastVerifiedAt ? styles.verified : ""}`}
@@ -377,9 +377,9 @@ export default function MockConfigPanel({
                   className={styles.docLinkBtn}
                   onClick={() => {
                     const verifiedText = state.currentScenario?.lastVerifiedAt
-                      ? `(최종 확인: ${state.currentScenario.lastVerifiedAt.replace(/-/g, ".")})`
-                      : "(검증 전)";
-                    const statusText = `공식문서 기반 ${verifiedText}`;
+                      ? ` (최종 확인일: ${state.currentScenario.lastVerifiedAt.replace(/-/g, ".")})`
+                      : "";
+                    const statusText = `공식문서 기반${verifiedText}`;
                     const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${state.currentScenario?.id}`;
                     const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 스펙이 다르다면 제보해 주세요: ${reportUrl}\n\n`;
                     const textToCopy = commentStr + state.body;
