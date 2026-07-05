@@ -157,14 +157,15 @@ const kakaoPresets: PresetService = {
           txm: "tx-abc-123",
           jti: "some-unique-jwt-id",
           events: {
-            "https://schemas.openid.net/secevent/oauth/event-type/user-unlinked": {
-              subject: {
-                subject_type: "iss-sub",
-                iss: "https://kauth.kakao.com",
-                sub: "3891047281",
+            "https://schemas.openid.net/secevent/oauth/event-type/user-unlinked":
+              {
+                subject: {
+                  subject_type: "iss-sub",
+                  iss: "https://kauth.kakao.com",
+                  sub: "3891047281",
+                },
+                reason: "UNLINK_FROM_APPS",
               },
-              reason: "UNLINK_FROM_APPS",
-            },
           },
         },
         null,
@@ -188,14 +189,15 @@ const kakaoPresets: PresetService = {
           txm: "tx-abc-124",
           jti: "some-unique-jwt-id-2",
           events: {
-            "https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked": {
-              subject: {
-                subject_type: "iss-sub",
-                iss: "https://kauth.kakao.com",
-                sub: "3891047281",
+            "https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked":
+              {
+                subject: {
+                  subject_type: "iss-sub",
+                  iss: "https://kauth.kakao.com",
+                  sub: "3891047281",
+                },
+                reason: "user",
               },
-              reason: "user",
-            },
           },
         },
         null,
@@ -219,14 +221,15 @@ const kakaoPresets: PresetService = {
           txm: "tx-abc-125",
           jti: "some-unique-jwt-id-3",
           events: {
-            "https://schemas.openid.net/secevent/risc/event-type/account-disabled": {
-              subject: {
-                subject_type: "iss-sub",
-                iss: "https://kauth.kakao.com",
-                sub: "3891047281",
+            "https://schemas.openid.net/secevent/risc/event-type/account-disabled":
+              {
+                subject: {
+                  subject_type: "iss-sub",
+                  iss: "https://kauth.kakao.com",
+                  sub: "3891047281",
+                },
+                reason: "hijacking",
               },
-              reason: "hijacking",
-            },
           },
         },
         null,
@@ -250,14 +253,15 @@ const kakaoPresets: PresetService = {
           txm: "tx-abc-126",
           jti: "some-unique-jwt-id-4",
           events: {
-            "https://schemas.kakao.com/platevent/kakao/event-type/user-profile-changed": {
-              subject: {
-                subject_type: "iss-sub",
-                iss: "https://kauth.kakao.com",
-                sub: "3891047281",
+            "https://schemas.kakao.com/platevent/kakao/event-type/user-profile-changed":
+              {
+                subject: {
+                  subject_type: "iss-sub",
+                  iss: "https://kauth.kakao.com",
+                  sub: "3891047281",
+                },
+                profile: "account_email birthday",
               },
-              profile: "account_email birthday",
-            },
           },
         },
         null,

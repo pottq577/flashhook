@@ -260,8 +260,10 @@
   line-height: 1.4;
   white-space: normal;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
   pointer-events: none;
 }
 
@@ -270,4 +272,3 @@
   opacity: 1;
   transform: translateX(-50%) translateY(-8px);
 }
-

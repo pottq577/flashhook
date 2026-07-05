@@ -18,7 +18,10 @@ interface MockConfigPanelProps {
   onSuccess?: () => void;
 }
 
-export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanelProps) {
+export default function MockConfigPanel({
+  endpoint,
+  onSuccess,
+}: MockConfigPanelProps) {
   const form = useMockConfigForm(endpoint, onSuccess);
   const { state, actions } = form;
 
@@ -97,21 +100,35 @@ export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanel
                 )
               }
               displayValue={(_val, opt) => (opt ? opt.label : "SELECT_PRESET…")}
-              renderOptionBadge={(opt: { value: string | number; label: string; desc?: string; status?: "unverified" | "verified"; verifiedCount?: number }) => {
+              renderOptionBadge={(opt: {
+                value: string | number;
+                label: string;
+                desc?: string;
+                status?: "unverified" | "verified";
+                verifiedCount?: number;
+              }) => {
                 const isVerified = opt.status === "verified";
-                const label = isVerified ? `커뮤니티 검증됨 ✓ (${opt.verifiedCount || 0}건)` : `공식문서 기반 · 커뮤니티 검증 전`;
+                const label = isVerified
+                  ? `커뮤니티 검증됨 ✓ (${opt.verifiedCount || 0}건)`
+                  : `공식문서 기반 · 커뮤니티 검증 전`;
                 return (
-                  <div className={`${styles.presetBadge} ${isVerified ? styles.verified : ""}`}>
+                  <div
+                    className={`${styles.presetBadge} ${isVerified ? styles.verified : ""}`}
+                  >
                     {label}
-                    <div 
+                    <div
                       className={styles.presetBadgeTooltipContainer}
                       onMouseDown={(e) => {
                         e.stopPropagation(); // prevent option selection on tooltip interaction
                       }}
                     >
-                      <span style={{cursor: 'help'}}>ⓘ</span>
+                      <span style={{ cursor: "help" }}>ⓘ</span>
                       <div className={styles.presetBadgeTooltip}>
-                        AI가 공식 문서를 참고해 초안을 생성했으며, 아직 실사용 검증은 거치지 않았습니다. 프리셋은 최신 공식 스펙과 다를 수 있으며, 정확한 스펙은 '공식 문서' 링크에서 확인 바랍니다. 본 프리셋 사용으로 발생하는 불이익에 대해 서비스는 책임지지 않습니다. (상세 내용은 이용약관 참조)
+                        본 프리셋은 공식 문서를 기반으로 제작되었으나, 대상
+                        서비스의 스펙 변경에 따라 실제와 다를 수 있습니다.
+                        정확한 스펙은 상단 '공식 문서' 링크에서 확인 바랍니다.
+                        본 프리셋 사용으로 발생하는 불이익에 대해 서비스는
+                        책임지지 않습니다. (상세 내용은 이용약관 참조)
                       </div>
                     </div>
                   </div>
@@ -353,7 +370,13 @@ export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanel
             pointerEvents: state.isDynamic ? "none" : "auto",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <label htmlFor="input-body">RESPONSE_BODY</label>
             <button
               type="button"
@@ -361,8 +384,11 @@ export default function MockConfigPanel({ endpoint, onSuccess }: MockConfigPanel
               onClick={() => {
                 let textToCopy = state.body;
                 if (state.currentScenario) {
-                  const isVerified = state.currentScenario.status === "verified";
-                  const statusText = isVerified ? `커뮤니티 검증됨 ✓ (${state.currentScenario.verifiedCount || 0}건)` : `공식문서 기반 · 커뮤니티 검증 전`;
+                  const isVerified =
+                    state.currentScenario.status === "verified";
+                  const statusText = isVerified
+                    ? `커뮤니티 검증됨 ✓ (${state.currentScenario.verifiedCount || 0}건)`
+                    : `공식문서 기반 · 커뮤니티 검증 전`;
                   const reportUrl = `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${state.currentScenario.id}`;
                   const commentStr = `// [FlashHook] ${statusText}\n// ⚠️ 스펙이 다르다면 제보해 주세요: ${reportUrl}\n\n`;
                   textToCopy = commentStr + state.body;

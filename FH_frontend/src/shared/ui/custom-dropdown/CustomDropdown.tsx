@@ -22,7 +22,11 @@ interface CustomDropdownProps {
   isEditable?: boolean;
   onEdit?: (val: string) => void;
   hideNoOptions?: boolean;
-  renderOptionBadge?: (opt: { value: string | number; label: string; desc?: string }) => ReactNode;
+  renderOptionBadge?: (opt: {
+    value: string | number;
+    label: string;
+    desc?: string;
+  }) => ReactNode;
 }
 
 export function CustomDropdown({
@@ -93,36 +97,41 @@ export function CustomDropdown({
   }, [isEditable, inputValue, options, value]);
 
   return (
-    <div className={styles.statusInputWrapper} ref={containerRef} onKeyDown={(e) => {
-      if (isOpen) {
-        const maxIndex = filteredOptions.length + (onCustom && !isEditable ? 1 : 0) - 1;
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          setActiveIndex((prev) => (prev < maxIndex ? prev + 1 : 0));
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          setActiveIndex((prev) => (prev > 0 ? prev - 1 : maxIndex));
-        } else if (e.key === "Enter") {
-          if (activeIndex >= 0 && activeIndex < filteredOptions.length) {
+    <div
+      className={styles.statusInputWrapper}
+      ref={containerRef}
+      onKeyDown={(e) => {
+        if (isOpen) {
+          const maxIndex =
+            filteredOptions.length + (onCustom && !isEditable ? 1 : 0) - 1;
+          if (e.key === "ArrowDown") {
             e.preventDefault();
-            onSelect(filteredOptions[activeIndex].value);
-          } else if (activeIndex === filteredOptions.length && onCustom) {
+            setActiveIndex((prev) => (prev < maxIndex ? prev + 1 : 0));
+          } else if (e.key === "ArrowUp") {
             e.preventDefault();
-            onCustom();
+            setActiveIndex((prev) => (prev > 0 ? prev - 1 : maxIndex));
+          } else if (e.key === "Enter") {
+            if (activeIndex >= 0 && activeIndex < filteredOptions.length) {
+              e.preventDefault();
+              onSelect(filteredOptions[activeIndex].value);
+            } else if (activeIndex === filteredOptions.length && onCustom) {
+              e.preventDefault();
+              onCustom();
+            }
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            if (onClose) onClose();
+            else onToggle();
           }
-        } else if (e.key === "Escape") {
-          e.preventDefault();
-          if (onClose) onClose();
-          else onToggle();
+        } else {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            onToggle();
+            setActiveIndex(0);
+          }
         }
-      } else {
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          onToggle();
-          setActiveIndex(0);
-        }
-      }
-    }}>
+      }}
+    >
       <div
         className={styles.customSelectTrigger}
         onClick={!isEditable ? onToggle : undefined}
