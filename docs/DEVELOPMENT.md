@@ -156,6 +156,11 @@ Spring Boot 4.0.x 및 최신 라이브러리 환경에 맞추어 다음 컨벤�
 
 - JSON 파싱 및 역직렬화 시 `asText()` 메서드는 타입 캐스팅 모호함으로 인해 deprecated 되었습니다. 대신 `asString()`을 사용하십시오.
 
+### 7.4. Mock API 프리셋 유지보수
+
+- 외부 API 스펙이 변경되어 `FH_frontend/src/entities/endpoint/model/presets.ts`에 위치한 프리셋을 수정하거나 신규 프리셋을 추가할 때는 반드시 해당 프리셋 객체에 `lastVerifiedAt` 필드를 `YYYY-MM-DD` 형식으로 갱신해 주세요.
+- 이는 사용자에게 프리셋의 최신성을 알리는 유일한 지표이므로 PR 리뷰 시 필수 확인 사항입니다.
+
 ## 8. UI/UX 및 프론트엔드 품질 가이드라인 (Quality Audits)
 
 Core Web Vitals 실측 결과 및 UI/UX 감사(Audit) 결과를 바탕으로, 프론트엔드 컴포넌트 개발 시 아래 사항들을 준수해 주세요.

@@ -25,6 +25,11 @@
 >
 > - **수신 파이프라인(Response)**: Slack URL Verification (요청의 `challenge`를 읽고 즉각 응답)
 > - **발송 파이프라인(Request Generation)**: GitHub (`X-Hub-Signature-256`), PortOne V2 (`webhook-signature`)의 시그니처 자동 생성 후 Replay 발송 지원.
+>
+> ⚠️ **스펙 불일치 완화 전략 (Drift Mitigation)**:
+> FlashHook이 제공하는 모의 응답 프리셋은 하드코딩된 정적(static) 데이터이므로 시간이 지남에 따라 대상 서비스의 공식 API 스펙과 달라질 수 있습니다(Preset Drift). 완벽한 실시간 동기화는 현실적으로 불가능하기 때문에 다음 전략을 사용합니다.
+> 1. **시간 기반 신뢰도**: '검증됨/미검증' 대신, 공식 문서를 바탕으로 최종 확인한 날짜인 `lastVerifiedAt`을 노출하여 사용자가 신뢰도를 직접 판단하게 합니다.
+> 2. **즉각적인 제보 루프**: UI 내의 '잘못된 스펙 제보하기' 버튼을 통해, 사용자가 불일치를 발견하면 페이로드 데이터를 복사하여 원클릭으로 GitHub 이슈를 생성할 수 있습니다.
 
 ---
 
