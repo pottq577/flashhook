@@ -161,8 +161,7 @@ export function useMockConfigForm(
       value: s.id,
       label: s.label,
       desc: s.desc,
-      status: s.status,
-      verifiedCount: s.verifiedCount,
+      lastVerifiedAt: s.lastVerifiedAt,
     })) ?? [];
 
   const currentScenario = currentService?.scenarios.find(
@@ -230,9 +229,9 @@ export function useMockConfigForm(
     const finalHeaders = { ...headers };
     if (currentScenario) {
       finalHeaders["X-Flashhook-Preset-Status"] =
-        currentScenario.status || "unverified";
+        currentScenario.lastVerifiedAt || "2026-07-01";
       finalHeaders["X-Flashhook-Report-Url"] =
-        `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.yml&title=[Drift]+${currentScenario.id}`;
+        `https://github.com/hyun2y00/flashhook/issues/new?template=preset_drift.md&title=[Drift]+${currentScenario.id}`;
     }
 
     mutate(
