@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useEffectEvent } from "react";
+import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./CustomDropdown.module.css";
 
@@ -21,6 +22,7 @@ interface CustomDropdownProps {
   isEditable?: boolean;
   onEdit?: (val: string) => void;
   hideNoOptions?: boolean;
+  renderOptionBadge?: (opt: { value: string | number; label: string; desc?: string }) => ReactNode;
 }
 
 export function CustomDropdown({
@@ -39,6 +41,7 @@ export function CustomDropdown({
   isEditable,
   onEdit,
   hideNoOptions,
+  renderOptionBadge,
 }: CustomDropdownProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -224,6 +227,7 @@ export function CustomDropdown({
                         {String(o.value)}
                       </span>
                     ) : null}
+                    {renderOptionBadge ? renderOptionBadge(o) : null}
                   </div>
                 </div>
               ))
