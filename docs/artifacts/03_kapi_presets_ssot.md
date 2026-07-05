@@ -92,25 +92,33 @@ _참고: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FRO
 #### [수신] 계정 상태 변경 알림 (SSF/SET)
 
 - **Method**: `POST`
-- **Content-Type**: `application/json`
+- **Content-Type**: `application/secevent+jwt`
 - **FlashHook 응답**: `202 Accepted` (Body 무시)
+
+_아래는 실제 전송되는 JWT 문자열(Wire format)을 디코딩한 Claims(Payload) JSON 예시입니다._
 
 ```json
 {
-  "iss": "https://kapi.kakao.com",
+  "iss": "https://kauth.kakao.com",
   "aud": "123456",
   "iat": 1718251890,
+  "toe": 1718251885,
+  "txm": "tx-abc-123",
   "jti": "some-unique-jwt-id",
   "events": {
-    "http://schemas.openid.net/secevent/oauth/event-type/user-unlinked": {
+    "https://schemas.openid.net/secevent/oauth/event-type/user-unlinked": {
       "subject": {
-        "subject_type": "oauth_helper",
-        "user_id": "3891047281"
-      }
+        "subject_type": "iss-sub",
+        "iss": "https://kauth.kakao.com",
+        "sub": "3891047281"
+      },
+      "reason": "UNLINK_FROM_APPS"
     }
   }
 }
 ```
+
+_참고: 이외에도 Tokens Revoked, Account Disabled, User Profile Changed 등 총 17가지의 이벤트가 발송될 수 있습니다._
 
 #### [수신] 카카오톡 채널 추가 알림
 
