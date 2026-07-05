@@ -95,6 +95,8 @@ _참고: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FRO
 - **Content-Type**: `application/secevent+jwt`
 - **FlashHook 응답**: `202 Accepted` (Body 무시)
 
+_아래는 실제 전송되는 JWT 문자열(Wire format)을 디코딩한 Claims(Payload) JSON 예시입니다._
+
 ```json
 {
   "iss": "https://kauth.kakao.com",

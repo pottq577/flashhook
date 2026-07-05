@@ -176,16 +176,11 @@ Method: POST  (카카오 → FlashHook)
 Content-Type: application/x-www-form-urlencoded
 ```
 
-```json
-{
-  "app_id": "123456",
-  "user_id": "3891047281",
-  "referrer_type": "UNLINK_FROM_APPS",
-  "group_user_token": "Yzg5MDQ4MDM4...(optional)"
-}
+```text
+app_id=123456&user_id=3891047281&referrer_type=UNLINK_FROM_APPS&group_user_token=Yzg5MDQ4MDM4...
 ```
 
-- Note: `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FROM_ADMIN | UNLINK_FROM_APPS | INCOMPLETE_SIGN_UP` 중 하나의 값을 가집니다. 실제로는 form 데이터로 전송되지만 FlashHook 환경에서는 JSON으로 추상화하여 제공합니다.
+- Note: 실제로는 위와 같이 form 데이터 형식으로 전송됩니다. FlashHook 프리셋에서는 사용 편의를 위해 이 단순 필드 맵을 JSON 형태로 추상화하여 제공합니다. `referrer_type`은 `ACCOUNT_DELETE | FORCED_ACCOUNT_DELETE | UNLINK_FROM_ADMIN | UNLINK_FROM_APPS | INCOMPLETE_SIGN_UP` 중 하나의 값을 가집니다.
 
 _FlashHook 응답: `200 OK` (Body 불필요 — 카카오는 상태 코드만 확인)_
 

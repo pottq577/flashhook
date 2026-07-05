@@ -144,7 +144,7 @@ const kakaoPresets: PresetService = {
       desc: "(202 Accepted)",
       statusCode: 202,
       delayMs: 0,
-      headers: CT_JSON,
+      headers: { "Content-Type": "application/secevent+jwt" },
       presetType: "KAKAO_ACCOUNT_STATUS_CHANGE",
       body: JSON.stringify(
         {
@@ -175,7 +175,7 @@ const kakaoPresets: PresetService = {
       desc: "(202 Accepted)",
       statusCode: 202,
       delayMs: 0,
-      headers: CT_JSON,
+      headers: { "Content-Type": "application/secevent+jwt" },
       presetType: "KAKAO_ACCOUNT_STATUS_CHANGE",
       body: JSON.stringify(
         {
@@ -206,7 +206,7 @@ const kakaoPresets: PresetService = {
       desc: "(202 Accepted)",
       statusCode: 202,
       delayMs: 0,
-      headers: CT_JSON,
+      headers: { "Content-Type": "application/secevent+jwt" },
       presetType: "KAKAO_ACCOUNT_STATUS_CHANGE",
       body: JSON.stringify(
         {
@@ -237,7 +237,7 @@ const kakaoPresets: PresetService = {
       desc: "(202 Accepted)",
       statusCode: 202,
       delayMs: 0,
-      headers: CT_JSON,
+      headers: { "Content-Type": "application/secevent+jwt" },
       presetType: "KAKAO_ACCOUNT_STATUS_CHANGE",
       body: JSON.stringify(
         {
