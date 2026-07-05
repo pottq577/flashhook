@@ -1,0 +1,41 @@
+name: 🐛 Report Preset Drift
+description: Report an outdated API mock preset that doesn't match the official docs
+title: "[Drift] <Preset ID>"
+labels: ["preset-drift", "needs-verification"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        감사합니다! FlashHook의 프리셋 스펙 불일치를 제보하여 커뮤니티 신뢰도를 높여주세요.
+  - type: input
+    id: preset_id
+    attributes:
+      label: Preset ID
+      description: The ID of the preset you are reporting.
+    validations:
+      required: true
+  - type: input
+    id: official_doc_url
+    attributes:
+      label: Official Documentation URL
+      description: Provide the link to the official documentation.
+    validations:
+      required: true
+  - type: textarea
+    id: spec_diff
+    attributes:
+      label: Spec Difference (Before / After)
+      description: What has changed in the API spec?
+      placeholder: |
+        [Before (Current Preset)]
+        { ... }
+        
+        [After (Official Docs)]
+        { ... }
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps & Screenshots (Optional)
+      description: How can we reproduce the mismatch?
