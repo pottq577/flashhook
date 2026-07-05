@@ -52,3 +52,6 @@ docs/qa/*
 .agents/
 .vercel
 .env*
+
+### OS Metadata ###
+*:Zone.Identifier
