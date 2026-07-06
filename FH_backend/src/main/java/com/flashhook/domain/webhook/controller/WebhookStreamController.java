@@ -31,37 +31,9 @@ public class WebhookStreamController {
     private final SseConfig sseConfig;
     private final RedisTemplate<String, String> redisTemplate;
 
-    /**
-     * SSE 스트림 구독
-     */
-    @PostMapping("/stream-token")
-    public ResponseEntity<Map<String, String>> createStreamToken(@PathVariable String endpointId) {
-        String streamToken = UUID.randomUUID().toString().replace("-", "");
-        redisTemplate.opsForValue().set(
-                Objects.requireNonNull("stream_token:" + streamToken),
-                Objects.requireNonNull(endpointId),
-                30,
-                TimeUnit.SECONDS);
-        return ResponseEntity.ok(Map.of("streamToken", streamToken));
-    }
-
-    /**
-     * SSE 스트림 구독
-     */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> stream(@PathVariable String endpointId,
-            @RequestParam(name = "streamToken", required = false) String streamToken) {
-        if (streamToken == null || streamToken.isBlank()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        String key = "stream_token:" + streamToken;
-        String storedEndpointId = redisTemplate.opsForValue().getAndDelete(key);
-
-        if (storedEndpointId == null || !storedEndpointId.equals(endpointId)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+    public ResponseEntity<SseEmitter> stream(@PathVariable String endpointId) {
+        // 인증은 AccessTokenFilter에서 HttpOnly 쿠키(fh_token_{endpointId})를 통해 처리됩니다.
         return ResponseEntity.ok(sseEmitterService.subscribe(endpointId, sseConfig.getTimeout()));
     }
 }

@@ -54,9 +54,14 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 if (parts.length >= 4) { // ["", "api", "endpoints", "{id}", ...]
                     String endpointId = parts[3];
 
-                    String token = request.getHeader("X-Access-Token");
-                    if (token == null || token.isEmpty()) {
-                        token = request.getParameter("token");
+                    String token = null;
+                    if (request.getCookies() != null) {
+                        for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                            if (("fh_token_" + endpointId).equals(cookie.getName())) {
+                                token = cookie.getValue();
+                                break;
+                            }
+                        }
                     }
 
                     if (token == null || token.isEmpty()) {

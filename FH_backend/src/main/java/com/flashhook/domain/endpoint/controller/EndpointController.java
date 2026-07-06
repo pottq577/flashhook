@@ -16,6 +16,9 @@ import com.flashhook.domain.endpoint.dto.EndpointResponse;
 import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
 import com.flashhook.domain.endpoint.service.EndpointService;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +42,29 @@ public class EndpointController {
             HttpServletRequest httpRequest) {
         String ip = httpRequest.getRemoteAddr();
         EndpointResponse response = endpointService.create(request, ip);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        ResponseCookie cookie = ResponseCookie.from("fh_token_" + response.endpointId(), response.accessToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path("/api/endpoints/" + response.endpointId())
+                .maxAge(24 * 60 * 60)
+                .build();
+
+        EndpointResponse safeResponse = EndpointResponse.builder()
+                .endpointId(response.endpointId())
+                .accessToken(null)
+                .label(response.label())
+                .webhookUrl(response.webhookUrl())
+                .dashboardUrl(response.dashboardUrl())
+                .expiresAt(response.expiresAt())
+                .limits(response.limits())
+                .mockConfig(response.mockConfig())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(safeResponse);
     }
 
     /**
@@ -57,7 +82,18 @@ public class EndpointController {
     @DeleteMapping("/{endpointId}")
     public ResponseEntity<Void> delete(@PathVariable String endpointId) {
         endpointService.delete(endpointId);
-        return ResponseEntity.noContent().build();
+
+        ResponseCookie cookie = ResponseCookie.from("fh_token_" + endpointId, "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path("/api/endpoints/" + endpointId)
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
     }
 
     /**
