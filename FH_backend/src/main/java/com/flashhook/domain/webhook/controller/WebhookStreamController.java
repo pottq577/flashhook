@@ -1,6 +1,6 @@
 package com.flashhook.domain.webhook.controller;
 
-import org.springframework.data.redis.core.RedisTemplate;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +21,7 @@ public class WebhookStreamController {
 
     private final SseEmitterService sseEmitterService;
     private final SseConfig sseConfig;
-    private final RedisTemplate<String, String> redisTemplate;
+
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> stream(@PathVariable String endpointId) {
