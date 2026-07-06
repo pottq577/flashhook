@@ -1,8 +1,8 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100%;
   flex: 1;
+  min-height: 0; /* flex container 안에서 정상적으로 스크롤되도록(찌그러질 수 있도록) 설정 */
 }
 .header {
   padding: 1rem;
