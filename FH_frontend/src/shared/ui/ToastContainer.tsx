@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
-import { useToastStore } from "../lib/toast.store";
-import Toast from "./Toast";
-import styles from "./ToastContainer.module.css";
+import { useToastStore } from "@/shared/lib/toast.store";
+import Toast from "@/shared/ui/Toast";
+import styles from "@/shared/ui/ToastContainer.module.css";
 
 export function ToastContainer() {
   const { toasts, removeToast } = useToastStore();

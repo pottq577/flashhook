@@ -1,4 +1,4 @@
-import styles from "./MaintenanceBanner.module.css";
+import styles from "@/shared/ui/MaintenanceBanner.module.css";
 
 const IS_MAINTENANCE = import.meta.env.VITE_MAINTENANCE_MODE === "true";
 

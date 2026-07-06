@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminApi } from "./adminApi";
-import { useAdminStore } from "../model/adminStore";
+import { adminApi } from "@/entities/admin/api/adminApi";
+import { useAdminStore } from "@/entities/admin/model/adminStore";
 
 const POLLING_INTERVAL = 30000;
 

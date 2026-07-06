@@ -19,7 +19,7 @@ import { lazy, Suspense } from "react";
 import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
 import { resolveApiBaseUrl } from "@/shared/config/api";
 import { SEOHead } from "@/shared/ui/SEOHead";
-import styles from "./DashboardPage.module.css";
+import styles from "@/pages/dashboard/ui/DashboardPage.module.css";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
 const MockPanelSkeleton = (
@@ -238,9 +238,13 @@ function DashboardPage() {
       <h1 className={styles.srOnly}>웹훅 대시보드</h1>
       <EndpointInfo endpoint={endpoint} />
       <ConnectionStatus status={status} />
-      <div style={{ padding: "0 1rem" }}>
-        <AdBanner />
-      </div>
+      {/* 모바일 컴팩트 광고 (상단 배치) */}
+      {isMobile && (
+        <div style={{ padding: "0 1rem", paddingBottom: "0.5rem" }}>
+          {/* TODO: 애드센스 심사 통과 후 모바일용 신규 디스플레이 광고 단위를 생성하여 dataAdSlot ID 교체 */}
+          <AdBanner variant="compact" dataAdSlot="MOBILE_SLOT_ID_HERE" />
+        </div>
+      )}
 
       <main className={styles.main}>
         <section
@@ -255,6 +259,11 @@ function DashboardPage() {
             onSelect={handleSelectLog}
             endpointId={endpointId}
           />
+          
+          {/* 데스크탑 패널 광고 (사이드바 하단 배치) */}
+          {/* TODO: 애드센스 심사 통과 후 데스크탑용 신규 디스플레이 광고 단위를 생성하여 dataAdSlot ID 교체 */}
+          {!isMobile && <AdBanner variant="panel" dataAdSlot="DESKTOP_SLOT_ID_HERE" />}
+
           {!isMobile ? (
             <div
               className={styles.leftResizeHandle}

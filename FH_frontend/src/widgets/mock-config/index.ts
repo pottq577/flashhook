@@ -1,1 +1,1 @@
-export { default as MockConfigPanel } from "./ui/MockConfigPanel";
+export { default as MockConfigPanel } from "@/widgets/mock-config/ui/MockConfigPanel";

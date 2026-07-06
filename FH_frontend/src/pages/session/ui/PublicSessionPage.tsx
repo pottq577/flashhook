@@ -2,7 +2,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { usePublicLogQuery } from "@/entities/log/api/log.queries";
 import { Skeleton } from "@/shared/ui/Skeleton";
-import styles from "./PublicSessionPage.module.css";
+import styles from "@/pages/session/ui/PublicSessionPage.module.css";
 
 export default function PublicSessionPage() {
   const { logId } = useParams<{ logId: string }>();

@@ -1,7 +1,7 @@
-import styles from "./PromptModal.module.css";
+import styles from "@/shared/ui/PromptModal.module.css";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useState, useRef, useEffectEvent } from "react";
-import { useFocusTrap } from "../hooks/useFocusTrap";
+import { useFocusTrap } from "@/shared/hooks/useFocusTrap";
 
 interface PromptModalProps {
   isOpen: boolean;

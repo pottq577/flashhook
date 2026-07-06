@@ -1,4 +1,4 @@
-import styles from "./legal.module.css";
+import styles from "@/widgets/legal/legal.module.css";
 
 export const LabelingCard = () => {
   return (

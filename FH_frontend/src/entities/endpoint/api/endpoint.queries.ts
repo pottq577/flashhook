@@ -5,7 +5,7 @@ import {
   deleteEndpoint,
   updateMockConfig,
   type MockUpdateRequest,
-} from "./endpoint.api";
+} from "@/entities/endpoint/api/endpoint.api";
 import * as tokenStorage from "@/shared/lib/tokenStorage";
 
 export const useEndpointQuery = (endpointId: string | undefined) => {

@@ -1,5 +1,5 @@
-import { PRESET_CATALOG, CUSTOM_SERVICE_ID } from "./presets";
-import type { Endpoint } from "./endpoint.schema";
+import { PRESET_CATALOG, CUSTOM_SERVICE_ID } from "@/entities/endpoint/model/presets";
+import type { Endpoint } from "@/entities/endpoint/model/endpoint.schema";
 
 export function isHeadersEqual(
   presetHeaders: Record<string, string>,

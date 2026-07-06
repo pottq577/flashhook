@@ -4,7 +4,7 @@ import {
 } from "@/entities/admin";
 import { Trash2, AlertTriangle, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
-import styles from "./AdminWidgets.module.css";
+import styles from "@/widgets/admin/ui/AdminWidgets.module.css";
 import { useState } from "react";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
 import { Skeleton } from "@/shared/ui/Skeleton";

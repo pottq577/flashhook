@@ -2,7 +2,7 @@ import { useAdminMetrics } from "@/entities/admin";
 import { motion } from "framer-motion";
 import { RefreshCw, Users, Server, Activity } from "lucide-react";
 import { useEffect, useState } from "react";
-import styles from "./AdminWidgets.module.css";
+import styles from "@/widgets/admin/ui/AdminWidgets.module.css";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
 const AnimatedCounter = ({ value }: { value: number }) => {

@@ -1,7 +1,7 @@
 import type { Endpoint } from "@/entities/endpoint";
 import CopyButton from "@/shared/ui/CopyButton";
-import CountdownTimer from "./CountdownTimer";
-import styles from "./EndpointInfo.module.css";
+import CountdownTimer from "@/widgets/endpoint-info/ui/CountdownTimer";
+import styles from "@/widgets/endpoint-info/ui/EndpointInfo.module.css";
 import { formatExpiresAt } from "@/shared/lib/formatDate";
 
 function EndpointInfo({ endpoint }: { endpoint: Endpoint }) {

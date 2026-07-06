@@ -20,6 +20,17 @@ export default defineConfig([
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["./**", "../**"],
+              message: "상대 경로(../, ./) 대신 절대 경로(@/)를 사용해주세요."
+            }
+          ]
+        }
+      ],
     },
   },
 ]);

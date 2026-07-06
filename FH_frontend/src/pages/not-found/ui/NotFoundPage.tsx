@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import styles from "./NotFoundPage.module.css";
+import styles from "@/pages/not-found/ui/NotFoundPage.module.css";
 
 function NotFoundPage() {
   return (

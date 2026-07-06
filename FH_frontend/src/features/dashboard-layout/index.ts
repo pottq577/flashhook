@@ -1,1 +1,1 @@
-export { useSidebarResize } from './model/useSidebarResize';
+export { useSidebarResize } from '@/features/dashboard-layout/model/useSidebarResize';

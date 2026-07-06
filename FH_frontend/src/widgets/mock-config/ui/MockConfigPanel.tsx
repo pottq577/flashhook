@@ -15,7 +15,7 @@ import {
   generateId,
 } from "@/features/mock-config";
 import { useToastStore } from "@/shared/lib/toast.store";
-import styles from "./MockConfigPanel.module.css";
+import styles from "@/widgets/mock-config/ui/MockConfigPanel.module.css";
 
 interface MockConfigPanelProps {
   endpoint: Endpoint;

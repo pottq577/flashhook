@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { logger } from '@/shared/lib/logger';
 import { useToastStore } from '@/shared/lib/toast.store';
-import styles from './CopyButton.module.css';
+import styles from '@/shared/ui/CopyButton.module.css';
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);

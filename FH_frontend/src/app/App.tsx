@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { QueryProvider } from "./providers/QueryProvider";
+import { QueryProvider } from "@/app/providers/QueryProvider";
 const ToastContainer = lazy(() =>
   withErrorCatch(() =>
     import("@/shared/ui/ToastContainer").then((m) => ({
@@ -27,6 +27,13 @@ const PrivacyPolicyPage = lazy(() =>
   withErrorCatch(() =>
     import("@/pages/legal/PrivacyPolicyPage").then((module) => ({
       default: module.PrivacyPolicyPage,
+    })),
+  ),
+);
+const PrivacyPolicyEuPage = lazy(() =>
+  withErrorCatch(() =>
+    import("@/pages/legal/PrivacyPolicyEuPage").then((module) => ({
+      default: module.PrivacyPolicyEuPage,
     })),
   ),
 );
@@ -120,6 +127,7 @@ function App() {
                   element={<DashboardPage />}
                 />
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/privacy-eu" element={<PrivacyPolicyEuPage />} />
                 <Route path="/terms" element={<TermsOfServicePage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />

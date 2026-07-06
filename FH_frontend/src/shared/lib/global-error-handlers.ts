@@ -1,4 +1,4 @@
-import { logger } from "./logger";
+import { logger } from "@/shared/lib/logger";
 
 export function installGlobalErrorHandlers() {
   window.addEventListener("unhandledrejection", (event) => {

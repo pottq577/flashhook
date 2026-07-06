@@ -2,8 +2,8 @@ import type { WebhookLog } from "@/entities/log";
 import { Virtuoso } from "react-virtuoso";
 import { useState, useMemo, memo, useDeferredValue } from "react";
 import { useDeleteAllLogsMutation } from "@/entities/log";
-import LogItem from "./LogItem";
-import styles from "./LogList.module.css";
+import LogItem from "@/widgets/log-viewer/ui/LogItem";
+import styles from "@/widgets/log-viewer/ui/LogList.module.css";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
 
 import { CustomDropdown } from "@/shared/ui/custom-dropdown/CustomDropdown";

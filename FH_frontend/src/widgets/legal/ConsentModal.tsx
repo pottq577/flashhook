@@ -1,8 +1,8 @@
 import React, { useEffect, useId, useState, useEffectEvent } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { useFocusTrap } from "../../shared/hooks/useFocusTrap";
-import { LabelingCard } from "./LabelingCard";
-import styles from "./legal.module.css";
+import { useFocusTrap } from "@/shared/hooks/useFocusTrap";
+import { LabelingCard } from "@/widgets/legal/LabelingCard";
+import styles from "@/widgets/legal/legal.module.css";
 
 interface ConsentModalProps {
   isOpen: boolean;

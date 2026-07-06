@@ -7,7 +7,7 @@ import {
 } from "@/entities/admin";
 import { ShieldAlert, Trash2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
-import styles from "./AdminWidgets.module.css";
+import styles from "@/widgets/admin/ui/AdminWidgets.module.css";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
 import { Skeleton } from "@/shared/ui/Skeleton";
 import { useToastStore } from "@/shared/lib/toast.store";

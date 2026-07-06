@@ -1,7 +1,7 @@
 import { Header } from "@/widgets/header";
 import { Footer } from "@/widgets/footer";
 import { SEOHead } from "@/shared/ui/SEOHead";
-import styles from "./about.module.css";
+import styles from "@/pages/about/ui/about.module.css";
 
 function AboutPage() {
   return (

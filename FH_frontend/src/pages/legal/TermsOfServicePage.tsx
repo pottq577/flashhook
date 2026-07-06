@@ -1,5 +1,6 @@
+// eslint-disable-next-line no-restricted-imports
 import termsOfService from "../../../../docs/legal/TERMS_OF_SERVICE.md?raw";
-import { LegalMarkdown } from "../../widgets/legal/LegalMarkdown";
+import { LegalMarkdown } from "@/widgets/legal/LegalMarkdown";
 import { SEOHead } from "@/shared/ui/SEOHead";
 
 export const TermsOfServicePage = () => {

@@ -3,10 +3,10 @@ import { useLogDetailQuery, useReplayLogMutation } from "@/entities/log";
 import MethodBadge from "@/shared/ui/MethodBadge";
 import PromptModal from "@/shared/ui/PromptModal";
 import { useToastStore } from "@/shared/lib/toast.store";
-import JsonViewer from "./JsonViewer";
+import JsonViewer from "@/widgets/log-viewer/ui/JsonViewer";
 import { logger } from "@/shared/lib/logger";
 import { Skeleton } from "@/shared/ui/Skeleton";
-import styles from "./LogDetail.module.css";
+import styles from "@/widgets/log-viewer/ui/LogDetail.module.css";
 
 interface LogDetailProps {
   logId?: string;

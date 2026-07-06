@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import styles from "./legal.module.css";
+import styles from "@/widgets/legal/legal.module.css";
 
 type Block =
   | { type: "h1" | "h2" | "p"; text: string }

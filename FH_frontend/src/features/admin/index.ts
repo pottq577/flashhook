@@ -1,1 +1,1 @@
-export { RequireAdminAuth } from './ui/RequireAdminAuth';
+export { RequireAdminAuth } from '@/features/admin/ui/RequireAdminAuth';
