@@ -69,6 +69,10 @@ public class GitHubPresetHandler implements RequestSigningPresetHandler {
             log.error("Failed to generate HMAC-SHA256 signature", e);
             throw new PresetException(ErrorCode.PRESET_SIGNATURE_FAILED,
                     "GitHub 서명 생성에 실패했습니다");
+        } catch (Exception e) {
+            log.error("Unexpected error during HMAC-SHA256 signature generation", e);
+            throw new PresetException(ErrorCode.PRESET_SIGNATURE_FAILED,
+                    "GitHub 서명 생성 중 예상치 못한 오류가 발생했습니다");
         }
     }
 

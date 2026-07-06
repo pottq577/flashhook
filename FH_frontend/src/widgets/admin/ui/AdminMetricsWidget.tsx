@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { RefreshCw, Users, Server, Activity } from "lucide-react";
 import { useEffect, useState } from "react";
 import styles from "./AdminWidgets.module.css";
+import { Skeleton } from "@/shared/ui/Skeleton";
 
 const AnimatedCounter = ({ value }: { value: number }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -31,9 +32,7 @@ export const AdminMetricsWidget = () => {
 
   if (isError) {
     return (
-      <div className={styles.errorBox}>
-        지표 데이터를 불러오지 못했어요.
-      </div>
+      <div className={styles.errorBox}>지표 데이터를 불러오지 못했어요.</div>
     );
   }
 
@@ -87,7 +86,7 @@ export const AdminMetricsWidget = () => {
             </div>
             <div className={styles.metricValue}>
               {isLoading ? (
-                <span>...</span>
+                <Skeleton width="80px" height="2.5rem" />
               ) : (
                 <AnimatedCounter value={item.value} />
               )}

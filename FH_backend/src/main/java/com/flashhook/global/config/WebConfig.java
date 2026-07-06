@@ -40,7 +40,7 @@ public class WebConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(origins);
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("Content-Type", "X-Access-Token", "X-Admin-Token", "Accept", "Origin"));
+        config.setAllowedHeaders(Arrays.asList("Content-Type", "X-Admin-Token", "Accept", "Origin"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 

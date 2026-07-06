@@ -10,8 +10,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8rem 2rem 6rem;
-  min-height: 80vh;
+  padding: 4rem 1rem 3rem;
+  min-height: auto;
 }
 
 .terminalContainer {
@@ -132,7 +132,7 @@
   background-color: transparent;
   color: var(--accent);
   border: 1px solid var(--accent);
-  padding: 1rem 2rem;
+  padding: 1rem 0.5rem;
   font-family: var(--font-mono);
   font-size: 1.1rem;
   cursor: pointer;
@@ -287,11 +287,8 @@
 .splitContent {
   display: flex;
   align-items: center;
-  gap: 4rem;
-}
-
-.splitContent:nth-child(even) {
-  flex-direction: row-reverse;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .textContent {
@@ -322,6 +319,7 @@
   line-height: 1.5;
   overflow-x: auto;
   color: var(--text-primary);
+  width: 100%;
 }
 
 /* Syntax Highlighting */
@@ -341,26 +339,28 @@
   color: var(--method-get);
 }
 
-@media (max-width: 768px) {
-  .splitContent,
+@media (min-width: 769px) {
+  .splitContent {
+    flex-direction: row;
+    gap: 4rem;
+  }
+
   .splitContent:nth-child(even) {
-    flex-direction: column;
-    gap: 2rem;
+    flex-direction: row-reverse;
   }
 
   .codeBlock {
-    width: 100%;
+    width: auto;
   }
 
   .hero {
-    padding: 4rem 1rem 3rem;
-    min-height: auto;
+    padding: 8rem 2rem 6rem;
+    min-height: 80vh;
   }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 481px) {
   .button {
-    padding: 1rem 0.5rem;
+    padding: 1rem 2rem;
   }
 }
-

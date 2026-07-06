@@ -16,14 +16,7 @@ const globalErrorHandler = (error: Error) => {
     msg.includes("INVALID_TOKEN") || 
     msg.includes("ENDPOINT_NOT_FOUND")
   ) {
-    if (err.endpointId) {
-      localStorage.removeItem(`fh_token_${err.endpointId}`);
-    } else {
-      // Fallback: remove all if endpointId is somehow missing
-      Object.keys(localStorage)
-        .filter((key) => key.startsWith("fh_token_"))
-        .forEach((key) => localStorage.removeItem(key));
-    }
+
     
     return { authExpired: true };
   }

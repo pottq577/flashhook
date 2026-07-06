@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { WebhookLogSchema, type WebhookLog } from "../model/log.schema";
-import * as tokenStorage from '@/shared/lib/tokenStorage';
-import { logger } from '@/shared/lib/logger';
-import { resolveApiBaseUrl } from '@/shared/config/api';
 
-type SSEStatus = 'connecting' | 'connected' | 'disconnected';
+import { logger } from "@/shared/lib/logger";
+import { resolveApiBaseUrl } from "@/shared/config/api";
+
+type SSEStatus = "connecting" | "connected" | "disconnected";
 
 export function useSSE(
   endpointId: string | undefined,
   onMessage: (log: WebhookLog) => void,
 ) {
-  const [status, setStatus] = useState<SSEStatus>('connecting');
+  const [status, setStatus] = useState<SSEStatus>("connecting");
 
   useEffect(() => {
     if (!endpointId) return;
@@ -20,56 +20,43 @@ export function useSSE(
 
     async function connectSSE() {
       try {
-        const token = tokenStorage.get(endpointId!);
         const baseUrl = resolveApiBaseUrl();
-        
-        // Fetch stream-token
-        const res = await fetch(`${baseUrl}/endpoints/${endpointId}/stream-token`, {
-          method: 'POST',
-          headers: token ? { 'X-Access-Token': token } : {}
-        });
-        
-        if (!res.ok) throw new Error('Failed to get stream token');
-        const data = await res.json();
-        const streamToken = data.streamToken;
-        
         if (!isMounted) return;
 
-        const url = `${baseUrl}/endpoints/${endpointId}/stream?streamToken=${streamToken}`;
-        eventSource = new EventSource(url);
+        const url = `${baseUrl}/endpoints/${endpointId}/stream`;
+        eventSource = new EventSource(url, { withCredentials: true });
 
-    eventSource.onopen = () => {
-      if (!isMounted) return;
-      setStatus('connected');
-      logger.info('SSE Connected');
-    };
+        eventSource.onopen = () => {
+          if (!isMounted) return;
+          setStatus("connected");
+          logger.info("SSE Connected");
+        };
 
-    eventSource.addEventListener('webhook', (event: MessageEvent) => {
-      try {
-        const parsed = JSON.parse(event.data);
-        const log = WebhookLogSchema.parse(parsed);
-        onMessage(log);
-      } catch (error) {
-        logger.error('Failed to parse webhook event', error);
-      }
-    });
+        eventSource.addEventListener("webhook", (event: MessageEvent) => {
+          try {
+            const parsed = JSON.parse(event.data);
+            const log = WebhookLogSchema.parse(parsed);
+            onMessage(log);
+          } catch (error) {
+            logger.error("Failed to parse webhook event", error);
+          }
+        });
 
-    eventSource.addEventListener('connect', () => {});
-    eventSource.addEventListener('ping', () => {});
+        eventSource.addEventListener("connect", () => {});
+        eventSource.addEventListener("ping", () => {});
 
-    eventSource.onerror = () => {
-      if (!isMounted) return;
-      setStatus('disconnected');
-        eventSource?.close();
-        logger.warn('SSE Disconnected');
-      };
+        eventSource.onerror = () => {
+          if (!isMounted) return;
+          setStatus("disconnected");
+          logger.warn("SSE Disconnected (will attempt reconnect)");
+        };
       } catch (err) {
         if (!isMounted) return;
-        setStatus('disconnected');
-        logger.error('SSE connect error', err);
+        setStatus("disconnected");
+        logger.error("SSE connect error", err);
       }
     }
-    
+
     connectSSE();
 
     return () => {

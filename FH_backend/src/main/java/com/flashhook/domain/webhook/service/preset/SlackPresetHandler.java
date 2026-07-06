@@ -9,13 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 import com.flashhook.domain.endpoint.model.MockConfig;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
@@ -53,6 +53,11 @@ public class SlackPresetHandler implements ResponsePresetHandler {
             log.error("Failed to parse Slack URL Verification payload", e);
             DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
             deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+            return deferredResult;
+        } catch (Exception e) {
+            log.error("Unexpected error during Slack URL Verification handling", e);
+            DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
+            deferredResult.setResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
             return deferredResult;
         }
     }

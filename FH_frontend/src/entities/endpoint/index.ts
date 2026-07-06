@@ -8,9 +8,8 @@ export {
 export {
   MockConfigSchema,
   EndpointSchema,
-  EndpointCreateResponseSchema,
 } from "./model/endpoint.schema";
-export type { Endpoint, EndpointCreateResponse } from "./model/endpoint.schema";
+export type { Endpoint } from "./model/endpoint.schema";
 export { useEndpointStore } from "./model/endpoint.store";
 export type { SavedEndpoint } from "./model/endpoint.store";
 export {

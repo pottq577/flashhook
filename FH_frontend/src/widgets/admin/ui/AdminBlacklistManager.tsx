@@ -8,13 +8,19 @@ import {
 import { ShieldAlert, Trash2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import styles from "./AdminWidgets.module.css";
+import ConfirmModal from "@/shared/ui/ConfirmModal";
+import { Skeleton } from "@/shared/ui/Skeleton";
+import { useToastStore } from "@/shared/lib/toast.store";
 
 export const AdminBlacklistManager = () => {
   const { data: ips, isLoading, isError } = useAdminBlacklist();
   const addMutation = useAddBlacklistMutation();
   const removeMutation = useRemoveBlacklistMutation();
+  const addToast = useToastStore((state) => state.addToast);
 
   const [ipInput, setIpInput] = useState("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingIp, setPendingIp] = useState<string | null>(null);
 
   const handleAdd = (e: FormEvent) => {
     e.preventDefault();
@@ -22,6 +28,32 @@ export const AdminBlacklistManager = () => {
     addMutation.mutate(ipInput.trim(), {
       onSuccess: () => setIpInput(""),
     });
+  };
+
+  const handleDeleteClick = (ip: string) => {
+    setPendingIp(ip);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (pendingIp && !removeMutation.isPending) {
+      removeMutation.mutate(pendingIp, {
+        onSuccess: () => {
+          setIsConfirmOpen(false);
+          setPendingIp(null);
+        },
+        onError: () => {
+          addToast("IP 차단 해제에 실패했습니다.");
+          setIsConfirmOpen(false);
+          setPendingIp(null);
+        },
+      });
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsConfirmOpen(false);
+    setPendingIp(null);
   };
 
   return (
@@ -54,7 +86,18 @@ export const AdminBlacklistManager = () => {
 
       <div>
         {isLoading ? (
-          <div className={styles.emptyState}>목록을 불러오는 중...</div>
+          <div className={styles.ipGrid}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className={styles.ipItem}>
+                <Skeleton width="120px" />
+                <Skeleton
+                  width="32px"
+                  height="32px"
+                  borderRadius="var(--radius-md)"
+                />
+              </div>
+            ))}
+          </div>
         ) : isError ? (
           <div className={styles.emptyState} style={{ color: "var(--danger)" }}>
             데이터를 불러오지 못했어요.
@@ -82,8 +125,8 @@ export const AdminBlacklistManager = () => {
               >
                 <span className={styles.ipText}>{ip}</span>
                 <button
-                  onClick={() => removeMutation.mutate(ip)}
-                  disabled={removeMutation.isPending}
+                  onClick={() => handleDeleteClick(ip)}
+                  disabled={removeMutation.isPending && pendingIp === ip}
                   aria-label="삭제"
                   className={styles.ipDeleteBtn}
                 >
@@ -94,6 +137,15 @@ export const AdminBlacklistManager = () => {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="IP 차단 해제"
+        message="이 IP의 차단을 해제하시겠습니까?"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={removeMutation.isPending}
+      />
     </div>
   );
 };

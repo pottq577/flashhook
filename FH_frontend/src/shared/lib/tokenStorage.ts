@@ -1,18 +1,11 @@
 import { logger } from "@/shared/lib/logger";
 
-const KEY_PREFIX = "fh_token_";
-
-function buildKey(endpointId: string): string {
-  return `${KEY_PREFIX}${endpointId}`;
+export function get(): string | null {
+  // 토큰은 HttpOnly 쿠키로 관리되므로 더 이상 프론트엔드 코드에서 접근할 수 없습니다.
+  return "managed_by_cookie";
 }
 
-export function get(endpointId: string): string | null {
-  return localStorage.getItem(buildKey(endpointId));
-}
-
-export function set(endpointId: string, token: string): void {
-  localStorage.setItem(buildKey(endpointId), token);
-
+export function set(endpointId: string): void {
   const historyRaw = localStorage.getItem("fh_history") || "[]";
   try {
     const parsed = JSON.parse(historyRaw);
@@ -33,8 +26,6 @@ export function set(endpointId: string, token: string): void {
 }
 
 export function remove(endpointId: string): void {
-  localStorage.removeItem(buildKey(endpointId));
-
   const historyRaw = localStorage.getItem("fh_history") || "[]";
   try {
     const parsed = JSON.parse(historyRaw);

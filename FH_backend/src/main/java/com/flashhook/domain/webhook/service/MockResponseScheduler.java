@@ -48,6 +48,9 @@ public class MockResponseScheduler {
             log.error("MockResponseScheduler shutdown interrupted", e);
             scheduler.shutdownNow();
             Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            log.error("Unexpected error during MockResponseScheduler shutdown", e);
+            scheduler.shutdownNow();
         }
     }
 

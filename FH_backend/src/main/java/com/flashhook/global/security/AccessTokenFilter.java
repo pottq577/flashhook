@@ -15,6 +15,7 @@ import com.flashhook.global.exception.ErrorCode;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -45,18 +46,18 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             // /api/endpoints/{id} 또는 /api/endpoints/{id}/... 형태인지 확인
             // (단, POST /api/endpoints는 제외)
             if (path.startsWith("/api/endpoints/") && path.length() > "/api/endpoints/".length()) {
-                if (PATH_MATCHER.match("/api/endpoints/*/stream", path) && "GET".equalsIgnoreCase(method)) {
-                    filterChain.doFilter(request, response);
-                    return;
-                }
-
                 String[] parts = path.split("/");
                 if (parts.length >= 4) { // ["", "api", "endpoints", "{id}", ...]
                     String endpointId = parts[3];
 
-                    String token = request.getHeader("X-Access-Token");
-                    if (token == null || token.isEmpty()) {
-                        token = request.getParameter("token");
+                    String token = null;
+                    if (request.getCookies() != null) {
+                        for (Cookie cookie : request.getCookies()) {
+                            if (("fh_token_" + endpointId).equals(cookie.getName())) {
+                                token = cookie.getValue();
+                                break;
+                            }
+                        }
                     }
 
                     if (token == null || token.isEmpty()) {

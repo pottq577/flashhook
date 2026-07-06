@@ -61,6 +61,9 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
         } catch (IllegalArgumentException e) {
             log.warn("Invalid PortOne webhook secret format", e);
             return payload;
+        } catch (Exception e) {
+            log.error("Unexpected error during PortOne secret decoding", e);
+            return payload;
         }
 
         byte[] digestBytes = hmacSha256(keyBytes, signedContent);
@@ -88,6 +91,10 @@ public class PortOnePresetHandler implements RequestSigningPresetHandler {
             log.error("Failed to generate HMAC-SHA256 signature", e);
             throw new PresetException(ErrorCode.PRESET_SIGNATURE_FAILED,
                     "PortOne 시크릿 키 형식이 올바르지 않거나 서명 생성에 실패했습니다");
+        } catch (Exception e) {
+            log.error("Unexpected error during HMAC-SHA256 signature generation", e);
+            throw new PresetException(ErrorCode.PRESET_SIGNATURE_FAILED,
+                    "PortOne 서명 생성 중 예상치 못한 오류가 발생했습니다");
         }
     }
 }

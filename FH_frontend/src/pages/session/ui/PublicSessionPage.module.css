@@ -91,7 +91,9 @@
   border: 1px solid var(--border-color);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .cardHeader {
@@ -131,12 +133,12 @@
 
 .dl {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.5rem 1rem;
 }
 
 .col2 {
-  grid-column: span 2;
+  grid-column: span 1;
 }
 
 .dt {
@@ -196,11 +198,11 @@
   line-height: 1.6;
 }
 
-@media (max-width: 640px) {
+@media (min-width: 641px) {
   .dl {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
   .col2 {
-    grid-column: span 1;
+    grid-column: span 2;
   }
 }
