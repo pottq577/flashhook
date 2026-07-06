@@ -23,11 +23,4 @@ export const EndpointSchema = z.object({
   mockConfig: MockConfigSchema.optional(),
 });
 
-export const EndpointCreateResponseSchema = EndpointSchema.extend({
-  accessToken: z.string(),
-});
-
 export type Endpoint = z.infer<typeof EndpointSchema>;
-export type EndpointCreateResponse = z.infer<
-  typeof EndpointCreateResponseSchema
->;

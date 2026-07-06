@@ -17,7 +17,6 @@ export const useEndpointQuery = (endpointId: string | undefined) => {
       const params = new URLSearchParams(window.location.search);
       const token = params.get("token");
       if (token) {
-        tokenStorage.set(endpointId, token);
         window.history.replaceState({}, "", window.location.pathname);
       }
 
@@ -32,7 +31,7 @@ export const useCreateEndpointMutation = () => {
   return useMutation({
     mutationFn: (label?: string) => createEndpoint(label),
     onSuccess: (data) => {
-      tokenStorage.set(data.endpointId, data.accessToken);
+      tokenStorage.set(data.endpointId);
     },
   });
 };

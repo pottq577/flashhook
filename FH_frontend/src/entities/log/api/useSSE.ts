@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { WebhookLogSchema, type WebhookLog } from "../model/log.schema";
-import * as tokenStorage from '@/shared/lib/tokenStorage';
+
 import { logger } from '@/shared/lib/logger';
 import { resolveApiBaseUrl } from '@/shared/config/api';
 
@@ -20,23 +20,11 @@ export function useSSE(
 
     async function connectSSE() {
       try {
-        const token = tokenStorage.get(endpointId!);
         const baseUrl = resolveApiBaseUrl();
-        
-        // Fetch stream-token
-        const res = await fetch(`${baseUrl}/endpoints/${endpointId}/stream-token`, {
-          method: 'POST',
-          headers: token ? { 'X-Access-Token': token } : {}
-        });
-        
-        if (!res.ok) throw new Error('Failed to get stream token');
-        const data = await res.json();
-        const streamToken = data.streamToken;
-        
         if (!isMounted) return;
 
-        const url = `${baseUrl}/endpoints/${endpointId}/stream?streamToken=${streamToken}`;
-        eventSource = new EventSource(url);
+        const url = `${baseUrl}/endpoints/${endpointId}/stream`;
+        eventSource = new EventSource(url, { withCredentials: true });
 
     eventSource.onopen = () => {
       if (!isMounted) return;

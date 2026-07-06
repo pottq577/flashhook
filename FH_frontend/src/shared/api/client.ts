@@ -1,4 +1,4 @@
-import * as tokenStorage from "@/shared/lib/tokenStorage";
+
 import { logger } from "@/shared/lib/logger";
 
 import { resolveApiBaseUrl } from "@/shared/config/api";
@@ -35,12 +35,7 @@ export async function apiRequest(
     ...options.headers,
   };
 
-  if (endpointId) {
-    const token = tokenStorage.get(endpointId);
-    if (token) {
-      headers["X-Access-Token"] = token;
-    }
-  }
+
 
   let attempt = 0;
   const method = (options.method ?? "GET").toUpperCase();
@@ -54,6 +49,7 @@ export async function apiRequest(
       const response = await fetch(`${BASE_URL}${path}`, {
         method,
         headers,
+        credentials: "include",
         body: options.body ? JSON.stringify(options.body) : undefined,
         signal: controller.signal,
       });
