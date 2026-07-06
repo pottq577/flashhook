@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAdminStore } from "@/entities/admin";
 import { Shield, ArrowRight } from "lucide-react";
@@ -11,6 +11,7 @@ export const AdminLoginPage = () => {
   const [token, setToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const setAdminToken = useAdminStore((state) => state.setAdminToken);
   const navigate = useNavigate();
@@ -38,6 +39,12 @@ export const AdminLoginPage = () => {
           "네트워크 또는 서버 오류가 발생했어요. 잠시 후 다시 시도해 주세요.",
         );
       }
+      
+      // 약간의 지연 후 포커스 이동 (스크린리더가 에러 메시지를 먼저 읽을 수 있도록)
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
     } finally {
       setIsLoading(false);
     }
@@ -65,6 +72,7 @@ export const AdminLoginPage = () => {
 
         <form onSubmit={handleLogin} className={styles.form}>
           <input
+            ref={inputRef}
             type="password"
             value={token}
             onChange={(e) => setToken(e.target.value)}
