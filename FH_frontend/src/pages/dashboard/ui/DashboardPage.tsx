@@ -20,8 +20,15 @@ import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
 import { resolveApiBaseUrl } from "@/shared/config/api";
 import { SEOHead } from "@/shared/ui/SEOHead";
 import styles from "./DashboardPage.module.css";
+import { Skeleton } from "@/shared/ui/Skeleton";
 
-const MockPanelSkeleton = <div className={styles.mockPanelSkeleton} />;
+const MockPanelSkeleton = (
+  <div className={styles.mockPanelSkeleton} style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <Skeleton width="100%" height="40px" />
+    <Skeleton width="100%" height="150px" />
+    <Skeleton width="40%" height="40px" />
+  </div>
+);
 
 const MockConfigPanel = lazy(
   () => import("@/widgets/mock-config/ui/MockConfigPanel"),

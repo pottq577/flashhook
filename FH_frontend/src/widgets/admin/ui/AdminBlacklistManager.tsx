@@ -9,6 +9,7 @@ import { ShieldAlert, Trash2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import styles from "./AdminWidgets.module.css";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
+import { Skeleton } from "@/shared/ui/Skeleton";
 
 export const AdminBlacklistManager = () => {
   const { data: ips, isLoading, isError } = useAdminBlacklist();
@@ -75,7 +76,14 @@ export const AdminBlacklistManager = () => {
 
       <div>
         {isLoading ? (
-          <div className={styles.emptyState}>목록을 불러오는 중...</div>
+          <div className={styles.ipGrid}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className={styles.ipItem}>
+                <Skeleton width="120px" />
+                <Skeleton width="32px" height="32px" borderRadius="var(--radius-md)" />
+              </div>
+            ))}
+          </div>
         ) : isError ? (
           <div className={styles.emptyState} style={{ color: "var(--danger)" }}>
             데이터를 불러오지 못했어요.

@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import styles from "./AdminWidgets.module.css";
 import { useState } from "react";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
+import { Skeleton } from "@/shared/ui/Skeleton";
 
 export const AdminAbuserTable = () => {
   const { data, isLoading, isError } = useAdminSuspiciousEndpoints();
@@ -55,11 +56,22 @@ export const AdminAbuserTable = () => {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan={5} className={styles.emptyState}>
-                  데이터를 불러오는 중...
-                </td>
-              </tr>
+              <>
+                {[...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    <td><Skeleton width="80px" /></td>
+                    <td><Skeleton width="120px" /></td>
+                    <td><Skeleton width="60px" /></td>
+                    <td><Skeleton width="100px" /></td>
+                    <td>
+                      <div className={styles.actions} style={{ justifyContent: "flex-end" }}>
+                        <Skeleton width="32px" height="32px" borderRadius="var(--radius-md)" />
+                        <Skeleton width="32px" height="32px" borderRadius="var(--radius-md)" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </>
             ) : isError ? (
               <tr>
                 <td

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { RefreshCw, Users, Server, Activity } from "lucide-react";
 import { useEffect, useState } from "react";
 import styles from "./AdminWidgets.module.css";
+import { Skeleton } from "@/shared/ui/Skeleton";
 
 const AnimatedCounter = ({ value }: { value: number }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -87,7 +88,7 @@ export const AdminMetricsWidget = () => {
             </div>
             <div className={styles.metricValue}>
               {isLoading ? (
-                <span>...</span>
+                <Skeleton width="80px" height="2.5rem" />
               ) : (
                 <AnimatedCounter value={item.value} />
               )}
