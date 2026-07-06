@@ -155,13 +155,9 @@ button {
   position: relative;
 }
 
-[role="button"] {
-  position: relative;
-}
-
 /* Ensure 44x44 minimum touch target without changing visual size */
 button::after,
-[role="button"]::after {
+.actionBtn::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -170,4 +166,8 @@ button::after,
   min-width: 44px;
   min-height: 44px;
   border-radius: inherit;
+}
+
+.actionBtn {
+  position: relative;
 }

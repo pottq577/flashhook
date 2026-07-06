@@ -132,7 +132,7 @@
   background-color: transparent;
   color: var(--accent);
   border: 1px solid var(--accent);
-  padding: 1rem 2rem;
+  padding: 1rem 0.5rem;
   font-family: var(--font-mono);
   font-size: 1.1rem;
   cursor: pointer;
@@ -359,9 +359,9 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 481px) {
   .button {
-    padding: 1rem 0.5rem;
+    padding: 1rem 2rem;
   }
 }
 
