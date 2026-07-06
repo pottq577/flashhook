@@ -7,7 +7,7 @@ FlashHook(이하 "서비스")은 소중한 개인정보를 안전하게 보호�
 본 서비스는 회원가입 절차 없이 이용 가능한 비회원제 서비스입니다. 다만 서비스 제공 과정에서 다음의 정보가 수집될 수 있습니다.
 
 - **필수 수집 항목 (웹훅 수신 시):** 웹훅 Payload 전체 (Headers, Query Parameters, Raw Body), 발신처 IP 주소
-- **자동 수집 항목:** 이용자의 IP 주소, 접속 로그, 서비스 이용 기록(생성된 Endpoint 정보), accessToken (sessionStorage 임시 저장, 브라우저 탭 종료 시 자동 소멸)
+- **자동 수집 항목:** 이용자의 IP 주소, 접속 로그, 서비스 이용 기록(생성된 Endpoint 정보), accessToken (HttpOnly 쿠키 임시 저장, 브라우저 탭 종료 시 자동 소멸)
 
 **수집 방법:** 모든 HTTP 메서드(GET, POST, PUT, PATCH, DELETE 등)를 통한 외부 서비스 호출 시 수집 및 서비스 접속 시 시스템을 통한 자동 수집
 

@@ -504,5 +504,5 @@ src/
 
 ### 4.5. 기타 사항
 
-- **API 클라이언트**: `shared/api/client.ts` 페치 래퍼가 런타임에 sessionStorage 토큰을 API 호출마다 자동 주입해요.
+- **API 클라이언트**: 백엔드에서 발급한 `HttpOnly` 쿠키가 브라우저에 의해 자동 주입되므로 별도의 토큰 관리가 필요 없어요.
 - **접근성(A11y) 검증**: Playwright와 Axe를 연동해 CI 빌드에서 WCAG 2.1 AA 기준 통과 여부를 검증하고 회귀 오류를 막아요.

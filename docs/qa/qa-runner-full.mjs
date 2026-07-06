@@ -105,7 +105,8 @@ async function run() {
     if (currentUrl.includes('/dashboard/')) pass('TC-05'); else reportBug('TC-05', 'High', 'Landing', 'Did not route to dashboard', '/dashboard/{id}');
     
     let endpointId = currentUrl.split('/').pop();
-    let token = await page.evaluate((id) => sessionStorage.getItem(`fh_token_${id}`), endpointId);
+    let cookies = await context.cookies();
+    let token = cookies.find(c => c.name === `fh_token_${endpointId}`)?.value;
     let webhookUrl = `${BASE_BE}/api/hooks/${endpointId}`;
 
     if (token && !currentUrl.includes('token=')) pass('TC-28'); else reportBug('TC-28', 'High', 'URL', 'Token exposed in URL', 'No token in URL');
@@ -177,7 +178,7 @@ async function run() {
     console.log('\n--- Phase 3: Mock 설정 ---');
     res = await fetch(`${BASE_BE}/api/endpoints/${endpointId}/mock`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'X-Access-Token': token },
+      headers: { 'Content-Type': 'application/json', 'Cookie': `fh_token_${endpointId}=${token}` },
       body: JSON.stringify({ statusCode: 500, delayMs: 0, body: 'error' })
     });
     if (res.ok) {
@@ -187,7 +188,7 @@ async function run() {
 
     res = await fetch(`${BASE_BE}/api/endpoints/${endpointId}/mock`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'X-Access-Token': token },
+      headers: { 'Content-Type': 'application/json', 'Cookie': `fh_token_${endpointId}=${token}` },
       body: JSON.stringify({ statusCode: 200, delayMs: 2000, body: 'ok' })
     });
     const start = Date.now();
@@ -198,7 +199,7 @@ async function run() {
     // TC-16
     res = await fetch(`${BASE_BE}/api/endpoints/${endpointId}/mock`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'X-Access-Token': token },
+      headers: { 'Content-Type': 'application/json', 'Cookie': `fh_token_${endpointId}=${token}` },
       body: JSON.stringify({ statusCode: 200, delayMs: 0, headers: {'X-Mock-Response':'Test'}, body: '{"result":"mocked"}' })
     });
     let mockRes = await fetch(webhookUrl, { method: 'POST', body: '{}' });
@@ -207,7 +208,7 @@ async function run() {
     // TC-17 & 18 (Preset)
     res = await fetch(`${BASE_BE}/api/endpoints/${endpointId}/mock`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'X-Access-Token': token },
+      headers: { 'Content-Type': 'application/json', 'Cookie': `fh_token_${endpointId}=${token}` },
       body: JSON.stringify({ statusCode: 200, delayMs: 0, presetType: 'SLACK_URL_VERIFICATION' })
     });
     mockRes = await fetch(webhookUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({type: 'url_verification', challenge: 'abc123XYZ'}) });
@@ -217,7 +218,7 @@ async function run() {
     // TC-19
     res = await fetch(`${BASE_BE}/api/endpoints/${endpointId}/mock`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'X-Access-Token': token },
+      headers: { 'Content-Type': 'application/json', 'Cookie': `fh_token_${endpointId}=${token}` },
       body: JSON.stringify({ statusCode: 201, presetType: '' })
     });
     mockRes = await fetch(webhookUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({type: 'url_verification', challenge: 'abc'}) });
@@ -235,9 +236,8 @@ async function run() {
     await page.waitForSelector('[data-testid="log-item"]');
     await page.waitForTimeout(1000); // Give it time to render multiple logs
     const logsCount = await page.evaluate(async ({ id, baseBe }) => {
-      const token = sessionStorage.getItem(`fh_token_${id}`);
       const res = await fetch(`${baseBe}/api/endpoints/${id}/logs?page=0&size=50`, {
-        headers: { 'X-Access-Token': token }
+        credentials: 'include'
       });
       if (!res.ok) return -1;
       const data = await res.json();
@@ -258,7 +258,7 @@ async function run() {
 
     res = await fetch(`${BASE_BE}/api/endpoints/${endpointId}/logs`, {
       method: 'DELETE',
-      headers: { 'X-Access-Token': token }
+      headers: { 'Cookie': `fh_token_${endpointId}=${token}` }
     });
     if (res.ok) pass('TC-22 API'); else reportBug('TC-22', 'Medium', 'API', 'Failed to delete logs', '204 No Content');
 
@@ -267,7 +267,7 @@ async function run() {
     res = await fetch(`${BASE_FE}/dashboard/000000000000`);
     if (res.ok) pass('TC-23'); else reportBug('TC-23', 'Medium', 'FE', 'Invalid dashboard loading failed', '200 OK');
 
-    res = await fetch(`${BASE_BE}/api/endpoints/${endpointId}`, { headers: { 'X-Access-Token': 'invalid' }});
+    res = await fetch(`${BASE_BE}/api/endpoints/${endpointId}`, { headers: { 'Cookie': `fh_token_${endpointId}=invalid` }});
     if (res.status === 403) pass('TC-24'); else reportBug('TC-24', 'High', 'Auth', 'Did not reject invalid token', '403');
 
     // TC-25: Create Rate Limit (5 per IP).
@@ -301,21 +301,21 @@ async function run() {
     }
 
     // TC-27: Token expiry FE
-    await page.evaluate(() => sessionStorage.clear());
+    await context.clearCookies();
     // Triger something that needs auth
     await page.reload();
     await page.waitForTimeout(1000);
     if (!page.url().includes('/dashboard/')) pass('TC-27'); else reportBug('TC-27', 'Medium', 'Auth FE', 'Did not redirect on missing token', 'Redirect to home');
 
     // We lost token in browser, but we have it in Node script
-    await page.evaluate(({id, tok}) => sessionStorage.setItem(`fh_token_${id}`, tok), {id: endpointId, tok: token});
+    await context.addCookies([{name: `fh_token_${endpointId}`, value: token, domain: 'localhost', path: '/'}]);
     await page.goto(`${BASE_FE}/dashboard/${endpointId}`);
 
     // Phase 6
     console.log('\n--- Phase 6: 보안 ---');
     res = await fetch(`${BASE_BE}/api/endpoints/some_other_id/logs`, {
       method: 'DELETE',
-      headers: { 'X-Access-Token': token }
+      headers: { 'Cookie': `fh_token_${endpointId}=${token}` }
     });
     if (res.status === 403) pass('TC-29'); else reportBug('TC-29', 'Critical', 'Auth', 'Did not forbid cross endpoint access', '403');
 
@@ -349,7 +349,7 @@ async function run() {
     console.log('\n--- Phase 8: 엔드포인트 삭제 ---');
     res = await fetch(`${BASE_BE}/api/endpoints/${alternativeEndpointId}`, {
       method: 'DELETE',
-      headers: { 'X-Access-Token': alternativeToken }
+      headers: { 'Cookie': `fh_token_${alternativeEndpointId}=${alternativeToken}` }
     });
     if (res.status === 204) pass('TC-35'); else reportBug('TC-35', 'High', 'API', 'Endpoint delete failed', '204');
 
