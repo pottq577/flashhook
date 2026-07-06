@@ -161,6 +161,11 @@ Spring Boot 4.0.x 및 최신 라이브러리 환경에 맞추어 다음 컨벤�
 - 외부 API 스펙이 변경되어 `FH_frontend/src/entities/endpoint/model/presets.ts`에 위치한 프리셋을 수정하거나 신규 프리셋을 추가할 때는 반드시 해당 프리셋 객체에 `lastVerifiedAt` 필드를 `YYYY-MM-DD` 형식으로 갱신해 주세요.
 - 이는 사용자에게 프리셋의 최신성을 알리는 유일한 지표이므로 PR 리뷰 시 필수 확인 사항입니다.
 
+### 7.5. 예외 처리 정책 (2-Layered Exception Handling)
+
+- 비동기 처리(`SseEmitter`, 스케줄러 등) 코드에서는 좀비 스레드 및 자원 누수를 막기 위해 구체적인 예외와 범용 `Exception`을 분리해서 처리해야 합니다.
+- 1계층에서 `IOException`, `IllegalStateException` 등 비즈니스/네트워크 예외를 잡고, 2계층에서 `Exception`을 잡아 예기치 않은 런타임 에러에도 자원이 반드시 정리되도록 방어 코드를 작성하세요.
+
 ## 8. UI/UX 및 프론트엔드 품질 가이드라인 (Quality Audits)
 
 Core Web Vitals 실측 결과 및 UI/UX 감사(Audit) 결과를 바탕으로, 프론트엔드 컴포넌트 개발 시 아래 사항들을 준수해 주세요.
@@ -172,6 +177,8 @@ Core Web Vitals 실측 결과 및 UI/UX 감사(Audit) 결과를 바탕으로, �
 
 ### 8.2. 인터랙션 및 타이포그래피 (UI/UX)
 
+- **접근성(Accessibility)**: 스크린리더 사용자를 위해 로딩 상태(`Skeleton` 등)에는 `role="status"`와 `aria-label`을 명시하고 시각적 숨김 속성(`aria-hidden`)을 적절히 통제하세요. 폼 에러 시에는 `setTimeout`과 함께 포커스를 부드럽게 이동시킵니다.
+- **상태 피드백 및 중복 방지**: Mutation과 같은 상태 변경 시 반드시 `disabled={isPending}` 처리를 하고, 성공/실패 여부를 Toast 등으로 명시적 피드백하세요.
 - **애니메이션 타이밍 (Easing Curves)**: 패널 클릭이나 탭 전환 등 레이아웃 전환 시, 화면 구성 요소가 튀거나 시각적 피로를 주지 않도록 기본 애니메이션 지속 시간을 `300ms`로 맞추고 `ease-out cubic-bezier` 커브를 사용하세요.
 - **레이아웃 흔들림 방지 (Jitter)**: 로그의 타임스탬프, 바이트 크기, 요청 횟수 등 가변적인 숫자 텍스트로 인해 레이아웃이 좌우로 흔들리지 않도록 `font-variant-numeric: tabular-nums;` 속성을 반드시 적용하세요.
 - **인터랙티브 타겟 크기 (Fitts's Law)**: 모바일 및 터치 환경을 고려하여, 복사 버튼이나 트리거 요소 등 클릭 컴포넌트의 가상 타겟 영역(Padding 포함)은 최소 `32px` 이상으로 확보하세요.

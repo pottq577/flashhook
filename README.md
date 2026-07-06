@@ -54,7 +54,7 @@
 - **워크플로우**: 프리셋 또는 수동 Mock 설정 → 호출 URL을 FlashHook 주소로 변경 → 원하는 상태 코드, 지연, 본문으로 응답 확인.
 
 **국내외 주요 서비스 6종의 공식 응답 스펙을 그대로 재현하는 프리셋을 제공해요.**
-*(공식 문서 기반 제공, 스펙 불일치 시 원클릭 이슈 제보 지원)*
+_(공식 문서 기반 제공, 스펙 불일치 시 원클릭 이슈 제보 지원)_
 
 | 서비스           | 테스트 가능한 시나리오                                                            |
 | ---------------- | --------------------------------------------------------------------------------- |
@@ -180,7 +180,8 @@ npm run dev
 | [Development Guide](docs/DEVELOPMENT.md)                          | 로컬 개발 및 검증 가이드          |
 | [ADR 0001](docs/adr/0001-preset-catalog-lives-in-fe-constants.md) | 프리셋 카탈로그 위치 결정         |
 | [ADR 0002](docs/adr/0002-dynamic-preset-split-into-two-types.md)  | 동적 프리셋 타입 분리 결정        |
-| [ADR 0003](docs/adr/0003-preset-drift-mitigation-strategy.md)  | Mock 프리셋 스펙 불일치 완화 전략 |
+| [ADR 0003](docs/adr/0003-preset-drift-mitigation-strategy.md)     | Mock 프리셋 스펙 불일치 완화 전략 |
+| [ADR 0004](docs/adr/0004-two-layered-exception-handling.md)       | 2-Layered 예외 처리 전략          |
 | [Privacy Policy](docs/legal/PRIVACY_POLICY.md)                    | 개인정보처리방침                  |
 | [Terms of Service](docs/legal/TERMS_OF_SERVICE.md)                | 서비스 이용약관                   |
 | [License](LICENSE)                                                | 라이선스                          |
