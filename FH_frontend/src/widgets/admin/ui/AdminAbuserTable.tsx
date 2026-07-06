@@ -115,6 +115,7 @@ export const AdminAbuserTable = () => {
                         rel="noreferrer"
                         aria-label="새 탭에서 열기"
                         className={styles.actionBtn}
+                        role="button"
                       >
                         <ExternalLink size={16} />
                       </a>

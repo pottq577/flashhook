@@ -155,8 +155,13 @@ button {
   position: relative;
 }
 
+[role="button"] {
+  position: relative;
+}
+
 /* Ensure 44x44 minimum touch target without changing visual size */
-button::after {
+button::after,
+[role="button"]::after {
   content: "";
   position: absolute;
   top: 50%;
