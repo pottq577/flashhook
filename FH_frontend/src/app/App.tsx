@@ -30,6 +30,13 @@ const PrivacyPolicyPage = lazy(() =>
     })),
   ),
 );
+const PrivacyPolicyEuPage = lazy(() =>
+  withErrorCatch(() =>
+    import("@/pages/legal/PrivacyPolicyEuPage").then((module) => ({
+      default: module.PrivacyPolicyEuPage,
+    })),
+  ),
+);
 const TermsOfServicePage = lazy(() =>
   withErrorCatch(() =>
     import("@/pages/legal/TermsOfServicePage").then((module) => ({
@@ -120,6 +127,7 @@ function App() {
                   element={<DashboardPage />}
                 />
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/privacy-eu" element={<PrivacyPolicyEuPage />} />
                 <Route path="/terms" element={<TermsOfServicePage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
