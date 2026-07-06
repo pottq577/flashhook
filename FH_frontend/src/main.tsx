@@ -16,7 +16,7 @@ if (typeof window !== "undefined") {
     const script = document.createElement("script");
     script.id = "adsense-script";
     script.src =
-      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXX";
+      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4820146019835499";
     script.async = true;
     script.crossOrigin = "anonymous";
     document.head.appendChild(script);
