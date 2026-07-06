@@ -69,6 +69,10 @@ public class WebhookReplayService {
                 log.warn("웹훅 재전송 본문 직렬화 실패: logId={}", logId, e);
                 updateReplayStatus(logId, "FAILED", "Failed to serialize replay body");
                 throw new WebhookException(ErrorCode.INTERNAL_ERROR);
+            } catch (Exception e) {
+                log.warn("Unexpected error during replay body serialization: logId={}", logId, e);
+                updateReplayStatus(logId, "FAILED", "Unexpected error during replay body serialization");
+                throw new WebhookException(ErrorCode.INTERNAL_ERROR);
             }
         }
 
@@ -98,6 +102,11 @@ public class WebhookReplayService {
             log.warn("프리셋 서명 생성 실패: endpointId={}, logId={}", endpointId, logId, e);
             updateReplayStatus(logId, "FAILED", "Failed to generate preset signature");
             throw new WebhookException(ErrorCode.INTERNAL_ERROR);
+        } catch (Exception e) {
+            log.warn("Unexpected error during preset signature generation: endpointId={}, logId={}", endpointId, logId,
+                    e);
+            updateReplayStatus(logId, "FAILED", "Unexpected error during preset signature generation");
+            throw new WebhookException(ErrorCode.INTERNAL_ERROR);
         }
 
         try {
@@ -113,6 +122,10 @@ public class WebhookReplayService {
             log.warn("웹훅 재전송 실패 via WebhookReplayService: logId={}", logId, e);
             updateReplayStatus(logId, "FAILED", e.getMessage());
             throw e;
+        } catch (Exception e) {
+            log.warn("Unexpected error during webhook replay via WebhookReplayService: logId={}", logId, e);
+            updateReplayStatus(logId, "FAILED", "Unexpected error during webhook replay");
+            throw new WebhookException(ErrorCode.INTERNAL_ERROR);
         }
     }
 
