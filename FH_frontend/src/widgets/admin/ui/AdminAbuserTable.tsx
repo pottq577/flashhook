@@ -5,15 +5,32 @@ import {
 import { Trash2, AlertTriangle, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import styles from "./AdminWidgets.module.css";
+import { useState } from "react";
+import ConfirmModal from "@/shared/ui/ConfirmModal";
 
 export const AdminAbuserTable = () => {
   const { data, isLoading, isError } = useAdminSuspiciousEndpoints();
   const deleteMutation = useDeleteEndpointMutation();
 
-  const handleDelete = (endpointId: string) => {
-    if (confirm("이 엔드포인트를 즉시 삭제하시겠습니까?")) {
-      deleteMutation.mutate(endpointId);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingEndpointId, setPendingEndpointId] = useState<string | null>(null);
+
+  const handleDeleteClick = (endpointId: string) => {
+    setPendingEndpointId(endpointId);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (pendingEndpointId) {
+      deleteMutation.mutate(pendingEndpointId);
     }
+    setIsConfirmOpen(false);
+    setPendingEndpointId(null);
+  };
+
+  const handleCancelDelete = () => {
+    setIsConfirmOpen(false);
+    setPendingEndpointId(null);
   };
 
   return (
@@ -90,7 +107,7 @@ export const AdminAbuserTable = () => {
                         <ExternalLink size={16} />
                       </a>
                       <button
-                        onClick={() => handleDelete(endpoint.endpointId)}
+                        onClick={() => handleDeleteClick(endpoint.endpointId)}
                         disabled={deleteMutation.isPending}
                         aria-label="삭제"
                         className={`${styles.actionBtn} ${styles.danger}`}
@@ -105,6 +122,14 @@ export const AdminAbuserTable = () => {
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="엔드포인트 삭제"
+        message="이 엔드포인트를 즉시 삭제하시겠습니까?"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </div>
   );
 };

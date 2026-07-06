@@ -8,6 +8,7 @@ import {
 import { ShieldAlert, Trash2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import styles from "./AdminWidgets.module.css";
+import ConfirmModal from "@/shared/ui/ConfirmModal";
 
 export const AdminBlacklistManager = () => {
   const { data: ips, isLoading, isError } = useAdminBlacklist();
@@ -15,6 +16,8 @@ export const AdminBlacklistManager = () => {
   const removeMutation = useRemoveBlacklistMutation();
 
   const [ipInput, setIpInput] = useState("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingIp, setPendingIp] = useState<string | null>(null);
 
   const handleAdd = (e: FormEvent) => {
     e.preventDefault();
@@ -22,6 +25,24 @@ export const AdminBlacklistManager = () => {
     addMutation.mutate(ipInput.trim(), {
       onSuccess: () => setIpInput(""),
     });
+  };
+
+  const handleDeleteClick = (ip: string) => {
+    setPendingIp(ip);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (pendingIp) {
+      removeMutation.mutate(pendingIp);
+    }
+    setIsConfirmOpen(false);
+    setPendingIp(null);
+  };
+
+  const handleCancelDelete = () => {
+    setIsConfirmOpen(false);
+    setPendingIp(null);
   };
 
   return (
@@ -82,7 +103,7 @@ export const AdminBlacklistManager = () => {
               >
                 <span className={styles.ipText}>{ip}</span>
                 <button
-                  onClick={() => removeMutation.mutate(ip)}
+                  onClick={() => handleDeleteClick(ip)}
                   disabled={removeMutation.isPending}
                   aria-label="삭제"
                   className={styles.ipDeleteBtn}
@@ -94,6 +115,14 @@ export const AdminBlacklistManager = () => {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="IP 차단 해제"
+        message="이 IP의 차단을 해제하시겠습니까?"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </div>
   );
 };
