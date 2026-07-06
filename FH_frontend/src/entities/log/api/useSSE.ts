@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { WebhookLogSchema, type WebhookLog } from "../model/log.schema";
 
-import { logger } from '@/shared/lib/logger';
-import { resolveApiBaseUrl } from '@/shared/config/api';
+import { logger } from "@/shared/lib/logger";
+import { resolveApiBaseUrl } from "@/shared/config/api";
 
-type SSEStatus = 'connecting' | 'connected' | 'disconnected';
+type SSEStatus = "connecting" | "connected" | "disconnected";
 
 export function useSSE(
   endpointId: string | undefined,
   onMessage: (log: WebhookLog) => void,
 ) {
-  const [status, setStatus] = useState<SSEStatus>('connecting');
+  const [status, setStatus] = useState<SSEStatus>("connecting");
 
   useEffect(() => {
     if (!endpointId) return;
@@ -26,38 +26,38 @@ export function useSSE(
         const url = `${baseUrl}/endpoints/${endpointId}/stream`;
         eventSource = new EventSource(url, { withCredentials: true });
 
-    eventSource.onopen = () => {
-      if (!isMounted) return;
-      setStatus('connected');
-      logger.info('SSE Connected');
-    };
+        eventSource.onopen = () => {
+          if (!isMounted) return;
+          setStatus("connected");
+          logger.info("SSE Connected");
+        };
 
-    eventSource.addEventListener('webhook', (event: MessageEvent) => {
-      try {
-        const parsed = JSON.parse(event.data);
-        const log = WebhookLogSchema.parse(parsed);
-        onMessage(log);
-      } catch (error) {
-        logger.error('Failed to parse webhook event', error);
-      }
-    });
+        eventSource.addEventListener("webhook", (event: MessageEvent) => {
+          try {
+            const parsed = JSON.parse(event.data);
+            const log = WebhookLogSchema.parse(parsed);
+            onMessage(log);
+          } catch (error) {
+            logger.error("Failed to parse webhook event", error);
+          }
+        });
 
-    eventSource.addEventListener('connect', () => {});
-    eventSource.addEventListener('ping', () => {});
+        eventSource.addEventListener("connect", () => {});
+        eventSource.addEventListener("ping", () => {});
 
-    eventSource.onerror = () => {
-      if (!isMounted) return;
-      setStatus('disconnected');
-        eventSource?.close();
-        logger.warn('SSE Disconnected');
-      };
+        eventSource.onerror = () => {
+          if (!isMounted) return;
+          setStatus("disconnected");
+          eventSource?.close();
+          logger.warn("SSE Disconnected");
+        };
       } catch (err) {
         if (!isMounted) return;
-        setStatus('disconnected');
-        logger.error('SSE connect error', err);
+        setStatus("disconnected");
+        logger.error("SSE connect error", err);
       }
     }
-    
+
     connectSSE();
 
     return () => {

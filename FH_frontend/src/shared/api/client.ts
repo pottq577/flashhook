@@ -1,4 +1,3 @@
-
 import { logger } from "@/shared/lib/logger";
 
 import { resolveApiBaseUrl } from "@/shared/config/api";
@@ -10,7 +9,12 @@ export class ApiError extends Error {
   code?: string;
   endpointId?: string;
 
-  constructor(message: string, status?: number, code?: string, endpointId?: string) {
+  constructor(
+    message: string,
+    status?: number,
+    code?: string,
+    endpointId?: string,
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
@@ -34,8 +38,6 @@ export async function apiRequest(
     "Content-Type": "application/json",
     ...options.headers,
   };
-
-
 
   let attempt = 0;
   const method = (options.method ?? "GET").toUpperCase();
@@ -77,7 +79,7 @@ export async function apiRequest(
             `서버에 문제가 생겼어요 (${response.status}). 잠시 후 다시 시도해 주세요.`,
             response.status,
             undefined,
-            endpointId
+            endpointId,
           );
         }
 
@@ -104,13 +106,33 @@ export async function apiRequest(
         }
 
         if (response.status === 401) {
-          throw new ApiError("인증이 필요해요. 다시 로그인해 주세요.", response.status, undefined, endpointId);
+          throw new ApiError(
+            "인증이 필요해요. 다시 로그인해 주세요.",
+            response.status,
+            undefined,
+            endpointId,
+          );
         } else if (response.status === 403) {
-          throw new ApiError("이 페이지를 볼 수 있는 권한이 없어요.", response.status, undefined, endpointId);
+          throw new ApiError(
+            "이 페이지를 볼 수 있는 권한이 없어요.",
+            response.status,
+            undefined,
+            endpointId,
+          );
         } else if (response.status === 404) {
-          throw new ApiError("요청한 페이지나 정보를 찾을 수 없어요.", response.status, undefined, endpointId);
+          throw new ApiError(
+            "요청한 페이지나 정보를 찾을 수 없어요.",
+            response.status,
+            undefined,
+            endpointId,
+          );
         }
-        throw new ApiError(`정보를 불러오지 못했어요 (${response.status}).`, response.status, undefined, endpointId);
+        throw new ApiError(
+          `정보를 불러오지 못했어요 (${response.status}).`,
+          response.status,
+          undefined,
+          endpointId,
+        );
       }
 
       if (response.status === 204) {

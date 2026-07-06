@@ -15,6 +15,7 @@ import com.flashhook.global.exception.ErrorCode;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
                     String token = null;
                     if (request.getCookies() != null) {
-                        for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                        for (Cookie cookie : request.getCookies()) {
                             if (("fh_token_" + endpointId).equals(cookie.getName())) {
                                 token = cookie.getValue();
                                 break;
