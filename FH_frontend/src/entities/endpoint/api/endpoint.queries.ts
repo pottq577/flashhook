@@ -14,11 +14,7 @@ export const useEndpointQuery = (endpointId: string | undefined) => {
     queryFn: async () => {
       if (!endpointId) throw new Error("No endpoint ID");
 
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
-      if (token) {
-        window.history.replaceState({}, "", window.location.pathname);
-      }
+
 
       return getEndpoint(endpointId);
     },
