@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import privacyPolicyEu from "../../../../docs/legal/PRIVACY_POLICY_EU.md?raw";
 import { LegalMarkdown } from "@/widgets/legal/LegalMarkdown";
 import { SEOHead } from "@/shared/ui/SEOHead";
