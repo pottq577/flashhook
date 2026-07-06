@@ -16,6 +16,8 @@ interface AdBannerProps {
   variant?: "compact" | "panel" | "horizontal";
 }
 
+const isAdsEnabled = import.meta.env.VITE_ENABLE_ADS === "true";
+
 export const AdBanner: React.FC<AdBannerProps> = ({
   dataAdClient = "ca-pub-4820146019835499",
   dataAdSlot = "1234567890",
@@ -29,7 +31,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
 
   useEffect(() => {
     // 애드센스 심사 중이거나 환경변수가 켜져있지 않으면 스크립트 초기화 건너뜀
-    if (import.meta.env.VITE_ENABLE_ADS !== "true") return;
+    if (!isAdsEnabled) return;
 
     // Only push if not already pushed and adsbygoogle is available
     if (adRef.current && !isPushed.current) {
@@ -39,8 +41,9 @@ export const AdBanner: React.FC<AdBannerProps> = ({
         isPushed.current = true;
       } catch (error) {
         logger.error("AdSense error", error);
-        // 비동기로 상태를 업데이트하여 set-state-in-effect 린트 에러 방지
-        setTimeout(() => setIsAdError(true), 0);
+        // 애드센스 스크립트 에러 발생 시 UI Fallback 처리를 위한 상태 업데이트
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsAdError(true);
       }
     }
 
@@ -60,7 +63,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
     return () => clearTimeout(timeoutId);
   }, []);
 
-  if (import.meta.env.VITE_ENABLE_ADS !== "true") {
+  if (!isAdsEnabled) {
     return null;
   }
 
