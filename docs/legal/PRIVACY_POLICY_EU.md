@@ -30,6 +30,7 @@ To provide a stable service, we use trusted third-party cloud infrastructure pro
 - **Oracle Cloud:** Backend server infrastructure
 - **MongoDB Atlas:** Database hosting
 - **Cloudflare:** DNS and proxy services
+- **Google:** Support Form (Google Forms) data collection and processing
 
 ## 5. International Data Transfers
 Your data is transferred to and processed in our data centers located in **Seoul, Republic of Korea**. 
