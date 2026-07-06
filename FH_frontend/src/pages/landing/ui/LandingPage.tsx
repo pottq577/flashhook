@@ -21,10 +21,12 @@ import { TerminalHero } from "@/pages/landing/ui/TerminalHero";
 import { LandingFeatures } from "@/pages/landing/ui/LandingFeatures";
 import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
 import { SEOHead } from "@/shared/ui/SEOHead";
+import { useIsMobile } from "@/shared/lib/useIsMobile";
 import styles from "@/pages/landing/ui/LandingPage.module.css";
 
 function LandingPage() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { mutateAsync: createEndpoint } = useCreateEndpointMutation();
   const [isLoading, setIsLoading] = useState(false);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
@@ -173,8 +175,13 @@ function LandingPage() {
         onDeleteClick={setDeleteTargetId}
       />
       <LandingFeatures />
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 2rem" }}>
-        <AdBanner />
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 2rem", marginBottom: "2rem" }}>
+        {/* TODO: 애드센스 심사 통과 후 랜딩 페이지용 신규 디스플레이 광고 단위를 생성하여 모바일/데스크탑 dataAdSlot ID 각각 교체 */}
+        {isMobile ? (
+          <AdBanner variant="compact" dataAdSlot="LANDING_MOBILE_SLOT_ID_HERE" />
+        ) : (
+          <AdBanner variant="horizontal" dataAdSlot="LANDING_DESKTOP_SLOT_ID_HERE" />
+        )}
       </div>
       <Footer />
       <Suspense fallback={null}>

@@ -13,7 +13,7 @@ interface AdBannerProps {
   dataAdSlot?: string;
   dataAdFormat?: string;
   dataFullWidthResponsive?: boolean;
-  variant?: "compact" | "panel";
+  variant?: "compact" | "panel" | "horizontal";
 }
 
 export const AdBanner: React.FC<AdBannerProps> = ({
