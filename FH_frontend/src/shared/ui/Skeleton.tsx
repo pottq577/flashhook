@@ -7,6 +7,7 @@ interface SkeletonProps {
   borderRadius?: string | number;
   className?: string;
   style?: CSSProperties;
+  label?: string;
 }
 
 export const Skeleton = ({
@@ -15,6 +16,7 @@ export const Skeleton = ({
   borderRadius,
   className = "",
   style,
+  label,
 }: SkeletonProps) => {
   const inlineStyle: CSSProperties = {
     width: width ?? "100%",
@@ -27,7 +29,9 @@ export const Skeleton = ({
     <div
       className={`${styles.skeleton} ${className}`}
       style={inlineStyle}
-      aria-hidden="true"
+      role={label ? "status" : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : "true"}
     />
   );
 };

@@ -48,8 +48,7 @@ export function useSSE(
         eventSource.onerror = () => {
           if (!isMounted) return;
           setStatus("disconnected");
-          eventSource?.close();
-          logger.warn("SSE Disconnected");
+          logger.warn("SSE Disconnected (will attempt reconnect)");
         };
       } catch (err) {
         if (!isMounted) return;

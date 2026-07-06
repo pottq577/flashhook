@@ -50,15 +50,8 @@ public class EndpointController {
                 .maxAge(24 * 60 * 60)
                 .build();
 
-        EndpointResponse safeResponse = EndpointResponse.builder()
-                .endpointId(response.endpointId())
+        EndpointResponse safeResponse = response.toBuilder()
                 .accessToken(null)
-                .label(response.label())
-                .webhookUrl(response.webhookUrl())
-                .dashboardUrl(response.dashboardUrl())
-                .expiresAt(response.expiresAt())
-                .limits(response.limits())
-                .mockConfig(response.mockConfig())
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED)

@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAdminStore } from "@/entities/admin";
 import { Shield, ArrowRight } from "lucide-react";
@@ -12,10 +12,17 @@ export const AdminLoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setAdminToken = useAdminStore((state) => state.setAdminToken);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -41,7 +48,7 @@ export const AdminLoginPage = () => {
       }
 
       // 약간의 지연 후 포커스 이동 (스크린리더가 에러 메시지를 먼저 읽을 수 있도록)
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         inputRef.current?.focus();
         inputRef.current?.select();
       }, 100);

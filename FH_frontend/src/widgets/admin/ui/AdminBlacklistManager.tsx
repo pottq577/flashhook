@@ -10,11 +10,13 @@ import { motion } from "framer-motion";
 import styles from "./AdminWidgets.module.css";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
 import { Skeleton } from "@/shared/ui/Skeleton";
+import { useToastStore } from "@/shared/lib/toast.store";
 
 export const AdminBlacklistManager = () => {
   const { data: ips, isLoading, isError } = useAdminBlacklist();
   const addMutation = useAddBlacklistMutation();
   const removeMutation = useRemoveBlacklistMutation();
+  const addToast = useToastStore((state) => state.addToast);
 
   const [ipInput, setIpInput] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -34,11 +36,19 @@ export const AdminBlacklistManager = () => {
   };
 
   const handleConfirmDelete = () => {
-    if (pendingIp) {
-      removeMutation.mutate(pendingIp);
+    if (pendingIp && !removeMutation.isPending) {
+      removeMutation.mutate(pendingIp, {
+        onSuccess: () => {
+          setIsConfirmOpen(false);
+          setPendingIp(null);
+        },
+        onError: () => {
+          addToast("IP 차단 해제에 실패했습니다.");
+          setIsConfirmOpen(false);
+          setPendingIp(null);
+        },
+      });
     }
-    setIsConfirmOpen(false);
-    setPendingIp(null);
   };
 
   const handleCancelDelete = () => {
@@ -116,7 +126,7 @@ export const AdminBlacklistManager = () => {
                 <span className={styles.ipText}>{ip}</span>
                 <button
                   onClick={() => handleDeleteClick(ip)}
-                  disabled={removeMutation.isPending}
+                  disabled={removeMutation.isPending && pendingIp === ip}
                   aria-label="삭제"
                   className={styles.ipDeleteBtn}
                 >
@@ -134,6 +144,7 @@ export const AdminBlacklistManager = () => {
         message="이 IP의 차단을 해제하시겠습니까?"
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
+        isLoading={removeMutation.isPending}
       />
     </div>
   );

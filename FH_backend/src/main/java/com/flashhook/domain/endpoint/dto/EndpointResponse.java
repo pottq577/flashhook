@@ -10,7 +10,7 @@ import lombok.Builder;
 /**
  * 엔드포인트 응답 DTO
  */
-@Builder
+@Builder(toBuilder = true)
 public record EndpointResponse(
         String endpointId,
         String accessToken,

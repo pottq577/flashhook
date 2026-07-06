@@ -8,10 +8,12 @@ import styles from "./AdminWidgets.module.css";
 import { useState } from "react";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
 import { Skeleton } from "@/shared/ui/Skeleton";
+import { useToastStore } from "@/shared/lib/toast.store";
 
 export const AdminAbuserTable = () => {
   const { data, isLoading, isError } = useAdminSuspiciousEndpoints();
   const deleteMutation = useDeleteEndpointMutation();
+  const addToast = useToastStore((state) => state.addToast);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingEndpointId, setPendingEndpointId] = useState<string | null>(
@@ -24,11 +26,19 @@ export const AdminAbuserTable = () => {
   };
 
   const handleConfirmDelete = () => {
-    if (pendingEndpointId) {
-      deleteMutation.mutate(pendingEndpointId);
+    if (pendingEndpointId && !deleteMutation.isPending) {
+      deleteMutation.mutate(pendingEndpointId, {
+        onSuccess: () => {
+          setIsConfirmOpen(false);
+          setPendingEndpointId(null);
+        },
+        onError: () => {
+          addToast("엔드포인트 삭제에 실패했습니다.");
+          setIsConfirmOpen(false);
+          setPendingEndpointId(null);
+        },
+      });
     }
-    setIsConfirmOpen(false);
-    setPendingEndpointId(null);
   };
 
   const handleCancelDelete = () => {
@@ -141,7 +151,7 @@ export const AdminAbuserTable = () => {
                       </a>
                       <button
                         onClick={() => handleDeleteClick(endpoint.endpointId)}
-                        disabled={deleteMutation.isPending}
+                        disabled={deleteMutation.isPending && pendingEndpointId === endpoint.endpointId}
                         aria-label="삭제"
                         className={`${styles.actionBtn} ${styles.danger}`}
                       >
@@ -162,6 +172,7 @@ export const AdminAbuserTable = () => {
         message="이 엔드포인트를 즉시 삭제하시겠습니까?"
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

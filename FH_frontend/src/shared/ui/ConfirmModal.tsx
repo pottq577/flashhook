@@ -9,6 +9,7 @@ interface ConfirmModalProps {
   message: string;
   onConfirm: () => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 function ConfirmModal({
@@ -17,6 +18,7 @@ function ConfirmModal({
   message,
   onConfirm,
   onCancel,
+  isLoading = false,
 }: ConfirmModalProps) {
   const modalId = useId();
   const shouldReduceMotion = useReducedMotion();
@@ -61,11 +63,11 @@ function ConfirmModal({
               <p>{message}</p>
             </div>
             <div className={styles.actions}>
-              <button className={styles.btnCancel} onClick={onCancel}>
+              <button className={styles.btnCancel} onClick={onCancel} disabled={isLoading}>
                 닫기
               </button>
-              <button className={styles.btnConfirm} onClick={onConfirm}>
-                확인
+              <button className={styles.btnConfirm} onClick={onConfirm} disabled={isLoading}>
+                {isLoading ? "처리 중..." : "확인"}
               </button>
             </div>
           </motion.div>
