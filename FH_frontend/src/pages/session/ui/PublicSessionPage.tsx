@@ -1,6 +1,7 @@
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { usePublicLogQuery } from '@/entities/log/api/log.queries';
+import { Skeleton } from '@/shared/ui/Skeleton';
 import styles from './PublicSessionPage.module.css';
 
 export default function PublicSessionPage() {
@@ -13,9 +14,29 @@ export default function PublicSessionPage() {
   if (isLoading) {
     return (
       <div className={styles.container}>
-        <div className={styles.center}>
-          <p className={styles.subtitle}>데이터를 불러오고 있어요…</p>
-        </div>
+        <header className={styles.header}>
+          <Skeleton width="120px" height="32px" />
+          <Skeleton width="160px" height="40px" />
+        </header>
+        <main className={styles.main}>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+                <Skeleton width="150px" height="28px" />
+                <Skeleton width="250px" height="20px" />
+              </div>
+              <Skeleton width="60px" height="28px" />
+            </div>
+            
+            <div className={styles.cardBody}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <Skeleton width="100%" height="40px" />
+                <Skeleton width="100%" height="40px" />
+                <Skeleton width="100%" height="150px" />
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }

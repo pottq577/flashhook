@@ -117,12 +117,30 @@ function DashboardPage() {
       <div className={styles.container}>
         <SEOHead title={pageTitle} />
         <Header />
-        <div className={styles.center}>
-          <div className={styles.spinner}></div>
-          <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)" }}>
-            데이터를 불러오고 있어요…
-          </p>
-        </div>
+        <main className={styles.main}>
+          <div style={{ display: 'flex', width: '100%', height: 'calc(100vh - 64px)' }}>
+            {/* Sidebar Skeleton */}
+            <div style={{ width: '380px', borderRight: '1px solid var(--border)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <Skeleton width="100%" height="40px" />
+              <div style={{ marginTop: '1rem' }} />
+              <Skeleton width="100%" height="72px" />
+              <Skeleton width="100%" height="72px" />
+              <Skeleton width="100%" height="72px" />
+            </div>
+            {/* Content Skeleton */}
+            <div style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <Skeleton width="80px" height="32px" />
+                  <Skeleton width="300px" height="32px" />
+                </div>
+                <Skeleton width="200px" height="40px" />
+              </div>
+              <Skeleton width="40%" height="24px" />
+              <Skeleton width="100%" height="300px" />
+            </div>
+          </div>
+        </main>
       </div>
     );
   if (error) {

@@ -8,6 +8,7 @@ import PromptModal from "@/shared/ui/PromptModal";
 import { useToastStore } from "@/shared/lib/toast.store";
 import JsonViewer from "./JsonViewer";
 import { logger } from "@/shared/lib/logger";
+import { Skeleton } from "@/shared/ui/Skeleton";
 import styles from "./LogDetail.module.css";
 
 interface LogDetailProps {
@@ -30,8 +31,26 @@ const LogDetail = memo(function LogDetail({
 
   if (isLoading) {
     return (
-      <div role="status" className={styles.emptyContainer}>
-        &gt; LOADING_PAYLOAD…
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <div className={styles.headerLeft} style={{ width: '100%', gap: '1rem' }}>
+            <Skeleton width="80px" height="28px" />
+            <Skeleton width="60%" height="24px" />
+          </div>
+        </div>
+        <div className={styles.metaInfo} style={{ display: 'flex', gap: '2rem' }}>
+          <Skeleton width="120px" height="40px" />
+          <Skeleton width="120px" height="40px" />
+          <Skeleton width="120px" height="40px" />
+        </div>
+        <div className={styles.section} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
+          <Skeleton width="150px" height="24px" />
+          <Skeleton width="100%" height="100px" />
+        </div>
+        <div className={styles.section} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
+          <Skeleton width="150px" height="24px" />
+          <Skeleton width="100%" height="200px" />
+        </div>
       </div>
     );
   }
