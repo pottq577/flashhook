@@ -1,8 +1,5 @@
 import { useState, memo } from "react";
-import {
-  useLogDetailQuery,
-  useReplayLogMutation,
-} from "@/entities/log";
+import { useLogDetailQuery, useReplayLogMutation } from "@/entities/log";
 import MethodBadge from "@/shared/ui/MethodBadge";
 import PromptModal from "@/shared/ui/PromptModal";
 import { useToastStore } from "@/shared/lib/toast.store";
@@ -33,21 +30,43 @@ const LogDetail = memo(function LogDetail({
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <div className={styles.headerLeft} style={{ width: '100%', gap: '1rem' }}>
+          <div
+            className={styles.headerLeft}
+            style={{ width: "100%", gap: "1rem" }}
+          >
             <Skeleton width="80px" height="28px" />
             <Skeleton width="60%" height="24px" />
           </div>
         </div>
-        <div className={styles.metaInfo} style={{ display: 'flex', gap: '2rem' }}>
+        <div
+          className={styles.metaInfo}
+          style={{ display: "flex", gap: "2rem" }}
+        >
           <Skeleton width="120px" height="40px" />
           <Skeleton width="120px" height="40px" />
           <Skeleton width="120px" height="40px" />
         </div>
-        <div className={styles.section} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
+        <div
+          className={styles.section}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+            marginTop: "2rem",
+          }}
+        >
           <Skeleton width="150px" height="24px" />
           <Skeleton width="100%" height="100px" />
         </div>
-        <div className={styles.section} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
+        <div
+          className={styles.section}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+            marginTop: "2rem",
+          }}
+        >
           <Skeleton width="150px" height="24px" />
           <Skeleton width="100%" height="200px" />
         </div>
@@ -180,7 +199,7 @@ const LogDetail = memo(function LogDetail({
     if (!logId) return;
     const urlObj = new URL(`${window.location.origin}/session/${logId}`);
     if (isNoIndex) {
-      urlObj.searchParams.set('noindex', 'true');
+      urlObj.searchParams.set("noindex", "true");
     }
     const shareUrl = urlObj.toString();
     try {
@@ -221,17 +240,14 @@ const LogDetail = memo(function LogDetail({
         </div>
         <div className={styles.headerRight}>
           <label className={styles.noIndexLabel}>
-            <input 
-              type="checkbox" 
-              checked={isNoIndex} 
-              onChange={(e) => setIsNoIndex(e.target.checked)} 
+            <input
+              type="checkbox"
+              checked={isNoIndex}
+              onChange={(e) => setIsNoIndex(e.target.checked)}
             />
             검색엔진 노출 방지
           </label>
-          <button
-            className={styles.copyButton}
-            onClick={handleShareClick}
-          >
+          <button className={styles.copyButton} onClick={handleShareClick}>
             SHARE
           </button>
           <button
@@ -259,7 +275,11 @@ const LogDetail = memo(function LogDetail({
         </div>
         <div className={styles.metaItem}>
           <span className={styles.metaLabel}>PAYLOAD_SIZE</span>
-          <span>{log.bodySize === 0 ? "—" : `${(log.bodySize / 1024).toFixed(2)} KB`}</span>
+          <span>
+            {log.bodySize === 0
+              ? "—"
+              : `${(log.bodySize / 1024).toFixed(2)} KB`}
+          </span>
         </div>
       </div>
 

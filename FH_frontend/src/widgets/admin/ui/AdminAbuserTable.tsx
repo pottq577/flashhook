@@ -14,7 +14,9 @@ export const AdminAbuserTable = () => {
   const deleteMutation = useDeleteEndpointMutation();
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [pendingEndpointId, setPendingEndpointId] = useState<string | null>(null);
+  const [pendingEndpointId, setPendingEndpointId] = useState<string | null>(
+    null,
+  );
 
   const handleDeleteClick = (endpointId: string) => {
     setPendingEndpointId(endpointId);
@@ -59,14 +61,33 @@ export const AdminAbuserTable = () => {
               <>
                 {[...Array(5)].map((_, i) => (
                   <tr key={i}>
-                    <td><Skeleton width="80px" /></td>
-                    <td><Skeleton width="120px" /></td>
-                    <td><Skeleton width="60px" /></td>
-                    <td><Skeleton width="100px" /></td>
                     <td>
-                      <div className={styles.actions} style={{ justifyContent: "flex-end" }}>
-                        <Skeleton width="32px" height="32px" borderRadius="var(--radius-md)" />
-                        <Skeleton width="32px" height="32px" borderRadius="var(--radius-md)" />
+                      <Skeleton width="80px" />
+                    </td>
+                    <td>
+                      <Skeleton width="120px" />
+                    </td>
+                    <td>
+                      <Skeleton width="60px" />
+                    </td>
+                    <td>
+                      <Skeleton width="100px" />
+                    </td>
+                    <td>
+                      <div
+                        className={styles.actions}
+                        style={{ justifyContent: "flex-end" }}
+                      >
+                        <Skeleton
+                          width="32px"
+                          height="32px"
+                          borderRadius="var(--radius-md)"
+                        />
+                        <Skeleton
+                          width="32px"
+                          height="32px"
+                          borderRadius="var(--radius-md)"
+                        />
                       </div>
                     </td>
                   </tr>

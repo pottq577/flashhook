@@ -23,8 +23,13 @@
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -170,11 +175,11 @@
     flex-direction: row;
     align-items: center;
   }
-  
+
   .headerLeft {
     width: auto;
   }
-  
+
   .headerRight {
     width: auto;
     justify-content: flex-start;

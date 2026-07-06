@@ -32,9 +32,7 @@ export const AdminMetricsWidget = () => {
 
   if (isError) {
     return (
-      <div className={styles.errorBox}>
-        지표 데이터를 불러오지 못했어요.
-      </div>
+      <div className={styles.errorBox}>지표 데이터를 불러오지 못했어요.</div>
     );
   }
 

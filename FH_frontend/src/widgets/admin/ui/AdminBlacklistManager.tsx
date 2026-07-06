@@ -80,7 +80,11 @@ export const AdminBlacklistManager = () => {
             {[...Array(6)].map((_, i) => (
               <div key={i} className={styles.ipItem}>
                 <Skeleton width="120px" />
-                <Skeleton width="32px" height="32px" borderRadius="var(--radius-md)" />
+                <Skeleton
+                  width="32px"
+                  height="32px"
+                  borderRadius="var(--radius-md)"
+                />
               </div>
             ))}
           </div>

@@ -3,7 +3,9 @@ import { lazy, Suspense } from "react";
 import { QueryProvider } from "./providers/QueryProvider";
 const ToastContainer = lazy(() =>
   withErrorCatch(() =>
-    import("@/shared/ui/ToastContainer").then((m) => ({ default: m.ToastContainer })),
+    import("@/shared/ui/ToastContainer").then((m) => ({
+      default: m.ToastContainer,
+    })),
   ),
 );
 import { CookieBanner } from "@/widgets/legal/CookieBanner";
@@ -85,10 +87,18 @@ const AppLoadingFallback = (
       alignItems: "center",
       minHeight: "100vh",
       padding: "4rem 2rem",
-      backgroundColor: "var(--bg-primary)"
+      backgroundColor: "var(--bg-primary)",
     }}
   >
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%', maxWidth: '1200px' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "2rem",
+        width: "100%",
+        maxWidth: "1200px",
+      }}
+    >
       <Skeleton width="100%" height="80px" />
       <Skeleton width="100%" height="400px" />
     </div>
@@ -104,29 +114,29 @@ function App() {
           <Suspense fallback={AppLoadingFallback}>
             <RouteErrorBoundary>
               <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route
-                path="/dashboard/:endpointId"
-                element={<DashboardPage />}
-              />
-              <Route path="/privacy" element={<PrivacyPolicyPage />} />
-              <Route path="/terms" element={<TermsOfServicePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
+                <Route path="/" element={<LandingPage />} />
+                <Route
+                  path="/dashboard/:endpointId"
+                  element={<DashboardPage />}
+                />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/terms" element={<TermsOfServicePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
 
-              <Route path="/admin/login" element={<AdminLoginPage />} />
-              <Route
-                path="/admin"
-                element={
-                  <RequireAdminAuth>
-                    <AdminDashboardPage />
-                  </RequireAdminAuth>
-                }
-              />
-              <Route path="/session/:logId" element={<PublicSessionPage />} />
+                <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <RequireAdminAuth>
+                      <AdminDashboardPage />
+                    </RequireAdminAuth>
+                  }
+                />
+                <Route path="/session/:logId" element={<PublicSessionPage />} />
 
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
             </RouteErrorBoundary>
           </Suspense>
         </main>

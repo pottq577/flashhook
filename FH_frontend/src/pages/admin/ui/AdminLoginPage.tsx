@@ -39,7 +39,7 @@ export const AdminLoginPage = () => {
           "네트워크 또는 서버 오류가 발생했어요. 잠시 후 다시 시도해 주세요.",
         );
       }
-      
+
       // 약간의 지연 후 포커스 이동 (스크린리더가 에러 메시지를 먼저 읽을 수 있도록)
       setTimeout(() => {
         inputRef.current?.focus();

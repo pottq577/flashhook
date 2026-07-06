@@ -23,7 +23,15 @@ import styles from "./DashboardPage.module.css";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
 const MockPanelSkeleton = (
-  <div className={styles.mockPanelSkeleton} style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+  <div
+    className={styles.mockPanelSkeleton}
+    style={{
+      padding: "1.5rem",
+      display: "flex",
+      flexDirection: "column",
+      gap: "1rem",
+    }}
+  >
     <Skeleton width="100%" height="40px" />
     <Skeleton width="100%" height="150px" />
     <Skeleton width="40%" height="40px" />
@@ -46,16 +54,14 @@ function DashboardPage() {
   const shouldReduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
 
-  const {
-    sidebarWidth: leftSidebarWidth,
-    startResizing: startLeftResizing,
-  } = useSidebarResize(380, 250, 600, "left");
+  const { sidebarWidth: leftSidebarWidth, startResizing: startLeftResizing } =
+    useSidebarResize(380, 250, 600, "left");
 
   const { sidebarWidth, isResizing, startResizing } = useSidebarResize(
     440,
     440,
     800,
-    "right"
+    "right",
   );
   const {
     data: endpoint,
@@ -97,7 +103,9 @@ function DashboardPage() {
     }
   }, [isMobile, logs, selectedLog, handleSelectLog]);
 
-  const pageTitle = endpointId ? `[${endpointId.slice(0, 6)}] 대시보드 - FlashHook` : "대시보드 - FlashHook";
+  const pageTitle = endpointId
+    ? `[${endpointId.slice(0, 6)}] 대시보드 - FlashHook`
+    : "대시보드 - FlashHook";
 
   if (!endpointId)
     return (
@@ -118,19 +126,50 @@ function DashboardPage() {
         <SEOHead title={pageTitle} />
         <Header />
         <main className={styles.main}>
-          <div style={{ display: 'flex', width: '100%', height: 'calc(100vh - 64px)' }}>
+          <div
+            style={{
+              display: "flex",
+              width: "100%",
+              height: "calc(100vh - 64px)",
+            }}
+          >
             {/* Sidebar Skeleton */}
-            <div style={{ width: '380px', borderRight: '1px solid var(--border)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div
+              style={{
+                width: "380px",
+                borderRight: "1px solid var(--border)",
+                padding: "1.5rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+              }}
+            >
               <Skeleton width="100%" height="40px" />
-              <div style={{ marginTop: '1rem' }} />
+              <div style={{ marginTop: "1rem" }} />
               <Skeleton width="100%" height="72px" />
               <Skeleton width="100%" height="72px" />
               <Skeleton width="100%" height="72px" />
             </div>
             {/* Content Skeleton */}
-            <div style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div
+              style={{
+                flex: 1,
+                padding: "2rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.5rem",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  style={{ display: "flex", gap: "1rem", alignItems: "center" }}
+                >
                   <Skeleton width="80px" height="32px" />
                   <Skeleton width="300px" height="32px" />
                 </div>
@@ -206,7 +245,9 @@ function DashboardPage() {
       <main className={styles.main}>
         <section
           className={styles.sidebar}
-          style={!isMobile ? { width: leftSidebarWidth, flexShrink: 0 } : undefined}
+          style={
+            !isMobile ? { width: leftSidebarWidth, flexShrink: 0 } : undefined
+          }
         >
           <LogList
             logs={logs}
@@ -277,9 +318,7 @@ function DashboardPage() {
                       </button>
                     </div>
                     <div className={styles.mockPanelBody}>
-                      <Suspense
-                        fallback={MockPanelSkeleton}
-                      >
+                      <Suspense fallback={MockPanelSkeleton}>
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}
@@ -354,9 +393,7 @@ function DashboardPage() {
                           뒤로가기
                         </button>
                       </div>
-                      <Suspense
-                        fallback={MockPanelSkeleton}
-                      >
+                      <Suspense fallback={MockPanelSkeleton}>
                         <MockConfigPanel
                           endpoint={endpoint}
                           key={endpoint.endpointId}

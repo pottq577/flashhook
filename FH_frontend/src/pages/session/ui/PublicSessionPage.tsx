@@ -1,13 +1,13 @@
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { usePublicLogQuery } from '@/entities/log/api/log.queries';
-import { Skeleton } from '@/shared/ui/Skeleton';
-import styles from './PublicSessionPage.module.css';
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { usePublicLogQuery } from "@/entities/log/api/log.queries";
+import { Skeleton } from "@/shared/ui/Skeleton";
+import styles from "./PublicSessionPage.module.css";
 
 export default function PublicSessionPage() {
   const { logId } = useParams<{ logId: string }>();
   const [searchParams] = useSearchParams();
-  const isNoIndex = searchParams.get('noindex') === 'true';
+  const isNoIndex = searchParams.get("noindex") === "true";
   const navigate = useNavigate();
   const { data: log, isLoading, isError } = usePublicLogQuery(logId);
 
@@ -21,15 +21,28 @@ export default function PublicSessionPage() {
         <main className={styles.main}>
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.5rem",
+                  flex: 1,
+                }}
+              >
                 <Skeleton width="150px" height="28px" />
                 <Skeleton width="250px" height="20px" />
               </div>
               <Skeleton width="60px" height="28px" />
             </div>
-            
+
             <div className={styles.cardBody}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.5rem",
+                }}
+              >
                 <Skeleton width="100%" height="40px" />
                 <Skeleton width="100%" height="40px" />
                 <Skeleton width="100%" height="150px" />
@@ -47,10 +60,7 @@ export default function PublicSessionPage() {
         <div className={styles.center}>
           <h1 className={styles.title}>세션을 찾을 수 없어요</h1>
           <p className={styles.subtitle}>존재하지 않거나 삭제된 로그예요.</p>
-          <button 
-            onClick={() => navigate('/')}
-            className={styles.btnAction}
-          >
+          <button onClick={() => navigate("/")} className={styles.btnAction}>
             메인으로 돌아가기
           </button>
         </div>
@@ -64,9 +74,9 @@ export default function PublicSessionPage() {
   const formattedDate = (() => {
     try {
       const d = new Date(log.receivedAt);
-      return isNaN(d.getTime()) ? '알 수 없는 시간' : d.toLocaleString();
+      return isNaN(d.getTime()) ? "알 수 없는 시간" : d.toLocaleString();
     } catch {
-      return '알 수 없는 시간';
+      return "알 수 없는 시간";
     }
   })();
 
@@ -79,23 +89,20 @@ export default function PublicSessionPage() {
         <meta property="og:description" content={pageDescription} />
         {isNoIndex && <meta name="robots" content="noindex" />}
       </Helmet>
-      
+
       <header className={styles.header}>
         <h1
           className={styles.logo}
           role="button"
           tabIndex={0}
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') navigate('/');
+            if (e.key === "Enter" || e.key === " ") navigate("/");
           }}
         >
           FlashHook
         </h1>
-        <button 
-          onClick={() => navigate('/')} 
-          className={styles.btnSecondary}
-        >
+        <button onClick={() => navigate("/")} className={styles.btnSecondary}>
           나도 웹훅 테스트하기
         </button>
       </header>
@@ -111,7 +118,7 @@ export default function PublicSessionPage() {
             </div>
             <span className={styles.badge}>{log.method}</span>
           </div>
-          
+
           <div className={styles.cardBody}>
             <dl className={styles.dl}>
               <div>
@@ -137,17 +144,14 @@ export default function PublicSessionPage() {
             </dl>
           </div>
         </div>
-        
+
         <div className={styles.promo}>
           <h2 className={styles.promoTitle}>웹훅 연동, 디버깅이 어렵나요?</h2>
           <p className={styles.promoDesc}>
-            FlashHook을 사용하면 로그인 없이 1초 만에 테스트용 웹훅 엔드포인트를 만들고 
-            실시간으로 페이로드를 확인할 수 있어요.
+            FlashHook을 사용하면 로그인 없이 1초 만에 테스트용 웹훅 엔드포인트를
+            만들고 실시간으로 페이로드를 확인할 수 있어요.
           </p>
-          <button 
-            onClick={() => navigate('/')}
-            className={styles.btnAction}
-          >
+          <button onClick={() => navigate("/")} className={styles.btnAction}>
             지금 무료로 시작하기
           </button>
         </div>
