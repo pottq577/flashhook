@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { WebhookLog, WebhookLogDetail } from "./log.schema";
+import type { WebhookLog, WebhookLogDetail } from "@/entities/log/model/log.schema";
 
 interface LogState {
   logs: WebhookLog[];

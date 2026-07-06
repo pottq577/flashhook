@@ -1,4 +1,4 @@
-import styles from "./LandingPage.module.css";
+import styles from "@/pages/landing/ui/LandingPage.module.css";
 
 export function LandingFeatures() {
   return (

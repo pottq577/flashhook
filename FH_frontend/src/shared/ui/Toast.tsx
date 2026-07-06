@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import styles from './Toast.module.css';
+import styles from '@/shared/ui/Toast.module.css';
 
 interface ToastProps {
   message: string;

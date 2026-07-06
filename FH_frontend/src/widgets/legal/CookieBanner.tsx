@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "./legal.module.css";
+import styles from "@/widgets/legal/legal.module.css";
 
 export const CookieBanner: React.FC = () => {
   const [isAccepted, setIsAccepted] = useState(false);

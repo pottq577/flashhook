@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { logger } from "@/shared/lib/logger";
-import styles from "./JsonViewer.module.css";
+import styles from "@/widgets/log-viewer/ui/JsonViewer.module.css";
 
 function parseData(data: unknown): string {
   if (data === undefined || data === null) return "";

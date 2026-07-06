@@ -1,6 +1,6 @@
 import { Activity, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
-import styles from "./AdminWidgets.module.css";
+import styles from "@/widgets/admin/ui/AdminWidgets.module.css";
 
 export const AdminInfrastructureWidget = () => {
   const grafanaUrl =

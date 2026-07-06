@@ -1,5 +1,5 @@
 import { apiRequest } from "@/shared/api/client";
-import { EndpointSchema, type Endpoint } from "../model/endpoint.schema";
+import { EndpointSchema, type Endpoint } from "@/entities/endpoint/model/endpoint.schema";
 
 export async function createEndpoint(label?: string): Promise<Endpoint> {
   const data = await apiRequest("/endpoints", {

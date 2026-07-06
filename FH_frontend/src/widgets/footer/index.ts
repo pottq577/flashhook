@@ -1,2 +1,2 @@
-export { default as Footer } from './ui/Footer';
-export * from './ui/Footer';
+export { default as Footer } from '@/widgets/footer/ui/Footer';
+export * from '@/widgets/footer/ui/Footer';

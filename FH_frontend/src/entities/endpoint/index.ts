@@ -1,4 +1,4 @@
-export type { MockUpdateRequest } from "./api/endpoint.api";
+export type { MockUpdateRequest } from "@/entities/endpoint/api/endpoint.api";
 export {
   useEndpointQuery,
   useCreateEndpointMutation,
@@ -9,9 +9,9 @@ export {
   MockConfigSchema,
   EndpointSchema,
 } from "./model/endpoint.schema";
-export type { Endpoint } from "./model/endpoint.schema";
-export { useEndpointStore } from "./model/endpoint.store";
-export type { SavedEndpoint } from "./model/endpoint.store";
+export type { Endpoint } from "@/entities/endpoint/model/endpoint.schema";
+export { useEndpointStore } from "@/entities/endpoint/model/endpoint.store";
+export type { SavedEndpoint } from "@/entities/endpoint/model/endpoint.store";
 export {
   isHeadersEqual,
   findInitialServiceId,
@@ -22,4 +22,4 @@ export {
   CUSTOM_SERVICE_ID,
   getPresetDriftReportUrl,
 } from "./model/presets";
-export type { PresetScenario, PresetService } from "./model/presets";
+export type { PresetScenario, PresetService } from "@/entities/endpoint/model/presets";

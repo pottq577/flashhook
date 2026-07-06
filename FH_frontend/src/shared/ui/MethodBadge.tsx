@@ -1,4 +1,4 @@
-import styles from "./MethodBadge.module.css";
+import styles from "@/shared/ui/MethodBadge.module.css";
 
 function MethodBadge({ method }: { method: string }) {
   const getMethodColor = (m: string) => {

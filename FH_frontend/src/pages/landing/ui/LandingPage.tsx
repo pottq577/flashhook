@@ -17,11 +17,11 @@ const ConfirmModal = lazy(() =>
   withErrorCatch(() => import("@/shared/ui/ConfirmModal")),
 );
 import { useEndpointStore } from "@/entities/endpoint";
-import { TerminalHero } from "./TerminalHero";
-import { LandingFeatures } from "./LandingFeatures";
+import { TerminalHero } from "@/pages/landing/ui/TerminalHero";
+import { LandingFeatures } from "@/pages/landing/ui/LandingFeatures";
 import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
 import { SEOHead } from "@/shared/ui/SEOHead";
-import styles from "./LandingPage.module.css";
+import styles from "@/pages/landing/ui/LandingPage.module.css";
 
 function LandingPage() {
   const navigate = useNavigate();

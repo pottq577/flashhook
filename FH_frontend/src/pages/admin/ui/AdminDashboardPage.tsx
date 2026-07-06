@@ -7,7 +7,7 @@ import { LogOut, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { adminKeys } from "@/entities/admin";
-import styles from "./AdminDashboardPage.module.css";
+import styles from "@/pages/admin/ui/AdminDashboardPage.module.css";
 
 export const AdminDashboardPage = () => {
   const logout = useAdminStore((state) => state.logout);

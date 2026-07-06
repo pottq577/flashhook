@@ -1,4 +1,4 @@
-import { logger } from "./logger";
+import { logger } from "@/shared/lib/logger";
 
 export const withErrorCatch = <T,>(importFunc: () => Promise<T>) => {
   return importFunc().catch((err) => {

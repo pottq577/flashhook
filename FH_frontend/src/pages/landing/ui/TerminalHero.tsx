@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import styles from "./LandingPage.module.css";
+import styles from "@/pages/landing/ui/LandingPage.module.css";
 
 interface TerminalHeroProps {
   terminalLines: string[];

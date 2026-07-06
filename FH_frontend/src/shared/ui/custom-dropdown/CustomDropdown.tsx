@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect, useEffectEvent } from "react";
 import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import styles from "./CustomDropdown.module.css";
+import styles from "@/shared/ui/custom-dropdown/CustomDropdown.module.css";
 
 export interface DefaultDropdownOption {
   value: string | number;

@@ -1,2 +1,2 @@
-export { default as Header } from './ui/Header';
-export * from './ui/Header';
+export { default as Header } from '@/widgets/header/ui/Header';
+export * from '@/widgets/header/ui/Header';

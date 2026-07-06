@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { logger } from "@/shared/lib/logger";
-import styles from "./DevTools.module.css";
+import styles from "@/widgets/dev-tools/ui/DevTools.module.css";
 
 export function DevTools() {
   const [isLoading, setIsLoading] = useState(false);

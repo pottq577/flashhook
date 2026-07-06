@@ -1,6 +1,6 @@
-export { default as ConnectionStatus } from './ui/ConnectionStatus';
-export * from './ui/ConnectionStatus';
-export { default as CountdownTimer } from './ui/CountdownTimer';
-export * from './ui/CountdownTimer';
-export { default as EndpointInfo } from './ui/EndpointInfo';
-export * from './ui/EndpointInfo';
+export { default as ConnectionStatus } from '@/widgets/endpoint-info/ui/ConnectionStatus';
+export * from '@/widgets/endpoint-info/ui/ConnectionStatus';
+export { default as CountdownTimer } from '@/widgets/endpoint-info/ui/CountdownTimer';
+export * from '@/widgets/endpoint-info/ui/CountdownTimer';
+export { default as EndpointInfo } from '@/widgets/endpoint-info/ui/EndpointInfo';
+export * from '@/widgets/endpoint-info/ui/EndpointInfo';

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { QueryProvider } from "./providers/QueryProvider";
+import { QueryProvider } from "@/app/providers/QueryProvider";
 const ToastContainer = lazy(() =>
   withErrorCatch(() =>
     import("@/shared/ui/ToastContainer").then((m) => ({

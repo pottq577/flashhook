@@ -1,1 +1,1 @@
-export { DevTools } from './ui/DevTools';
+export { DevTools } from '@/widgets/dev-tools/ui/DevTools';

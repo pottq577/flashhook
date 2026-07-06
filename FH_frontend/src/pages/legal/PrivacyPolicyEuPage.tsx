@@ -1,5 +1,5 @@
 import privacyPolicyEu from "../../../../docs/legal/PRIVACY_POLICY_EU.md?raw";
-import { LegalMarkdown } from "../../widgets/legal/LegalMarkdown";
+import { LegalMarkdown } from "@/widgets/legal/LegalMarkdown";
 import { SEOHead } from "@/shared/ui/SEOHead";
 
 export const PrivacyPolicyEuPage = () => {

@@ -5,7 +5,7 @@ import { useAdminStore } from "@/entities/admin";
 import { Shield, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { adminApi } from "@/entities/admin";
-import styles from "./AdminLoginPage.module.css";
+import styles from "@/pages/admin/ui/AdminLoginPage.module.css";
 
 export const AdminLoginPage = () => {
   const [token, setToken] = useState("");

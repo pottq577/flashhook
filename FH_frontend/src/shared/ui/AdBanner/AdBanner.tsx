@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { logger } from "@/shared/lib/logger";
-import styles from "./AdBanner.module.css";
+import styles from "@/shared/ui/AdBanner/AdBanner.module.css";
 
 declare global {
   interface Window {

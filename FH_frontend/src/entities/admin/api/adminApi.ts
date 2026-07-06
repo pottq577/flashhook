@@ -1,6 +1,6 @@
 import { resolveApiBaseUrl } from "@/shared/config/api";
 const API_BASE_URL = resolveApiBaseUrl();
-import { useAdminStore } from "../model/adminStore";
+import { useAdminStore } from "@/entities/admin/model/adminStore";
 
 export interface AdminMetrics {
   endpointsCreatedToday: number;

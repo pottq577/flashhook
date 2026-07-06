@@ -19,7 +19,7 @@ import { lazy, Suspense } from "react";
 import { AdBanner } from "@/shared/ui/AdBanner/AdBanner";
 import { resolveApiBaseUrl } from "@/shared/config/api";
 import { SEOHead } from "@/shared/ui/SEOHead";
-import styles from "./DashboardPage.module.css";
+import styles from "@/pages/dashboard/ui/DashboardPage.module.css";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
 const MockPanelSkeleton = (

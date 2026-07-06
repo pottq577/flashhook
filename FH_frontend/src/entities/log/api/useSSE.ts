@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { WebhookLogSchema, type WebhookLog } from "../model/log.schema";
+import { WebhookLogSchema, type WebhookLog } from "@/entities/log/model/log.schema";
 
 import { logger } from "@/shared/lib/logger";
 import { resolveApiBaseUrl } from "@/shared/config/api";

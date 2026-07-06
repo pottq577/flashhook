@@ -1,4 +1,4 @@
-import styles from "./ConnectionStatus.module.css";
+import styles from "@/widgets/endpoint-info/ui/ConnectionStatus.module.css";
 
 function ConnectionStatus({
   status,

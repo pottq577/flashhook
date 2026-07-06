@@ -1,7 +1,7 @@
-import styles from "./ConfirmModal.module.css";
+import styles from "@/shared/ui/ConfirmModal.module.css";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useState, useEffectEvent } from "react";
-import { useFocusTrap } from "../hooks/useFocusTrap";
+import { useFocusTrap } from "@/shared/hooks/useFocusTrap";
 
 interface ConfirmModalProps {
   isOpen: boolean;
