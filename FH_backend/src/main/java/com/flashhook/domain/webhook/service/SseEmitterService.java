@@ -57,7 +57,10 @@ public class SseEmitterService {
         try {
             emitter.send(SseEmitter.event().name("connect").data("connected"));
         } catch (IOException | IllegalStateException e) {
-            log.error("SSE initial connect dummy data send failed for endpointId: {}", endpointId, e);
+            log.debug("SSE initial connect dummy data send failed for endpointId: {}, cause: {}", endpointId, e.getMessage());
+            removeEmitter(endpointId, emitter);
+        } catch (Exception e) {
+            log.error("Unexpected error during SSE initial connect for endpointId: {}", endpointId, e);
             removeEmitter(endpointId, emitter);
         }
 
@@ -82,7 +85,7 @@ public class SseEmitterService {
                             .name("webhook")
                             .data(java.util.Objects.requireNonNull(response)));
                 } catch (IOException | IllegalStateException e) {
-                    log.error("Failed to send webhook log via SSE to endpointId: {}", endpointId, e);
+                    log.info("Failed to send webhook log via SSE to endpointId: {} - {}", endpointId, e.getMessage());
                     try {
                         Query query = Query.query(Criteria.where("logId").is(event.getWebhookLog().getLogId()));
                         Update update = new Update()
@@ -95,6 +98,9 @@ public class SseEmitterService {
                     } finally {
                         removeEmitter(endpointId, emitter);
                     }
+                } catch (Exception e) {
+                    log.error("Unexpected error while sending webhook log via SSE to endpointId: {}", endpointId, e);
+                    removeEmitter(endpointId, emitter);
                 }
             }
         }
@@ -116,6 +122,9 @@ public class SseEmitterService {
                                 endpointId,
                                 e.getClass().getSimpleName(),
                                 e.getMessage());
+                        removeEmitter(endpointId, emitter);
+                    } catch (Exception e) {
+                        log.error("Unexpected error during heartbeat ping for endpointId: {}", endpointId, e);
                         removeEmitter(endpointId, emitter);
                     }
                 }, taskExecutor);
