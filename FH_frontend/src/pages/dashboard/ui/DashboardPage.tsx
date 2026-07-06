@@ -241,7 +241,7 @@ function DashboardPage() {
       {/* 모바일 컴팩트 광고 (상단 배치) */}
       {isMobile && (
         <div style={{ padding: "0 1rem", paddingBottom: "0.5rem" }}>
-          <AdBanner variant="compact" />
+          <AdBanner variant="compact" dataAdSlot="MOBILE_SLOT_ID_HERE" />
         </div>
       )}
 
@@ -260,7 +260,7 @@ function DashboardPage() {
           />
           
           {/* 데스크탑 패널 광고 (사이드바 하단 배치) */}
-          {!isMobile && <AdBanner variant="panel" />}
+          {!isMobile && <AdBanner variant="panel" dataAdSlot="DESKTOP_SLOT_ID_HERE" />}
 
           {!isMobile ? (
             <div

@@ -17,7 +17,7 @@ interface AdBannerProps {
 }
 
 export const AdBanner: React.FC<AdBannerProps> = ({
-  dataAdClient = "ca-pub-XXXXXXXXX",
+  dataAdClient = import.meta.env.VITE_ADSENSE_CLIENT_ID || "ca-pub-XXXXXXXXX",
   dataAdSlot = "1234567890",
   dataAdFormat = "auto",
   dataFullWidthResponsive = true,
