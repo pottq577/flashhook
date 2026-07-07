@@ -76,7 +76,7 @@ async function run() {
   try {
     // Phase 0
     console.log('--- Phase 0: 사전 점검 ---');
-    let res = await fetch(`${BASE_MGMT}/actuator/health`);
+    let res = await fetch(`${BASE_BE}/api/health`);
     let data = await res.json();
     if (data.status === 'UP') pass('TC-01'); else reportBug('TC-01', 'Critical', 'BE', 'Health check failed', '{"status":"UP"}');
 
@@ -338,7 +338,7 @@ async function run() {
     if (isMobile) pass('TC-32 (Viewport switch verified)'); else reportBug('TC-32', 'Low', 'UI', 'Viewport switch failed', 'Mobile view');
 
     // TC-33
-    const copyBtn = page.locator('button', { hasText: 'COPY' }).first();
+    const copyBtn = page.locator('button[title="Copy to clipboard"], button[aria-label="Copy to clipboard"]').first();
     if (await copyBtn.isVisible()) pass('TC-33 (URL copy verified)'); else reportBug('TC-33', 'Low', 'UI', 'Copy button missing', 'Button visible');
     
     // TC-34
