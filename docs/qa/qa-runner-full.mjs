@@ -263,7 +263,22 @@ async function run() {
     if (res.ok) pass('TC-22 API'); else reportBug('TC-22', 'Medium', 'API', 'Failed to delete logs', '204 No Content');
 
     // Phase 5
-    console.log('\n--- Phase 5: 에러 & 경계 조건 ---');
+    console.log('\n--- Phase 5: 보안 ---');
+    res = await fetch(`${BASE_BE}/api/endpoints/some_other_id/logs`, {
+      method: 'DELETE',
+      headers: { 'Cookie': `fh_token_${endpointId}=${token}` }
+    });
+    if (res.status === 403) pass('TC-29'); else reportBug('TC-29', 'Critical', 'Auth', 'Did not forbid cross endpoint access', '403');
+
+    let tc30Res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ xss: '<script>alert(1)</script>' })
+    });
+    if (tc30Res.ok) pass('TC-30 API'); else reportBug('TC-30', 'High', 'API', 'XSS payload rejected', '200 OK');
+
+    // Phase 6
+    console.log('\n--- Phase 6: 에러 & 경계 조건 ---');
     res = await fetch(`${BASE_FE}/dashboard/000000000000`);
     if (res.ok) pass('TC-23'); else reportBug('TC-23', 'Medium', 'FE', 'Invalid dashboard loading failed', '200 OK');
 
@@ -311,20 +326,7 @@ async function run() {
     await context.addCookies([{name: `fh_token_${endpointId}`, value: token, domain: 'localhost', path: '/'}]);
     await page.goto(`${BASE_FE}/dashboard/${endpointId}`);
 
-    // Phase 6
-    console.log('\n--- Phase 6: 보안 ---');
-    res = await fetch(`${BASE_BE}/api/endpoints/some_other_id/logs`, {
-      method: 'DELETE',
-      headers: { 'Cookie': `fh_token_${endpointId}=${token}` }
-    });
-    if (res.status === 403) pass('TC-29'); else reportBug('TC-29', 'Critical', 'Auth', 'Did not forbid cross endpoint access', '403');
 
-    let tc30Res = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ xss: '<script>alert(1)</script>' })
-    });
-    if (tc30Res.ok) pass('TC-30 API'); else reportBug('TC-30', 'High', 'API', 'XSS payload rejected', '200 OK');
 
     // Phase 7
     console.log('\n--- Phase 7: UI/UX ---');
