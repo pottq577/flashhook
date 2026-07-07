@@ -42,6 +42,20 @@ const MockConfigPanel = lazy(
   () => import("@/widgets/mock-config/ui/MockConfigPanel"),
 );
 
+function getIsAuthError(error: unknown): boolean {
+  if (!error) return false;
+  const err = error as { status?: number; code?: string; message?: string };
+  const msg = err.message || "";
+  return (
+    err.status === 401 ||
+    err.status === 403 ||
+    err.code === "INVALID_TOKEN" ||
+    err.code === "ENDPOINT_NOT_FOUND" ||
+    msg.includes("INVALID_TOKEN") ||
+    msg.includes("ENDPOINT_NOT_FOUND")
+  );
+}
+
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
   const navigate = useNavigate();
@@ -98,17 +112,8 @@ function DashboardPage() {
   }, [endpointId, endpoint?.expiresAt, addEndpoint]);
 
   useEffect(() => {
-    if (error) {
-      const err = error as { status?: number; code?: string; message?: string };
-      const isAuthError =
-        err.status === 401 ||
-        err.status === 403 ||
-        err.code === "INVALID_TOKEN" ||
-        err.code === "ENDPOINT_NOT_FOUND";
-
-      if (isAuthError) {
-        navigate("/", { replace: true });
-      }
+    if (getIsAuthError(error)) {
+      navigate("/", { replace: true });
     }
   }, [error, navigate]);
 
@@ -199,12 +204,7 @@ function DashboardPage() {
       </div>
     );
   if (error) {
-    const err = error as { status?: number; code?: string; message?: string };
-    const isAuthError =
-      err.status === 401 ||
-      err.status === 403 ||
-      err.code === "INVALID_TOKEN" ||
-      err.code === "ENDPOINT_NOT_FOUND";
+    const isAuthError = getIsAuthError(error);
 
     return (
       <div className={styles.container}>
