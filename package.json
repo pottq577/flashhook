@@ -24,9 +24,7 @@
   "homepage": "https://github.com/pottq577/flashhook#readme",
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.7"
-  },
-  "dependencies": {
+    "lint-staged": "^17.0.7",
     "mongodb": "^7.4.0",
     "playwright": "^1.61.1"
   }
