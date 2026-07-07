@@ -286,18 +286,22 @@ async function run() {
     if (res.status === 403) pass('TC-24'); else reportBug('TC-24', 'High', 'Auth', 'Did not reject invalid token', '403');
 
     // TC-25: Create Rate Limit (5 per IP).
+    let alternativeEndpointId = '';
+    let alternativeToken = '';
     if (!redisCleanupOk) {
       skip('TC-25', 'Redis cleanup 실패로 신뢰 가능한 검증 불가');
     } else {
       const tc25Ip = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
-      let alternativeEndpointId = '';
-      let alternativeToken = '';
       for(let i=0; i<5; i++) {
         const altRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
         if (i === 0 && altRes.ok) {
           const altData = await altRes.json();
           alternativeEndpointId = altData.endpointId;
-          alternativeToken = altData.accessToken;
+          const setCookie = altRes.headers.get('set-cookie');
+          if (setCookie) {
+            const match = setCookie.match(/fh_token_[^=]+=([^;]+)/);
+            if (match) alternativeToken = match[1];
+          }
         }
       }
       let rateLimitRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
@@ -341,7 +345,12 @@ async function run() {
 
     // TC-33
     const copyBtn = page.locator('button[title="Copy to clipboard"], button[aria-label="Copy to clipboard"]').first();
-    if (await copyBtn.isVisible()) pass('TC-33 (URL copy verified)'); else reportBug('TC-33', 'Low', 'UI', 'Copy button missing', 'Button visible');
+    try {
+      await copyBtn.waitFor({ state: 'visible', timeout: 5000 });
+      pass('TC-33 (URL copy verified)');
+    } catch(e) {
+      reportBug('TC-33', 'Low', 'UI', 'Copy button missing', 'Button visible');
+    }
     
     // TC-34
     const countdownText = await page.locator('[data-testid="countdown"]').textContent();
