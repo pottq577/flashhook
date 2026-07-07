@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useEndpointQuery } from "@/entities/endpoint";
 import {
@@ -44,6 +44,7 @@ const MockConfigPanel = lazy(
 
 function DashboardPage() {
   const { endpointId } = useParams<{ endpointId: string }>();
+  const navigate = useNavigate();
   const webhookUrl = endpointId
     ? new URL(
         `${resolveApiBaseUrl()}/hooks/${encodeURIComponent(endpointId)}`,
@@ -95,6 +96,21 @@ function DashboardPage() {
       addEndpoint(endpointId, endpoint.expiresAt);
     }
   }, [endpointId, endpoint?.expiresAt, addEndpoint]);
+
+  useEffect(() => {
+    if (error) {
+      const err = error as { status?: number; code?: string; message?: string };
+      const isAuthError =
+        err.status === 401 ||
+        err.status === 403 ||
+        err.code === "INVALID_TOKEN" ||
+        err.code === "ENDPOINT_NOT_FOUND";
+
+      if (isAuthError) {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [error, navigate]);
 
   // 데스크톱 환경에서는 항상 최근 로그(첫 번째)를 기본으로 보여주도록 자동 선택
   useEffect(() => {
