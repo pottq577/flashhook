@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.Objects;
 import java.util.Set;
@@ -29,7 +30,9 @@ public class TestController {
     }
 
     @PostMapping("/cleanup")
-    public ResponseEntity<String> cleanup(@RequestHeader("X-Admin-Key") String adminKey) {
+    public ResponseEntity<String> cleanup(
+            @RequestHeader("X-Admin-Key") String adminKey,
+            @RequestParam(value = "type", defaultValue = "all") String type) {
         if (!adminSecretKey.equals(adminKey)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Admin Key");
         }
@@ -42,8 +45,10 @@ public class TestController {
             }
             
             // Clean MongoDB (Endpoints, Logs)
-            mongoTemplate.remove(new Query(), "endpoints");
-            mongoTemplate.remove(new Query(), "logs");
+            if ("all".equalsIgnoreCase(type)) {
+                mongoTemplate.remove(new Query(), "endpoints");
+                mongoTemplate.remove(new Query(), "logs");
+            }
             
             return ResponseEntity.ok("Cleanup successful");
         } catch (Exception e) {

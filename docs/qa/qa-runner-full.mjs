@@ -36,9 +36,9 @@ function skip(tc, reason) {
 
 import { execSync } from 'child_process';
 
-async function cleanDb() {
+async function cleanDb(type = 'all') {
   try {
-    const res = await fetch(`${BASE_BE}/api/test/cleanup`, {
+    const res = await fetch(`${BASE_BE}/api/test/cleanup?type=${type}`, {
       method: 'POST',
       headers: { 'X-Admin-Key': process.env.ADMIN_KEY || 'local_test_admin_secret_key_12345' }
     });
@@ -298,10 +298,10 @@ async function run() {
         }
       }
       let rateLimitRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json'} });
-      if (rateLimitRes.status === 429) pass('TC-25'); else reportBug('TC-25', 'Medium', 'API', 'Create endpoint rate limit not enforced', '429');
+      if (rateLimitRes.status === 429) pass('TC-25'); else reportBug('TC-25', 'High', 'Rate Limit', 'Did not rate limit endpoint creation', '429');
       
-      // TC-25로 인해 Rate Limit(5회)이 소진되었으므로, 이후 테스트를 위해 초기화
-      await cleanDb();
+      await cleanDb('redis');
+      redisCleanupOk = true;
     }
 
     // TC-26: Receive Rate Limit (100 per min).
@@ -316,15 +316,13 @@ async function run() {
     }
 
     // TC-27: Token expiry FE
-    await context.clearCookies();
-    // Triger something that needs auth
-    await page.reload();
-    await page.waitForTimeout(1000);
-    if (!page.url().includes('/dashboard/')) pass('TC-27'); else reportBug('TC-27', 'Medium', 'Auth FE', 'Did not redirect on missing token', 'Redirect to home');
-
-    // We lost token in browser, but we have it in Node script
-    await context.addCookies([{name: `fh_token_${endpointId}`, value: token, domain: 'localhost', path: '/'}]);
-    await page.goto(`${BASE_FE}/dashboard/${endpointId}`);
+    // TC-27: Triger something that needs auth
+    const unauthContext = await browser.newContext();
+    const unauthPage = await unauthContext.newPage();
+    await unauthPage.goto(`${BASE_FE}/dashboard/${endpointId}`);
+    await unauthPage.waitForTimeout(1000);
+    if (!unauthPage.url().includes('/dashboard/')) pass('TC-27'); else reportBug('TC-27', 'Medium', 'Auth FE', 'Did not redirect on missing token', 'Redirect to home');
+    await unauthContext.close();
 
 
 
