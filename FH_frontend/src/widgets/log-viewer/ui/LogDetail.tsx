@@ -236,7 +236,7 @@ const LogDetail = memo(function LogDetail({
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <MethodBadge method={log.method} />
-          <span className={styles.url}>{log.url}</span>
+          <span className={styles.url} data-clarity-mask="true">{log.url}</span>
         </div>
         <div className={styles.headerRight}>
           <label className={styles.noIndexLabel}>
@@ -267,7 +267,7 @@ const LogDetail = memo(function LogDetail({
         </div>
         <div className={styles.metaItem}>
           <span className={styles.metaLabel}>CLIENT_IP</span>
-          <span>{log.clientIp}</span>
+          <span data-clarity-mask="true">{log.clientIp}</span>
         </div>
         <div className={styles.metaItem}>
           <span className={styles.metaLabel}>CONTENT_TYPE</span>
@@ -285,7 +285,7 @@ const LogDetail = memo(function LogDetail({
 
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>[ HEADERS ]</h3>
-        <div className={styles.keyValueMap}>
+        <div className={styles.keyValueMap} data-clarity-mask="true">
           {Object.entries(log.headers || {}).map(([key, value]) => (
             <div key={key} className={styles.keyValueRow}>
               <span className={styles.key}>{key}:</span>
@@ -302,7 +302,7 @@ const LogDetail = memo(function LogDetail({
 
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>[ QUERY_PARAMETERS ]</h3>
-        <div className={styles.keyValueMap}>
+        <div className={styles.keyValueMap} data-clarity-mask="true">
           {Object.entries(log.queryParams || {}).map(([key, value]) => (
             <div key={key} className={styles.keyValueRow}>
               <span className={styles.key}>{key}:</span>

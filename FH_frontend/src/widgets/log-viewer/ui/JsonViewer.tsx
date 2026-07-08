@@ -31,7 +31,7 @@ function JsonViewer({ data }: { data: unknown }) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-clarity-mask="true">
       <pre className={styles.pre}>
         <code className={styles.code}>{content}</code>
       </pre>
