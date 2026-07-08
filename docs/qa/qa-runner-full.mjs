@@ -41,16 +41,31 @@ import { execSync } from 'child_process';
 
 async function cleanDb(type = 'all') {
   try {
-    const res = await fetch(`${BASE_BE}/api/test/cleanup?type=${type}`, {
-      method: 'POST',
-      headers: { 'X-Admin-Key': process.env.ADMIN_KEY || 'local_test_admin_secret_key_12345' }
-    });
-    if (res.ok) {
-      console.log('Cleanup successful (Redis & MongoDB)');
-      redisCleanupOk = true;
-    } else {
-      throw new Error(`Cleanup API failed: ${res.status}`);
+    const adminKey = process.env.ADMIN_KEY;
+    if (env === 'prod' && !adminKey) {
+      console.error('❌ [FATAL] ADMIN_KEY is required for prod environment to prevent accidental fallback usage.');
+      process.exit(1);
     }
+    const finalAdminKey = adminKey || 'local_test_admin_secret_key_12345';
+
+    if (type === 'all' || type === 'redis') {
+      const res = await fetch(`${BASE_BE}/api/test/cleanup/redis`, {
+        method: 'POST',
+        headers: { 'X-Admin-Key': finalAdminKey }
+      });
+      if (!res.ok) throw new Error(`Redis cleanup API failed: ${res.status}`);
+    }
+
+    if (type === 'all' || type === 'mongo') {
+      const res = await fetch(`${BASE_BE}/api/test/cleanup/mongo`, {
+        method: 'POST',
+        headers: { 'X-Admin-Key': finalAdminKey }
+      });
+      if (!res.ok) throw new Error(`Mongo cleanup API failed: ${res.status}`);
+    }
+
+    console.log('Cleanup successful (Redis & MongoDB)');
+    redisCleanupOk = true;
   } catch(e) {
     if (process.env.QA_STRICT_CLEANUP === '1') {
       throw new Error(`Cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
@@ -94,6 +109,13 @@ async function run() {
 
     res = await fetch(`${BASE_FE}/not-found`);
     if (res.ok) pass('TC-04'); else reportBug('TC-04', 'Medium', 'FE /not-found', '404 route failed', '200 OK');
+
+    // TC-04-1 (Clarity Script Check)
+    await page.goto(BASE_FE);
+    const hasClarityScript = await page.evaluate(() => {
+      return !!document.querySelector('script[src*="clarity.ms/tag/"]');
+    });
+    if (hasClarityScript) pass('TC-04-1'); else reportBug('TC-04-1', 'Medium', 'FE /', 'Clarity script missing', 'script tag with clarity.ms');
 
     // Phase 1
     console.log('\n--- Phase 1: 엔드포인트 생성 ---');

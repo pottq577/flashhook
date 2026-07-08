@@ -57,6 +57,8 @@ flashhook:
     max-count: 500 # 엔드포인트당 최대 로그
     max-size-bytes: 5242880 # 5MB
     body-preview-length: 300 # bodyPreview 절단 길이
+  test-endpoints:
+    enabled: false # 프로덕션에서 파괴적 엔드포인트 노출 방지 (fail-open 구조 개선)
 
 # Actuator (Healthcheck & Metrics)
 management:
