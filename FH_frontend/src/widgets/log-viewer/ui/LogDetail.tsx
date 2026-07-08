@@ -285,7 +285,7 @@ const LogDetail = memo(function LogDetail({
 
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>[ HEADERS ]</h3>
-        <div className={styles.keyValueMap}>
+        <div className={styles.keyValueMap} data-clarity-mask="true">
           {Object.entries(log.headers || {}).map(([key, value]) => (
             <div key={key} className={styles.keyValueRow}>
               <span className={styles.key}>{key}:</span>
@@ -302,7 +302,7 @@ const LogDetail = memo(function LogDetail({
 
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>[ QUERY_PARAMETERS ]</h3>
-        <div className={styles.keyValueMap}>
+        <div className={styles.keyValueMap} data-clarity-mask="true">
           {Object.entries(log.queryParams || {}).map(([key, value]) => (
             <div key={key} className={styles.keyValueRow}>
               <span className={styles.key}>{key}:</span>
