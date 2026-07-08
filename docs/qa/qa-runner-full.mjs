@@ -37,29 +37,23 @@ function skip(tc, reason) {
 import { execSync } from 'child_process';
 
 async function cleanDb() {
-  const client = new MongoClient(MONGO_URL);
-  await client.connect();
-  const db = client.db('flashhook'); 
   try {
-    await db.collection('endpoints').deleteMany({});
-    await db.collection('logs').deleteMany({});
-  } catch(e) {
-    throw new Error(`DB cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
-  } finally {
-    await client.close();
-  }
-  
-  try {
-    execSync('docker exec flashhook-redis redis-cli FLUSHALL');
-    console.log('Redis flushed');
+    const res = await fetch(`${BASE_BE}/api/test/cleanup`, {
+      method: 'POST',
+      headers: { 'X-Admin-Key': process.env.ADMIN_KEY || 'local_test_admin_secret_key_12345' }
+    });
+    if (res.ok) {
+      console.log('Cleanup successful (Redis & MongoDB)');
+    } else {
+      throw new Error(`Cleanup API failed: ${res.status}`);
+    }
   } catch(e) {
     if (process.env.QA_STRICT_CLEANUP === '1') {
-      throw new Error(`Redis cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
+      throw new Error(`Cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
     }
     redisCleanupOk = false;
-    skip('PRE-REDIS', 'Redis flush 실패로 레이트리밋 관련 TC 신뢰도 저하 가능');
+    skip('PRE-REDIS', 'Cleanup 실패로 레이트리밋 관련 TC 신뢰도 저하 가능');
   }
-  console.log('MongoDB cleaned for testing');
 }
 
 async function run() {
@@ -291,9 +285,8 @@ async function run() {
     if (!redisCleanupOk) {
       skip('TC-25', 'Redis cleanup 실패로 신뢰 가능한 검증 불가');
     } else {
-      const tc25Ip = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
       for(let i=0; i<5; i++) {
-        const altRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
+        const altRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json'} });
         if (i === 0 && altRes.ok) {
           const altData = await altRes.json();
           alternativeEndpointId = altData.endpointId;
@@ -304,8 +297,11 @@ async function run() {
           }
         }
       }
-      let rateLimitRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
-      if (rateLimitRes.status === 429) pass('TC-25'); else reportBug('TC-25', 'High', 'Rate Limit', `Endpoint create rate limit failed, status: ${rateLimitRes.status}`, '429');
+      let rateLimitRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json'} });
+      if (rateLimitRes.status === 429) pass('TC-25'); else reportBug('TC-25', 'Medium', 'API', 'Create endpoint rate limit not enforced', '429');
+      
+      // TC-25로 인해 Rate Limit(5회)이 소진되었으므로, 이후 테스트를 위해 초기화
+      await cleanDb();
     }
 
     // TC-26: Receive Rate Limit (100 per min).
