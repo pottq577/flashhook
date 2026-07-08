@@ -2,9 +2,11 @@ import { create } from "zustand";
 import type { WebhookLog, WebhookLogDetail } from "@/entities/log/model/log.schema";
 
 interface LogState {
+  endpointId: string | null;
   logs: WebhookLog[];
   logMap: Record<string, WebhookLog>;
   selectedLog: WebhookLogDetail | null;
+  setEndpointId: (endpointId: string) => void;
   setLogs: (logs: WebhookLog[]) => void;
   addLog: (log: WebhookLog) => void;
   setSelectedLog: (log: WebhookLogDetail | null) => void;
@@ -13,10 +15,16 @@ interface LogState {
 
 const MAX_LOGS = 500;
 
-export const useLogStore = create<LogState>((set) => ({
+export const useLogStore = create<LogState>((set, get) => ({
+  endpointId: null,
   logs: [],
   logMap: {},
   selectedLog: null,
+  setEndpointId: (endpointId) => {
+    if (get().endpointId !== endpointId) {
+      set({ endpointId, logs: [], logMap: {}, selectedLog: null });
+    }
+  },
   setLogs: (logs) => {
     const limitedLogs = logs.slice(0, MAX_LOGS);
     const logMap: Record<string, WebhookLog> = {};
