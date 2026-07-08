@@ -1,0 +1,7 @@
+flashhook:
+  security:
+    secret-key: 0123456789abcdef0123456789abcdef
+  ratelimit:
+    blacklist-fail-open: true
+  test-endpoints:
+    enabled: true
