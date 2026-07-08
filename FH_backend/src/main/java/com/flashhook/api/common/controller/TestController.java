@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.Objects;
 import java.util.Set;
+import org.springframework.context.annotation.Profile;
 
 @RestController
 @RequestMapping("/api/test")
+@Profile({"local", "test"})
 public class TestController {
 
     private final StringRedisTemplate redisTemplate;
@@ -33,16 +35,18 @@ public class TestController {
     public ResponseEntity<String> cleanup(
             @RequestHeader("X-Admin-Key") String adminKey,
             @RequestParam(value = "type", defaultValue = "all") String type) {
-        if (!adminSecretKey.equals(adminKey)) {
+        if (adminKey == null || !java.security.MessageDigest.isEqual(
+                adminSecretKey.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                adminKey.getBytes(java.nio.charset.StandardCharsets.UTF_8))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Admin Key");
         }
 
         try {
             // Clean Redis (Rate limits, etc.)
-            Set<String> keys = redisTemplate.keys("*");
-            if (keys != null && !keys.isEmpty()) {
-                redisTemplate.delete(keys);
-            }
+            redisTemplate.execute((org.springframework.data.redis.core.RedisCallback<Void>) connection -> {
+                connection.serverCommands().flushDb();
+                return null;
+            });
             
             // Clean MongoDB (Endpoints, Logs)
             if ("all".equalsIgnoreCase(type)) {

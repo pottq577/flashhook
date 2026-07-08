@@ -44,6 +44,7 @@ async function cleanDb(type = 'all') {
     });
     if (res.ok) {
       console.log('Cleanup successful (Redis & MongoDB)');
+      redisCleanupOk = true;
     } else {
       throw new Error(`Cleanup API failed: ${res.status}`);
     }
@@ -280,6 +281,7 @@ async function run() {
     if (res.status === 403) pass('TC-24'); else reportBug('TC-24', 'High', 'Auth', 'Did not reject invalid token', '403');
 
     // TC-25: Create Rate Limit (5 per IP).
+    await cleanDb('redis');
     let alternativeEndpointId = '';
     let alternativeToken = '';
     if (!redisCleanupOk) {
@@ -299,9 +301,6 @@ async function run() {
       }
       let rateLimitRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json'} });
       if (rateLimitRes.status === 429) pass('TC-25'); else reportBug('TC-25', 'High', 'Rate Limit', 'Did not rate limit endpoint creation', '429');
-      
-      await cleanDb('redis');
-      redisCleanupOk = true;
     }
 
     // TC-26: Receive Rate Limit (100 per min).

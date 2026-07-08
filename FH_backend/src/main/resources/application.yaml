@@ -44,7 +44,7 @@ server:
 # 커스텀 설정
 flashhook:
   admin:
-    secret-key: ${FLASHHOOK_ADMIN_SECRET_KEY:local_test_admin_secret_key_12345}
+    secret-key: ${FLASHHOOK_ADMIN_SECRET_KEY}
   security:
     secret-key: ${FLASHHOOK_SECRET_KEY}
   sse:
