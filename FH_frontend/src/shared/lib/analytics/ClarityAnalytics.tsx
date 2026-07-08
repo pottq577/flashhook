@@ -22,23 +22,21 @@ export function ClarityAnalytics() {
     }
 
     try {
-      windowRecord.clarity = windowRecord.clarity || function (...args: unknown[]) {
-        if (!windowRecord.clarity.q) {
-          windowRecord.clarity.q = [];
-        }
-        windowRecord.clarity.q.push(args);
-      };
-
-      const scriptElement = document.createElement("script");
-      scriptElement.async = true;
-      scriptElement.src = `https://www.clarity.ms/tag/${projectId}`;
+      // 바닐라 JS 스니펫과 동일하게 arguments 객체를 푸시하도록 수정
+      const scriptContent = `
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];
+            if(y && y.parentNode) { y.parentNode.insertBefore(t,y); }
+            else { l.head.appendChild(t); }
+        })(window, document, "clarity", "script", "${projectId}");
+      `;
       
-      const firstScript = document.getElementsByTagName("script")[0];
-      if (firstScript && firstScript.parentNode) {
-        firstScript.parentNode.insertBefore(scriptElement, firstScript);
-      } else {
-        document.head.appendChild(scriptElement);
-      }
+      const inlineScript = document.createElement("script");
+      inlineScript.type = "text/javascript";
+      inlineScript.innerHTML = scriptContent;
+      document.head.appendChild(inlineScript);
 
       if (import.meta.env.MODE !== "production") {
         console.debug("[ClarityAnalytics] Clarity initialized", { projectId });
