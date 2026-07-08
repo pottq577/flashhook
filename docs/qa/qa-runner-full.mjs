@@ -6,10 +6,13 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const BASE_FE = 'http://localhost:5173';
-const BASE_BE = 'http://localhost:8080';
-const BASE_MGMT = process.env.BASE_MGMT ?? 'http://localhost:9090';
-const MONGO_URL = 'mongodb://localhost:27017';
+const envArg = process.argv.find(arg => arg.startsWith('--env='));
+const env = envArg ? envArg.split('=')[1] : 'local';
+
+const BASE_FE = env === 'prod' ? 'https://flashhook.site' : 'http://localhost:5173';
+const BASE_BE = env === 'prod' ? 'https://api.flashhook.site' : 'http://localhost:8080';
+const BASE_MGMT = env === 'prod' ? 'https://api.flashhook.site' : (process.env.BASE_MGMT ?? 'http://localhost:9090');
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017';
 
 let bugs = [];
 let passed = 0;
@@ -36,30 +39,25 @@ function skip(tc, reason) {
 
 import { execSync } from 'child_process';
 
-async function cleanDb() {
-  const client = new MongoClient(MONGO_URL);
-  await client.connect();
-  const db = client.db('flashhook'); 
+async function cleanDb(type = 'all') {
   try {
-    await db.collection('endpoints').deleteMany({});
-    await db.collection('logs').deleteMany({});
-  } catch(e) {
-    throw new Error(`DB cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
-  } finally {
-    await client.close();
-  }
-  
-  try {
-    execSync('docker exec flashhook-redis redis-cli FLUSHALL');
-    console.log('Redis flushed');
+    const res = await fetch(`${BASE_BE}/api/test/cleanup?type=${type}`, {
+      method: 'POST',
+      headers: { 'X-Admin-Key': process.env.ADMIN_KEY || 'local_test_admin_secret_key_12345' }
+    });
+    if (res.ok) {
+      console.log('Cleanup successful (Redis & MongoDB)');
+      redisCleanupOk = true;
+    } else {
+      throw new Error(`Cleanup API failed: ${res.status}`);
+    }
   } catch(e) {
     if (process.env.QA_STRICT_CLEANUP === '1') {
-      throw new Error(`Redis cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
+      throw new Error(`Cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
     }
     redisCleanupOk = false;
-    skip('PRE-REDIS', 'Redis flush 실패로 레이트리밋 관련 TC 신뢰도 저하 가능');
+    skip('PRE-REDIS', 'Cleanup 실패로 레이트리밋 관련 TC 신뢰도 저하 가능');
   }
-  console.log('MongoDB cleaned for testing');
 }
 
 async function run() {
@@ -71,7 +69,15 @@ async function run() {
   
 
   
+  let xssFired = false;
+  
   const page = await context.newPage();
+  page.on('dialog', dialog => {
+    if (dialog.message() === '1') {
+      xssFired = true;
+    }
+    dialog.dismiss();
+  });
 
   try {
     // Phase 0
@@ -263,7 +269,31 @@ async function run() {
     if (res.ok) pass('TC-22 API'); else reportBug('TC-22', 'Medium', 'API', 'Failed to delete logs', '204 No Content');
 
     // Phase 5
-    console.log('\n--- Phase 5: 에러 & 경계 조건 ---');
+    console.log('\n--- Phase 5: 보안 ---');
+    res = await fetch(`${BASE_BE}/api/endpoints/some_other_id/logs`, {
+      method: 'DELETE',
+      headers: { 'Cookie': `fh_token_${endpointId}=${token}` }
+    });
+    if (res.status === 403) pass('TC-29'); else reportBug('TC-29', 'Critical', 'Auth', 'Did not forbid cross endpoint access', '403');
+
+    let tc30Res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ xss: '<script>alert(1)</script>' })
+    });
+    // Wait for the UI to render the new log and trigger script if vulnerable
+    await page.waitForTimeout(2000);
+    
+    if (tc30Res.ok && !xssFired) {
+      pass('TC-30 API & XSS Check'); 
+    } else if (xssFired) {
+      reportBug('TC-30', 'Critical', 'Security', 'XSS Payload Executed!', 'No Alert');
+    } else {
+      reportBug('TC-30', 'High', 'API', 'XSS payload rejected', '200 OK');
+    }
+
+    // Phase 6
+    console.log('\n--- Phase 6: 에러 & 경계 조건 ---');
     res = await fetch(`${BASE_FE}/dashboard/000000000000`);
     if (res.ok) pass('TC-23'); else reportBug('TC-23', 'Medium', 'FE', 'Invalid dashboard loading failed', '200 OK');
 
@@ -271,22 +301,26 @@ async function run() {
     if (res.status === 403) pass('TC-24'); else reportBug('TC-24', 'High', 'Auth', 'Did not reject invalid token', '403');
 
     // TC-25: Create Rate Limit (5 per IP).
+    await cleanDb('redis');
+    let alternativeEndpointId = '';
+    let alternativeToken = '';
     if (!redisCleanupOk) {
       skip('TC-25', 'Redis cleanup 실패로 신뢰 가능한 검증 불가');
     } else {
-      const tc25Ip = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
-      let alternativeEndpointId = '';
-      let alternativeToken = '';
       for(let i=0; i<5; i++) {
-        const altRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
+        const altRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json'} });
         if (i === 0 && altRes.ok) {
           const altData = await altRes.json();
           alternativeEndpointId = altData.endpointId;
-          alternativeToken = altData.accessToken;
+          const setCookie = altRes.headers.get('set-cookie');
+          if (setCookie) {
+            const match = setCookie.match(/fh_token_[^=]+=([^;]+)/);
+            if (match) alternativeToken = match[1];
+          }
         }
       }
-      let rateLimitRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-For': tc25Ip} });
-      if (rateLimitRes.status === 429) pass('TC-25'); else reportBug('TC-25', 'High', 'Rate Limit', `Endpoint create rate limit failed, status: ${rateLimitRes.status}`, '429');
+      let rateLimitRes = await fetch(`${BASE_BE}/api/endpoints`, { method: 'POST', headers: {'Content-Type': 'application/json'} });
+      if (rateLimitRes.status === 429) pass('TC-25'); else reportBug('TC-25', 'High', 'Rate Limit', 'Did not rate limit endpoint creation', '429');
     }
 
     // TC-26: Receive Rate Limit (100 per min).
@@ -301,30 +335,15 @@ async function run() {
     }
 
     // TC-27: Token expiry FE
-    await context.clearCookies();
-    // Triger something that needs auth
-    await page.reload();
-    await page.waitForTimeout(1000);
-    if (!page.url().includes('/dashboard/')) pass('TC-27'); else reportBug('TC-27', 'Medium', 'Auth FE', 'Did not redirect on missing token', 'Redirect to home');
+    // TC-27: Triger something that needs auth
+    const unauthContext = await browser.newContext();
+    const unauthPage = await unauthContext.newPage();
+    await unauthPage.goto(`${BASE_FE}/dashboard/${endpointId}`);
+    await unauthPage.waitForTimeout(1000);
+    if (!unauthPage.url().includes('/dashboard/')) pass('TC-27'); else reportBug('TC-27', 'Medium', 'Auth FE', 'Did not redirect on missing token', 'Redirect to home');
+    await unauthContext.close();
 
-    // We lost token in browser, but we have it in Node script
-    await context.addCookies([{name: `fh_token_${endpointId}`, value: token, domain: 'localhost', path: '/'}]);
-    await page.goto(`${BASE_FE}/dashboard/${endpointId}`);
 
-    // Phase 6
-    console.log('\n--- Phase 6: 보안 ---');
-    res = await fetch(`${BASE_BE}/api/endpoints/some_other_id/logs`, {
-      method: 'DELETE',
-      headers: { 'Cookie': `fh_token_${endpointId}=${token}` }
-    });
-    if (res.status === 403) pass('TC-29'); else reportBug('TC-29', 'Critical', 'Auth', 'Did not forbid cross endpoint access', '403');
-
-    let tc30Res = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ xss: '<script>alert(1)</script>' })
-    });
-    if (tc30Res.ok) pass('TC-30 API'); else reportBug('TC-30', 'High', 'API', 'XSS payload rejected', '200 OK');
 
     // Phase 7
     console.log('\n--- Phase 7: UI/UX ---');
@@ -339,7 +358,12 @@ async function run() {
 
     // TC-33
     const copyBtn = page.locator('button[title="Copy to clipboard"], button[aria-label="Copy to clipboard"]').first();
-    if (await copyBtn.isVisible()) pass('TC-33 (URL copy verified)'); else reportBug('TC-33', 'Low', 'UI', 'Copy button missing', 'Button visible');
+    try {
+      await copyBtn.waitFor({ state: 'visible', timeout: 5000 });
+      pass('TC-33 (URL copy verified)');
+    } catch(e) {
+      reportBug('TC-33', 'Low', 'UI', 'Copy button missing', 'Button visible');
+    }
     
     // TC-34
     const countdownText = await page.locator('[data-testid="countdown"]').textContent();
