@@ -6,10 +6,13 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const BASE_FE = 'http://localhost:5173';
-const BASE_BE = 'http://localhost:8080';
-const BASE_MGMT = process.env.BASE_MGMT ?? 'http://localhost:9090';
-const MONGO_URL = 'mongodb://localhost:27017';
+const envArg = process.argv.find(arg => arg.startsWith('--env='));
+const env = envArg ? envArg.split('=')[1] : 'local';
+
+const BASE_FE = env === 'prod' ? 'https://flashhook.site' : 'http://localhost:5173';
+const BASE_BE = env === 'prod' ? 'https://api.flashhook.site' : 'http://localhost:8080';
+const BASE_MGMT = env === 'prod' ? 'https://api.flashhook.site' : (process.env.BASE_MGMT ?? 'http://localhost:9090');
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017';
 
 let bugs = [];
 let passed = 0;
@@ -66,7 +69,15 @@ async function run() {
   
 
   
+  let xssFired = false;
+  
   const page = await context.newPage();
+  page.on('dialog', dialog => {
+    if (dialog.message() === '1') {
+      xssFired = true;
+    }
+    dialog.dismiss();
+  });
 
   try {
     // Phase 0
@@ -270,7 +281,16 @@ async function run() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ xss: '<script>alert(1)</script>' })
     });
-    if (tc30Res.ok) pass('TC-30 API'); else reportBug('TC-30', 'High', 'API', 'XSS payload rejected', '200 OK');
+    // Wait for the UI to render the new log and trigger script if vulnerable
+    await page.waitForTimeout(2000);
+    
+    if (tc30Res.ok && !xssFired) {
+      pass('TC-30 API & XSS Check'); 
+    } else if (xssFired) {
+      reportBug('TC-30', 'Critical', 'Security', 'XSS Payload Executed!', 'No Alert');
+    } else {
+      reportBug('TC-30', 'High', 'API', 'XSS payload rejected', '200 OK');
+    }
 
     // Phase 6
     console.log('\n--- Phase 6: 에러 & 경계 조건 ---');
