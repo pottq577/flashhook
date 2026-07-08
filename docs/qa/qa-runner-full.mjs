@@ -40,6 +40,7 @@ function skip(tc, reason) {
 import { execSync } from 'child_process';
 
 async function cleanDb(type = 'all') {
+  let redisDone = false;
   try {
     const adminKey = process.env.ADMIN_KEY;
     if (env === 'prod' && !adminKey) {
@@ -54,6 +55,8 @@ async function cleanDb(type = 'all') {
         headers: { 'X-Admin-Key': finalAdminKey }
       });
       if (!res.ok) throw new Error(`Redis cleanup API failed: ${res.status}`);
+      redisDone = true;
+      redisCleanupOk = true;
     }
 
     if (type === 'all' || type === 'mongo') {
@@ -64,13 +67,12 @@ async function cleanDb(type = 'all') {
       if (!res.ok) throw new Error(`Mongo cleanup API failed: ${res.status}`);
     }
 
-    console.log('Cleanup successful (Redis & MongoDB)');
-    redisCleanupOk = true;
+    console.log('Cleanup successful');
   } catch(e) {
     if (process.env.QA_STRICT_CLEANUP === '1') {
       throw new Error(`Cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
     }
-    redisCleanupOk = false;
+    if (!redisDone) redisCleanupOk = false;
     skip('PRE-REDIS', 'Cleanup 실패로 레이트리밋 관련 TC 신뢰도 저하 가능');
   }
 }
