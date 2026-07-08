@@ -27,6 +27,12 @@ export default function RootLayout({
   const clarityId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
   const isClarityIdValid = clarityId && /^[a-zA-Z0-9]+$/.test(clarityId);
 
+  if (!isClarityIdValid) {
+    console.warn("Clarity project ID is missing or invalid (NEXT_PUBLIC_CLARITY_PROJECT_ID). Skipping initialization.");
+  } else if (process.env.NODE_ENV !== "production") {
+    console.debug("Clarity initialized", { projectId: clarityId });
+  }
+
   return (
     <html
       lang="en"
