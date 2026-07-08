@@ -110,16 +110,21 @@ async function run() {
     res = await fetch(`${BASE_FE}/not-found`);
     if (res.ok) pass('TC-04'); else reportBug('TC-04', 'Medium', 'FE /not-found', '404 route failed', '200 OK');
 
-    // TC-04-1 (Clarity Script Check)
-    await page.goto(BASE_FE);
-    const hasClarityScript = await page.evaluate(() => {
-      return !!document.querySelector('script[src*="clarity.ms/tag/"]');
-    });
-    if (hasClarityScript) pass('TC-04-1'); else reportBug('TC-04-1', 'Medium', 'FE /', 'Clarity script missing', 'script tag with clarity.ms');
-
     // Phase 1
     console.log('\n--- Phase 1: 엔드포인트 생성 ---');
     await page.goto(BASE_FE);
+
+    // TC-04-1 (Clarity Script Check)
+    if (env === 'prod') {
+      const hasClarityScript = await page
+        .waitForSelector('script[src*="clarity.ms/tag/"]', { timeout: 3000 })
+        .then(() => true)
+        .catch(() => false);
+      if (hasClarityScript) pass('TC-04-1'); else reportBug('TC-04-1', 'Medium', 'FE /', 'Clarity script missing', 'script tag with clarity.ms');
+    } else {
+      skip('TC-04-1', 'prod 환경에서만 Clarity 검증');
+    }
+
     await page.waitForSelector('button:has-text("CREATE")');
     await page.click('button:has-text("CREATE")');
 

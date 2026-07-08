@@ -13,6 +13,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { ClarityScript } from "@/shared/analytics/ClarityScript";
+
 export const metadata: Metadata = {
   title: "FlashHook | Free Webhook Sandbox",
   description:
@@ -27,18 +29,15 @@ export default function RootLayout({
   const clarityId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
   const isClarityIdValid = clarityId && /^[a-zA-Z0-9]+$/.test(clarityId);
 
-  if (!isClarityIdValid) {
-    console.warn("Clarity project ID is missing or invalid (NEXT_PUBLIC_CLARITY_PROJECT_ID). Skipping initialization.");
-  } else if (process.env.NODE_ENV !== "production") {
-    console.debug("Clarity initialized", { projectId: clarityId });
-  }
-
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <ClarityScript clarityId={clarityId} />
+      </body>
       {isClarityIdValid && (
         <Script id="clarity-script" strategy="afterInteractive">
           {`

@@ -36,3 +36,5 @@ out/
 src/main/resources/application-*.yaml
 !src/main/resources/application-*.example.yaml
 !src/main/resources/application-prod.yaml
+!src/main/resources/application-local.yaml
+!src/main/resources/application-test.yaml

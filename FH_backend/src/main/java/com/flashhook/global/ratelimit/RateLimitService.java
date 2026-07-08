@@ -41,6 +41,19 @@ public class RateLimitService {
      * @return 허용 여부
      */
     public boolean isAllowed(String key, int limit, int windowSeconds) {
+        return isAllowed(key, limit, windowSeconds, properties.ratelimit().failOpen());
+    }
+
+    /**
+     * 요청 허용 여부 판단 (fail-open 정책 오버라이드)
+     *
+     * @param key              제한 키
+     * @param limit            윈도우 내 최대 요청 수
+     * @param windowSeconds    윈도우 크기 (초)
+     * @param failOpenOverride Redis 장애 시 허용할지 여부
+     * @return 허용 여부
+     */
+    public boolean isAllowed(String key, int limit, int windowSeconds, boolean failOpenOverride) {
         if (key == null || key.isBlank() || limit <= 0 || windowSeconds <= 0) {
             return false;
         }
@@ -57,7 +70,7 @@ public class RateLimitService {
             return count != null && count <= limit;
         } catch (DataAccessException e) {
             log.warn("Rate limit Redis error. key={}", key, e);
-            return properties.ratelimit().failOpen();
+            return failOpenOverride;
         }
     }
 

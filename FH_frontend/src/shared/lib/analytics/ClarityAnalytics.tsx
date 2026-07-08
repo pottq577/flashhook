@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { logger } from "@/shared/lib/logger";
 
 interface ClarityFunction {
   (...args: unknown[]): void;
@@ -11,7 +10,7 @@ export function ClarityAnalytics() {
     const projectId = import.meta.env.VITE_CLARITY_PROJECT_ID;
     
     if (!projectId) {
-      logger.warn("Clarity project ID is missing (VITE_CLARITY_PROJECT_ID). Skipping initialization.");
+      console.warn("[ClarityAnalytics] VITE_CLARITY_PROJECT_ID is missing. Skipping initialization.");
       return;
     }
 
@@ -42,10 +41,10 @@ export function ClarityAnalytics() {
       }
 
       if (import.meta.env.MODE !== "production") {
-        logger.debug("Clarity initialized", { projectId });
+        console.debug("[ClarityAnalytics] Clarity initialized", { projectId });
       }
     } catch (e) {
-      logger.error("Failed to initialize Clarity Analytics", e);
+      console.error("[ClarityAnalytics] Failed to initialize Clarity Analytics", e);
     }
   }, []);
 

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.flashhook.global.ratelimit.RateLimitService;
+import com.flashhook.global.util.IpUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -41,9 +42,9 @@ public class TestController {
     }
 
     private boolean isNotAllowedOrInvalidKey(HttpServletRequest request, String adminKey) {
-        // Rate Limit (Brute Force 방어 - 분당 5회 제한)
-        String clientIp = request.getRemoteAddr();
-        if (!rateLimitService.isAllowed("rl:test:cleanup:" + clientIp, 5, 60)) {
+        // Rate Limit (Brute Force 방어 - 분당 5회 제한, fail-closed)
+        String clientIp = IpUtil.normalize(request.getRemoteAddr());
+        if (!rateLimitService.isAllowed("rl:test:cleanup:" + clientIp, 5, 60, false)) {
             return true;
         }
 
