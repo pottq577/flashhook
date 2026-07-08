@@ -10,6 +10,7 @@ const ToastContainer = lazy(() =>
 );
 import { CookieBanner } from "@/widgets/legal/CookieBanner";
 import { MaintenanceBanner } from "@/shared/ui/MaintenanceBanner";
+import { ClarityAnalytics } from "@/shared/lib/analytics/ClarityAnalytics";
 
 import LandingPage from "@/pages/landing/ui/LandingPage";
 
@@ -116,6 +117,7 @@ function App() {
   return (
     <QueryProvider>
       <BrowserRouter>
+        <ClarityAnalytics />
         <MaintenanceBanner />
         <main>
           <Suspense fallback={AppLoadingFallback}>
