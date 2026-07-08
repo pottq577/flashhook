@@ -14,9 +14,14 @@ export function ClarityAnalytics() {
       return;
     }
 
+    const windowRecord = window as unknown as Record<string, ClarityFunction>;
+    
+    // StrictMode 중복 주입 방지
+    if (windowRecord.clarity || document.querySelector(`script[src*="clarity.ms/tag/${projectId}"]`)) {
+      return;
+    }
+
     try {
-      const windowRecord = window as unknown as Record<string, ClarityFunction>;
-      
       windowRecord.clarity = windowRecord.clarity || function (...args: unknown[]) {
         if (!windowRecord.clarity.q) {
           windowRecord.clarity.q = [];

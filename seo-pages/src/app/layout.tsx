@@ -25,6 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const clarityId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
+  const isClarityIdValid = clarityId && /^[a-zA-Z0-9]+$/.test(clarityId);
 
   return (
     <html
@@ -32,7 +33,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
-      {clarityId && (
+      {isClarityIdValid && (
         <Script id="clarity-script" strategy="afterInteractive">
           {`
             (function(c,l,a,r,i,t,y){
