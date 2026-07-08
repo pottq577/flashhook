@@ -40,22 +40,39 @@ function skip(tc, reason) {
 import { execSync } from 'child_process';
 
 async function cleanDb(type = 'all') {
+  let redisDone = false;
   try {
-    const res = await fetch(`${BASE_BE}/api/test/cleanup?type=${type}`, {
-      method: 'POST',
-      headers: { 'X-Admin-Key': process.env.ADMIN_KEY || 'local_test_admin_secret_key_12345' }
-    });
-    if (res.ok) {
-      console.log('Cleanup successful (Redis & MongoDB)');
-      redisCleanupOk = true;
-    } else {
-      throw new Error(`Cleanup API failed: ${res.status}`);
+    const adminKey = process.env.ADMIN_KEY;
+    if (env === 'prod' && !adminKey) {
+      console.error('❌ [FATAL] ADMIN_KEY is required for prod environment to prevent accidental fallback usage.');
+      process.exit(1);
     }
+    const finalAdminKey = adminKey || 'local_test_admin_secret_key_12345';
+
+    if (type === 'all' || type === 'redis') {
+      const res = await fetch(`${BASE_BE}/api/test/cleanup/redis`, {
+        method: 'POST',
+        headers: { 'X-Admin-Key': finalAdminKey }
+      });
+      if (!res.ok) throw new Error(`Redis cleanup API failed: ${res.status}`);
+      redisDone = true;
+      redisCleanupOk = true;
+    }
+
+    if (type === 'all' || type === 'mongo') {
+      const res = await fetch(`${BASE_BE}/api/test/cleanup/mongo`, {
+        method: 'POST',
+        headers: { 'X-Admin-Key': finalAdminKey }
+      });
+      if (!res.ok) throw new Error(`Mongo cleanup API failed: ${res.status}`);
+    }
+
+    console.log('Cleanup successful');
   } catch(e) {
     if (process.env.QA_STRICT_CLEANUP === '1') {
       throw new Error(`Cleanup failed: ${e instanceof Error ? e.message : String(e)}`);
     }
-    redisCleanupOk = false;
+    if (!redisDone) redisCleanupOk = false;
     skip('PRE-REDIS', 'Cleanup 실패로 레이트리밋 관련 TC 신뢰도 저하 가능');
   }
 }
@@ -98,6 +115,18 @@ async function run() {
     // Phase 1
     console.log('\n--- Phase 1: 엔드포인트 생성 ---');
     await page.goto(BASE_FE);
+
+    // TC-04-1 (Clarity Script Check)
+    if (env === 'prod') {
+      const hasClarityScript = await page
+        .waitForSelector('script[src*="clarity.ms/tag/"]', { timeout: 3000 })
+        .then(() => true)
+        .catch(() => false);
+      if (hasClarityScript) pass('TC-04-1'); else reportBug('TC-04-1', 'Medium', 'FE /', 'Clarity script missing', 'script tag with clarity.ms');
+    } else {
+      skip('TC-04-1', 'prod 환경에서만 Clarity 검증');
+    }
+
     await page.waitForSelector('button:has-text("CREATE")');
     await page.click('button:has-text("CREATE")');
 
