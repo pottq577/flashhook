@@ -93,7 +93,7 @@ function DashboardPage() {
 
   useLogsQuery(endpointId || "", 0, 50);
 
-  const { logs, selectedLog, setSelectedLog } = useLogStore();
+  const { logs, selectedLog, setSelectedLog, endpointId: storeEndpointId, setEndpointId: setStoreEndpointId } = useLogStore();
   const { status } = useRealtimeLogs(endpointId);
   const addEndpoint = useEndpointStore((state) => state.addEndpoint);
 
@@ -110,6 +110,12 @@ function DashboardPage() {
       addEndpoint(endpointId, endpoint.expiresAt);
     }
   }, [endpointId, endpoint?.expiresAt, addEndpoint]);
+
+  useEffect(() => {
+    if (endpointId) {
+      setStoreEndpointId(endpointId);
+    }
+  }, [endpointId, setStoreEndpointId]);
 
   useEffect(() => {
     if (getIsAuthError(error)) {
@@ -247,6 +253,8 @@ function DashboardPage() {
       </div>
     );
 
+  const isStoreReady = storeEndpointId === endpointId;
+
   return (
     <div className={styles.container}>
       <SEOHead title={pageTitle} />
@@ -296,11 +304,13 @@ function DashboardPage() {
               className={styles.logDetailWrapper}
               style={{ flex: 1, minWidth: 0 }}
             >
-              <LogDetail
-                logId={selectedLog?.logId}
-                endpointId={endpointId}
-                webhookUrl={webhookUrl}
-              />
+              {isStoreReady && (
+                <LogDetail
+                  logId={selectedLog?.logId}
+                  endpointId={endpointId}
+                  webhookUrl={webhookUrl}
+                />
+              )}
 
               <div className={styles.mockOverlayTrigger}>
                 <button className={styles.btnAction} onClick={toggleMockPanel}>
@@ -397,7 +407,7 @@ function DashboardPage() {
               >
                 <div className={styles.bottomSheetHandle} />
                 <div className={styles.bottomSheetContent}>
-                  {!isMockPanelOpen && selectedLog ? (
+                  {!isMockPanelOpen && selectedLog && isStoreReady ? (
                     <>
                       <LogDetail
                         logId={selectedLog.logId}
