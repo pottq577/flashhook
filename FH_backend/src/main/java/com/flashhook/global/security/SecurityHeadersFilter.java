@@ -40,7 +40,7 @@ public class SecurityHeadersFilter implements Filter {
 
             // 민감한 경로에만 캐시 비활성화 적용
             String path = httpRequest.getRequestURI();
-            if (path.startsWith("/api/auth") || path.startsWith("/api/user")) {
+            if (path.startsWith("/api/endpoints") || path.startsWith("/api/admin")) {
                 httpResponse.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
                 httpResponse.setHeader("Pragma", "no-cache");
             }
