@@ -42,6 +42,7 @@ toyproject.md
 docs/review/*
 docs/infrastructure/*
 docs/context/*
+docs/overview/*
 .private/
 
 ### QA Reports & Scripts ###

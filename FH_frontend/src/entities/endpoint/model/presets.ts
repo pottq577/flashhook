@@ -744,13 +744,13 @@ const githubPresets: PresetService = {
             full_name: "flashhook-user/my-awesome-app",
             private: false,
           },
-          pusher: { name: "flashhook-user", email: "dev@flashhook.io" },
+          pusher: { name: "flashhook-user", email: "dev@flashhook.site" },
           commits: [
             {
               id: "789xyz012789xyz012789xyz012789xy",
               message: "feat: webhook 연동 테스트 추가",
               timestamp: "2024-01-15T14:30:00+09:00",
-              author: { name: "FlashHook Dev", email: "dev@flashhook.io" },
+              author: { name: "FlashHook Dev", email: "dev@flashhook.site" },
               added: ["src/webhook/handler.ts"],
               modified: [],
               removed: [],
@@ -873,13 +873,13 @@ const githubPresets: PresetService = {
             full_name: "flashhook-user/my-awesome-app",
             private: false,
           },
-          pusher: { name: "flashhook-user", email: "dev@flashhook.io" },
+          pusher: { name: "flashhook-user", email: "dev@flashhook.site" },
           commits: [
             {
               id: "789xyz012789xyz012789xyz012789xy",
               message: "feat: webhook 연동 테스트 추가",
               timestamp: "2024-01-15T14:30:00+09:00",
-              author: { name: "FlashHook Dev", email: "dev@flashhook.io" },
+              author: { name: "FlashHook Dev", email: "dev@flashhook.site" },
               added: ["src/webhook/handler.ts"],
               modified: [],
               removed: [],

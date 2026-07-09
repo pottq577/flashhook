@@ -548,14 +548,14 @@ _참고: `2000` 코드는 발송대기(잔액부족/한도초과 보류) 및 정
   },
   "pusher": {
     "name": "flashhook-user",
-    "email": "dev@flashhook.io"
+    "email": "dev@flashhook.site"
   },
   "commits": [
     {
       "id": "789xyz012789xyz012789xyz012789xyz012789xy",
       "message": "feat: webhook 연동 테스트 추가",
       "timestamp": "2024-01-15T14:30:00+09:00",
-      "author": { "name": "FlashHook Dev", "email": "dev@flashhook.io" },
+      "author": { "name": "FlashHook Dev", "email": "dev@flashhook.site" },
       "added": ["src/webhook/handler.ts"],
       "modified": [],
       "removed": []
