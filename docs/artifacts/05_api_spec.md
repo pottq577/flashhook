@@ -191,10 +191,11 @@ ANY /api/hooks/{endpointId}
 엔드포인트의 `mockConfig` 설정에 따라 HTTP 상태 코드, 헤더, 지연(Delay), 본문(Body)을 돌려줘요.
 
 **에러**:
+
 - `404 ENDPOINT_NOT_FOUND`: 존재하지 않거나 만료된 엔드포인트
 - `413 PAYLOAD_TOO_LARGE`: Body 1MB 초과
 - `429 RATE_LIMIT_EXCEEDED`: 엔드포인트당 수신 요청 빈도가 제한돼요.
-> 지연 응답 처리 시 `DeferredResult`(하드 타임아웃 15초, Mock 지연은 `min(delayMs, 10초)`)로 처리됩니다.
+  > 지연 응답 처리 시 `DeferredResult`(하드 타임아웃 15초, Mock 지연은 `min(delayMs, 10초)`)로 처리됩니다.
 
 ---
 
@@ -228,6 +229,7 @@ GET /api/endpoints/{endpointId}/logs/{logId}
 **인증**: HttpOnly 쿠키 `fh_token_{endpointId}`
 
 **Response**: `200 OK` (전체 헤더, 쿼리, 파싱된 본문, 용량 등)
+
 > **보안 참고**: Authorization, API Key, 비밀번호 등 민감 정보로 추정되는 헤더나 쿼리 파라미터는 `[REDACTED]`로 마스킹해서 돌려줘요.
 
 ---
@@ -265,6 +267,7 @@ POST /api/endpoints/{endpointId}/logs/{logId}/replay
 **인증**: HttpOnly 쿠키 `fh_token_{endpointId}`
 
 **Request**:
+
 ```json
 {
   "destinationUrl": "https://my-ngrok.com/webhook"
@@ -273,6 +276,7 @@ POST /api/endpoints/{endpointId}/logs/{logId}/replay
 
 **Response**: `200 OK`
 **에러**:
+
 - `429 RATE_LIMIT_EXCEEDED`
 - `403 FORBIDDEN` / `400 INVALID_REQUEST`: 타겟 URL이 사설 IP 등 SSRF 공격으로 의심될 경우
 
@@ -297,6 +301,7 @@ Connection: keep-alive
 ```
 
 **연결 제한**:
+
 - 최대 유지 시간: 30분 (`flashhook.sse.timeout`, 연결 종료 시 FE EventSource 자동 재연결)
 - Heartbeat 주기: 30초 (`flashhook.sse.heartbeat-interval`, 좀비 커넥션 방지)
 
@@ -330,21 +335,21 @@ GET /actuator/prometheus
 
 ## 8. 전체 엔드포인트 요약
 
-| Method | Path | 인증 | 설명 |
-| -------- | ----------------------------------------- | :--: | ------------------ |
-| `POST` | `/api/endpoints` | IP | 엔드포인트 생성 |
-| `GET` | `/api/endpoints/{id}` | 쿠키 | 엔드포인트 정보 |
-| `DELETE` | `/api/endpoints/{id}` | 쿠키 | 엔드포인트 삭제 |
-| `PATCH` | `/api/endpoints/{id}/mock` | 쿠키 | 모의 설정 업데이트 |
-| `ANY` | `/api/hooks/{id}` | - | 웹훅 수신 |
-| `GET` | `/api/endpoints/{id}/logs` | 쿠키 | 로그 목록 |
-| `GET` | `/api/endpoints/{id}/logs/{logId}` | 쿠키 | 로그 상세 |
-| `GET` | `/api/public/logs/{logId}` | IP | 공개 로그 공유 |
-| `DELETE` | `/api/endpoints/{id}/logs` | 쿠키 | 로그 전체 삭제 |
-| `POST` | `/api/endpoints/{id}/logs/{logId}/replay` | 쿠키 | 수신 웹훅 재전송 |
-| `GET` | `/api/endpoints/{id}/stream` | 쿠키 | SSE 실시간 스트림 |
-| `GET` | `/api/admin/metrics` | Admin | 운영 메트릭 |
-| `GET` | `/api/admin/endpoints/suspicious` | Admin | 의심 엔드포인트 |
-| `DELETE` | `/api/admin/endpoints/{id}` | Admin | 엔드포인트 강제 삭제 |
-| `GET/POST/DELETE`| `/api/admin/blacklist[/{ip}]` | Admin | IP 블랙리스트 관리 |
-| `GET` | `/actuator/health` <br> `/actuator/prometheus` | - | 헬스/메트릭 (포트 9090)|
+| Method            | Path                                           | 인증  | 설명                    |
+| ----------------- | ---------------------------------------------- | :---: | ----------------------- |
+| `POST`            | `/api/endpoints`                               |  IP   | 엔드포인트 생성         |
+| `GET`             | `/api/endpoints/{id}`                          | 쿠키  | 엔드포인트 정보         |
+| `DELETE`          | `/api/endpoints/{id}`                          | 쿠키  | 엔드포인트 삭제         |
+| `PATCH`           | `/api/endpoints/{id}/mock`                     | 쿠키  | 모의 설정 업데이트      |
+| `ANY`             | `/api/hooks/{id}`                              |   -   | 웹훅 수신               |
+| `GET`             | `/api/endpoints/{id}/logs`                     | 쿠키  | 로그 목록               |
+| `GET`             | `/api/endpoints/{id}/logs/{logId}`             | 쿠키  | 로그 상세               |
+| `GET`             | `/api/public/logs/{logId}`                     |  IP   | 공개 로그 공유          |
+| `DELETE`          | `/api/endpoints/{id}/logs`                     | 쿠키  | 로그 전체 삭제          |
+| `POST`            | `/api/endpoints/{id}/logs/{logId}/replay`      | 쿠키  | 수신 웹훅 재전송        |
+| `GET`             | `/api/endpoints/{id}/stream`                   | 쿠키  | SSE 실시간 스트림       |
+| `GET`             | `/api/admin/metrics`                           | Admin | 운영 메트릭             |
+| `GET`             | `/api/admin/endpoints/suspicious`              | Admin | 의심 엔드포인트         |
+| `DELETE`          | `/api/admin/endpoints/{id}`                    | Admin | 엔드포인트 강제 삭제    |
+| `GET/POST/DELETE` | `/api/admin/blacklist[/{ip}]`                  | Admin | IP 블랙리스트 관리      |
+| `GET`             | `/actuator/health` <br> `/actuator/prometheus` |   -   | 헬스/메트릭 (포트 9090) |
