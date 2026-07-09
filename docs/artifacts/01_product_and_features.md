@@ -46,6 +46,14 @@
 - 대시보드에서 실시간 로그 확인 (SSE)
 - 24시간 자동 파기 (MongoDB TTL Index)
 
+> ⚠️ **구현 현황 (기획 이후 추가된 기능)**: 현재 코드에는 초기 MVP 스코프를 넘어선 기능이 구현되어 있다.
+> 자세한 대조는 `docs/artifacts/07_implementation_sync.md` 참조.
+>
+> - **동적 프리셋**: Slack URL Verification(응답 echo), GitHub `X-Hub-Signature-256` / PortOne
+>   `webhook-signature`(Replay 시 서명 주입) — ADR-0002 참고.
+> - **관리자 대시보드**(`/admin`, `X-Admin-Token`): 메트릭, 의심 엔드포인트, IP 블랙리스트 관리.
+> - **공개 로그 공유**(`/session/{logId}` + `GET /api/public/logs/{logId}`): 마스킹된 로그 공유.
+
 ---
 
 ## 3. 핵심 기술 스택
@@ -55,9 +63,13 @@
 | Backend       | Java 21 + Spring Boot 4.0.7        | 최신 LTS 및 프레임워크 도입으로 성능 최적화 및 최신 스펙 활용   |
 | Frontend      | React 19 (Vite 8) + TS             | 최신 React 19 기능 활용, Zustand/React Query 도입, FSD 아키텍처 |
 | Main DB       | MongoDB                            | 스키마리스 Payload, JOIN 불필요, 쓰기 폭증, TTL Index 자동 파기 |
-| Cache/Session | Redis                              | SSE 인증 토큰(Stream Token) 관리, Rate Limiting, 임시 캐시      |
+| Cache/Session | Redis                              | Rate Limiting, IP 블랙리스트, 엔드포인트 캐시                   |
 | 실시간 통신   | SSE (Server-Sent Events)           | 단방향 푸시 충분. 구현 단순. Spring 지원 우수                   |
 | 배포 / CI/CD  | CI: GitHub Actions, CD: AWS (예정) | Playwright E2E 통합 (CI 구축 완료, CD 파이프라인은 구축 예정)   |
+
+> ⚠️ **최신화**: Redis 의 "SSE 인증 토큰(Stream Token) 관리" 는 낡은 서술이다. 현재 인증은 HttpOnly
+> 쿠키 방식이며 `stream-token` 은 구현되지 않았다(`07_implementation_sync.md` §A1). Redis 는 Rate Limit
+> 카운터·IP 블랙리스트·엔드포인트 캐시에 쓰인다.
 
 **MongoDB 선택 근거 (vs PostgreSQL)**:
 이 도메인의 데이터는 스키마가 없고 JOIN이 불필요하며 쓰기 작업이 폭증하는 특징이 있어 RDBMS가 비효율적이라 판단했습니다. 폴리그랏 퍼시스턴스 관점에서 MongoDB를 선택했고, TTL Index를 통해 배치 서버 없이 대용량 데이터 파기 문제를 해결합니다.
@@ -76,7 +88,12 @@ React (Vite) + TypeScript 기반으로 FSD 아키텍처를 적용하여 구축�
 | 2   | 대시보드    | `/dashboard/{endpointId}` | 실시간 로그 모니터링 및 Mock 설정 (핵심) |
 | 3   | 404 / 만료  | `/not-found`              | 잘못된 URL 또는 만료된 엔드포인트        |
 | 4   | 서비스 소개 | `/about`                  | 서비스 소개 페이지                       |
-| 5   | 문의/약관   | `/contact`, `/terms` 등   | 부가 정보 페이지                         |
+| 5   | 문의/약관   | `/contact`, `/terms`, `/privacy`, `/privacy-eu` | 부가/법무 정보 페이지 |
+| 6   | 공개 로그 공유 | `/session/{logId}`     | 마스킹된 로그 공유 뷰 (인증 불필요)      |
+| 7   | 관리자      | `/admin/login`, `/admin`  | 운영 대시보드 (`X-Admin-Token` 가드)     |
+
+> ⚠️ **최신화**: `/session/{logId}`, `/admin`, `/privacy-eu` 는 초기 기획표에 없던 실제 구현 라우트다
+> (`07_implementation_sync.md` §C~E).
 
 ### 4.2. 주요 화면 구성 상세
 
