@@ -1,7 +1,21 @@
 # ADR-0002: Dynamic Preset를 두 종류로 분리한다
 
-**Status**: Accepted  
+**Status**: Accepted (Type A·B **모두 구현 완료** — 아래 "구현 현황" 참고)  
 **Date**: 2026-06-13
+
+> ⚠️ **구현 현황 업데이트 (구현 기준 최신화)**
+>
+> 본 ADR 의 결정 당시에는 Type B(웹훅 발신기)를 "Phase 2 범위 제외 — 별도 Webhook Sender PRD 선행"
+> 으로 규정했으나, **현재 코드에는 Type A·B 가 모두 구현되어 있다.**
+>
+> - **Type A (동적 응답)**: `SlackPresetHandler`(`SLACK_URL_VERIFICATION`) — `WebhookReceiveController`
+>   → `MockResponseScheduler` 분기에서 `body.challenge` echo.
+> - **Type B (요청 서명)**: `GitHubPresetHandler`(`GITHUB`, `X-Hub-Signature-256`),
+>   `PortOnePresetHandler`(`PORTONE_V2`, `webhook-id/-timestamp/-signature`). 단, 별도 신규 도메인이
+>   아니라 **Replay 경로**(`WebhookReplayService` → `PresetHandlerRegistry.getRequestSigningHandler`)에서
+>   저장된 웹훅을 재전송할 때 서명을 주입하는 형태로 실현되었다.
+>
+> 자세한 내용은 `docs/artifacts/07_implementation_sync.md` §A3 참조.
 
 ## Context
 

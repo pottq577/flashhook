@@ -13,10 +13,19 @@ https://api.flashhook.site/api
 
 ### 1.2. 인증 방식
 
+> ⚠️ **최신화(구현 기준)**: 인증은 **HttpOnly 쿠키** 단일 방식이다. 이전 문서의
+> `X-Access-Token` 헤더 / `stream-token` 2-step 방식은 **더 이상 사용하지 않는다**.
+> 상세: `docs/artifacts/07_implementation_sync.md` §A1, `docs/security/SECURITY_OVERVIEW.md`.
+
 ```text
-REST API  → Header: X-Access-Token: {accessToken}
-SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=...)
+REST API  → Cookie: fh_token_{endpointId}={accessToken}   (HttpOnly, Secure, SameSite=Strict)
+SSE 스트림 → 동일 쿠키로 인증 (EventSource withCredentials=true)
 ```
+
+- 엔드포인트 생성(`POST /api/endpoints`) 응답의 `Set-Cookie` 로 쿠키가 발급된다
+  (path=`/api/endpoints/{id}`, maxAge=24h). 원본 `accessToken` 은 응답 바디에 포함되지 않는다.
+- 엔드포인트 삭제 시 동일 쿠키를 maxAge=0 으로 만료시킨다.
+- 브라우저 클라이언트는 헤더를 붙일 필요 없이 `credentials:"include"` 로 쿠키를 자동 전송한다.
 
 ### 1.3. 공통 에러 응답 형식
 
@@ -41,12 +50,18 @@ SSE 스트림 → 2-Step 인증 (POST /stream-token 후 GET /stream?streamToken=
 |     403     | `FORBIDDEN`               | 권한 없음                 |
 |     404     | `ENDPOINT_NOT_FOUND`      | 엔드포인트 없음 또는 만료 |
 |     404     | `LOG_NOT_FOUND`           | 요청한 로그가 없음        |
-|     408     | `REQUEST_TIMEOUT`         | 처리 시간 지연 타임아웃   |
-|     409     | `CONCURRENT_MODIFICATION` | 동시성 충돌 발생          |
+|     404     | `NOT_FOUND`               | 리소스 없음               |
+|     409     | `CONCURRENT_MODIFICATION` | 동시성 충돌(낙관적 락)    |
 |     413     | `PAYLOAD_TOO_LARGE`       | 요청 Body 1MB 초과        |
 |     429     | `RATE_LIMIT_EXCEEDED`     | Rate Limit 초과           |
 |     429     | `ENDPOINT_LIMIT_EXCEEDED` | IP당 엔드포인트 수 초과   |
+|     400     | `PRESET_INVALID_CONFIG`   | 프리셋 설정 오류          |
+|     500     | `PRESET_SIGNATURE_FAILED` | 프리셋 서명 생성 실패     |
 |     500     | `INTERNAL_ERROR`          | 서버 내부 에러            |
+
+> ⚠️ **최신화**: `408 REQUEST_TIMEOUT` 은 `ErrorCode` enum 에 존재하지 않는다(지연 응답은
+> DeferredResult 하드 타임아웃 15초로 처리). 실제 코드 기준 목록은 `06_error_dictionary.md` 및
+> `07_implementation_sync.md` §G1 참조.
 
 ---
 
@@ -74,10 +89,14 @@ Content-Type: application/json (선택)
 
 **Response**: `201 Created`
 
+```text
+Set-Cookie: fh_token_{endpointId}={accessToken}; HttpOnly; Secure; SameSite=Strict; Path=/api/endpoints/{endpointId}; Max-Age=86400
+```
+
 ```json
 {
   "endpointId": "a1b2c3d4-5e6f-...",
-  "accessToken": "xK9mQ2vL...",
+  "accessToken": null,
   "label": "Toss 결제테스트",
   "webhookUrl": "https://api.flashhook.site/api/hooks/a1b2c3d4-5e6f-...",
   "dashboardUrl": "https://flashhook.site/dashboard/a1b2c3d4-5e6f-...",
@@ -96,7 +115,8 @@ Content-Type: application/json (선택)
 }
 ```
 
-> `accessToken`은 이 응답에서만 원본 반환. 이후 서버에 해시로만 존재.
+> ⚠️ **최신화**: 원본 `accessToken` 은 응답 바디가 아니라 **`Set-Cookie` 헤더(HttpOnly 쿠키)**로만
+> 내려간다(바디의 `accessToken` 은 `null`). 서버는 원본을 저장하지 않고 SHA-256 해시만 보관한다.
 
 **에러**:
 
@@ -111,7 +131,7 @@ Content-Type: application/json (선택)
 GET /api/endpoints/{endpointId}
 ```
 
-**인증**: `X-Access-Token` 헤더
+**인증**: HttpOnly 쿠키 `fh_token_{endpointId}`
 
 **Response**: `200 OK`
 
@@ -145,9 +165,9 @@ GET /api/endpoints/{endpointId}
 DELETE /api/endpoints/{endpointId}
 ```
 
-**인증**: `X-Access-Token` 헤더
+**인증**: HttpOnly 쿠키 `fh_token_{endpointId}`
 
-**Response**: `204 No Content`
+**Response**: `204 No Content` (응답에서 `fh_token_{endpointId}` 쿠키를 만료시킴)
 
 > 엔드포인트 + 관련 로그 전부 즉시 삭제.
 
@@ -159,7 +179,10 @@ DELETE /api/endpoints/{endpointId}
 PATCH /api/endpoints/{endpointId}/mock
 ```
 
-**인증**: `X-Access-Token` 헤더
+**인증**: HttpOnly 쿠키 `fh_token_{endpointId}`
+
+> 부분 업데이트: 제공되지 않은(null) 필드는 변경하지 않는다. `presetOptions.secretKey` 는
+> 저장 시 AES-256/GCM 으로 암호화된다.
 
 **Request**:
 
@@ -179,7 +202,9 @@ PATCH /api/endpoints/{endpointId}/mock
 }
 ```
 
-> `presetType`: 동적 응답 핸들러를 지정해요. `null`이면 `statusCode`, `headers`, `body` 필드 값으로 고정 응답을 돌려줘요. `"SLACK_URL_VERIFICATION"`, `"GITHUB"`, `"PORTONE_V2"` 같은 동적 프리셋을 지정하면 수신 파이프라인(Slack) 또는 발송 파이프라인(GitHub, PortOne)에 맞게 인터셉트해요.
+> `presetType`: 동적 응답 핸들러를 지정해요. `null`이면 `statusCode`, `headers`, `body` 필드 값으로 고정 응답을 돌려줘요. `"SLACK_URL_VERIFICATION"`, `"GITHUB"`, `"PORTONE_V2"` 같은 동적 프리셋을 지정하면 수신 파이프라인(Slack) 또는 발송(Replay) 파이프라인(GitHub, PortOne)에 맞게 인터셉트해요.
+>
+> ⚠️ **최신화(구현 기준)**: 백엔드에 실제 등록된 핸들러는 `SLACK_URL_VERIFICATION`, `GITHUB`, `PORTONE_V2` **3종뿐**이다. FE 카탈로그의 `KAKAO_*` `presetType` 은 대응 핸들러가 없어 정적 body 로 응답된다(`07_implementation_sync.md` §A2).
 > `presetOptions`: `presetType`이 시그니처 생성을 요구할 때 필요한 부가 설정값이에요. `secretKey`는 서버 DB에 저장할 때 AES-256으로 암호화해요.
 
 **Response**: `200 OK` (업데이트된 엔드포인트 정보 반환)
@@ -223,7 +248,9 @@ ok
 - `404 ENDPOINT_NOT_FOUND`: 존재하지 않거나 만료된 엔드포인트
 - `413 PAYLOAD_TOO_LARGE`: Body 1MB 초과
 - `429 RATE_LIMIT_EXCEEDED`: 엔드포인트당 수신 요청 빈도가 제한돼요.
-- `408 REQUEST_TIMEOUT`: 지연 시간이 너무 길어 타임아웃 발생 시 (서버 하드 타임아웃 15초, Mock 설정은 최대 10초까지 허용)
+
+> ⚠️ **최신화**: 지연 응답은 `DeferredResult`(하드 타임아웃 15초, Mock 지연은 `min(delayMs, 10초)`)로
+> 처리되며, 별도의 `408 REQUEST_TIMEOUT` 에러 코드는 존재하지 않는다(`07_implementation_sync.md` §G1).
 
 ---
 
@@ -235,7 +262,7 @@ ok
 GET /api/endpoints/{endpointId}/logs
 ```
 
-**인증**: `X-Access-Token` 헤더
+**인증**: HttpOnly 쿠키 `fh_token_{endpointId}`
 
 **Query Parameters**:
 
@@ -279,7 +306,7 @@ GET /api/endpoints/{endpointId}/logs
 GET /api/endpoints/{endpointId}/logs/{logId}
 ```
 
-**인증**: `X-Access-Token` 헤더
+**인증**: HttpOnly 쿠키 `fh_token_{endpointId}`
 
 **Response**: `200 OK`
 
@@ -320,7 +347,7 @@ GET /api/endpoints/{endpointId}/logs/{logId}
 DELETE /api/endpoints/{endpointId}/logs
 ```
 
-**인증**: `X-Access-Token` 헤더
+**인증**: HttpOnly 쿠키 `fh_token_{endpointId}`
 
 **Response**: `204 No Content`
 
@@ -332,7 +359,7 @@ DELETE /api/endpoints/{endpointId}/logs
 POST /api/endpoints/{endpointId}/logs/{logId}/replay
 ```
 
-**인증**: `X-Access-Token` 헤더
+**인증**: HttpOnly 쿠키 `fh_token_{endpointId}`
 
 **Request**:
 
@@ -355,31 +382,14 @@ POST /api/endpoints/{endpointId}/logs/{logId}/replay
 
 ### 5.1. SSE 연결
 
-실시간 스트림은 보안을 위해 `streamToken`을 먼저 발급받은 후 `EventSource`를 연결하는 2-Step 방식으로 동작해요.
-
-#### 1) Stream Token 발급
-
-```http
-POST /api/endpoints/{endpointId}/stream-token
-```
-
-**인증**: `X-Access-Token` 헤더
-
-**Response**: `200 OK`
-
-```json
-{
-  "streamToken": "xxx-sample-token-xxx"
-}
-```
-
-#### 2) SSE 연결
+> ⚠️ **최신화(구현 기준)**: 2-Step `stream-token` 방식은 **구현되지 않았으며 코드에 존재하지
+> 않는다**. SSE 는 일반 API 와 동일하게 **HttpOnly 쿠키**로 인증한다.
 
 ```http
-GET /api/endpoints/{endpointId}/stream?streamToken={streamToken}
+GET /api/endpoints/{endpointId}/stream
 ```
 
-**인증**: Query Parameter `streamToken` (1회용, 30초 내 사용해야 함)
+**인증**: HttpOnly 쿠키 `fh_token_{endpointId}` (FE: `new EventSource(url, { withCredentials: true })`)
 
 **Response**: `200 OK`
 
@@ -404,9 +414,11 @@ data: {"logId":"log_abc123","method":"POST","contentType":"application/json","cl
 
 **연결 제한**:
 
-- IP당 동시 SSE: 5개
-- 최대 유지 시간: 서버 설정 시간 (연결 종료 시 FE EventSource 자동 재연결)
-- Heartbeat 주기: 30초 (좀비 커넥션 방지)
+- 최대 유지 시간: 30분 (`flashhook.sse.timeout`, 연결 종료 시 FE EventSource 자동 재연결)
+- Heartbeat 주기: 30초 (`flashhook.sse.heartbeat-interval`, 좀비 커넥션 방지)
+
+> ⚠️ **최신화**: "IP당 동시 SSE 5개" 제한은 코드상 확인되지 않는다(`07_implementation_sync.md` §G4).
+> 현재 SSE 팬아웃은 단일 인스턴스 인메모리 기반이며, Redis Pub/Sub 스케일아웃은 스텁이다(§A4).
 
 ---
 
@@ -442,9 +454,15 @@ GET /api/actuator/health
 | `GET`    | `/api/endpoints/{id}/logs`                | 토큰 | 로그 목록          |
 | `GET`    | `/api/endpoints/{id}/logs/{logId}`        | 토큰 | 로그 상세          |
 | `DELETE` | `/api/endpoints/{id}/logs`                | 토큰 | 로그 전체 삭제     |
-| `POST`   | `/api/endpoints/{id}/logs/{logId}/replay` | 토큰 | 수신 웹훅 재전송   |
-| `POST`   | `/api/endpoints/{id}/stream-token`        | 토큰 | 스트림 토큰 발급   |
-| `GET`    | `/api/endpoints/{id}/stream`              | 토큰 | SSE 실시간 스트림  |
-| `GET`    | `/api/actuator/health`                    |  -   | 헬스체크           |
+| `POST`   | `/api/endpoints/{id}/logs/{logId}/replay` | 쿠키 | 수신 웹훅 재전송   |
+| `GET`    | `/api/endpoints/{id}/stream`              | 쿠키 | SSE 실시간 스트림  |
+| `GET`    | `/api/public/logs/{logId}`                |  -   | 공개 로그 공유(마스킹) |
+| `GET`    | `/api/admin/metrics`                      | Admin | 운영 메트릭        |
+| `GET`    | `/api/admin/endpoints/suspicious`         | Admin | 의심 엔드포인트     |
+| `DELETE` | `/api/admin/endpoints/{id}`               | Admin | 엔드포인트 강제 삭제 |
+| `GET/POST/DELETE` | `/api/admin/blacklist[/{ip}]`    | Admin | IP 블랙리스트 관리 |
+| `GET`    | `/actuator/health`, `/actuator/prometheus` | -  | 헬스/메트릭 (포트 9090) |
 
-총 12개 엔드포인트 (MVP)
+> ⚠️ **최신화(구현 기준)**: 인증은 모두 HttpOnly 쿠키(사용자) 또는 `X-Admin-Token`(Admin) 기반이며,
+> `stream-token` 엔드포인트는 구현되지 않았다. "총 12개(MVP)" 는 낡은 수치로, Admin/공개공유 포함 시
+> 실제 엔드포인트 수는 더 많다. 전수 목록은 `07_implementation_sync.md` §C 참조.
