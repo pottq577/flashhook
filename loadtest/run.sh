@@ -4,7 +4,11 @@
 
 set -e
 
-K6=${K6:-$(which k6 2>/dev/null || echo k6)}
+if [ -f "./k6" ]; then
+  K6="./k6"
+else
+  K6=${K6:-$(which k6 2>/dev/null || echo k6)}
+fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/scripts" && pwd)"
 RESULTS_DIR="$(dirname "${BASH_SOURCE[0]}")/results"
 mkdir -p "$RESULTS_DIR"
@@ -15,8 +19,8 @@ export BASE_URL=${BASE_URL:-http://localhost:8080}
 export ADMIN_KEY=${ADMIN_KEY:?ADMIN_KEY 환경변수를 설정하세요}
 
 check_backend() {
-  if ! curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/api/endpoints" | grep -q "^[24]"; then
-    echo "❌ Backend not reachable at $BASE_URL"
+  if ! curl -s -o /dev/null -w "%{http_code}" "http://localhost:9090/actuator/health" | grep -q "^2"; then
+    echo "❌ Backend not reachable at http://localhost:9090/actuator/health"
     exit 1
   fi
   echo "✅ Backend OK at $BASE_URL"

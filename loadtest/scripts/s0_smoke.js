@@ -18,11 +18,12 @@ export function setup() {
   endpointData = createEndpointWithCookie('smoke-test');
   if (!endpointData.endpointId) throw new Error('setup: endpoint 생성 실패');
   console.log(`Smoke test endpointId: ${endpointData.endpointId}`);
-  return { endpointId: endpointData.endpointId };
+  return endpointData;
 }
 
 export default function (data) {
   const { endpointId } = data;
+  const endpointData = data;
 
   // 1. 웹훅 수신
   const wRes = sendWebhook(endpointId, {
@@ -33,8 +34,10 @@ export default function (data) {
     'webhook 2xx': (r) => r.status >= 200 && r.status < 300,
   });
 
-  // 2. 엔드포인트 정보 조회 (인증 불필요)
-  const eRes = http.get(`${BASE_URL}/api/endpoints/${endpointId}`);
+  // 2. 엔드포인트 정보 조회 (쿠키 인증 필요)
+  const headers = {};
+  if (endpointData.cookieHeader) headers['Cookie'] = endpointData.cookieHeader;
+  const eRes = http.get(`${BASE_URL}/api/endpoints/${endpointId}`, { headers });
   check(eRes, {
     'endpoint info 2xx': (r) => r.status >= 200 && r.status < 300,
   });
