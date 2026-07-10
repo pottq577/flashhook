@@ -1,6 +1,6 @@
 /**
  * S1 — 웹훅 수신 용량 테스트 (ramping-arrival-rate)
- * 목적: SSE 팬아웃 임계 TPS 확인 (문서 예측: ~400 TPS)
+ * 목적: 단일 인스턴스의 웹훅 수신 최대 처리량(TPS) 및 지연 시간(Latency) 확인
  *
  * 전제: application-load.yaml 프로파일 활성화 필요 (RL/로그 상한 완화)
  * 실행: k6 run s1_webhook_capacity.js --env BASE_URL=http://localhost:8080

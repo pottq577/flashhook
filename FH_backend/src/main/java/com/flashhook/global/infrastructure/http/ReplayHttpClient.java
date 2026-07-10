@@ -19,6 +19,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -39,6 +40,9 @@ public class ReplayHttpClient {
     static {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
     }
+
+    @Value("${flashhook.security.allow-local-replay:false}")
+    private boolean allowLocalReplay;
 
     public void sendRequest(String destinationUrl, String method, HttpHeaders originalHeaders, String rawBody) {
         InetAddress resolvedIp = validateReplayDestination(destinationUrl);
@@ -173,12 +177,12 @@ public class ReplayHttpClient {
             InetAddress inetAddress = InetAddress.getByName(uri.getHost());
             byte[] address = inetAddress.getAddress();
             boolean isIpv6Ula = address.length == 16 && (address[0] & (byte) 0xFE) == (byte) 0xFC;
-            if (inetAddress.isAnyLocalAddress() ||
+            if (!allowLocalReplay && (inetAddress.isAnyLocalAddress() ||
                     inetAddress.isLoopbackAddress() ||
                     inetAddress.isLinkLocalAddress() ||
                     inetAddress.isSiteLocalAddress() ||
                     inetAddress.isMulticastAddress() ||
-                    isIpv6Ula) {
+                    isIpv6Ula)) {
                 throw new WebhookException(ErrorCode.FORBIDDEN);
             }
             return inetAddress;

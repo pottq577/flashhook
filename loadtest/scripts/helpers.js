@@ -90,8 +90,9 @@ export function getLogs(endpointId, cookieHeader) {
  */
 export function cleanup() {
   const headers = { 'X-Admin-Key': ADMIN_KEY };
-  const rRes = http.post(`${BASE_URL}/api/test/cleanup/redis`, null, { headers });
-  const mRes = http.post(`${BASE_URL}/api/test/cleanup/mongo`, null, { headers });
+  const tags = { name: 'cleanup' };
+  const rRes = http.post(`${BASE_URL}/api/test/cleanup/redis`, null, { headers, tags });
+  const mRes = http.post(`${BASE_URL}/api/test/cleanup/mongo`, null, { headers, tags });
   check(rRes, { 'redis cleanup ok': (r) => r.status === 200 });
   check(mRes, { 'mongo cleanup ok': (r) => r.status === 200 });
   console.log(`Cleanup: redis=${rRes.status}, mongo=${mRes.status}`);
