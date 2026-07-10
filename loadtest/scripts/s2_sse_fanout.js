@@ -14,7 +14,7 @@ export const options = {
       executor: 'constant-vus',
       exec: 'sseSub',
       vus: 500,
-      duration: '2m',
+      duration: '2m40s', // 30s+1m+30s webhook duration + 30s grace
     },
     webhook_send: {
       executor: 'ramping-arrival-rate',

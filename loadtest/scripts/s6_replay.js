@@ -1,7 +1,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Counter } from 'k6/metrics';
-import { cleanup, createEndpointWithCookie, sendWebhook, getLogs, BASE_URL } from './helpers.js';
+import { cleanup, createEndpointWithCookie, sendWebhook, getLogs, BASE_URL, http429Count } from './helpers.js';
 
 export const replaySuccess = new Counter('replay_success');
 export const replayFailed = new Counter('replay_failed');
@@ -66,7 +66,7 @@ export default function (data) {
   if (res.status === 200 || res.status === 201) {
     replaySuccess.add(1);
   } else if (res.status === 429) {
-    replaySuccess.add(1); // 429 is expected due to 20/min replay rate limit
+    http429Count.add(1); // 429 is expected due to 20/min replay rate limit
   } else {
     replayFailed.add(1);
   }

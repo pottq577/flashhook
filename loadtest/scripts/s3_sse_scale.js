@@ -12,7 +12,7 @@ export const options = {
     scale: {
       executor: 'constant-vus',
       vus: 500,
-      duration: '1m', // Reduced from 30m for quick verification
+      duration: __ENV.DURATION || '1m', // Parametrized for 30m soak
     },
   },
 };

@@ -40,11 +40,14 @@ run_s1() {
 
 run_s2() {
   echo "=== S2 SSE Fanout Test (load profile required) ==="
+  echo "⚠️ xk6-sse 확장이 필요합니다. 기본 k6 대신 커스텀 바이너리를 사용하세요."
   $K6 run --out json="$RESULTS_DIR/s2_sse_fanout_${TS}.json" --env BASE_URL="$BASE_URL" "$SCRIPT_DIR/s2_sse_fanout.js"
 }
 
 run_s3() {
   echo "=== S3 SSE Connection Scale Test ==="
+  echo "⚠️ xk6-sse 확장이 필요합니다. 기본 k6 대신 커스텀 바이너리를 사용하세요."
+  echo "팁: Soak 테스트 시에는 DURATION=30m 환경변수를 넘겨주세요."
   $K6 run --out json="$RESULTS_DIR/s3_sse_scale_${TS}.json" --env BASE_URL="$BASE_URL" "$SCRIPT_DIR/s3_sse_scale.js"
 }
 
@@ -59,7 +62,7 @@ run_s5() {
 }
 
 run_s6() {
-  echo "=== S6 Replay Test ==="
+  echo "=== S6 Replay Test (load profile required) ==="
   $K6 run --out json="$RESULTS_DIR/s6_replay_${TS}.json" --env BASE_URL="$BASE_URL" "$SCRIPT_DIR/s6_replay.js"
 }
 
