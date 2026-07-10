@@ -1,9 +1,8 @@
 import http from 'k6/http';
 import { check } from 'k6';
 import { Counter } from 'k6/metrics';
-import { cleanup, BASE_URL } from './helpers.js';
+import { cleanup, BASE_URL, http429Count } from './helpers.js';
 
-export const http429Count = new Counter('http_429_count');
 export const endpointCreatedCount = new Counter('endpoint_created_count');
 
 export const options = {

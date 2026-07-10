@@ -7,7 +7,8 @@ import { check, sleep } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 
 export const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
-export const ADMIN_KEY = __ENV.ADMIN_KEY || 'FhAdmin729XpQk4v';
+export const ADMIN_KEY = __ENV.ADMIN_KEY;
+if (!ADMIN_KEY) throw new Error('ADMIN_KEY 환경변수가 필요합니다');
 
 // 커스텀 메트릭
 export const http429Count = new Counter('http_429_count');

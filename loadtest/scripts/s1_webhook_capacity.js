@@ -88,8 +88,8 @@ export default function (data) {
   webhookDuration.add(Date.now() - startTs);
 
   if (res.status === 429) {
-    http429Count.add(1);
     // 429는 오류율에서 제외 (정상 동작)
+    // helpers.js의 sendWebhook에서 이미 http429Count를 증가시킴
     return;
   }
 
