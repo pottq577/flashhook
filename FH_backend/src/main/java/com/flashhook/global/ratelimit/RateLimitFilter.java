@@ -81,8 +81,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
             if (parts.length >= 7) {
                 String endpointId = parts[3];
                 String key = "rl:replay:" + endpointId;
-                // 1분(60초) 기준 20회 제한
-                if (!rateLimitService.isAllowed(key, 20, 60)) {
+                // 1분(60초) 기준 설정된 제한
+                if (!rateLimitService.isAllowed(key, properties.ratelimit().replay(), 60)) {
                     sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
                     return;
                 }
@@ -92,8 +92,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // 4. Public API (GET /api/public/logs/{logId})
         if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/public/logs/")) {
             String key = "rl:public_log:" + clientIp;
-            // 1분(60초) 기준 60회 제한
-            if (!rateLimitService.isAllowed(key, 60, 60)) {
+            // 1분(60초) 기준 설정된 제한
+            if (!rateLimitService.isAllowed(key, properties.ratelimit().publicLog(), 60)) {
                 sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
                 return;
             }

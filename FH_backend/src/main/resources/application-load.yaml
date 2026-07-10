@@ -12,6 +12,8 @@ flashhook:
   ratelimit:
     webhook-receive: 99999  # 사실상 무제한 (용량 측정용)
     endpoint-create: 99999  # 사실상 무제한
+    replay: 99999           # 사실상 무제한 (S6 측정용)
+    public-log: 99999       # 사실상 무제한 (S5 측정용)
     fail-open: true
   log:
     max-count: 100000       # 500 → 100000 (측정 오염 방지)

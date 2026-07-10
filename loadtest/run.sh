@@ -16,11 +16,12 @@ RESULTS_DIR="$(cd "$RESULTS_DIR" && pwd)"
 
 TS=$(date +%Y%m%d_%H%M%S)
 export BASE_URL=${BASE_URL:-http://localhost:8080}
+export HEALTH_URL=${HEALTH_URL:-http://localhost:9090/actuator/health}
 export ADMIN_KEY=${ADMIN_KEY:?ADMIN_KEY 환경변수를 설정하세요}
 
 check_backend() {
-  if ! curl -s -o /dev/null -w "%{http_code}" "http://localhost:9090/actuator/health" | grep -q "^2"; then
-    echo "❌ Backend not reachable at http://localhost:9090/actuator/health"
+  if ! curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" | grep -q "^2"; then
+    echo "❌ Backend not reachable at $HEALTH_URL"
     exit 1
   fi
   echo "✅ Backend OK at $BASE_URL"
@@ -97,5 +98,5 @@ case "${1:-all}" in
     echo "⚠️ S1~S6 (성능/한계치 측정) 테스트는 application-load.yaml 프로파일 활성화 상태에서 개별적으로 실행하세요:"
     echo "예: ./run.sh s1"
     ;;
-  *) echo "Usage: $0 [s0|s1|s2|s3|s4|s5|s6|s7|s8|all]" ;;
+  *) echo "Usage: $0 [s0|s1|s2|s3|s4|s5|s6|s7|s8|all]" >&2; exit 2 ;;
 esac

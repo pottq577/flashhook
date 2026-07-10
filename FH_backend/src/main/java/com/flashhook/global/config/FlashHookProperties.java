@@ -25,6 +25,8 @@ public record FlashHookProperties(
     public record RateLimitProperties(
             @DefaultValue("5") int endpointCreate,
             @DefaultValue("100") int webhookReceive,
+            @DefaultValue("20") int replay,
+            @DefaultValue("60") int publicLog,
             @DefaultValue("true") boolean failOpen,
             @DefaultValue("false") boolean blacklistFailOpen) {
     }
