@@ -26,6 +26,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     handler = SinkRequestHandler
+    socketserver.ThreadingTCPServer.allow_reuse_address = True
     with socketserver.ThreadingTCPServer((args.host, args.port), handler) as httpd:
         print(f"Sink server listening on http://{args.host}:{args.port}")
         httpd.serve_forever()

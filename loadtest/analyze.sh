@@ -60,7 +60,7 @@ def analyze(file_path):
             if not line: continue
             try:
                 data = json.loads(line)
-            except: continue
+            except json.JSONDecodeError: continue
             
             if data.get('type') == 'Point':
                 metric = data.get('metric')
