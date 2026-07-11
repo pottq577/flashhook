@@ -1,0 +1,31 @@
+# 부하 테스트 전용 프로파일
+# 레이트리밋·로그 상한을 대폭 상향 — 절대 프로덕션에 사용 금지
+#
+# 사용: spring.profiles.active=local,load
+#  (local 프로파일이 선행 로드되고, load 가 그 위를 덮어씀)
+#
+# 코드 검증(PR_report.md) 결과 반영:
+#  - RateLimitFilter: webhook-receive/endpoint-create/replay/public-log 4종 레이트리밋 존재 확인
+#  - taskExecutor: core=4 / max=8 / queue=100 (디폴트 측정용) — Phase 2 튜닝 시 이 파일에서 오버라이드 예정
+#  - Redis 풀: Lettuce 기본 단일 공유 커넥션 (별도 pool 설정 없음)
+flashhook:
+  ratelimit:
+    webhook-receive: 99999  # 사실상 무제한 (용량 측정용)
+    endpoint-create: 99999  # 사실상 무제한
+    replay: 99999           # 사실상 무제한 (S6 측정용)
+    public-log: 99999       # 사실상 무제한 (S5 측정용)
+    fail-open: true
+  log:
+    max-count: 100000       # 500 → 100000 (측정 오염 방지)
+    max-size-bytes: 524288000 # 5MB → 500MB
+
+# 부하 테스트 중 TestController 활성화 (local 프로파일에서 이미 true이므로 중복이나 명시)
+  test-endpoints:
+    enabled: true
+
+# 부하 테스트 전용 엔드포인트 노출
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, env

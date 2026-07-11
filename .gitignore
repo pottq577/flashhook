@@ -56,3 +56,7 @@ docs/qa/*
 
 ### OS Metadata ###
 *:Zone.Identifier
+
+### Load Test ###
+loadtest/k6
+loadtest/results/

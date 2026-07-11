@@ -118,6 +118,12 @@ sequenceDiagram
 - **상태 관리 분리**: FSD 구조, Zustand, TanStack Query로 UI 상태와 서버 상태를 분리했어요.
 - **자동화된 품질 검증**: Playwright와 Axe로 주요 흐름과 접근성 회귀를 검사해요.
 
+### Load Test & Reliability
+
+- **목표 성능 달성**: 비동기 EventPublisher 구조를 통해 단일 인스턴스 톰캣 서버로 **최대 600 TPS** (8분간 총 13만 3천 건)의 대규모 웹훅 수신을 큐 적체 현상 없이 평균 8.29ms 이내에 안정적으로 소화함을 실측했습니다.
+- **대규모 실시간 연결 유지**: 500개의 SSE 커넥션이 연결된 상태에서 다량의 이벤트가 유입되는 고부하 상황에서도, 송신된 이벤트가 트래픽 종료 후 100% 도달하며 단 1건의 커넥션 드랍이나 유실 없이 안정적으로 스트림을 유지함을 검증했습니다.
+- **악의적 트래픽 억제**: 웹훅 수신, 엔드포인트 생성 및 Replay 전반에 Rate Limit 방어선을 구축하여, 인가되지 않은 대량의 웹훅 수신(분당 100건 초과)이나 엔드포인트 대량 생성 시도시 한도 초과분을 차단(`429 Too Many Requests`)하여 시스템 오버헤드를 방어했습니다.
+
 ### 품질 최적화
 
 - **SEO & 웹 성능 최적화**: 히어로 이미지 우선 로딩(`fetchpriority="high"`) 및 폰트 프리로드를 통해 LCP를 개선하고, 다국어 타겟팅 및 OpenGraph, JSON-LD 동적 삽입을 통한 SEO/GEO 최적화를 적용했어요.
@@ -176,6 +182,7 @@ npm run dev
 | [System Architecture](docs/artifacts/04_system_architecture.md)   | 시스템 구조와 데이터 흐름         |
 | [API Spec](docs/artifacts/05_api_spec.md)                         | API 엔드포인트와 요청/응답 스키마 |
 | [Error Dictionary](docs/artifacts/06_error_dictionary.md)         | 공통 에러 코드                    |
+| [Load Test Limits](docs/artifacts/07_load_test_limits.md)         | 시스템 한계치 및 부하 테스트 결과 |
 | [Security Overview](docs/security/SECURITY_OVERVIEW.md)           | 공개 가능한 보안 설계 개요        |
 | [Development Guide](docs/DEVELOPMENT.md)                          | 로컬 개발 및 검증 가이드          |
 | [ADR 0001](docs/adr/0001-preset-catalog-lives-in-fe-constants.md) | 프리셋 카탈로그 위치 결정         |
