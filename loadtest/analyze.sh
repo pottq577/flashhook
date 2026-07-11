@@ -38,7 +38,8 @@ def analyze(file_path):
     target_custom_metrics = {
         'sse_events_received', 'webhook_success_count',
         'rl_hit_count', 'rl_miss_count', 'endpoint_created_count', 'log_query_success',
-        'replay_success', 'replay_failed', 'http_429_count'
+        'replay_success', 'replay_failed', 'http_429_count',
+        'executor.rejected.tasks'  # SSE taskExecutor 큐 포화로 인한 거부 횟수 (유실 교차검증용)
     }
     # Rate 타입: 각 샘플이 0/1이며 true 비율로 계산해야 함
     target_rate_metrics = {

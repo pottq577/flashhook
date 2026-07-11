@@ -1,4 +1,13 @@
-import http from 'k6/http';
+/**
+ * S2 — SSE 팬아웃 임계 테스트
+ *
+ * Grace Period 주의:
+ *   - webhook_send 종료 T=125s, sse_subs 유지 T=160s → 35초 grace period 코드상 보장
+ *   - 단, 큐(100)이 지속 포화 상태였다면 35초로 백로그 소화 안 될 수 있음
+ *   - 본 실행 전 dry-run(축소 버전 1분) 선행 후:
+ *     1) executor_queued 값이 T=125s 시점에 0 근접인지 확인
+ *     2) executor.rejected.tasks 카운터가 0이면 grace 구간 충분, >0이면 기간 연장 검토
+ */
 import { check, sleep } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import sse from 'k6/x/sse';
