@@ -22,3 +22,10 @@ flashhook:
 # 부하 테스트 중 TestController 활성화 (local 프로파일에서 이미 true이므로 중복이나 명시)
   test-endpoints:
     enabled: true
+
+# 부하 테스트 전용 엔드포인트 노출
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, env
