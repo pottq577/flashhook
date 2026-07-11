@@ -9,8 +9,6 @@
 #  - taskExecutor: core=4 / max=8 / queue=100 (디폴트 측정용) — Phase 2 튜닝 시 이 파일에서 오버라이드 예정
 #  - Redis 풀: Lettuce 기본 단일 공유 커넥션 (별도 pool 설정 없음)
 flashhook:
-  security:
-    allow-local-replay: true # 부하 테스트 시 SSRF 방어(로컬IP 차단) 우회
   ratelimit:
     webhook-receive: 99999  # 사실상 무제한 (용량 측정용)
     endpoint-create: 99999  # 사실상 무제한

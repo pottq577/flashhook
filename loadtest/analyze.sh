@@ -36,10 +36,15 @@ def analyze(file_path):
     custom_trends = defaultdict(list)
     
     target_custom_metrics = {
-        'sse_events_received', 'webhook_error_rate', 'webhook_success_count',
+        'sse_events_received', 'webhook_success_count',
         'rl_hit_count', 'rl_miss_count', 'endpoint_created_count', 'log_query_success',
         'replay_success', 'replay_failed', 'http_429_count'
     }
+    # Rate 타입: 각 샘플이 0/1이며 true 비율로 계산해야 함
+    target_rate_metrics = {
+        'webhook_error_rate'
+    }
+    rate_buckets = defaultdict(lambda: {'true_count': 0, 'total': 0})
     target_trend_metrics = {
         'sse_delay_ms', 'pre_cap_duration_ms', 'post_cap_duration_ms'
     }
@@ -85,6 +90,11 @@ def analyze(file_path):
                 elif metric in target_custom_metrics:
                     if val is not None:
                         custom_counters[metric] += val
+                elif metric in target_rate_metrics:
+                    if val is not None:
+                        rate_buckets[metric]['total'] += 1
+                        if val > 0:
+                            rate_buckets[metric]['true_count'] += 1
                 elif metric in target_trend_metrics:
                     if val is not None:
                         custom_trends[metric].append(val)
@@ -106,16 +116,23 @@ def analyze(file_path):
     if not has_duration:
         print("   데이터 없음")
         
-    print("\n3. 커스텀 지표 (Counters/Rates):")
+    print("\n3. 커스텀 지표 (Counters):") 
     if not custom_counters:
         print("   데이터 없음")
     for metric, val in sorted(custom_counters.items()):
-        if 'rate' in metric:
-            print(f"   {metric} : {val*100:.2f} %")
+        print(f"   {metric} : {int(val)} 건")
+
+    print("\n4. 커스텀 지표 (Rates):") 
+    if not rate_buckets:
+        print("   데이터 없음")
+    for metric, bucket in sorted(rate_buckets.items()):
+        if bucket['total'] > 0:
+            rate_pct = bucket['true_count'] / bucket['total'] * 100
+            print(f"   {metric} : {rate_pct:.2f}%  (true={bucket['true_count']}, total={bucket['total']})") 
         else:
-            print(f"   {metric} : {int(val)} 건")
+            print(f"   {metric} : 데이터 없음")
             
-    print("\n4. 커스텀 지표 (Trends):")
+    print("\n5. 커스텀 지표 (Trends):")
     if not custom_trends:
         print("   데이터 없음")
     for metric, durations in sorted(custom_trends.items()):

@@ -31,7 +31,14 @@ check_backend() {
 
 check_profile() {
   local req=$1
-  local is_load=$(curl -s http://127.0.0.1:9090/actuator/env | python3 -c "import sys, json; data=json.load(sys.stdin); print('load' in data.get('activeProfiles', []))" 2>/dev/null)
+  local env_json
+  env_json=$(curl -sf http://127.0.0.1:9090/actuator/env 2>/dev/null)
+  if [ -z "$env_json" ]; then
+    echo "❌ 에러: actuator/env 에 접근 실패. 백엔드가 기동 중인지 확인하세요."
+    exit 1
+  fi
+  local is_load
+  is_load=$(echo "$env_json" | python3 -c "import sys, json; data=json.load(sys.stdin); print('load' in data.get('activeProfiles', []))" 2>/dev/null)
   
   if [ "$req" = "load" ] && [ "$is_load" != "True" ]; then
     echo "❌ 에러: 이 시나리오는 'load' 프로파일이 필요합니다. SPRING_PROFILES_ACTIVE=local,load 로 기동하세요."
@@ -48,6 +55,8 @@ start_monitor() {
   echo "📡 프로메테우스 메트릭 수집 시작 (5초 간격) -> $(basename $out_file)"
   while true; do
     echo "--- $(date -u +"%Y-%m-%dT%H:%M:%SZ") ---" >> "$out_file"
+    # 지표 목록: jvm_memory, tomcat 스레드, mongodb, lettuce(Redis), async taskExecutor 풀
+    # executor_ 패턴은 AsyncConfig에 ExecutorServiceMetrics.monitor() 바인딩 후 노출됨
     curl -s http://127.0.0.1:9090/actuator/prometheus | grep -E "jvm_memory|tomcat_threads|mongodb_driver|lettuce_command|executor_" >> "$out_file" || true
     sleep 5
   done &
