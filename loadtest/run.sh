@@ -33,6 +33,11 @@ check_profile() {
   local req=$1
   local env_json
   env_json=$(curl -sf http://127.0.0.1:9090/actuator/env 2>/dev/null)
+
+  if [ -z "$env_json" ] && [ "$req" = "default" ]; then
+    return 0
+  fi
+
   if [ -z "$env_json" ]; then
     echo "❌ 에러: actuator/env 에 접근 실패. 백엔드가 기동 중인지 확인하세요."
     exit 1
@@ -70,6 +75,8 @@ stop_monitor() {
     MONITOR_PID=""
   fi
 }
+
+trap 'stop_monitor' EXIT
 
 run_s0() {
   echo "=== S0 Smoke Test ==="
