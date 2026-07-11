@@ -53,7 +53,7 @@ export default function (data) {
   const { endpointId, cookieHeader, logId, targetEpId } = data;
   
   const payload = JSON.stringify({
-    destinationUrl: `${BASE_URL}/api/hooks/${targetEpId}` // 유효한 웹훅 수신 엔드포인트
+    destinationUrl: 'http://198.51.100.1:9999/sink' // TEST-NET dummy interface sink server
   });
   
   const headers = {
