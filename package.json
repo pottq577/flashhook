@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "format:java": "prettier --write \"FH_backend/src/main/java/com/flashhook/**/*.java\"",
     "prepare": "husky"
   },
   "repository": {
