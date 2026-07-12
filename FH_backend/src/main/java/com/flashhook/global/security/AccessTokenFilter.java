@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.flashhook.domain.endpoint.model.Endpoint;
@@ -24,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AccessTokenFilter extends OncePerRequestFilter {
 
-    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
     private final EndpointRepository endpointRepository;
 
     @Override
