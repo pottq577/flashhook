@@ -33,6 +33,7 @@ lerna-debug.log*
 ### 환경 변수 / 시크릿 ###
 .env
 .env.*
+.env*
 *.local
 !.env.example
 keys/
@@ -50,9 +51,8 @@ docs/qa/*
 !docs/qa/qa-runner-full.mjs
 
 ### AI Agents ###
-.agents/
 .vercel
-.env*
+.agents/pipeline/state.json
 
 ### OS Metadata ###
 *:Zone.Identifier
