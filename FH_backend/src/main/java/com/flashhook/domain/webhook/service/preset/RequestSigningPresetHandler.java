@@ -1,11 +1,13 @@
 package com.flashhook.domain.webhook.service.preset;
 
-import java.util.Map;
-
 import com.flashhook.domain.webhook.dto.WebhookPayload;
+import java.util.Map;
 
 public interface RequestSigningPresetHandler {
     String getPresetType();
 
-    WebhookPayload handleRequestGeneration(WebhookPayload payload, Map<String, Object> presetOptions);
+    WebhookPayload handleRequestGeneration(
+        WebhookPayload payload,
+        Map<String, Object> presetOptions
+    );
 }

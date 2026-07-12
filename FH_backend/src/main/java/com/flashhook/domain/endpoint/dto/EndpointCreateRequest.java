@@ -8,5 +8,5 @@ import lombok.Builder;
  */
 @Builder
 public record EndpointCreateRequest(
-        @Size(max = 100, message = "라벨은 최대 100자까지 가능합니다") String label) {
-}
+    @Size(max = 100, message = "라벨은 최대 100자까지 가능합니다") String label
+) {}

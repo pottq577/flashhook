@@ -1,22 +1,18 @@
 package com.flashhook.domain.webhook.service.preset;
 
-import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import java.util.Map;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Component;
-
 import com.flashhook.domain.webhook.dto.WebhookPayload;
 import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.exception.PresetException;
 import com.flashhook.global.util.EncryptionUtil;
-
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.util.Map;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -31,13 +27,19 @@ public class GitHubPresetHandler implements RequestSigningPresetHandler {
     }
 
     @Override
-    public WebhookPayload handleRequestGeneration(WebhookPayload payload, Map<String, Object> presetOptions) {
+    public WebhookPayload handleRequestGeneration(
+        WebhookPayload payload,
+        Map<String, Object> presetOptions
+    ) {
         if (presetOptions == null || !presetOptions.containsKey("secretKey")) {
             return payload;
         }
 
         Object encryptedSecretValue = presetOptions.get("secretKey");
-        if (!(encryptedSecretValue instanceof String encryptedSecret) || encryptedSecret.isBlank()) {
+        if (
+            !(encryptedSecretValue instanceof String encryptedSecret) ||
+            encryptedSecret.isBlank()
+        ) {
             return payload;
         }
 
@@ -47,7 +49,11 @@ public class GitHubPresetHandler implements RequestSigningPresetHandler {
         }
 
         String rawBody = payload.body() == null ? "" : payload.body();
-        String digest = "sha256=" + encodeHex(hmacSha256(secretKey.getBytes(StandardCharsets.UTF_8), rawBody));
+        String digest =
+            "sha256=" +
+            encodeHex(
+                hmacSha256(secretKey.getBytes(StandardCharsets.UTF_8), rawBody)
+            );
 
         HttpHeaders newHeaders = new HttpHeaders();
         if (payload.headers() != null) {
@@ -55,9 +61,7 @@ public class GitHubPresetHandler implements RequestSigningPresetHandler {
         }
         newHeaders.set("X-Hub-Signature-256", digest);
 
-        return payload.toBuilder()
-                .headers(newHeaders)
-                .build();
+        return payload.toBuilder().headers(newHeaders).build();
     }
 
     private byte[] hmacSha256(byte[] key, String data) {
@@ -67,12 +71,19 @@ public class GitHubPresetHandler implements RequestSigningPresetHandler {
             return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
         } catch (GeneralSecurityException | IllegalArgumentException e) {
             log.error("Failed to generate HMAC-SHA256 signature", e);
-            throw new PresetException(ErrorCode.PRESET_SIGNATURE_FAILED,
-                    "GitHub 서명 생성에 실패했습니다");
+            throw new PresetException(
+                ErrorCode.PRESET_SIGNATURE_FAILED,
+                "GitHub 서명 생성에 실패했습니다"
+            );
         } catch (Exception e) {
-            log.error("Unexpected error during HMAC-SHA256 signature generation", e);
-            throw new PresetException(ErrorCode.PRESET_SIGNATURE_FAILED,
-                    "GitHub 서명 생성 중 예상치 못한 오류가 발생했습니다");
+            log.error(
+                "Unexpected error during HMAC-SHA256 signature generation",
+                e
+            );
+            throw new PresetException(
+                ErrorCode.PRESET_SIGNATURE_FAILED,
+                "GitHub 서명 생성 중 예상치 못한 오류가 발생했습니다"
+            );
         }
     }
 

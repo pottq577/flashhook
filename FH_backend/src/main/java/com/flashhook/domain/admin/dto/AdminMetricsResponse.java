@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record AdminMetricsResponse(
-        long endpointsCreatedToday,
-        long totalWebhooksReceived,
-        int activeSseConnections) {
-}
+    long endpointsCreatedToday,
+    long totalWebhooksReceived,
+    int activeSseConnections
+) {}

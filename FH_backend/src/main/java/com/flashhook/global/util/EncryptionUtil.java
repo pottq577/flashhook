@@ -1,21 +1,18 @@
 package com.flashhook.global.util;
 
+import com.flashhook.global.config.FlashHookProperties;
+import com.flashhook.global.exception.EncryptionException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
-
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.springframework.stereotype.Component;
-
-import com.flashhook.global.config.FlashHookProperties;
-import com.flashhook.global.exception.EncryptionException;
 
 @Component
 public class EncryptionUtil {
@@ -30,9 +27,14 @@ public class EncryptionUtil {
     public EncryptionUtil(FlashHookProperties properties) {
         String secretKey = properties.security().secretKey();
         if (secretKey == null || secretKey.isBlank()) {
-            throw new IllegalStateException("flashhook.security.secret-key must be configured");
+            throw new IllegalStateException(
+                "flashhook.security.secret-key must be configured"
+            );
         }
-        byte[] validKeyBytes = deriveKey(secretKey.getBytes(StandardCharsets.UTF_8), 32);
+        byte[] validKeyBytes = deriveKey(
+            secretKey.getBytes(StandardCharsets.UTF_8),
+            32
+        );
         this.key = new SecretKeySpec(validKeyBytes, KEY_ALGORITHM);
     }
 
@@ -40,7 +42,9 @@ public class EncryptionUtil {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(inputKey, "HmacSHA256"));
-            byte[] derived = mac.doFinal("flashhook-encryption-key".getBytes(StandardCharsets.UTF_8));
+            byte[] derived = mac.doFinal(
+                "flashhook-encryption-key".getBytes(StandardCharsets.UTF_8)
+            );
             return Arrays.copyOf(derived, length);
         } catch (GeneralSecurityException | IllegalArgumentException e) {
             throw new EncryptionException("Key derivation failed", e);
@@ -48,14 +52,19 @@ public class EncryptionUtil {
     }
 
     public String encrypt(String value) {
-        if (value == null)
-            return null;
+        if (value == null) return null;
         try {
             byte[] iv = new byte[IV_LENGTH];
             secureRandom.nextBytes(iv);
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-            cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(TAG_LENGTH_BITS, iv));
-            byte[] encrypted = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
+            cipher.init(
+                Cipher.ENCRYPT_MODE,
+                key,
+                new GCMParameterSpec(TAG_LENGTH_BITS, iv)
+            );
+            byte[] encrypted = cipher.doFinal(
+                value.getBytes(StandardCharsets.UTF_8)
+            );
             byte[] out = new byte[IV_LENGTH + encrypted.length];
             System.arraycopy(iv, 0, out, 0, IV_LENGTH);
             System.arraycopy(encrypted, 0, out, IV_LENGTH, encrypted.length);
@@ -66,14 +75,21 @@ public class EncryptionUtil {
     }
 
     public String decrypt(String value) {
-        if (value == null)
-            return null;
+        if (value == null) return null;
         try {
             byte[] decoded = Base64.getDecoder().decode(value);
             byte[] iv = Arrays.copyOfRange(decoded, 0, IV_LENGTH);
-            byte[] encrypted = Arrays.copyOfRange(decoded, IV_LENGTH, decoded.length);
+            byte[] encrypted = Arrays.copyOfRange(
+                decoded,
+                IV_LENGTH,
+                decoded.length
+            );
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-            cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_LENGTH_BITS, iv));
+            cipher.init(
+                Cipher.DECRYPT_MODE,
+                key,
+                new GCMParameterSpec(TAG_LENGTH_BITS, iv)
+            );
             byte[] decrypted = cipher.doFinal(encrypted);
             return new String(decrypted, StandardCharsets.UTF_8);
         } catch (GeneralSecurityException | IllegalArgumentException e) {

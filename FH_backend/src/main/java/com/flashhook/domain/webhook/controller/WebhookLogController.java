@@ -1,5 +1,12 @@
 package com.flashhook.domain.webhook.controller;
 
+import com.flashhook.domain.webhook.dto.ReplayRequest;
+import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
+import com.flashhook.domain.webhook.dto.WebhookLogResponse;
+import com.flashhook.domain.webhook.service.WebhookLogService;
+import com.flashhook.domain.webhook.service.WebhookReplayService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,15 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.flashhook.domain.webhook.dto.ReplayRequest;
-import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
-import com.flashhook.domain.webhook.dto.WebhookLogResponse;
-import com.flashhook.domain.webhook.service.WebhookLogService;
-import com.flashhook.domain.webhook.service.WebhookReplayService;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 /**
  * 웹훅 로그 조회/삭제 컨트롤러
@@ -36,12 +34,19 @@ public class WebhookLogController {
      */
     @GetMapping
     public ResponseEntity<Page<WebhookLogResponse>> list(
-            @PathVariable String endpointId,
-            @RequestParam(required = false) String lastSeenId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "desc") String sort) {
-        Page<WebhookLogResponse> response = webhookLogService.getLogs(endpointId, lastSeenId, page, size, sort);
+        @PathVariable String endpointId,
+        @RequestParam(required = false) String lastSeenId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size,
+        @RequestParam(defaultValue = "desc") String sort
+    ) {
+        Page<WebhookLogResponse> response = webhookLogService.getLogs(
+            endpointId,
+            lastSeenId,
+            page,
+            size,
+            sort
+        );
         return ResponseEntity.ok(response);
     }
 
@@ -50,9 +55,13 @@ public class WebhookLogController {
      */
     @GetMapping("/{logId}")
     public ResponseEntity<WebhookLogDetailResponse> detail(
-            @PathVariable String endpointId,
-            @PathVariable String logId) {
-        WebhookLogDetailResponse response = webhookLogService.getLogDetail(endpointId, logId);
+        @PathVariable String endpointId,
+        @PathVariable String logId
+    ) {
+        WebhookLogDetailResponse response = webhookLogService.getLogDetail(
+            endpointId,
+            logId
+        );
         return ResponseEntity.ok(response);
     }
 
@@ -70,10 +79,15 @@ public class WebhookLogController {
      */
     @PostMapping("/{logId}/replay")
     public ResponseEntity<Void> replay(
-            @PathVariable String endpointId,
-            @PathVariable String logId,
-            @Valid @RequestBody ReplayRequest request) {
-        webhookReplayService.replayLog(endpointId, logId, request.destinationUrl());
+        @PathVariable String endpointId,
+        @PathVariable String logId,
+        @Valid @RequestBody ReplayRequest request
+    ) {
+        webhookReplayService.replayLog(
+            endpointId,
+            logId,
+            request.destinationUrl()
+        );
         return ResponseEntity.ok().build();
     }
 }

@@ -1,18 +1,15 @@
 package com.flashhook.domain.webhook.service.preset;
 
+import com.flashhook.domain.endpoint.model.MockConfig;
 import java.util.Map;
 import java.util.Objects;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
-
-import com.flashhook.domain.endpoint.model.MockConfig;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -30,34 +27,65 @@ public class SlackPresetHandler implements ResponsePresetHandler {
     }
 
     @Override
-    public DeferredResult<ResponseEntity<?>> handleResponse(String rawBody, MockConfig mockConfig) {
+    public DeferredResult<ResponseEntity<?>> handleResponse(
+        String rawBody,
+        MockConfig mockConfig
+    ) {
         if (rawBody == null || rawBody.isEmpty()) {
-            DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
-            deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+            DeferredResult<ResponseEntity<?>> deferredResult =
+                new DeferredResult<>(15000L);
+            deferredResult.setResult(
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            );
             return deferredResult;
         }
         try {
             JsonNode root = objectMapper.readTree(rawBody);
 
-            if (root.has("type") && "url_verification".equals(root.get("type").asString()) && root.has("challenge")) {
+            if (
+                root.has("type") &&
+                "url_verification".equals(root.get("type").asString()) &&
+                root.has("challenge")
+            ) {
                 String challenge = root.get("challenge").asString();
-                Map<String, String> responseBody = Map.of("challenge", challenge);
-                DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
-                deferredResult.setResult(ResponseEntity.ok()
-                        .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
-                        .body(Objects.requireNonNull(objectMapper.writeValueAsString(responseBody))));
+                Map<String, String> responseBody = Map.of(
+                    "challenge",
+                    challenge
+                );
+                DeferredResult<ResponseEntity<?>> deferredResult =
+                    new DeferredResult<>(15000L);
+                deferredResult.setResult(
+                    ResponseEntity.ok()
+                        .contentType(
+                            Objects.requireNonNull(MediaType.APPLICATION_JSON)
+                        )
+                        .body(
+                            Objects.requireNonNull(
+                                objectMapper.writeValueAsString(responseBody)
+                            )
+                        )
+                );
                 return deferredResult;
             }
             return null;
         } catch (JacksonException e) {
             log.error("Failed to parse Slack URL Verification payload", e);
-            DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
-            deferredResult.setResult(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+            DeferredResult<ResponseEntity<?>> deferredResult =
+                new DeferredResult<>(15000L);
+            deferredResult.setResult(
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            );
             return deferredResult;
         } catch (Exception e) {
-            log.error("Unexpected error during Slack URL Verification handling", e);
-            DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(15000L);
-            deferredResult.setResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            log.error(
+                "Unexpected error during Slack URL Verification handling",
+                e
+            );
+            DeferredResult<ResponseEntity<?>> deferredResult =
+                new DeferredResult<>(15000L);
+            deferredResult.setResult(
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+            );
             return deferredResult;
         }
     }

@@ -1,23 +1,20 @@
 package com.flashhook.global.security;
 
-import java.io.IOException;
-import java.util.UUID;
-
-import org.jspecify.annotations.NonNull;
-import org.slf4j.MDC;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
 import com.flashhook.global.exception.ErrorCode;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.slf4j.MDC;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 @RequiredArgsConstructor
@@ -26,11 +23,15 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     private final EndpointRepository endpointRepository;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
-
-        String traceId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+    protected void doFilterInternal(
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
+        String traceId = UUID.randomUUID()
+            .toString()
+            .replace("-", "")
+            .substring(0, 16);
         MDC.put("traceId", traceId);
         try {
             String path = request.getRequestURI();
@@ -43,15 +44,23 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
             // /api/endpoints/{id} 또는 /api/endpoints/{id}/... 형태인지 확인
             // (단, POST /api/endpoints는 제외)
-            if (path.startsWith("/api/endpoints/") && path.length() > "/api/endpoints/".length()) {
+            if (
+                path.startsWith("/api/endpoints/") &&
+                path.length() > "/api/endpoints/".length()
+            ) {
                 String[] parts = path.split("/");
-                if (parts.length >= 4) { // ["", "api", "endpoints", "{id}", ...]
+                if (parts.length >= 4) {
+                    // ["", "api", "endpoints", "{id}", ...]
                     String endpointId = parts[3];
 
                     String token = null;
                     if (request.getCookies() != null) {
                         for (Cookie cookie : request.getCookies()) {
-                            if (("fh_token_" + endpointId).equals(cookie.getName())) {
+                            if (
+                                ("fh_token_" + endpointId).equals(
+                                    cookie.getName()
+                                )
+                            ) {
                                 token = cookie.getValue();
                                 break;
                             }
@@ -63,12 +72,22 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                         return;
                     }
 
-                    Endpoint endpoint = endpointRepository.findByEndpointId(endpointId).orElse(null);
+                    Endpoint endpoint = endpointRepository
+                        .findByEndpointId(endpointId)
+                        .orElse(null);
                     if (endpoint == null) {
-                        sendErrorResponse(response, ErrorCode.ENDPOINT_NOT_FOUND);
+                        sendErrorResponse(
+                            response,
+                            ErrorCode.ENDPOINT_NOT_FOUND
+                        );
                         return;
                     }
-                    if (!AccessTokenUtil.verifyToken(token, endpoint.getAccessTokenHash())) {
+                    if (
+                        !AccessTokenUtil.verifyToken(
+                            token,
+                            endpoint.getAccessTokenHash()
+                        )
+                    ) {
                         sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
                         return;
                     }
@@ -81,13 +100,19 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         }
     }
 
-    private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+    private void sendErrorResponse(
+        HttpServletResponse response,
+        ErrorCode errorCode
+    ) throws IOException {
         response.setStatus(errorCode.getStatus());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String json = String.format(
-                "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
-                errorCode.getCode(), errorCode.getMessage(), errorCode.getStatus());
+            "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
+            errorCode.getCode(),
+            errorCode.getMessage(),
+            errorCode.getStatus()
+        );
         response.getWriter().write(json);
     }
 }

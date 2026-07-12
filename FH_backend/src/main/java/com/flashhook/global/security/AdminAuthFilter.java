@@ -1,21 +1,18 @@
 package com.flashhook.global.security;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-
-import org.jspecify.annotations.NonNull;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import com.flashhook.global.config.FlashHookProperties;
 import com.flashhook.global.exception.ErrorCode;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 @RequiredArgsConstructor
@@ -24,9 +21,11 @@ public class AdminAuthFilter extends OncePerRequestFilter {
     private final FlashHookProperties properties;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
@@ -37,9 +36,16 @@ public class AdminAuthFilter extends OncePerRequestFilter {
 
         if (path.startsWith("/api/admin")) {
             String token = request.getHeader("X-Admin-Token");
-            if (token == null || !MessageDigest.isEqual(
+            if (
+                token == null ||
+                !MessageDigest.isEqual(
                     token.getBytes(StandardCharsets.UTF_8),
-                    properties.admin().secretKey().getBytes(StandardCharsets.UTF_8))) {
+                    properties
+                        .admin()
+                        .secretKey()
+                        .getBytes(StandardCharsets.UTF_8)
+                )
+            ) {
                 sendErrorResponse(response, ErrorCode.FORBIDDEN);
                 return;
             }
@@ -48,13 +54,19 @@ public class AdminAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+    private void sendErrorResponse(
+        HttpServletResponse response,
+        ErrorCode errorCode
+    ) throws IOException {
         response.setStatus(errorCode.getStatus());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String json = String.format(
-                "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
-                errorCode.getCode(), errorCode.getMessage(), errorCode.getStatus());
+            "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
+            errorCode.getCode(),
+            errorCode.getMessage(),
+            errorCode.getStatus()
+        );
         response.getWriter().write(json);
     }
 }

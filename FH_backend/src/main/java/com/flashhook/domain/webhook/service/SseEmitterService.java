@@ -1,5 +1,8 @@
 package com.flashhook.domain.webhook.service;
 
+import com.flashhook.domain.webhook.dto.WebhookLogResponse;
+import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
+import com.flashhook.domain.webhook.model.WebhookLog;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.dao.DataAccessException;
@@ -21,22 +24,20 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.flashhook.domain.webhook.dto.WebhookLogResponse;
-import com.flashhook.domain.webhook.event.WebhookReceivedEvent;
-import com.flashhook.domain.webhook.model.WebhookLog;
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
 @EnableScheduling
 public class SseEmitterService {
 
-    private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
+    private final Map<String, List<SseEmitter>> emitters =
+        new ConcurrentHashMap<>();
     private final Executor taskExecutor;
     private final MongoTemplate mongoTemplate;
 
-    public SseEmitterService(@Qualifier("taskExecutor") Executor taskExecutor, MongoTemplate mongoTemplate) {
+    public SseEmitterService(
+        @Qualifier("taskExecutor") Executor taskExecutor,
+        MongoTemplate mongoTemplate
+    ) {
         this.taskExecutor = taskExecutor;
         this.mongoTemplate = mongoTemplate;
     }
@@ -47,7 +48,9 @@ public class SseEmitterService {
     public SseEmitter subscribe(String endpointId, long timeout) {
         SseEmitter emitter = new SseEmitter(timeout);
 
-        emitters.computeIfAbsent(endpointId, k -> new CopyOnWriteArrayList<>()).add(emitter);
+        emitters
+            .computeIfAbsent(endpointId, k -> new CopyOnWriteArrayList<>())
+            .add(emitter);
 
         emitter.onCompletion(() -> removeEmitter(endpointId, emitter));
         emitter.onTimeout(() -> removeEmitter(endpointId, emitter));
@@ -57,10 +60,18 @@ public class SseEmitterService {
         try {
             emitter.send(SseEmitter.event().name("connect").data("connected"));
         } catch (IOException | IllegalStateException e) {
-            log.debug("SSE initial connect dummy data send failed for endpointId: {}, cause: {}", endpointId, e.getMessage());
+            log.debug(
+                "SSE initial connect dummy data send failed for endpointId: {}, cause: {}",
+                endpointId,
+                e.getMessage()
+            );
             removeEmitter(endpointId, emitter);
         } catch (Exception e) {
-            log.error("Unexpected error during SSE initial connect for endpointId: {}", endpointId, e);
+            log.error(
+                "Unexpected error during SSE initial connect for endpointId: {}",
+                endpointId,
+                e
+            );
             removeEmitter(endpointId, emitter);
         }
 
@@ -77,29 +88,52 @@ public class SseEmitterService {
         List<SseEmitter> endpointEmitters = emitters.get(endpointId);
 
         if (endpointEmitters != null && !endpointEmitters.isEmpty()) {
-            WebhookLogResponse response = WebhookLogResponse.from(event.getWebhookLog());
+            WebhookLogResponse response = WebhookLogResponse.from(
+                event.getWebhookLog()
+            );
 
             for (SseEmitter emitter : endpointEmitters) {
                 try {
-                    emitter.send(SseEmitter.event()
+                    emitter.send(
+                        SseEmitter.event()
                             .name("webhook")
-                            .data(java.util.Objects.requireNonNull(response)));
+                            .data(java.util.Objects.requireNonNull(response))
+                    );
                 } catch (IOException | IllegalStateException e) {
-                    log.info("Failed to send webhook log via SSE to endpointId: {} - {}", endpointId, e.getMessage());
+                    log.info(
+                        "Failed to send webhook log via SSE to endpointId: {} - {}",
+                        endpointId,
+                        e.getMessage()
+                    );
                     try {
-                        Query query = Query.query(Criteria.where("logId").is(event.getWebhookLog().getLogId()));
+                        Query query = Query.query(
+                            Criteria.where("logId").is(
+                                event.getWebhookLog().getLogId()
+                            )
+                        );
                         Update update = new Update()
-                                .set("sseDeliveryStatus", "FAILED")
-                                .set("sseError", e.getMessage());
-                        mongoTemplate.updateFirst(query, update, WebhookLog.class);
+                            .set("sseDeliveryStatus", "FAILED")
+                            .set("sseError", e.getMessage());
+                        mongoTemplate.updateFirst(
+                            query,
+                            update,
+                            WebhookLog.class
+                        );
                     } catch (DataAccessException persistEx) {
-                        log.error("Failed to persist SSE failure status: logId={}", event.getWebhookLog().getLogId(),
-                                persistEx);
+                        log.error(
+                            "Failed to persist SSE failure status: logId={}",
+                            event.getWebhookLog().getLogId(),
+                            persistEx
+                        );
                     } finally {
                         removeEmitter(endpointId, emitter);
                     }
                 } catch (Exception e) {
-                    log.error("Unexpected error while sending webhook log via SSE to endpointId: {}", endpointId, e);
+                    log.error(
+                        "Unexpected error while sending webhook log via SSE to endpointId: {}",
+                        endpointId,
+                        e
+                    );
                     removeEmitter(endpointId, emitter);
                 }
             }
@@ -115,16 +149,23 @@ public class SseEmitterService {
             for (SseEmitter emitter : endpointEmitters) {
                 CompletableFuture.runAsync(() -> {
                     try {
-                        emitter.send(SseEmitter.event().name("ping").data("heartbeat"));
+                        emitter.send(
+                            SseEmitter.event().name("ping").data("heartbeat")
+                        );
                     } catch (IOException | IllegalStateException e) {
                         log.debug(
-                                "Client disconnected or failed heartbeat ping. endpointId: {}, cause: {}: {}",
-                                endpointId,
-                                e.getClass().getSimpleName(),
-                                e.getMessage());
+                            "Client disconnected or failed heartbeat ping. endpointId: {}, cause: {}: {}",
+                            endpointId,
+                            e.getClass().getSimpleName(),
+                            e.getMessage()
+                        );
                         removeEmitter(endpointId, emitter);
                     } catch (Exception e) {
-                        log.error("Unexpected error during heartbeat ping for endpointId: {}", endpointId, e);
+                        log.error(
+                            "Unexpected error during heartbeat ping for endpointId: {}",
+                            endpointId,
+                            e
+                        );
                         removeEmitter(endpointId, emitter);
                     }
                 }, taskExecutor);
@@ -143,8 +184,10 @@ public class SseEmitterService {
      * 현재 활성화된 SSE 연결 총 개수 반환
      */
     public int getActiveConnectionCount() {
-        return emitters.values().stream()
-                .mapToInt(l -> l.size())
-                .sum();
+        return emitters
+            .values()
+            .stream()
+            .mapToInt(l -> l.size())
+            .sum();
     }
 }

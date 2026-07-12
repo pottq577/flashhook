@@ -6,15 +6,16 @@ import java.util.regex.Pattern;
 
 public final class IpUtil {
 
-    private static final String IPV4_REGEX = "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
-    private static final String IPV6_REGEX = "^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|" +
-            "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$";
+    private static final String IPV4_REGEX =
+        "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+    private static final String IPV6_REGEX =
+        "^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|" +
+        "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$";
 
     private static final Pattern IPV4_PATTERN = Pattern.compile(IPV4_REGEX);
     private static final Pattern IPV6_PATTERN = Pattern.compile(IPV6_REGEX);
 
-    private IpUtil() {
-    }
+    private IpUtil() {}
 
     /**
      * IP 주소를 정규화합니다.

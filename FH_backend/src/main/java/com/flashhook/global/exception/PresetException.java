@@ -1,6 +1,7 @@
 package com.flashhook.global.exception;
 
 public class PresetException extends BusinessException {
+
     public PresetException(ErrorCode errorCode) {
         super(errorCode);
     }

@@ -2,7 +2,6 @@ package com.flashhook.global.exception;
 
 import java.time.Instant;
 import java.util.List;
-
 import lombok.Builder;
 
 /**
@@ -10,16 +9,13 @@ import lombok.Builder;
  */
 @Builder
 public record ErrorResponse(
-        String code,
-        String message,
-        int status,
-        Instant timestamp,
-        String path,
-        List<FieldError> errors) {
-
+    String code,
+    String message,
+    int status,
+    Instant timestamp,
+    String path,
+    List<FieldError> errors
+) {
     @Builder
-    public record FieldError(
-            String field,
-            String reason) {
-    }
+    public record FieldError(String field, String reason) {}
 }

@@ -13,5 +13,4 @@ public class FlashhookApplication {
     public static void main(String[] args) {
         SpringApplication.run(FlashhookApplication.class, args);
     }
-
 }

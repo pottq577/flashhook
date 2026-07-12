@@ -1,5 +1,12 @@
 package com.flashhook.domain.endpoint.controller;
 
+import com.flashhook.domain.endpoint.dto.EndpointCreateRequest;
+import com.flashhook.domain.endpoint.dto.EndpointResponse;
+import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
+import com.flashhook.domain.endpoint.service.EndpointService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -12,15 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.flashhook.domain.endpoint.dto.EndpointCreateRequest;
-import com.flashhook.domain.endpoint.dto.EndpointResponse;
-import com.flashhook.domain.endpoint.dto.MockUpdateRequest;
-import com.flashhook.domain.endpoint.service.EndpointService;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 /**
  * 엔드포인트 CRUD 컨트롤러
@@ -37,33 +35,40 @@ public class EndpointController {
      */
     @PostMapping
     public ResponseEntity<EndpointResponse> create(
-            @Valid @RequestBody(required = false) EndpointCreateRequest request,
-            HttpServletRequest httpRequest) {
+        @Valid @RequestBody(required = false) EndpointCreateRequest request,
+        HttpServletRequest httpRequest
+    ) {
         String ip = httpRequest.getRemoteAddr();
         EndpointResponse response = endpointService.create(request, ip);
 
-        ResponseCookie cookie = ResponseCookie.from("fh_token_" + response.endpointId(), response.accessToken())
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
-                .path("/api/endpoints/" + response.endpointId())
-                .maxAge(24 * 60 * 60)
-                .build();
+        ResponseCookie cookie = ResponseCookie.from(
+            "fh_token_" + response.endpointId(),
+            response.accessToken()
+        )
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Strict")
+            .path("/api/endpoints/" + response.endpointId())
+            .maxAge(24 * 60 * 60)
+            .build();
 
-        EndpointResponse safeResponse = response.toBuilder()
-                .accessToken(null)
-                .build();
+        EndpointResponse safeResponse = response
+            .toBuilder()
+            .accessToken(null)
+            .build();
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(safeResponse);
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(safeResponse);
     }
 
     /**
      * 엔드포인트 정보 조회
      */
     @GetMapping("/{endpointId}")
-    public ResponseEntity<EndpointResponse> getInfo(@PathVariable String endpointId) {
+    public ResponseEntity<EndpointResponse> getInfo(
+        @PathVariable String endpointId
+    ) {
         EndpointResponse response = endpointService.getInfo(endpointId);
         return ResponseEntity.ok(response);
     }
@@ -75,17 +80,20 @@ public class EndpointController {
     public ResponseEntity<Void> delete(@PathVariable String endpointId) {
         endpointService.delete(endpointId);
 
-        ResponseCookie cookie = ResponseCookie.from("fh_token_" + endpointId, "")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
-                .path("/api/endpoints/" + endpointId)
-                .maxAge(0)
-                .build();
+        ResponseCookie cookie = ResponseCookie.from(
+            "fh_token_" + endpointId,
+            ""
+        )
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Strict")
+            .path("/api/endpoints/" + endpointId)
+            .maxAge(0)
+            .build();
 
         return ResponseEntity.noContent()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .build();
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .build();
     }
 
     /**
@@ -93,9 +101,13 @@ public class EndpointController {
      */
     @PatchMapping("/{endpointId}/mock")
     public ResponseEntity<EndpointResponse> updateMock(
-            @PathVariable String endpointId,
-            @Valid @RequestBody MockUpdateRequest request) {
-        EndpointResponse response = endpointService.updateMockConfig(endpointId, request);
+        @PathVariable String endpointId,
+        @Valid @RequestBody MockUpdateRequest request
+    ) {
+        EndpointResponse response = endpointService.updateMockConfig(
+            endpointId,
+            request
+        );
         return ResponseEntity.ok(response);
     }
 }

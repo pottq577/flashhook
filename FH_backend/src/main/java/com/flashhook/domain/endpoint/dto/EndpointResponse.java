@@ -1,10 +1,8 @@
 package com.flashhook.domain.endpoint.dto;
 
+import com.flashhook.domain.endpoint.model.MockConfig;
 import java.time.Instant;
 import java.util.Map;
-
-import com.flashhook.domain.endpoint.model.MockConfig;
-
 import lombok.Builder;
 
 /**
@@ -12,12 +10,12 @@ import lombok.Builder;
  */
 @Builder(toBuilder = true)
 public record EndpointResponse(
-        String endpointId,
-        String accessToken,
-        String label,
-        String webhookUrl,
-        String dashboardUrl,
-        Instant expiresAt,
-        Map<String, Object> limits,
-        MockConfig mockConfig) {
-}
+    String endpointId,
+    String accessToken,
+    String label,
+    String webhookUrl,
+    String dashboardUrl,
+    Instant expiresAt,
+    Map<String, Object> limits,
+    MockConfig mockConfig
+) {}

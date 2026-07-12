@@ -26,16 +26,14 @@ public final class AccessTokenUtil {
      * 토큰 해시 (SHA-256)
      */
     public static String hashToken(String rawToken) {
-        if (rawToken == null)
-            return null;
+        if (rawToken == null) return null;
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(rawToken.getBytes(StandardCharsets.UTF_8));
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1)
-                    hexString.append('0');
+                if (hex.length() == 1) hexString.append('0');
                 hexString.append(hex);
             }
             return hexString.toString();
@@ -45,10 +43,10 @@ public final class AccessTokenUtil {
     }
 
     public static boolean verifyToken(String rawToken, String hash) {
-        if (rawToken == null || hash == null)
-            return false;
+        if (rawToken == null || hash == null) return false;
         return MessageDigest.isEqual(
-                hashToken(rawToken).getBytes(StandardCharsets.UTF_8),
-                hash.getBytes(StandardCharsets.UTF_8));
+            hashToken(rawToken).getBytes(StandardCharsets.UTF_8),
+            hash.getBytes(StandardCharsets.UTF_8)
+        );
     }
 }

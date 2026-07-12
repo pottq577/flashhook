@@ -1,5 +1,9 @@
 package com.flashhook.domain.webhook.util;
 
+import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
+import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.exception.WebhookException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,15 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.springframework.stereotype.Component;
-
-import com.flashhook.domain.webhook.dto.IncomingWebhookPayload;
-import com.flashhook.global.exception.ErrorCode;
-import com.flashhook.global.exception.WebhookException;
-
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -26,8 +23,11 @@ public class WebhookPayloadParser {
 
     public IncomingWebhookPayload parse(HttpServletRequest request) {
         String method = request.getMethod();
-        String url = request.getRequestURL().toString()
-                + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
+        String url =
+            request.getRequestURL().toString() +
+            (request.getQueryString() != null
+                ? "?" + request.getQueryString()
+                : "");
         String contentType = request.getContentType();
         String clientIp = request.getRemoteAddr();
 
@@ -44,8 +44,14 @@ public class WebhookPayloadParser {
             for (String param : queryString.split("&")) {
                 String[] pair = param.split("=", 2);
                 String key = decodeQueryComponent(pair[0]);
-                String value = pair.length > 1 ? decodeQueryComponent(pair[1]) : "";
-                queryParams.put(key, queryParams.containsKey(key) ? queryParams.get(key) + "," + value : value);
+                String value =
+                    pair.length > 1 ? decodeQueryComponent(pair[1]) : "";
+                queryParams.put(
+                    key,
+                    queryParams.containsKey(key)
+                        ? queryParams.get(key) + "," + value
+                        : value
+                );
             }
         }
 
@@ -73,22 +79,26 @@ public class WebhookPayloadParser {
         }
 
         return IncomingWebhookPayload.builder()
-                .method(method)
-                .url(url)
-                .contentType(contentType)
-                .clientIp(clientIp)
-                .headers(headers)
-                .queryParams(queryParams)
-                .rawBody(rawBody)
-                .bodySize(bodySize)
-                .build();
+            .method(method)
+            .url(url)
+            .contentType(contentType)
+            .clientIp(clientIp)
+            .headers(headers)
+            .queryParams(queryParams)
+            .rawBody(rawBody)
+            .bodySize(bodySize)
+            .build();
     }
 
     private String decodeQueryComponent(String value) {
         try {
             return URLDecoder.decode(value, StandardCharsets.UTF_8);
         } catch (IllegalArgumentException e) {
-            log.error("웹훅 수신 중 쿼리 파라미터 URL 디코딩 실패 (value: {})", value, e);
+            log.error(
+                "웹훅 수신 중 쿼리 파라미터 URL 디코딩 실패 (value: {})",
+                value,
+                e
+            );
             return value;
         }
     }

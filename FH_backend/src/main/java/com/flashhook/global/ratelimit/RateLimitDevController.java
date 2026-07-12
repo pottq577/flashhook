@@ -1,14 +1,13 @@
 package com.flashhook.global.ratelimit;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 
 /**
  * 개발 환경 전용 Rate Limit 제어 컨트롤러
@@ -25,9 +24,11 @@ public class RateLimitDevController {
     @DeleteMapping("/reset")
     public ResponseEntity<Void> resetRateLimit(HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
-        if (!"127.0.0.1".equals(clientIp)
-                && !"0:0:0:0:0:0:0:1".equals(clientIp)
-                && !"::1".equals(clientIp)) {
+        if (
+            !"127.0.0.1".equals(clientIp) &&
+            !"0:0:0:0:0:0:0:1".equals(clientIp) &&
+            !"::1".equals(clientIp)
+        ) {
             return ResponseEntity.status(403).build();
         }
         // RateLimitFilter에서 사용하는 엔드포인트 생성 키 삭제

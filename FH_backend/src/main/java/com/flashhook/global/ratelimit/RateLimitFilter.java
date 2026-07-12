@@ -1,21 +1,18 @@
 package com.flashhook.global.ratelimit;
 
+import com.flashhook.global.config.FlashHookProperties;
+import com.flashhook.global.exception.ErrorCode;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.flashhook.global.config.FlashHookProperties;
-import com.flashhook.global.exception.ErrorCode;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -28,10 +25,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
     public static final String CREATE_LIMIT_PREFIX = "rl:create2:";
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
-
+    protected void doFilterInternal(
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
@@ -43,8 +41,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String clientIp = request.getRemoteAddr();
 
         // 0. 블랙리스트 체크 (가장 먼저)
-        if (path.startsWith("/api/hooks/") || path.startsWith("/api/endpoints")
-                || path.startsWith("/api/public/logs/")) {
+        if (
+            path.startsWith("/api/hooks/") ||
+            path.startsWith("/api/endpoints") ||
+            path.startsWith("/api/public/logs/")
+        ) {
             if (rateLimitService.isBlacklisted(clientIp)) {
                 sendErrorResponse(response, ErrorCode.FORBIDDEN);
                 return;
@@ -58,7 +59,13 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 String endpointId = parts[3];
                 String key = "rl:hook:" + endpointId + ":" + clientIp;
                 // 1분(60초) 기준
-                if (!rateLimitService.isAllowed(key, properties.ratelimit().webhookReceive(), 60)) {
+                if (
+                    !rateLimitService.isAllowed(
+                        key,
+                        properties.ratelimit().webhookReceive(),
+                        60
+                    )
+                ) {
                     sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
                     return;
                 }
@@ -69,20 +76,36 @@ public class RateLimitFilter extends OncePerRequestFilter {
         if ("POST".equalsIgnoreCase(method) && "/api/endpoints".equals(path)) {
             String key = CREATE_LIMIT_PREFIX + clientIp;
             // 10분(600초) 기준
-            if (!rateLimitService.isAllowed(key, properties.ratelimit().endpointCreate(), 10 * 60)) {
+            if (
+                !rateLimitService.isAllowed(
+                    key,
+                    properties.ratelimit().endpointCreate(),
+                    10 * 60
+                )
+            ) {
                 sendErrorResponse(response, ErrorCode.ENDPOINT_LIMIT_EXCEEDED);
                 return;
             }
         }
 
         // 3. Replay API (POST /api/endpoints/{endpointId}/logs/{logId}/replay)
-        if ("POST".equalsIgnoreCase(method) && path.startsWith("/api/endpoints/") && path.endsWith("/replay")) {
+        if (
+            "POST".equalsIgnoreCase(method) &&
+            path.startsWith("/api/endpoints/") &&
+            path.endsWith("/replay")
+        ) {
             String[] parts = path.split("/");
             if (parts.length >= 7) {
                 String endpointId = parts[3];
                 String key = "rl:replay:" + endpointId;
                 // 1분(60초) 기준 설정된 제한
-                if (!rateLimitService.isAllowed(key, properties.ratelimit().replay(), 60)) {
+                if (
+                    !rateLimitService.isAllowed(
+                        key,
+                        properties.ratelimit().replay(),
+                        60
+                    )
+                ) {
                     sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
                     return;
                 }
@@ -90,10 +113,19 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         // 4. Public API (GET /api/public/logs/{logId})
-        if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/public/logs/")) {
+        if (
+            "GET".equalsIgnoreCase(method) &&
+            path.startsWith("/api/public/logs/")
+        ) {
             String key = "rl:public_log:" + clientIp;
             // 1분(60초) 기준 설정된 제한
-            if (!rateLimitService.isAllowed(key, properties.ratelimit().publicLog(), 60)) {
+            if (
+                !rateLimitService.isAllowed(
+                    key,
+                    properties.ratelimit().publicLog(),
+                    60
+                )
+            ) {
                 sendErrorResponse(response, ErrorCode.RATE_LIMIT_EXCEEDED);
                 return;
             }
@@ -102,13 +134,19 @@ public class RateLimitFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+    private void sendErrorResponse(
+        HttpServletResponse response,
+        ErrorCode errorCode
+    ) throws IOException {
         response.setStatus(errorCode.getStatus());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String json = String.format(
-                "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
-                errorCode.getCode(), errorCode.getMessage(), errorCode.getStatus());
+            "{\"code\":\"%s\",\"message\":\"%s\",\"status\":%d}",
+            errorCode.getCode(),
+            errorCode.getMessage(),
+            errorCode.getStatus()
+        );
         response.getWriter().write(json);
     }
 }

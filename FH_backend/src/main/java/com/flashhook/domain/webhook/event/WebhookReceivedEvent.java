@@ -1,7 +1,6 @@
 package com.flashhook.domain.webhook.event;
 
 import com.flashhook.domain.webhook.model.WebhookLog;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -30,7 +30,11 @@ public class BusinessException extends RuntimeException {
         this.customMessage = null;
     }
 
-    public BusinessException(ErrorCode errorCode, String customMessage, Throwable cause) {
+    public BusinessException(
+        ErrorCode errorCode,
+        String customMessage,
+        Throwable cause
+    ) {
         super(customMessage, cause);
         this.errorCode = errorCode;
         this.customMessage = customMessage;
