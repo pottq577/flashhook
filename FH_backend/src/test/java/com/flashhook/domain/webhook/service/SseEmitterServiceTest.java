@@ -38,9 +38,6 @@ class SseEmitterServiceTest {
     @InjectMocks
     private SseEmitterService sseEmitterService;
 
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     void whenSseSendFails_thenPublishesSseDeliveryFailedEvent() throws Exception {

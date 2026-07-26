@@ -10,6 +10,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicLong;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
@@ -28,6 +30,8 @@ public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters =
         new ConcurrentHashMap<>();
+    @Getter
+    private final AtomicLong sseDeliveryFailures = new AtomicLong(0);
     private final Executor taskExecutor;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -102,6 +106,7 @@ public class SseEmitterService {
                         endpointId,
                         e.getMessage()
                     );
+                    sseDeliveryFailures.incrementAndGet();
                     try {
                         eventPublisher.publishEvent(
                             new SseDeliveryFailedEvent(
