@@ -38,7 +38,11 @@ public class LogCapEnforcer {
         );
 
         if (updatedEndpoint != null) {
-            enforceLogCap(updatedEndpoint);
+            java.util.concurrent.CompletableFuture.runAsync(() -> enforceLogCap(updatedEndpoint))
+                .exceptionally(ex -> {
+                    log.error("Failed to enforce log cap asynchronously for endpointId={}", endpointId, ex);
+                    return null;
+                });
         }
     }
 
@@ -61,7 +65,7 @@ public class LogCapEnforcer {
             )
                 .with(Sort.by(Sort.Direction.ASC, "receivedAt"))
                 .limit(fetchSize);
-            findOldestQuery.fields().include("_id").include("bodySize");
+            findOldestQuery.fields().include("_id", "bodySize");
 
             List<WebhookLog> oldLogs = mongoTemplate.find(
                 findOldestQuery,
