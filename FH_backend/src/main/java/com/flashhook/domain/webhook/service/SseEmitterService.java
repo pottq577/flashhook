@@ -13,11 +13,8 @@ import java.util.concurrent.Executor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
+import com.flashhook.domain.webhook.event.SseDeliveryFailedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,14 +29,14 @@ public class SseEmitterService {
     private final Map<String, List<SseEmitter>> emitters =
         new ConcurrentHashMap<>();
     private final Executor taskExecutor;
-    private final MongoTemplate mongoTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     public SseEmitterService(
         @Qualifier("taskExecutor") Executor taskExecutor,
-        MongoTemplate mongoTemplate
+        ApplicationEventPublisher eventPublisher
     ) {
         this.taskExecutor = taskExecutor;
-        this.mongoTemplate = mongoTemplate;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -106,24 +103,17 @@ public class SseEmitterService {
                         e.getMessage()
                     );
                     try {
-                        Query query = Query.query(
-                            Criteria.where("logId").is(
-                                event.getWebhookLog().getLogId()
+                        eventPublisher.publishEvent(
+                            new SseDeliveryFailedEvent(
+                                event.getWebhookLog().getLogId(),
+                                e.getMessage()
                             )
                         );
-                        Update update = new Update()
-                            .set("sseDeliveryStatus", "FAILED")
-                            .set("sseError", e.getMessage());
-                        mongoTemplate.updateFirst(
-                            query,
-                            update,
-                            WebhookLog.class
-                        );
-                    } catch (DataAccessException persistEx) {
+                    } catch (Exception publishEx) {
                         log.error(
-                            "Failed to persist SSE failure status: logId={}",
+                            "Failed to publish SSE failure event: logId={}",
                             event.getWebhookLog().getLogId(),
-                            persistEx
+                            publishEx
                         );
                     } finally {
                         removeEmitter(endpointId, emitter);

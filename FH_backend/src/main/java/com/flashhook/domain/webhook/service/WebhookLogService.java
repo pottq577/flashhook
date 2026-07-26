@@ -10,7 +10,12 @@ import com.flashhook.domain.webhook.repository.WebhookLogRepository;
 import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.exception.WebhookException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.dao.DataAccessException;
+import com.flashhook.domain.webhook.event.SseDeliveryFailedEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * 웹훅 로그 조회/삭제 서비스
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WebhookLogService {
@@ -151,5 +157,26 @@ public class WebhookLogService {
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
         Update update = new Update().set("logCount", 0).set("logSizeBytes", 0L);
         mongoTemplate.updateFirst(query, update, Endpoint.class);
+    }
+
+    /**
+     * SSE 전송 실패 이벤트 처리
+     */
+    @Async
+    @EventListener
+    public void handleSseDeliveryFailed(SseDeliveryFailedEvent event) {
+        try {
+            Query query = Query.query(Criteria.where("logId").is(event.getLogId()));
+            Update update = new Update()
+                .set("sseDeliveryStatus", "FAILED")
+                .set("sseError", event.getErrorMessage());
+            mongoTemplate.updateFirst(query, update, WebhookLog.class);
+        } catch (DataAccessException persistEx) {
+            log.error(
+                "Failed to persist SSE failure status: logId={}",
+                event.getLogId(),
+                persistEx
+            );
+        }
     }
 }
