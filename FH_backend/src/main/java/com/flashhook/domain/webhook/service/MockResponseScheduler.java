@@ -2,18 +2,17 @@ package com.flashhook.domain.webhook.service;
 
 import com.flashhook.domain.endpoint.model.MockConfig;
 import com.flashhook.domain.webhook.service.preset.PresetHandlerRegistry;
+import com.flashhook.domain.webhook.util.HttpHeaderSanitizer;
 import com.flashhook.global.exception.ErrorCode;
 import com.flashhook.global.exception.ErrorResponse;
 import jakarta.annotation.PreDestroy;
 import java.time.Instant;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -24,22 +23,17 @@ public class MockResponseScheduler {
 
     private final ScheduledExecutorService scheduler;
     private final PresetHandlerRegistry presetHandlerRegistry;
+    private final HttpHeaderSanitizer httpHeaderSanitizer;
 
-    private static final Set<String> ALLOWED_HEADERS = Set.of(
-        "content-type",
-        "access-control-allow-origin",
-        "cache-control",
-        "x-mock-response",
-        "x-slack-no-retry",
-        "x-flashhook-preset-status",
-        "x-flashhook-report-url"
-    );
-
-    public MockResponseScheduler(PresetHandlerRegistry presetHandlerRegistry) {
+    public MockResponseScheduler(
+        PresetHandlerRegistry presetHandlerRegistry,
+        HttpHeaderSanitizer httpHeaderSanitizer
+    ) {
         this.scheduler = Executors.newScheduledThreadPool(
             Runtime.getRuntime().availableProcessors() * 2
         );
         this.presetHandlerRegistry = presetHandlerRegistry;
+        this.httpHeaderSanitizer = httpHeaderSanitizer;
     }
 
     @PreDestroy
@@ -96,58 +90,7 @@ public class MockResponseScheduler {
                     status = 200; // fallback
                 }
 
-                HttpHeaders headers = new HttpHeaders();
-                if (mockConfig.getHeaders() != null) {
-                    mockConfig.getHeaders().forEach((k, v) -> {
-                        if (k == null || v == null) return;
-                        if (ALLOWED_HEADERS.contains(k.toLowerCase())) {
-                            String sanitizedValue = v.replaceAll(
-                                "[\\x00-\\x1F\\x7F]",
-                                ""
-                            );
-                            if ("content-type".equalsIgnoreCase(k)) {
-                                String lowerValue =
-                                    sanitizedValue.toLowerCase();
-                                String mainType = lowerValue
-                                    .split(";")[0]
-                                    .trim();
-                                Set<String> allowedTypes = Set.of(
-                                    "application/json",
-                                    "text/plain"
-                                );
-                                boolean isAllowed =
-                                    allowedTypes.contains(mainType) ||
-                                    mainType.matches(
-                                        "^application/[a-z0-9.+-]+\\+json$"
-                                    );
-                                if (!isAllowed) {
-                                    String charset = null;
-                                    if (lowerValue.contains("charset=")) {
-                                        int charsetIdx = lowerValue.indexOf(
-                                            "charset="
-                                        );
-                                        String charsetPart =
-                                            sanitizedValue.substring(
-                                                charsetIdx
-                                            );
-                                        charset = charsetPart.split(
-                                            "[;\\s]"
-                                        )[0];
-                                    }
-                                    sanitizedValue =
-                                        charset != null
-                                            ? "text/plain; " + charset
-                                            : "text/plain";
-                                }
-                            }
-                            headers.add(k, sanitizedValue);
-                        }
-                    });
-                }
-
-                if (headers.getContentType() == null) {
-                    headers.setContentType(MediaType.TEXT_PLAIN);
-                }
+                HttpHeaders headers = httpHeaderSanitizer.sanitize(mockConfig.getHeaders());
 
                 ResponseEntity<?> response = ResponseEntity.status(status)
                     .headers(headers)

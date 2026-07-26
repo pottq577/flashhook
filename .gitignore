@@ -60,3 +60,4 @@ docs/qa/*
 ### Load Test ###
 loadtest/k6
 loadtest/results/
+.worktrees/
