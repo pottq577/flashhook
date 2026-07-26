@@ -23,7 +23,7 @@ public class LogCapEnforcer {
     private final MongoTemplate mongoTemplate;
     private final FlashHookProperties properties;
 
-    public Endpoint updateCountersAndEnforceCap(String endpointId, long bodySize) {
+    public void updateCountersAndEnforceCap(String endpointId, long bodySize) {
         Query query = Query.query(Criteria.where("endpointId").is(endpointId));
         Update update = new Update()
             .inc("logCount", 1)
@@ -40,8 +40,6 @@ public class LogCapEnforcer {
         if (updatedEndpoint != null) {
             enforceLogCap(updatedEndpoint);
         }
-        
-        return updatedEndpoint;
     }
 
     private void enforceLogCap(Endpoint endpoint) {
