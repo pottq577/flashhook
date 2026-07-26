@@ -13,7 +13,7 @@ import tools.jackson.databind.ObjectMapper;
 @RequiredArgsConstructor
 public class WebhookPayloadProcessor {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private final FlashHookProperties properties;
 
     public record ProcessedPayload(Object bodyObj, String bodyPreview) {}
