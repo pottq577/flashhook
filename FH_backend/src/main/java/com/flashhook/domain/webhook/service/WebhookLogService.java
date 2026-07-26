@@ -1,8 +1,6 @@
 package com.flashhook.domain.webhook.service;
 
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.event.EventListener;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,6 +12,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.flashhook.domain.endpoint.model.Endpoint;
 import com.flashhook.domain.endpoint.repository.EndpointRepository;
@@ -165,19 +165,23 @@ public class WebhookLogService {
      * SSE 전송 실패 이벤트 처리
      */
     @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void handleSseDeliveryFailed(SseDeliveryFailedEvent event) {
         try {
-            Query query = Query.query(Criteria.where("logId").is(event.getLogId()));
+            Query query = Query.query(Criteria.where("logId").is(event.logId()));
             Update update = new Update()
                 .set("sseDeliveryStatus", "FAILED")
-                .set("sseError", event.getErrorMessage());
-            mongoTemplate.updateFirst(query, update, WebhookLog.class);
-        } catch (DataAccessException persistEx) {
+                .set("sseError", event.errorMessage());
+            
+            var result = mongoTemplate.updateFirst(query, update, WebhookLog.class);
+            if (result.getMatchedCount() == 0) {
+                log.warn("No WebhookLog found for SSE failure update: logId={}", event.logId());
+            }
+        } catch (Exception ex) {
             log.error(
                 "Failed to persist SSE failure status: logId={}",
-                event.getLogId(),
-                persistEx
+                event.logId(),
+                ex
             );
         }
     }

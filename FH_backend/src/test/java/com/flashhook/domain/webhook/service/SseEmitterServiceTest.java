@@ -72,7 +72,7 @@ class SseEmitterServiceTest {
         verify(eventPublisher).publishEvent(captor.capture());
 
         SseDeliveryFailedEvent publishedEvent = captor.getValue();
-        assertThat(publishedEvent.getLogId()).isEqualTo(logId);
-        assertThat(publishedEvent.getErrorMessage()).isEqualTo("Broken pipe");
+        assertThat(publishedEvent.logId()).isEqualTo(logId);
+        assertThat(publishedEvent.errorMessage()).isEqualTo("Broken pipe");
     }
 }
