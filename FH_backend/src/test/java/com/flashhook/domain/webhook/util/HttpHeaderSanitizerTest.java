@@ -73,4 +73,32 @@ class HttpHeaderSanitizerTest {
 
         assertThat(headers.getFirst("content-type")).isEqualTo("text/plain; charset=UTF-8");
     }
+
+    @Test
+    @DisplayName("should handle null input")
+    void shouldHandleNullInput() {
+        assertThat(sanitizer.sanitize(null)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("should handle null header values")
+    void shouldHandleNullValues() {
+        Map<String, String> rawHeaders = new HashMap<>();
+        rawHeaders.put("content-type", null);
+        rawHeaders.put("x-mock-response", "val");
+        
+        HttpHeaders headers = sanitizer.sanitize(rawHeaders);
+        assertThat(headers.getFirst("x-mock-response")).isEqualTo("val");
+    }
+
+    @Test
+    @DisplayName("should fallback for unparsable content-type")
+    void shouldFallbackForUnparsableContentType() {
+        Map<String, String> rawHeaders = new HashMap<>();
+        rawHeaders.put("content-type", "application/json; charset=");
+
+        HttpHeaders headers = sanitizer.sanitize(rawHeaders);
+
+        assertThat(headers.getFirst("content-type")).isEqualTo("text/plain");
+    }
 }

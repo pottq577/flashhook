@@ -1,9 +1,11 @@
 package com.flashhook.domain.webhook.util;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,13 +26,13 @@ public class HttpHeaderSanitizer {
         if (rawHeaders != null) {
             rawHeaders.forEach((k, v) -> {
                 if (k == null || v == null) return;
-                if (ALLOWED_HEADERS.contains(k.toLowerCase())) {
+                if (ALLOWED_HEADERS.contains(k.toLowerCase(Locale.ROOT))) {
                     String sanitizedValue = v.replaceAll(
                         "[\\x00-\\x1F\\x7F]",
                         ""
                     );
                     if ("content-type".equalsIgnoreCase(k)) {
-                        String lowerValue = sanitizedValue.toLowerCase();
+                        String lowerValue = sanitizedValue.toLowerCase(Locale.ROOT);
                         String mainType = lowerValue.split(";")[0].trim();
                         Set<String> allowedTypes = Set.of(
                             "application/json",
@@ -41,19 +43,30 @@ public class HttpHeaderSanitizer {
                             mainType.matches(
                                 "^application/[a-z0-9.+-]+\\+json$"
                             );
-                        if (!isAllowed) {
+                        
+                        boolean isValid = isAllowed;
+                        if (isValid) {
+                            try {
+                                MediaType.parseMediaType(sanitizedValue);
+                            } catch (InvalidMediaTypeException e) {
+                                isValid = false;
+                            }
+                        }
+
+                        if (!isValid) {
                             String charset = null;
                             if (lowerValue.contains("charset=")) {
                                 int charsetIdx = lowerValue.indexOf("charset=");
-                                String charsetPart = sanitizedValue.substring(
-                                    charsetIdx
-                                );
-                                charset = charsetPart.split("[;\\s]")[0];
+                                String charsetPart = sanitizedValue.substring(charsetIdx);
+                                String[] parts = charsetPart.split("[;\\s]");
+                                if (parts.length > 0 && parts[0].contains("=")) {
+                                    String[] kv = parts[0].split("=");
+                                    if (kv.length > 1 && !kv[1].isEmpty()) {
+                                        charset = parts[0];
+                                    }
+                                }
                             }
-                            sanitizedValue =
-                                charset != null
-                                    ? "text/plain; " + charset
-                                    : "text/plain";
+                            sanitizedValue = (charset != null) ? "text/plain; " + charset : "text/plain";
                         }
                     }
                     headers.add(k, sanitizedValue);
