@@ -1,21 +1,8 @@
 package com.flashhook.domain.webhook.service;
 
-import com.flashhook.domain.endpoint.model.Endpoint;
-import com.flashhook.domain.endpoint.repository.EndpointRepository;
-import com.flashhook.domain.webhook.dto.PublicWebhookLogResponse;
-import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
-import com.flashhook.domain.webhook.dto.WebhookLogResponse;
-import com.flashhook.domain.webhook.model.WebhookLog;
-import com.flashhook.domain.webhook.repository.WebhookLogRepository;
-import com.flashhook.global.exception.ErrorCode;
-import com.flashhook.global.exception.WebhookException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.dao.DataAccessException;
-import com.flashhook.domain.webhook.event.SseDeliveryFailedEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -24,8 +11,23 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.flashhook.domain.endpoint.model.Endpoint;
+import com.flashhook.domain.endpoint.repository.EndpointRepository;
+import com.flashhook.domain.webhook.dto.PublicWebhookLogResponse;
+import com.flashhook.domain.webhook.dto.WebhookLogDetailResponse;
+import com.flashhook.domain.webhook.dto.WebhookLogResponse;
+import com.flashhook.domain.webhook.event.SseDeliveryFailedEvent;
+import com.flashhook.domain.webhook.model.WebhookLog;
+import com.flashhook.domain.webhook.repository.WebhookLogRepository;
+import com.flashhook.global.exception.ErrorCode;
+import com.flashhook.global.exception.WebhookException;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 웹훅 로그 조회/삭제 서비스
